@@ -99,39 +99,29 @@ var (
 type Option func(*options)
 
 // WithChannelBufferSize sets the channel buffer size for the Anthropic client, 256 by default.
-func WithChannelBufferSize(size int) Option {
-	return func(o *options) {
-		if size <= 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChatRequestCallback sets the function to be called before sending a
 // chat request. The callback runs synchronously in GenerateContent before
 // the response goroutine starts. Start your own goroutine in the callback
 // if asynchronous behavior is needed.
 func WithChatRequestCallback(fn ChatRequestCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatRequestCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatResponseCallback sets the function to be called after receiving a chat response.
 // Used for non-streaming responses.
 func WithChatResponseCallback(fn ChatResponseCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatResponseCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatChunkCallback sets the function to be called after receiving a chat chunk.
 // Used for streaming responses.
 func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatChunkCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatStreamCompleteCallback sets the function to be called when
@@ -139,56 +129,36 @@ func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
 // terminal streaming result is surfaced to the caller.
 // Called for both successful and failed streaming completions.
 func WithChatStreamCompleteCallback(fn ChatStreamCompleteCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatStreamCompleteCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableTokenTailoring enables automatic token tailoring based on model context window.
 // When enabled, the system will automatically calculate max input tokens using the model's
 // context window minus reserved tokens and protocol overhead.
-func WithEnableTokenTailoring(enabled bool) Option {
-	return func(opts *options) {
-		opts.enableTokenTailoring = enabled
-	}
-}
+func WithEnableTokenTailoring(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxInputTokens sets only the input token limit for token tailoring.
 // The counter/strategy will be lazily initialized if not provided.
 // Defaults to SimpleTokenCounter and MiddleOutStrategy.
-func WithMaxInputTokens(limit int) Option {
-	return func(opts *options) {
-		opts.maxInputTokens = limit
-	}
-}
+func WithMaxInputTokens(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for this
 // model instance.
-func WithContextWindow(tokens int) Option {
-	return func(opts *options) {
-		if tokens > 0 {
-			opts.contextWindow = tokens
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenCounter sets the TokenCounter used for token tailoring.
 // If not provided and token limit is enabled, a SimpleTokenCounter will be used.
 func WithTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *options) {
-		if counter == nil {
-			return
-		}
-		opts.tokenCounter = counter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTailoringStrategy sets the TailoringStrategy used for token tailoring.
 // If not provided and token limit is enabled, a MiddleOutStrategy will be used.
 func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
-	return func(opts *options) {
-		opts.tailoringStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTokenTailoringConfig sets custom token tailoring budget parameters.
@@ -205,32 +175,12 @@ func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
 // Note: It is recommended to use the default values unless you have specific
 // requirements.
 func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
-	return func(opts *options) {
-		if config == nil {
-			return
-		}
-		if config.ProtocolOverheadTokens <= 0 {
-			config.ProtocolOverheadTokens = imodel.DefaultProtocolOverheadTokens
-		}
-		if config.ReserveOutputTokens <= 0 {
-			config.ReserveOutputTokens = imodel.DefaultReserveOutputTokens
-		}
-		if config.SafetyMarginRatio <= 0 {
-			config.SafetyMarginRatio = imodel.DefaultSafetyMarginRatio
-		}
-		if config.InputTokensFloor <= 0 {
-			config.InputTokensFloor = imodel.DefaultInputTokensFloor
-		}
-		if config.MaxInputTokensRatio <= 0 {
-			config.MaxInputTokensRatio = imodel.DefaultMaxInputTokensRatio
-		}
-		opts.tokenTailoringConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGeminiClientConfig sets the ClientConfig used for gemini Client initialization.
 func WithGeminiClientConfig(c *genai.ClientConfig) Option {
-	return func(opts *options) {
-		opts.geminiClientConfig = c
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

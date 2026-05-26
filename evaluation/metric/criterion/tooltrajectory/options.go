@@ -41,61 +41,31 @@ type options struct {
 }
 
 // newOptions applies provided options for ToolTrajectoryCriterion.
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		defaultStrategy: defaultToolTrajectoryStrategy,
-		toolStrategy:    nil,
-		orderSensitive:  false,
-		subsetMatching:  false,
-		compare:         nil,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures ToolTrajectoryCriterion.
 type Option func(*options)
 
 // WithDefault sets the default tool trajectory strategy.
 func WithDefault(defaultStrategy *ToolTrajectoryStrategy) Option {
-	return func(o *options) {
-		o.defaultStrategy = defaultStrategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTool sets the per-tool strategies keyed by tool name.
 func WithTool(tool map[string]*ToolTrajectoryStrategy) Option {
-	return func(o *options) {
-		o.toolStrategy = tool
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOrderSensitive controls whether tool matching must follow sequence order.
-func WithOrderSensitive(orderSensitive bool) Option {
-	return func(o *options) {
-		o.orderSensitive = orderSensitive
-	}
-}
+func WithOrderSensitive(orderSensitive bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSubsetMatching allows expected tool list to be a subset of actual list.
-func WithSubsetMatching(subsetMatching bool) Option {
-	return func(o *options) {
-		o.subsetMatching = subsetMatching
-	}
-}
+func WithSubsetMatching(subsetMatching bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompareName sets the name of the registered compare function.
-func WithCompareName(compareName string) Option {
-	return func(o *options) {
-		o.compareName = compareName
-	}
-}
+func WithCompareName(compareName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompare sets the tool trajectory comparison logic.
-func WithCompare(compare CompareFunc) Option {
-	return func(o *options) {
-		o.compare = compare
-	}
-}
+func WithCompare(compare CompareFunc) Option { _ = "STUB: not implemented"; return *new(Option) }

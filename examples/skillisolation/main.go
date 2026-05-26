@@ -16,8 +16,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"sort"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
@@ -130,207 +128,32 @@ func main() {
 	printStateSummary(sess)
 }
 
-func coordinatorCallbacks() *model.Callbacks {
-	var call int
-	return model.NewCallbacks().RegisterBeforeModel(func(
-		ctx context.Context,
-		args *model.BeforeModelArgs,
-	) (*model.BeforeModelResult, error) {
-		call++
-		inv, ok := agent.InvocationFromContext(ctx)
-		if !ok || inv == nil || inv.Session == nil {
-			return nil, nil
-		}
-		sys := systemMessage(args.Request.Messages)
-		hasLoaded := strings.Contains(sys, loadedMarker)
+func coordinatorCallbacks() *model.Callbacks { _ = "STUB: not implemented"; return nil }
 
-		fmt.Printf("\n[coordinator before model #%d]\n", call)
-		fmt.Printf("has %q in system: %t\n", loadedMarker, hasLoaded)
-		fmt.Printf("loaded skills (coordinator): %v\n",
-			loadedSkillNames(inv, inv.AgentName),
-		)
-		fmt.Printf("loaded skills (child): %v\n",
-			loadedSkillNames(inv, childAgentName),
-		)
-		return nil, nil
-	})
-}
-
-func systemMessage(msgs []model.Message) string {
-	for _, msg := range msgs {
-		if msg.Role == model.RoleSystem {
-			return msg.Content
-		}
-	}
-	return ""
-}
+func systemMessage(msgs []model.Message) string { _ = "STUB: not implemented"; return "" }
 
 func loadedSkillNames(
 	inv *agent.Invocation,
 	agentName string,
 ) []string {
-	if inv == nil || inv.Session == nil {
-		return nil
-	}
-	state := inv.Session.SnapshotState()
-	if len(state) == 0 {
-		return nil
-	}
-
-	prefix := skill.LoadedPrefix(agentName)
-
-	var out []string
-	for k, v := range state {
-		if !strings.HasPrefix(k, prefix) {
-			continue
-		}
-		if len(v) == 0 {
-			continue
-		}
-		name := strings.TrimPrefix(k, prefix)
-		if strings.TrimSpace(name) == "" {
-			continue
-		}
-		out = append(out, name)
-	}
-	sort.Strings(out)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func printStateSummary(sess *session.Session) {
-	if sess == nil {
-		return
-	}
+func printStateSummary(sess *session.Session) { _ = "STUB: not implemented"; return }
 
-	childKey := skill.LoadedKey(childAgentName, demoSkillName)
-	coordKey := skill.LoadedKey(coordinatorAgentName, demoSkillName)
+func hasStateKey(state session.StateMap, key string) bool { _ = "STUB: not implemented"; return false }
 
-	hasChild := hasStateKey(sess.State, childKey)
-	hasCoord := hasStateKey(sess.State, coordKey)
+func listSkillStateKeys(state session.StateMap) []string { _ = "STUB: not implemented"; return nil }
 
-	fmt.Printf("\n[state summary]\n")
-	fmt.Printf("child loaded key present: %t\n", hasChild)
-	fmt.Printf("coordinator loaded key present: %t\n", hasCoord)
-	fmt.Printf("skill state keys: %v\n", listSkillStateKeys(sess.State))
-}
+func drain(events <-chan *event.Event) { _ = "STUB: not implemented"; return }
 
-func hasStateKey(state session.StateMap, key string) bool {
-	if len(state) == 0 || strings.TrimSpace(key) == "" {
-		return false
-	}
-	v, ok := state[key]
-	return ok && len(v) > 0
-}
+func printTranscript(events <-chan *event.Event) { _ = "STUB: not implemented"; return }
 
-func listSkillStateKeys(state session.StateMap) []string {
-	if len(state) == 0 {
-		return nil
-	}
-	var out []string
-	for k := range state {
-		if strings.HasPrefix(k, skill.StateKeyLoadedPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyDocsPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyLoadedByAgentPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyDocsByAgentPrefix) {
-			out = append(out, k)
-		}
-	}
-	sort.Strings(out)
-	return out
-}
+func printEvent(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-func drain(events <-chan *event.Event) {
-	for range events {
-	}
-}
+func childInstruction() string { _ = "STUB: not implemented"; return "" }
 
-func printTranscript(events <-chan *event.Event) {
-	for evt := range events {
-		printEvent(evt)
-	}
-}
+func coordinatorInstruction() string { _ = "STUB: not implemented"; return "" }
 
-func printEvent(evt *event.Event) {
-	if evt != nil && evt.Error != nil {
-		fmt.Printf("error: %s\n", strings.TrimSpace(evt.Error.Message))
-		return
-	}
-	if evt == nil || evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return
-	}
-	if evt.Object == model.ObjectTypeStateUpdate {
-		fmt.Println("state.update")
-		return
-	}
-	ch := evt.Response.Choices[0]
-	msg := ch.Message
-	delta := ch.Delta
-	switch {
-	case len(msg.ToolCalls) > 0:
-		fmt.Println("tool calls:")
-		for _, tc := range msg.ToolCalls {
-			fmt.Printf("  - %s id=%s args=%s\n",
-				tc.Function.Name,
-				tc.ID,
-				string(tc.Function.Arguments),
-			)
-		}
-	case len(delta.ToolCalls) > 0:
-		fmt.Println("tool calls (delta):")
-		for _, tc := range delta.ToolCalls {
-			fmt.Printf("  - %s id=%s args=%s\n",
-				tc.Function.Name,
-				tc.ID,
-				string(tc.Function.Arguments),
-			)
-		}
-	case msg.Role == model.RoleTool:
-		fmt.Printf("tool result (%s): %s\n",
-			msg.ToolName,
-			strings.TrimSpace(msg.Content),
-		)
-	case strings.TrimSpace(delta.Content) != "":
-		fmt.Printf("assistant (delta): %s\n",
-			strings.TrimSpace(delta.Content),
-		)
-	case msg.Role == model.RoleAssistant && msg.Content != "":
-		fmt.Printf("assistant: %s\n", strings.TrimSpace(msg.Content))
-	}
-}
-
-func childInstruction() string {
-	return strings.TrimSpace(`
-You are a sub-agent.
-
-You will receive a JSON request like {"request":"..."}.
-
-Rules:
-1) You MUST call skill_load with {"skill":"demo-skill"}.
-2) After the tool returns, reply with exactly: child_done
-3) Do not call any other tools.
-`)
-}
-
-func coordinatorInstruction() string {
-	return strings.TrimSpace(`
-You are the coordinator agent.
-
-Rules:
-1) You MUST call the sub-agent tool "skillisolation-child" exactly once.
-2) After the tool returns, reply with exactly: coordinator_done
-3) Do not call skill_load or skill_select_docs yourself.
-`)
-}
-
-func agentToolInputSchema() map[string]any {
-	return map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"request": map[string]any{
-				"type":        "string",
-				"description": "Request string for the agent",
-			},
-		},
-		"required": []any{"request"},
-	}
-}
+func agentToolInputSchema() map[string]any { _ = "STUB: not implemented"; return nil }

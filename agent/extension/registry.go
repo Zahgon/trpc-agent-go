@@ -10,9 +10,6 @@
 package extension
 
 import (
-	"context"
-	"fmt"
-
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -56,24 +53,15 @@ func newRegistry(
 	mc *model.Callbacks,
 	tc *tool.Callbacks,
 ) *Registry {
-	return &Registry{
-		name:           name,
-		agentCallbacks: ac,
-		modelCallbacks: mc,
-		toolCallbacks:  tc,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Name returns the name the extension declared at construction
 // time. Exposed so extensions whose tools or callbacks need to
 // embed their owning extension's identifier (for logging, metrics,
 // state-key prefixes) can read it back without storing it twice.
-func (r *Registry) Name() string {
-	if r == nil {
-		return ""
-	}
-	return r.name
-}
+func (r *Registry) Name() string { _ = "STUB: not implemented"; return "" }
 
 // Tools appends framework-managed tools contributed by this
 // extension. nil entries are silently dropped (no panic) so
@@ -83,135 +71,47 @@ func (r *Registry) Name() string {
 // Tool name dedup is the CONSUMING agent's responsibility, not
 // Registry's. LLMAgent's policy is earlier-wins (see
 // appendExtensionTools); other consumers may differ.
-func (r *Registry) Tools(tools ...tool.Tool) {
-	if r == nil {
-		return
-	}
-	for _, t := range tools {
-		if t == nil {
-			continue
-		}
-		r.tools = append(r.tools, t)
-	}
-}
+func (r *Registry) Tools(tools ...tool.Tool) { _ = "STUB: not implemented"; return }
 
 // BeforeAgent registers a before-agent callback. The callback is
 // wrapped so any non-nil error it returns is prefixed with the
 // extension name.
 func (r *Registry) BeforeAgent(cb agent.BeforeAgentCallbackStructured) {
-	if r == nil || r.agentCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.agentCallbacks.RegisterBeforeAgent(
-		func(ctx context.Context, args *agent.BeforeAgentArgs) (
-			*agent.BeforeAgentResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 // AfterAgent registers an after-agent callback. Error wrapping
 // behaviour matches BeforeAgent.
 func (r *Registry) AfterAgent(cb agent.AfterAgentCallbackStructured) {
-	if r == nil || r.agentCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.agentCallbacks.RegisterAfterAgent(
-		func(ctx context.Context, args *agent.AfterAgentArgs) (
-			*agent.AfterAgentResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 // BeforeModel registers a before-model callback. Error wrapping
 // behaviour matches BeforeAgent.
 func (r *Registry) BeforeModel(cb model.BeforeModelCallbackStructured) {
-	if r == nil || r.modelCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.modelCallbacks.RegisterBeforeModel(
-		func(ctx context.Context, args *model.BeforeModelArgs) (
-			*model.BeforeModelResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 // AfterModel registers an after-model callback. Error wrapping
 // behaviour matches BeforeAgent.
 func (r *Registry) AfterModel(cb model.AfterModelCallbackStructured) {
-	if r == nil || r.modelCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.modelCallbacks.RegisterAfterModel(
-		func(ctx context.Context, args *model.AfterModelArgs) (
-			*model.AfterModelResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 // BeforeTool registers a before-tool callback. Error wrapping
 // behaviour matches BeforeAgent.
 func (r *Registry) BeforeTool(cb tool.BeforeToolCallbackStructured) {
-	if r == nil || r.toolCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.toolCallbacks.RegisterBeforeTool(
-		func(ctx context.Context, args *tool.BeforeToolArgs) (
-			*tool.BeforeToolResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 // AfterTool registers an after-tool callback. Error wrapping
 // behaviour matches BeforeAgent.
 func (r *Registry) AfterTool(cb tool.AfterToolCallbackStructured) {
-	if r == nil || r.toolCallbacks == nil || cb == nil {
-		return
-	}
-	name := r.name
-	r.toolCallbacks.RegisterAfterTool(
-		func(ctx context.Context, args *tool.AfterToolArgs) (
-			*tool.AfterToolResult, error,
-		) {
-			res, err := cb(ctx, args)
-			if err != nil {
-				return res, fmt.Errorf("%s: %w", name, err)
-			}
-			return res, nil
-		},
-	)
+	_ = "STUB: not implemented"
+	return
 }

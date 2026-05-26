@@ -33,63 +33,54 @@ type hallucinationEvaluator struct {
 
 // New builds the hallucination evaluator.
 func New(opt ...Option) evaluator.Evaluator {
-	opts := newOptions(opt...)
-	e := &hallucinationEvaluator{
-		messagesConstructor:   opts.messagesConstructor,
-		responsescorer:        opts.responsescorer,
-		samplesAggregator:     opts.samplesAggregator,
-		invocationsAggregator: opts.invocationsAggregator,
-	}
-	e.llmBaseEvaluator = llm.New(e)
-	return e
+	_ = "STUB: not implemented"
+	return *new(evaluator.Evaluator)
 }
 
 // Name returns the name of the evaluator.
-func (e *hallucinationEvaluator) Name() string {
-	return "llm_hallucinations"
-}
+func (e *hallucinationEvaluator) Name() string { _ = "STUB: not implemented"; return "" }
 
 // Description returns the description of the evaluator.
-func (e *hallucinationEvaluator) Description() string {
-	return "LLM hallucination evaluator"
-}
+func (e *hallucinationEvaluator) Description() string { _ = "STUB: not implemented"; return "" }
 
 // Evaluate evaluates the hallucination risk of the agent final answer.
 func (e *hallucinationEvaluator) Evaluate(ctx context.Context, actuals, expecteds []*evalset.Invocation,
 	evalMetric *metric.EvalMetric) (*evaluator.EvaluateResult, error) {
-	return e.llmBaseEvaluator.Evaluate(ctx, actuals, expecteds, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ConstructMessages constructs the messages for the evaluator.
 func (e *hallucinationEvaluator) ConstructMessages(ctx context.Context, actuals, expecteds []*evalset.Invocation,
 	evalMetric *metric.EvalMetric) ([]model.Message, error) {
-	return e.messagesConstructor.ConstructMessages(ctx, actuals, expecteds, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StructuredOutput delegates structured output schema construction to the prompt builder.
 func (e *hallucinationEvaluator) StructuredOutput(ctx context.Context, actuals, expecteds []*evalset.Invocation,
 	evalMetric *metric.EvalMetric) (*model.StructuredOutput, error) {
-	constructor, ok := e.messagesConstructor.(messagesconstructor.StructuredOutputMessagesConstructor)
-	if !ok {
-		return nil, nil
-	}
-	return constructor.StructuredOutput(ctx, actuals, expecteds, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ScoreBasedOnResponse scores the response of the evaluator.
 func (e *hallucinationEvaluator) ScoreBasedOnResponse(ctx context.Context, response *model.Response,
 	evalMetric *metric.EvalMetric) (*evaluator.ScoreResult, error) {
-	return e.responsescorer.ScoreBasedOnResponse(ctx, response, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // AggregateSamples aggregates the samples of the evaluator.
 func (e *hallucinationEvaluator) AggregateSamples(ctx context.Context, samples []*evaluator.PerInvocationResult,
 	evalMetric *metric.EvalMetric) (*evaluator.PerInvocationResult, error) {
-	return e.samplesAggregator.AggregateSamples(ctx, samples, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // AggregateInvocations aggregates the invocations of the evaluator.
 func (e *hallucinationEvaluator) AggregateInvocations(ctx context.Context, results []*evaluator.PerInvocationResult,
 	evalMetric *metric.EvalMetric) (*evaluator.EvaluateResult, error) {
-	return e.invocationsAggregator.AggregateInvocations(ctx, results, evalMetric)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

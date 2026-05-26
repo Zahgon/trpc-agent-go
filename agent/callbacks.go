@@ -12,11 +12,8 @@ package agent
 
 import (
 	"context"
-	"fmt"
-	"runtime/debug"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -122,105 +119,44 @@ type CallbacksOption func(*Callbacks)
 
 // WithContinueOnError sets whether to continue executing callbacks when an error occurs.
 func WithContinueOnError(continueOnError bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnError = continueOnError
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // WithContinueOnResponse sets whether to continue executing callbacks when a CustomResponse is returned.
 func WithContinueOnResponse(continueOnResponse bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnResponse = continueOnResponse
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // NewCallbacks creates a new Callbacks instance for agent.
-func NewCallbacks(opts ...CallbacksOption) *Callbacks {
-	c := &Callbacks{}
-	for _, opt := range opts {
-		opt(c)
-	}
-	return c
-}
+func NewCallbacks(opts ...CallbacksOption) *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // Clone returns an independent copy of c, including callback lists
 // and execution options.
-func (c *Callbacks) Clone() *Callbacks {
-	if c == nil {
-		return nil
-	}
-	out := &Callbacks{
-		BeforeAgent:        append([]BeforeAgentCallbackStructured(nil), c.BeforeAgent...),
-		AfterAgent:         append([]AfterAgentCallbackStructured(nil), c.AfterAgent...),
-		continueOnError:    c.continueOnError,
-		continueOnResponse: c.continueOnResponse,
-	}
-	return out
-}
+func (c *Callbacks) Clone() *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // RegisterBeforeAgent registers a before agent callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterBeforeAgent(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case BeforeAgentCallbackStructured:
-		c.BeforeAgent = append(c.BeforeAgent, callback)
-	case BeforeAgentCallback:
-		wrapped := func(ctx context.Context, args *BeforeAgentArgs) (*BeforeAgentResult, error) {
-			// Call old signature
-			resp, err := callback(ctx, args.Invocation)
-			if err != nil {
-				return nil, err
-			}
-			if resp != nil {
-				return &BeforeAgentResult{CustomResponse: resp}, nil
-			}
-			return &BeforeAgentResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.BeforeAgent = append(c.BeforeAgent, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterBeforeAgent(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // RegisterAfterAgent registers an after agent callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterAfterAgent(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case AfterAgentCallbackStructured:
-		c.AfterAgent = append(c.AfterAgent, callback)
-	case AfterAgentCallback:
-		wrapped := func(ctx context.Context, args *AfterAgentArgs) (*AfterAgentResult, error) {
-			// Call old signature
-			resp, err := callback(ctx, args.Invocation, args.Error)
-			if err != nil {
-				return nil, err
-			}
-			if resp != nil {
-				return &AfterAgentResult{CustomResponse: resp}, nil
-			}
-			return &AfterAgentResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.AfterAgent = append(c.AfterAgent, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterAfterAgent(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // handleCallbackError processes callback error and returns whether to continue.
 func (c *Callbacks) handleCallbackError(err error, firstErr *error) (shouldStop bool) {
-	if err == nil {
-		return false
-	}
-	if !c.continueOnError {
-		return true
-	}
-	if *firstErr == nil {
-		*firstErr = err
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -231,21 +167,7 @@ func (c *Callbacks) processCallbackResult(
 	ctx *context.Context,
 	lastResult **BeforeAgentResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		result.Context = PreserveGraphCompletionCapture(*ctx, result.Context)
-		*ctx = result.Context
-	}
-	if result.CustomResponse != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -255,22 +177,8 @@ func recoverAgentCallbackPanic(
 	inv *Invocation,
 	errp *error,
 ) {
-	recovered := recover()
-	if recovered == nil {
-		return
-	}
-
-	stack := debug.Stack()
-	log.ErrorfContext(
-		ctx,
-		callbackPanicLogFmt,
-		stage,
-		invocationID(inv),
-		agentName(inv),
-		recovered,
-		string(stack),
-	)
-	*errp = fmt.Errorf(callbackPanicErrFmt, stage, recovered)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *Callbacks) runBeforeAgentCallback(
@@ -278,12 +186,8 @@ func (c *Callbacks) runBeforeAgentCallback(
 	cb BeforeAgentCallbackStructured,
 	args *BeforeAgentArgs,
 ) (result *BeforeAgentResult, err error) {
-	inv := (*Invocation)(nil)
-	if args != nil {
-		inv = args.Invocation
-	}
-	defer recoverAgentCallbackPanic(ctx, beforeAgentCallbackPanic, inv, &err)
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // finalizeBeforeAgentResult determines the final return value for before agent callbacks.
@@ -291,19 +195,8 @@ func (c *Callbacks) finalizeBeforeAgentResult(
 	lastResult *BeforeAgentResult,
 	firstErr error,
 ) (*BeforeAgentResult, error) {
-	if lastResult != nil && lastResult.CustomResponse != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult != nil && lastResult.Context == nil && lastResult.CustomResponse == nil {
-		return nil, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunBeforeAgent runs all before agent callbacks in order.
@@ -313,25 +206,8 @@ func (c *Callbacks) RunBeforeAgent(
 	ctx context.Context,
 	args *BeforeAgentArgs,
 ) (*BeforeAgentResult, error) {
-	var lastResult *BeforeAgentResult
-	var firstErr error
-
-	for _, cb := range c.BeforeAgent {
-		result, err := c.runBeforeAgentCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return nil, err
-		}
-
-		if c.processCallbackResult(result, &ctx, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeBeforeAgentResult(lastResult, firstErr)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // processAfterCallbackResult processes after callback result and updates context.
@@ -341,21 +217,7 @@ func (c *Callbacks) processAfterCallbackResult(
 	ctx *context.Context,
 	lastResult **AfterAgentResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		result.Context = PreserveGraphCompletionCapture(*ctx, result.Context)
-		*ctx = result.Context
-	}
-	if result.CustomResponse != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -364,19 +226,8 @@ func (c *Callbacks) finalizeAfterAgentResult(
 	lastResult *AfterAgentResult,
 	firstErr error,
 ) (*AfterAgentResult, error) {
-	if lastResult != nil && lastResult.CustomResponse != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult != nil && lastResult.Context == nil && lastResult.CustomResponse == nil {
-		return nil, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Callbacks) runAfterAgentCallback(
@@ -384,12 +235,8 @@ func (c *Callbacks) runAfterAgentCallback(
 	cb AfterAgentCallbackStructured,
 	args *AfterAgentArgs,
 ) (result *AfterAgentResult, err error) {
-	inv := (*Invocation)(nil)
-	if args != nil {
-		inv = args.Invocation
-	}
-	defer recoverAgentCallbackPanic(ctx, afterAgentCallbackPanic, inv, &err)
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunAfterAgent runs all after agent callbacks in order.
@@ -399,23 +246,6 @@ func (c *Callbacks) RunAfterAgent(
 	ctx context.Context,
 	args *AfterAgentArgs,
 ) (*AfterAgentResult, error) {
-	var lastResult *AfterAgentResult
-	var firstErr error
-
-	for _, cb := range c.AfterAgent {
-		result, err := c.runAfterAgentCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return nil, err
-		}
-
-		if c.processAfterCallbackResult(result, &ctx, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeAfterAgentResult(lastResult, firstErr)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

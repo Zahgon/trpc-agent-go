@@ -10,27 +10,18 @@ package extractor
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"maps"
-	"strings"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/prompt"
 )
 
 // referenceDate returns the reference date for the extraction.
 // It first checks the context for a date set via WithReferenceDate,
 // falling back to time.Now().UTC().
 func referenceDate(ctx context.Context) time.Time {
-	if t, ok := ReferenceDateFromContext(ctx); ok {
-		return t
-	}
-	return time.Now().UTC()
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
 // Common metadata field keys.
@@ -56,55 +47,30 @@ type Option func(*memoryExtractor)
 
 // WithPrompt sets the custom prompt for memory extraction.
 // The prompt will be used as the system message when calling the LLM.
-func WithPrompt(prompt string) Option {
-	return func(e *memoryExtractor) {
-		if prompt != "" {
-			e.prompt = prompt
-		}
-	}
-}
+func WithPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChecker adds an extraction checker.
 // Multiple calls append checkers, combined with AND logic by default.
 // When checkers are configured, ShouldExtract returns true only if all
 // checkers pass.
-func WithChecker(c Checker) Option {
-	return func(e *memoryExtractor) {
-		if c != nil {
-			e.checkers = append(e.checkers, c)
-		}
-	}
-}
+func WithChecker(c Checker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithModelCallbacks sets model callbacks for memory extraction.
 // Only structured callbacks are supported.
 func WithModelCallbacks(callbacks *model.Callbacks) Option {
-	return func(e *memoryExtractor) {
-		e.modelCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCheckersAny sets checkers with OR logic.
 // Any checker passing will trigger extraction.
 // This replaces any previously configured checkers.
-func WithCheckersAny(checks ...Checker) Option {
-	return func(e *memoryExtractor) {
-		if len(checks) > 0 {
-			e.checkers = []Checker{ChecksAny(checks...)}
-		}
-	}
-}
+func WithCheckersAny(checks ...Checker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // NewExtractor creates a new memory extractor.
 func NewExtractor(m model.Model, opts ...Option) MemoryExtractor {
-	e := &memoryExtractor{
-		model:  m,
-		prompt: defaultPrompt,
-	}
-	for _, opt := range opts {
-		opt(e)
-	}
-	return e
+	_ = "STUB: not implemented"
+	return *new(MemoryExtractor)
 }
 
 // Extract analyzes the conversation and returns memory operations.
@@ -113,88 +79,25 @@ func (e *memoryExtractor) Extract(
 	messages []model.Message,
 	existing []*memory.Entry,
 ) ([]*Operation, error) {
-	if e.model == nil {
-		return nil, errors.New("no model configured for memory extraction")
-	}
-	if len(messages) == 0 {
-		return nil, nil
-	}
-
-	// Build request with tool declarations.
-	tools := backgroundTools
-	if len(e.enabledTools) > 0 {
-		tools = filterTools(backgroundTools, e.enabledTools)
-	}
-	req := &model.Request{
-		Messages: e.buildMessages(ctx, messages, existing),
-		Tools:    tools,
-	}
-
-	// Call model.
-	ctx, rspChan, err := e.runBeforeModelCallbacks(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	if rspChan == nil {
-		rspChan, err = e.model.GenerateContent(ctx, req)
-		if err != nil {
-			log.WarnfContext(ctx, "extractor: model call failed: %v", err)
-			return nil, fmt.Errorf("model call failed: %w", err)
-		}
-	}
-	if rspChan == nil {
-		return nil, errors.New("model returned nil response channel")
-	}
-
-	// Parse tool calls into operations.
-	var ops []*Operation
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, fmt.Errorf("memory extraction canceled: %w", ctx.Err())
-		case rsp, ok := <-rspChan:
-			if !ok {
-				return ops, nil
-			}
-			ctx, rsp, err = e.runAfterModelCallbacks(ctx, req, rsp)
-			if err != nil {
-				return nil, err
-			}
-			if rsp == nil {
-				continue
-			}
-			if rsp.Error != nil {
-				return nil, fmt.Errorf("model error: %s", rsp.Error.Message)
-			}
-			if len(rsp.Choices) == 0 {
-				continue
-			}
-			// Choices are alternative candidates rather than cumulative
-			// tool-call batches, so only the selected primary choice
-			// should be converted into operations.
-			for _, call := range rsp.Choices[0].Message.ToolCalls {
-				op := e.parseToolCall(ctx, call)
-				if op != nil {
-					ops = append(ops, op)
-				}
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Build request with tool declarations.
+
+// Call model.
+
+// Parse tool calls into operations.
+
+// Choices are alternative candidates rather than cumulative
+// tool-call batches, so only the selected primary choice
+// should be converted into operations.
 
 // SetPrompt updates the extractor's prompt dynamically.
-func (e *memoryExtractor) SetPrompt(prompt string) {
-	if prompt != "" {
-		e.prompt = prompt
-	}
-}
+func (e *memoryExtractor) SetPrompt(prompt string) { _ = "STUB: not implemented"; return }
 
 // SetModel updates the extractor's model dynamically.
-func (e *memoryExtractor) SetModel(m model.Model) {
-	if m != nil {
-		e.model = m
-	}
-}
+func (e *memoryExtractor) SetModel(m model.Model) { _ = "STUB: not implemented"; return }
 
 // SetEnabledTools updates the enabled tool flags for background
 // operations. The map is defensively copied to prevent external
@@ -202,38 +105,22 @@ func (e *memoryExtractor) SetModel(m model.Model) {
 func (e *memoryExtractor) SetEnabledTools(
 	enabled map[string]struct{},
 ) {
-	e.enabledTools = maps.Clone(enabled)
+	_ = "STUB: not implemented"
+	return
 }
 
 // ShouldExtract checks if extraction should be triggered based on context.
 // Returns true if extraction should proceed, false to skip.
 // When no checkers are configured, always returns true.
 func (e *memoryExtractor) ShouldExtract(ctx *ExtractionContext) bool {
-	if len(e.checkers) == 0 {
-		return true
-	}
-	// All checkers must pass (AND logic).
-	for _, check := range e.checkers {
-		if !check(ctx) {
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
+// All checkers must pass (AND logic).
+
 // Metadata returns metadata about the extractor configuration.
-func (e *memoryExtractor) Metadata() map[string]any {
-	var modelName string
-	modelAvailable := false
-	if e.model != nil {
-		modelName = e.model.Info().Name
-		modelAvailable = true
-	}
-	return map[string]any{
-		metadataKeyModelName:      modelName,
-		metadataKeyModelAvailable: modelAvailable,
-	}
-}
+func (e *memoryExtractor) Metadata() map[string]any { _ = "STUB: not implemented"; return nil }
 
 // extractionUserSuffix is appended as a trailing user message
 // when the final message role is neither user nor tool. Some
@@ -248,34 +135,21 @@ func (e *memoryExtractor) buildMessages(
 	messages []model.Message,
 	existing []*memory.Entry,
 ) []model.Message {
-	result := make([]model.Message, 0, len(messages)+2)
-
-	refDate := referenceDate(ctx)
-
-	// Add system prompt with existing memories.
-	result = append(result, model.NewSystemMessage(
-		e.buildSystemPrompt(refDate, existing),
-	))
-
-	// Add conversation messages.
-	result = append(result, messages...)
-
-	// Ensure the sequence ends with a user message. Some
-	// providers reject requests that end with an assistant
-	// message (treated as unsupported prefill).
-	// Skip appending when the trailing assistant message
-	// carries tool_calls, because inserting a plain user
-	// message between a tool-call request and its results
-	// would violate the tool-result ordering constraint.
-	if last := result[len(result)-1]; last.Role != model.RoleUser &&
-		last.Role != model.RoleTool &&
-		len(last.ToolCalls) == 0 {
-		result = append(result,
-			model.NewUserMessage(extractionUserSuffix))
-	}
-
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Add system prompt with existing memories.
+
+// Add conversation messages.
+
+// Ensure the sequence ends with a user message. Some
+// providers reject requests that end with an assistant
+// message (treated as unsupported prefill).
+// Skip appending when the trailing assistant message
+// carries tool_calls, because inserting a plain user
+// message between a tool-call request and its results
+// would violate the tool-result ordering constraint.
 
 // currentDatePlaceholder is replaced in the prompt template with
 // the actual reference date.
@@ -289,38 +163,14 @@ func (e *memoryExtractor) buildSystemPrompt(
 	refDate time.Time,
 	existing []*memory.Entry,
 ) string {
-	var sb strings.Builder
-
-	dateStr := refDate.UTC().Format(time.DateOnly)
-	renderedPrompt, err := prompt.Text{Template: e.prompt}.Render(prompt.RenderEnv{
-		Vars: prompt.Vars{
-			"current_date": dateStr,
-		},
-	})
-	if err != nil {
-		renderedPrompt = e.prompt
-	}
-	sb.WriteString(renderedPrompt)
-
-	// Append available actions.
-	sb.WriteString("\n<available_actions>\n")
-	sb.WriteString(e.availableActionsBlock())
-	sb.WriteString("</available_actions>\n")
-
-	// Append existing memories with topics and episodic metadata so the
-	// LLM can reuse consistent topic names and avoid re-creating episodes.
-	if len(existing) > 0 {
-		sb.WriteString("\n<existing_memories>\n")
-		for _, entry := range existing {
-			if entry.Memory != nil {
-				sb.WriteString(formatExistingMemory(entry))
-			}
-		}
-		sb.WriteString("</existing_memories>\n")
-	}
-
-	return sb.String()
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// Append available actions.
+
+// Append existing memories with topics and episodic metadata so the
+// LLM can reuse consistent topic names and avoid re-creating episodes.
 
 // toolActionDescriptions maps background tool names to their
 // one-line descriptions shown in the system prompt.
@@ -348,137 +198,39 @@ var toolActionOrder = []string{
 
 // availableActionsBlock returns the text lines describing which
 // memory tools the model is allowed to call.
-func (e *memoryExtractor) availableActionsBlock() string {
-	var sb strings.Builder
-	for _, name := range toolActionOrder {
-		// Skip tools that are disabled.
-		if e.enabledTools != nil {
-			if _, ok := e.enabledTools[name]; !ok {
-				continue
-			}
-		}
-		desc, ok := toolActionDescriptions[name]
-		if !ok {
-			continue
-		}
-		fmt.Fprintf(&sb, "- %s: %s\n", name, desc)
-	}
-	if sb.Len() == 0 {
-		sb.WriteString("No actions available.\n")
-	}
-	return sb.String()
-}
+func (e *memoryExtractor) availableActionsBlock() string { _ = "STUB: not implemented"; return "" }
+
+// Skip tools that are disabled.
 
 // parseToolCall parses a tool call and returns a memory operation.
 func (e *memoryExtractor) parseToolCall(ctx context.Context, call model.ToolCall) *Operation {
-	var args map[string]any
-	if err := json.Unmarshal(call.Function.Arguments, &args); err != nil {
-		log.WarnfContext(ctx, "extractor: failed to parse tool args: %v", err)
-		return nil
-	}
-	return parseToolCallArgs(call.Function.Name, args)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e *memoryExtractor) runBeforeModelCallbacks(
 	ctx context.Context,
 	request *model.Request,
 ) (context.Context, <-chan *model.Response, error) {
-	if e.modelCallbacks == nil {
-		return ctx, nil, nil
-	}
-
-	result, err := e.modelCallbacks.RunBeforeModel(
-		ctx,
-		&model.BeforeModelArgs{Request: request},
-	)
-	if err != nil {
-		return ctx, nil, fmt.Errorf("before model callback failed: %w", err)
-	}
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	if result == nil || result.CustomResponse == nil {
-		return ctx, nil, nil
-	}
-
-	customChan := make(chan *model.Response, 1)
-	customChan <- result.CustomResponse
-	close(customChan)
-	return ctx, customChan, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
-func modelErrFromResponse(resp *model.Response) error {
-	if resp == nil || resp.Error == nil {
-		return nil
-	}
-	return fmt.Errorf("%s: %s", resp.Error.Type, resp.Error.Message)
-}
+func modelErrFromResponse(resp *model.Response) error { _ = "STUB: not implemented"; return nil }
 
 func (e *memoryExtractor) runAfterModelCallbacks(
 	ctx context.Context,
 	request *model.Request,
 	response *model.Response,
 ) (context.Context, *model.Response, error) {
-	if e.modelCallbacks == nil {
-		return ctx, response, nil
-	}
-
-	result, err := e.modelCallbacks.RunAfterModel(
-		ctx,
-		&model.AfterModelArgs{
-			Request:  request,
-			Response: response,
-			Error:    modelErrFromResponse(response),
-		},
-	)
-	if err != nil {
-		return ctx, nil, fmt.Errorf("after model callback failed: %w", err)
-	}
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	if result != nil && result.CustomResponse != nil {
-		response = result.CustomResponse
-	}
-	return ctx, response, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 // formatExistingMemory formats a single memory entry for inclusion in the
 // system prompt. For episodic memories it appends kind, event_time,
 // participants and location so the LLM can properly deduplicate.
-func formatExistingMemory(entry *memory.Entry) string {
-	m := entry.Memory
-	base := fmt.Sprintf("- [%s] %s", entry.ID, m.Memory)
-	var meta []string
-	if len(m.Topics) > 0 {
-		meta = append(meta,
-			fmt.Sprintf("topics: %s",
-				strings.Join(m.Topics, ", ")))
-	}
-	if m.Kind != "" {
-		meta = append(meta,
-			fmt.Sprintf("kind=%s", m.Kind))
-	}
-	if m.EventTime != nil {
-		meta = append(meta,
-			fmt.Sprintf("event_time=%s",
-				m.EventTime.Format("2006-01-02")))
-	}
-	if len(m.Participants) > 0 {
-		meta = append(meta,
-			fmt.Sprintf("participants=%s",
-				strings.Join(m.Participants, ",")))
-	}
-	if m.Location != "" {
-		meta = append(meta,
-			fmt.Sprintf("location=%s", m.Location))
-	}
-	if len(meta) == 0 {
-		return base + "\n"
-	}
-	return fmt.Sprintf("%s (%s)\n",
-		base, strings.Join(meta, "; "))
-}
+func formatExistingMemory(entry *memory.Entry) string { _ = "STUB: not implemented"; return "" }
 
 // defaultPrompt is the default system prompt for memory extraction.
 const defaultPrompt = `You are a Memory Manager for an AI Assistant.

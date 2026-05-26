@@ -13,22 +13,10 @@ import agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
 
 // NewTools returns the full tool set used by the LLMAgent external-tool
 // example.
-func NewTools() []agenttool.Tool {
-	return append(NewInternalTools(), NewExternalTools()...)
-}
+func NewTools() []agenttool.Tool { _ = "STUB: not implemented"; return nil }
 
 // NewInternalTools returns tools executed automatically by the framework.
-func NewInternalTools() []agenttool.Tool {
-	return []agenttool.Tool{
-		newCalculatorTool(),
-		newInternalLookupTool(),
-	}
-}
+func NewInternalTools() []agenttool.Tool { _ = "STUB: not implemented"; return nil }
 
 // NewExternalTools returns declarations for tools executed by the caller.
-func NewExternalTools() []agenttool.Tool {
-	return []agenttool.Tool{
-		newExternalNoteTool(),
-		newExternalApprovalTool(),
-	}
-}
+func NewExternalTools() []agenttool.Tool { _ = "STUB: not implemented"; return nil }

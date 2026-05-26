@@ -21,9 +21,6 @@ type ToolContext struct {
 
 // NewToolContext creates a new ToolContext from the given context.
 func NewToolContext(ctx context.Context) (*ToolContext, error) {
-	cbCtx, err := NewCallbackContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &ToolContext{CallbackContext: cbCtx}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

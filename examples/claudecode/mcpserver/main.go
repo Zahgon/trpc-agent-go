@@ -12,10 +12,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
-	"strings"
 
 	mcp "trpc.group/trpc-go/trpc-mcp-go"
 )
@@ -56,64 +53,18 @@ func main() {
 
 // handleCalculator evaluates the calculator tool request and returns a JSON string result.
 func handleCalculator(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, err := parseCalculatorArgs(req)
-	if err != nil {
-		return nil, err
-	}
-	result, err := compute(args)
-	if err != nil {
-		return nil, err
-	}
-	data, err := json.Marshal(result)
-	if err != nil {
-		return nil, fmt.Errorf("marshal result: %w", err)
-	}
-	return mcp.NewTextResult(string(data)), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // parseCalculatorArgs parses the calculator tool call arguments into a strongly typed struct.
 func parseCalculatorArgs(req *mcp.CallToolRequest) (calculatorArgs, error) {
-	if req == nil || req.Params.Arguments == nil {
-		return calculatorArgs{}, fmt.Errorf("missing arguments")
-	}
-	data, err := json.Marshal(req.Params.Arguments)
-	if err != nil {
-		return calculatorArgs{}, fmt.Errorf("marshal arguments: %w", err)
-	}
-	var args calculatorArgs
-	if err := json.Unmarshal(data, &args); err != nil {
-		return calculatorArgs{}, fmt.Errorf("unmarshal arguments: %w", err)
-	}
-	args.Operation = strings.TrimSpace(args.Operation)
-	if args.Operation == "" {
-		return calculatorArgs{}, fmt.Errorf("operation is empty")
-	}
-	return args, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorArgs), nil
 }
 
 // compute applies the requested arithmetic operation and returns a structured JSON result.
 func compute(args calculatorArgs) (calculatorResult, error) {
-	op := strings.ToLower(args.Operation)
-	var v float64
-	switch op {
-	case "add", "+":
-		v = args.A + args.B
-	case "subtract", "-":
-		v = args.A - args.B
-	case "multiply", "*":
-		v = args.A * args.B
-	case "divide", "/":
-		if args.B == 0 {
-			return calculatorResult{}, fmt.Errorf("division by zero")
-		}
-		v = args.A / args.B
-	default:
-		return calculatorResult{}, fmt.Errorf("unsupported operation: %s", args.Operation)
-	}
-	return calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    v,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }

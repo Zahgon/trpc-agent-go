@@ -12,10 +12,9 @@
 
 package sqlitevec
 
-import vecembed "github.com/asg017/sqlite-vec-go-bindings/ncruces"
-
-func vecAuto() {}
+func vecAuto() { _ = "STUB: not implemented"; return }
 
 func vecSerializeFloat32(vector []float32) ([]byte, error) {
-	return vecembed.SerializeFloat32(vector)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -31,41 +31,19 @@ var (
 //	if ok {
 //	    client, err := s3.NewClient(ctx, opts...)
 //	}
-func RegisterS3Instance(name string, opts ...ClientBuilderOpt) {
-	registryMu.Lock()
-	defer registryMu.Unlock()
-	s3Registry[name] = opts
-}
+func RegisterS3Instance(name string, opts ...ClientBuilderOpt) { _ = "STUB: not implemented"; return }
 
 // GetS3Instance retrieves the configuration options for a named S3 instance.
 // Returns a copy of the options and true if found, or nil and false if not found.
 func GetS3Instance(name string) ([]ClientBuilderOpt, bool) {
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-	opts, ok := s3Registry[name]
-	if !ok {
-		return nil, false
-	}
-	// Copy to prevent external modifications
-	copyOpts := make([]ClientBuilderOpt, len(opts))
-	copy(copyOpts, opts)
-	return copyOpts, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
+
+// Copy to prevent external modifications
 
 // UnregisterS3Instance removes a named S3 instance from the registry.
-func UnregisterS3Instance(name string) {
-	registryMu.Lock()
-	defer registryMu.Unlock()
-	delete(s3Registry, name)
-}
+func UnregisterS3Instance(name string) { _ = "STUB: not implemented"; return }
 
 // ListS3Instances returns a list of all registered instance names.
-func ListS3Instances() []string {
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-	names := make([]string, 0, len(s3Registry))
-	for name := range s3Registry {
-		names = append(names, name)
-	}
-	return names
-}
+func ListS3Instances() []string { _ = "STUB: not implemented"; return nil }

@@ -73,117 +73,86 @@ var (
 )
 
 func (opts serviceOpts) shouldCascadeFullSessionSummary() bool {
-	if opts.cascadeFullSessionSummary == nil {
-		return true
-	}
-	return *opts.cascadeFullSessionSummary
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithSessionEventLimit sets the limit of events in a session.
 func WithSessionEventLimit(limit int) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.sessionEventLimit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSessionTTL sets the TTL for session state and event list.
 // if not set, session will expire in 30 min, set 0 will not expire.
 func WithSessionTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.sessionTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppStateTTL sets the TTL for app state.
 // If not set, app state will not expire automatically.
 func WithAppStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.appStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithUserStateTTL sets the TTL for user state.
 // If not set, user state will not expire automatically.
 func WithUserStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.userStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCleanupInterval sets the interval for automatic cleanup of expired data.
 // If set to 0, automatic cleanup will be determined based on TTL configuration.
 // Default cleanup interval is 5 minutes if any TTL is configured.
 func WithCleanupInterval(interval time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.cleanupInterval = interval
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummarizer injects a summarizer for LLM-based summaries.
 func WithSummarizer(s summary.SessionSummarizer) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.summarizer = s
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncSummaryNum sets the number of workers for async summary processing.
-func WithAsyncSummaryNum(num int) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if num < 1 {
-			num = defaultAsyncSummaryNum
-		}
-		opts.asyncSummaryNum = num
-	}
-}
+func WithAsyncSummaryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryQueueSize sets the size of the summary job queue.
-func WithSummaryQueueSize(size int) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if size < 1 {
-			size = defaultSummaryQueueSize
-		}
-		opts.summaryQueueSize = size
-	}
-}
+func WithSummaryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryJobTimeout sets the timeout for processing a single summary job.
 // If not set, a sensible default will be applied.
 func WithSummaryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if timeout <= 0 {
-			return
-		}
-		opts.summaryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummaryFilterAllowlist restricts which non-empty filterKeys may trigger
 // branch summaries. Keys use the same exact format as event filter keys.
 func WithSummaryFilterAllowlist(filterKeys ...string) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.summaryFilterAllowlist = append([]string{}, filterKeys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCascadeFullSessionSummary controls whether an allowed branch summary also
 // refreshes the full-session summary keyed by SummaryFilterKeyAllContents.
 func WithCascadeFullSessionSummary(enable bool) ServiceOpt {
-	return func(opts *serviceOpts) {
-		enabled := enable
-		opts.cascadeFullSessionSummary = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppendEventHook adds AppendEvent hooks.
 func WithAppendEventHook(hooks ...session.AppendEventHook) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.appendEventHooks = append(opts.appendEventHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithGetSessionHook adds GetSession hooks.
 func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.getSessionHooks = append(opts.getSessionHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }

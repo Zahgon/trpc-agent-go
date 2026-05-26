@@ -39,47 +39,23 @@ type Checker func(ctx *ExtractionContext) bool
 // CheckMessageThreshold creates a checker that triggers when the number of
 // extracted messages exceeds the specified threshold.
 // This checks the actual message count, not event count.
-func CheckMessageThreshold(n int) Checker {
-	return func(ctx *ExtractionContext) bool {
-		return len(ctx.Messages) > n
-	}
-}
+func CheckMessageThreshold(n int) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 // CheckTimeInterval creates a checker that triggers if last extraction
 // was more than the given duration ago.
 func CheckTimeInterval(interval time.Duration) Checker {
-	return func(ctx *ExtractionContext) bool {
-		if ctx.LastExtractAt == nil {
-			return true // First extraction.
-		}
-		return time.Since(*ctx.LastExtractAt) > interval
-	}
+	_ = "STUB: not implemented"
+	return *new(Checker)
 }
+
+// First extraction.
 
 // ChecksAll composes multiple checkers using AND logic.
 // It returns true only if all provided checkers return true.
 // Returns true if no checkers are provided (empty AND).
-func ChecksAll(checks ...Checker) Checker {
-	return func(ctx *ExtractionContext) bool {
-		for _, check := range checks {
-			if !check(ctx) {
-				return false
-			}
-		}
-		return true
-	}
-}
+func ChecksAll(checks ...Checker) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 // ChecksAny composes multiple checkers using OR logic.
 // It returns true if any one of the provided checkers returns true.
 // Returns false if no checkers are provided (empty OR).
-func ChecksAny(checks ...Checker) Checker {
-	return func(ctx *ExtractionContext) bool {
-		for _, check := range checks {
-			if check(ctx) {
-				return true
-			}
-		}
-		return false
-	}
-}
+func ChecksAny(checks ...Checker) Checker { _ = "STUB: not implemented"; return *new(Checker) }

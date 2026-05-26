@@ -12,19 +12,11 @@ package hunyuan
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/toolorder"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/model/hunyuan/internal/hunyuan"
-	imodel "trpc.group/trpc-go/trpc-agent-go/model/internal/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -123,83 +115,21 @@ type options struct {
 }
 
 // New creates a new Hunyuan model adapter.
-func New(name string, opts ...Option) *Model {
-	o := defaultOptions
+func New(name string, opts ...Option) *Model { _ = "STUB: not implemented"; return nil }
 
-	for _, opt := range opts {
-		opt(&o)
-	}
+// Build client options.
 
-	// Build client options.
-	var clientOpts []hunyuan.Option
-	if o.secretId != "" {
-		clientOpts = append(clientOpts, hunyuan.WithSecretId(o.secretId))
-	}
-	if o.secretKey != "" {
-		clientOpts = append(clientOpts, hunyuan.WithSecretKey(o.secretKey))
-	}
-	if o.baseUrl != "" {
-		clientOpts = append(clientOpts, hunyuan.WithBaseUrl(o.baseUrl))
-	}
-	if o.host != "" {
-		clientOpts = append(clientOpts, hunyuan.WithHost(o.host))
-	}
-	if o.httpClient != nil {
-		clientOpts = append(clientOpts, hunyuan.WithHttpClient(o.httpClient))
-	}
-
-	// Create Hunyuan API client.
-	client := hunyuan.NewClient(clientOpts...)
-
-	if o.tailoringStrategy == nil {
-		o.tailoringStrategy = model.NewMiddleOutStrategy(o.tokenCounter)
-	}
-
-	m := &Model{
-		client:                     client,
-		name:                       name,
-		channelBufferSize:          o.channelBufferSize,
-		chatRequestCallback:        o.chatRequestCallback,
-		chatResponseCallback:       o.chatResponseCallback,
-		chatChunkCallback:          o.chatChunkCallback,
-		chatStreamCompleteCallback: o.chatStreamCompleteCallback,
-		enableTokenTailoring:       o.enableTokenTailoring,
-		tokenCounter:               o.tokenCounter,
-		tailoringStrategy:          o.tailoringStrategy,
-		maxInputTokens:             o.maxInputTokens,
-		contextWindow:              o.contextWindow,
-		contextWindowConfigured:    o.contextWindowConfigured,
-		protocolOverheadTokens:     o.tokenTailoringConfig.ProtocolOverheadTokens,
-		reserveOutputTokens:        o.tokenTailoringConfig.ReserveOutputTokens,
-		inputTokensFloor:           o.tokenTailoringConfig.InputTokensFloor,
-		safetyMarginRatio:          o.tokenTailoringConfig.SafetyMarginRatio,
-		maxInputTokensRatio:        o.tokenTailoringConfig.MaxInputTokensRatio,
-	}
-
-	return m
-}
+// Create Hunyuan API client.
 
 // Info returns the model information.
-func (m *Model) Info() model.Info {
-	contextWindow := 0
-	if m.contextWindowConfigured {
-		contextWindow = m.contextWindow
-	}
-	return model.Info{
-		Name:          m.name,
-		ContextWindow: contextWindow,
-	}
-}
+func (m *Model) Info() model.Info { _ = "STUB: not implemented"; return *new(model.Info) }
 
 func (m *Model) runChatRequestCallback(
 	ctx context.Context,
 	chatRequest *hunyuan.ChatCompletionNewParams,
 ) {
-	if m.chatRequestCallback == nil {
-		return
-	}
-	defer imodel.RecoverCallbackPanic(ctx, "chat request callback")
-	m.chatRequestCallback(ctx, chatRequest)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *Model) runChatResponseCallback(
@@ -207,11 +137,8 @@ func (m *Model) runChatResponseCallback(
 	chatRequest *hunyuan.ChatCompletionNewParams,
 	chatResponse *hunyuan.ChatCompletionResponse,
 ) {
-	if m.chatResponseCallback == nil {
-		return
-	}
-	defer imodel.RecoverCallbackPanic(ctx, "chat response callback")
-	m.chatResponseCallback(ctx, chatRequest, chatResponse)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *Model) runChatChunkCallback(
@@ -219,11 +146,8 @@ func (m *Model) runChatChunkCallback(
 	chatRequest *hunyuan.ChatCompletionNewParams,
 	chatChunk *hunyuan.ChatCompletionResponse,
 ) {
-	if m.chatChunkCallback == nil {
-		return
-	}
-	defer imodel.RecoverCallbackPanic(ctx, "chat chunk callback")
-	m.chatChunkCallback(ctx, chatRequest, chatChunk)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *Model) runChatStreamCompleteCallback(
@@ -231,11 +155,8 @@ func (m *Model) runChatStreamCompleteCallback(
 	chatRequest *hunyuan.ChatCompletionNewParams,
 	streamErr error,
 ) {
-	if m.chatStreamCompleteCallback == nil {
-		return
-	}
-	defer imodel.RecoverCallbackPanic(ctx, "chat stream complete callback")
-	m.chatStreamCompleteCallback(ctx, chatRequest, streamErr)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GenerateContent generates content from the model.
@@ -243,127 +164,50 @@ func (m *Model) GenerateContent(
 	ctx context.Context,
 	request *model.Request,
 ) (<-chan *model.Response, error) {
-	if request == nil {
-		return nil, errors.New("request cannot be nil")
-	}
-
-	// Apply token tailoring if configured.
-	m.applyTokenTailoring(ctx, request)
-
-	chatRequest, err := m.buildChatRequest(request)
-	if err != nil {
-		return nil, fmt.Errorf("build chat request: %w", err)
-	}
-
-	// Execute callback synchronously before starting the goroutine
-	// to avoid a race where the runner and HTTP handler finish
-	// (closing the SSE writer) while the callback is still running.
-	m.runChatRequestCallback(ctx, chatRequest)
-	// Send chat request and handle response.
-	responseChan := make(chan *model.Response, m.channelBufferSize)
-	go func() {
-		defer close(responseChan)
-		if request.Stream {
-			m.handleStreamingResponse(ctx, chatRequest, responseChan)
-			return
-		}
-		m.handleNonStreamingResponse(ctx, chatRequest, responseChan)
-	}()
-	return responseChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Apply token tailoring if configured.
+
+// Execute callback synchronously before starting the goroutine
+// to avoid a race where the runner and HTTP handler finish
+// (closing the SSE writer) while the callback is still running.
+
+// Send chat request and handle response.
 
 // applyTokenTailoring performs best-effort token tailoring if configured.
 func (m *Model) applyTokenTailoring(ctx context.Context, request *model.Request) {
+	_ = "STUB: not implemented"
 	// Early return if token tailoring is disabled or no messages to process.
-	if !m.enableTokenTailoring || len(request.Messages) == 0 {
-		return
-	}
-
-	// Determine max input tokens using priority: user config > auto calculation > default.
-	maxInputTokens := m.maxInputTokens
-	if maxInputTokens <= 0 {
-		// Auto-calculate based on model context window with custom or default parameters.
-		contextWindow := m.contextWindow
-		if contextWindow <= 0 {
-			contextWindow = imodel.ResolveContextWindow(m.name)
-		}
-		if m.protocolOverheadTokens > 0 || m.reserveOutputTokens > 0 {
-			// Use custom parameters if any are set.
-			maxInputTokens = imodel.CalculateMaxInputTokensWithParams(
-				contextWindow,
-				m.protocolOverheadTokens,
-				m.reserveOutputTokens,
-				m.inputTokensFloor,
-				m.safetyMarginRatio,
-				m.maxInputTokensRatio,
-			)
-		} else {
-			// Use default parameters.
-			maxInputTokens = imodel.CalculateMaxInputTokens(contextWindow)
-		}
-		log.DebugfContext(ctx, "auto-calculated max input tokens: model=%s, contextWindow=%d, maxInputTokens=%d",
-			m.name, contextWindow, maxInputTokens)
-	}
-
-	// Apply token tailoring.
-	tailored, err := m.tailoringStrategy.TailorMessages(ctx, request.Messages, maxInputTokens)
-	if err != nil {
-		if len(tailored) > 0 {
-			log.WarnContext(ctx, "token tailoring returned best-effort messages in hunyuan.Model", err)
-			request.Messages = tailored
-			return
-		}
-		log.WarnContext(ctx, "token tailoring failed in hunyuan.Model", "error", err)
-		return
-	}
-
-	request.Messages = tailored
+	return
 }
+
+// Determine max input tokens using priority: user config > auto calculation > default.
+
+// Auto-calculate based on model context window with custom or default parameters.
+
+// Use custom parameters if any are set.
+
+// Use default parameters.
+
+// Apply token tailoring.
 
 // buildChatRequest builds the chat request for the Hunyuan API.
 func (m *Model) buildChatRequest(request *model.Request) (*hunyuan.ChatCompletionNewParams, error) {
+	_ = "STUB: not implemented"
 	// Convert messages to Hunyuan format.
-	messages, err := convertMessages(request.Messages)
-	if err != nil {
-		return nil, err
-	}
-	if len(messages) == 0 {
-		return nil, fmt.Errorf("request must include at least one message")
-	}
-
-	// Build chat request.
-	chatRequest := &hunyuan.ChatCompletionNewParams{
-		Model:    m.name,
-		Messages: messages,
-		Stream:   request.Stream,
-	}
-
-	// Convert tools if present.
-	if len(request.Tools) > 0 {
-		chatRequest.Tools = convertTools(request.Tools)
-	}
-
-	// Set generation parameters.
-	if request.Temperature != nil {
-		chatRequest.Temperature = *request.Temperature
-	}
-	if request.TopP != nil {
-		chatRequest.TopP = *request.TopP
-	}
-	if len(request.Stop) > 0 {
-		chatRequest.Stop = request.Stop
-	}
-	if request.MaxTokens != nil {
-		// Note: Hunyuan doesn't have a direct MaxTokens parameter in the API
-		// This would need to be handled differently based on Hunyuan's API capabilities
-		log.Debugf("MaxTokens parameter not directly supported by Hunyuan API: %d", *request.MaxTokens)
-	}
-	if request.ThinkingEnabled != nil && *request.ThinkingEnabled {
-		chatRequest.EnableThinking = true
-	}
-
-	return chatRequest, nil
+	return nil, nil
 }
+
+// Build chat request.
+
+// Convert tools if present.
+
+// Set generation parameters.
+
+// Note: Hunyuan doesn't have a direct MaxTokens parameter in the API
+// This would need to be handled differently based on Hunyuan's API capabilities
 
 // handleNonStreamingResponse sends a non-streaming request to the Hunyuan API.
 func (m *Model) handleNonStreamingResponse(
@@ -371,28 +215,12 @@ func (m *Model) handleNonStreamingResponse(
 	chatRequest *hunyuan.ChatCompletionNewParams,
 	responseChan chan<- *model.Response,
 ) {
+	_ = "STUB: not implemented"
 	// Issue non-streaming request.
-	chatResponse, err := m.client.ChatCompletion(ctx, chatRequest)
-	if err != nil {
-		m.sendErrorResponse(ctx, responseChan, model.ErrorTypeAPIError, err)
-		return
-	}
-
-	m.runChatResponseCallback(ctx, chatRequest, chatResponse)
-
-	response, err := convertChatResponse(chatResponse)
-	if err != nil {
-		m.sendErrorResponse(ctx, responseChan, model.ErrorTypeAPIError, err)
-		return
-	}
-	response.Model = m.name
-
-	// Emit final response.
-	select {
-	case responseChan <- response:
-	case <-ctx.Done():
-	}
+	return
 }
+
+// Emit final response.
 
 // handleStreamingResponse sends a streaming request to the Hunyuan API.
 func (m *Model) handleStreamingResponse(
@@ -400,282 +228,61 @@ func (m *Model) handleStreamingResponse(
 	chatRequest *hunyuan.ChatCompletionNewParams,
 	responseChan chan<- *model.Response,
 ) {
-	var (
-		streamErr     error
-		finalResponse *model.Response
-	)
-
-	err := m.client.ChatCompletionStream(ctx, chatRequest, func(chunk *hunyuan.ChatCompletionResponse) error {
-		m.runChatChunkCallback(ctx, chatRequest, chunk)
-
-		response, err := convertChatResponse(chunk)
-		if err != nil {
-			return err
-		}
-		response.Model = m.name
-		if response.Done {
-			finalResponse = response
-			return nil
-		}
-
-		// Emit partial response.
-		select {
-		case responseChan <- response:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		streamErr = err
-	}
-
-	// Call the stream complete callback before surfacing the terminal result.
-	m.runChatStreamCompleteCallback(ctx, chatRequest, streamErr)
-
-	if streamErr != nil {
-		m.sendErrorResponse(ctx, responseChan, model.ErrorTypeStreamError, streamErr)
-		return
-	}
-	if finalResponse == nil {
-		return
-	}
-	select {
-	case responseChan <- finalResponse:
-	case <-ctx.Done():
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Emit partial response.
+
+// Call the stream complete callback before surfacing the terminal result.
 
 // sendErrorResponse sends an error response through the channel.
 func (m *Model) sendErrorResponse(ctx context.Context, responseChan chan<- *model.Response, errType string, err error) {
-	errorResponse := &model.Response{
-		Error: &model.ResponseError{
-			Message: err.Error(),
-			Type:    errType,
-		},
-		Timestamp: time.Now(),
-		Done:      true,
-	}
-	select {
-	case responseChan <- errorResponse:
-	case <-ctx.Done():
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // convertChatResponse converts Hunyuan chat response to model response.
 func convertChatResponse(resp *hunyuan.ChatCompletionResponse) (*model.Response, error) {
-	if resp == nil {
-		return nil, fmt.Errorf("response is nil")
-	}
-
-	var choices []model.Choice
-	var done bool
-	for _, choice := range resp.Choices {
-		var toolCalls []model.ToolCall
-		if choice.FinishReason != "" || choice.Delta == nil {
-			done = true
-		}
-
-		// Handle tool calls from message or delta
-		var sourceToolCalls []*hunyuan.ChatCompletionMessageToolCall
-		if choice.Message != nil && choice.Message.ToolCalls != nil {
-			sourceToolCalls = choice.Message.ToolCalls
-		} else if choice.Delta != nil && choice.Delta.ToolCalls != nil {
-			sourceToolCalls = choice.Delta.ToolCalls
-		}
-
-		for _, tc := range sourceToolCalls {
-			if tc.Function != nil {
-				toolCalls = append(toolCalls, model.ToolCall{
-					Type: functionToolType,
-					ID:   tc.Id,
-					Function: model.FunctionDefinitionParam{
-						Name:      tc.Function.Name,
-						Arguments: []byte(tc.Function.Arguments),
-					},
-				})
-			}
-		}
-
-		c := model.Choice{}
-		if choice.Message != nil {
-			c.Message = model.Message{
-				Role:             model.Role(choice.Message.Role),
-				Content:          choice.Message.Content,
-				ReasoningContent: choice.Message.ReasoningContent,
-				ToolCalls:        toolCalls,
-			}
-		}
-		if choice.Delta != nil {
-			c.Delta = model.Message{
-				Role:             model.Role(choice.Delta.Role),
-				Content:          choice.Delta.Content,
-				ReasoningContent: choice.Delta.ReasoningContent,
-				ToolCalls:        toolCalls,
-			}
-		}
-		if choice.FinishReason != "" {
-			c.FinishReason = &choice.FinishReason
-		}
-		choices = append(choices, c)
-	}
-
-	now := time.Now()
-	obj := model.ObjectTypeChatCompletionChunk
-	var usage *model.Usage
-	if done {
-		obj = model.ObjectTypeChatCompletion
-		usage = &model.Usage{
-			PromptTokens:     int(resp.Usage.PromptTokens),
-			CompletionTokens: int(resp.Usage.CompletionTokens),
-			TotalTokens:      int(resp.Usage.TotalTokens),
-		}
-	}
-
-	response := &model.Response{
-		ID:        resp.Id,
-		Object:    obj,
-		Created:   resp.Created,
-		Timestamp: now,
-		IsPartial: !done,
-		Choices:   choices,
-		Done:      done,
-		Usage:     usage,
-	}
-
-	return response, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Handle tool calls from message or delta
 
 // convertMessages converts model messages to Hunyuan messages.
 func convertMessages(messages []model.Message) ([]*hunyuan.ChatCompletionMessageParam, error) {
-	result := make([]*hunyuan.ChatCompletionMessageParam, 0, len(messages))
-	for _, msg := range messages {
-		hMsg, err := convertMessage(msg)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, hMsg)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // convertMessage converts a model message to a Hunyuan message.
 func convertMessage(msg model.Message) (*hunyuan.ChatCompletionMessageParam, error) {
-	hMsg := &hunyuan.ChatCompletionMessageParam{
-		Role:             msg.Role.String(),
-		Content:          msg.Content,
-		ToolCallId:       msg.ToolID,
-		ReasoningContent: msg.ReasoningContent,
-	}
-
-	// Convert tool calls
-	if len(msg.ToolCalls) > 0 {
-		for _, tc := range msg.ToolCalls {
-			hMsg.ToolCalls = append(hMsg.ToolCalls, &hunyuan.ChatCompletionMessageToolCall{
-				Id:   tc.ID,
-				Type: tc.Type,
-				Function: &hunyuan.ChatCompletionMessageToolCallFunction{
-					Name:      tc.Function.Name,
-					Arguments: string(tc.Function.Arguments),
-				},
-			})
-		}
-	}
-
-	// Convert content parts (multimodal content)
-	if len(msg.ContentParts) > 0 {
-		var contents []*hunyuan.ChatCompletionMessageContentParam
-		for _, part := range msg.ContentParts {
-			switch part.Type {
-			case model.ContentTypeText:
-				if part.Text != nil {
-					contents = append(contents, &hunyuan.ChatCompletionMessageContentParam{
-						Type: "text",
-						Text: *part.Text,
-					})
-				}
-				// hunyuan image example https://cloud.tencent.com/document/api/1729/105701#.E7.A4.BA.E4.BE.8B9-.E5.9B.BE.E7.89.87.E7.90.86.E8.A7.A3.E7.A4.BA.E4.BE.8B
-			case model.ContentTypeImage:
-				if part.Image != nil {
-					imageUrl := imageToURLOrBase64(part.Image)
-					contents = append(contents, &hunyuan.ChatCompletionMessageContentParam{
-						Type: "image_url",
-						ImageUrl: &hunyuan.ChatCompletionContentImageUrlParam{
-							Url: imageUrl,
-						},
-					})
-				}
-			case model.ContentTypeAudio:
-				if part.Audio != nil {
-					contents = append(contents, &hunyuan.ChatCompletionMessageContentParam{
-						Type: "audio_url",
-						VideoUrl: &hunyuan.ChatCompletionContentVideoUrlParam{
-							Url: audioToBase64(part.Audio),
-						},
-					})
-				}
-			default:
-
-			}
-		}
-		if len(contents) > 0 {
-			hMsg.Contents = contents
-			hMsg.Content = "" // Clear simple content when using structured content
-		}
-	}
-
-	return hMsg, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Convert tool calls
+
+// Convert content parts (multimodal content)
+
+// hunyuan image example https://cloud.tencent.com/document/api/1729/105701#.E7.A4.BA.E4.BE.8B9-.E5.9B.BE.E7.89.87.E7.90.86.E8.A7.A3.E7.A4.BA.E4.BE.8B
+
+// Clear simple content when using structured content
 
 // convertTools converts our tool declarations to Hunyuan tool parameters.
 func convertTools(tools map[string]tool.Tool) []*hunyuan.ChatCompletionMessageTool {
-	var result []*hunyuan.ChatCompletionMessageTool
-	for _, tl := range toolorder.SortedTools(tools) {
-		decl := tl.Declaration()
-
-		schemaBytes, err := json.Marshal(decl.InputSchema)
-		if err != nil {
-			log.Errorf("failed to marshal tool schema for %s: %v", decl.Name, err)
-			continue
-		}
-
-		result = append(result, &hunyuan.ChatCompletionMessageTool{
-			Type: functionToolType,
-			Function: &hunyuan.ChatCompletionMessageToolFunction{
-				Name:        decl.Name,
-				Parameters:  string(schemaBytes),
-				Description: buildToolDescription(decl),
-			},
-		})
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // buildToolDescription builds the description for a tool.
 // It appends the output schema to the description.
 func buildToolDescription(declaration *tool.Declaration) string {
-	desc := declaration.Description
-	if declaration.OutputSchema == nil {
-		return desc
-	}
-	schemaJSON, err := json.Marshal(declaration.OutputSchema)
-	if err != nil {
-		log.Debugf("marshal output schema for tool %s: %v", declaration.Name, err)
-		return desc
-	}
-	desc += "Output schema: " + string(schemaJSON)
-	return desc
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func imageToURLOrBase64(image *model.Image) string {
-	if image.URL != "" {
-		return image.URL
-	}
-	return "data:image/" + image.Format + ";base64," + base64.StdEncoding.EncodeToString(image.Data)
-}
+func imageToURLOrBase64(image *model.Image) string { _ = "STUB: not implemented"; return "" }
 
-func audioToBase64(audio *model.Audio) string {
-	return "data:" + audio.Format + ";base64," + base64.StdEncoding.EncodeToString(audio.Data)
-}
+func audioToBase64(audio *model.Audio) string { _ = "STUB: not implemented"; return "" }

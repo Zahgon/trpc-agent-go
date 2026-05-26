@@ -10,13 +10,6 @@
 package model
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/structuredoutput"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -47,18 +40,13 @@ const (
 
 // String returns the string representation of the role.
 func (r Role) String() string {
-	return string(r)
+	_ = "STUB: not implemented"
+
+	// IsValid checks if the role is one of the defined constants.
+	return ""
 }
 
-// IsValid checks if the role is one of the defined constants.
-func (r Role) IsValid() bool {
-	switch r {
-	case RoleSystem, RoleUser, RoleAssistant, RoleTool:
-		return true
-	default:
-		return false
-	}
-}
+func (r Role) IsValid() bool { _ = "STUB: not implemented"; return false }
 
 // Message represents a single message in a conversation.
 type Message struct {
@@ -85,82 +73,33 @@ type Message struct {
 }
 
 // AddFilePath adds a file path to the message.
-func (m *Message) AddFilePath(filepath string) error {
-	mimeType, err := inferMimeType(filepath)
-	if err != nil {
-		return err
-	}
-	content, err := os.ReadFile(filepath)
-	if err != nil {
-		return err
-	}
-	m.AddFileData(filepath, content, mimeType)
-	return nil
-}
+func (m *Message) AddFilePath(filepath string) error { _ = "STUB: not implemented"; return nil }
 
 // AddFileData adds a file data to the message.
 // The argument of data is the raw file data without base64 encoding.
 func (m *Message) AddFileData(name string, data []byte, mimetype string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeFile,
-		File: &File{
-			Name:     name,
-			Data:     data,
-			MimeType: mimetype,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 // AddFileURL adds a URL-based file to the message.
-func (m *Message) AddFileURL(name, url, mimetype string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeFile,
-		File: &File{
-			Name:     name,
-			URL:      url,
-			MimeType: mimetype,
-		},
-	})
-}
+func (m *Message) AddFileURL(name, url, mimetype string) { _ = "STUB: not implemented"; return }
 
 // AddFileID adds a file ID to the message.
 // The file id can be obtained from the response of the upload file API.
-func (m *Message) AddFileID(fileID string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeFile,
-		File: &File{
-			FileID: fileID,
-		},
-	})
-}
+func (m *Message) AddFileID(fileID string) { _ = "STUB: not implemented"; return }
 
 // AddFileIDWithName adds a file ID and filename to the message.
 //
 // The filename is not always sent to the model provider when FileID is used,
 // but it can be useful for downstream tooling (for example, staging user file
 // inputs into a skill workspace).
-func (m *Message) AddFileIDWithName(fileID, name string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeFile,
-		File: &File{
-			Name:   name,
-			FileID: fileID,
-		},
-	})
-}
+func (m *Message) AddFileIDWithName(fileID, name string) { _ = "STUB: not implemented"; return }
 
 // AddImageURL adds an image URL to the message.
 // The argument of detail is the detail level: "low", "high", "auto".
 // If detail is empty, it will be set to "auto".
-func (m *Message) AddImageURL(url, detail string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeImage,
-		Image: &Image{
-			URL:    url,
-			Detail: detail,
-		},
-	})
-}
+func (m *Message) AddImageURL(url, detail string) { _ = "STUB: not implemented"; return }
 
 // AddImageFilePath adds an image file path to the message.
 // The argument detail specifies the detail level: "low", "high", or "auto".
@@ -174,78 +113,31 @@ func (m *Message) AddImageURL(url, detail string) {
 //
 // Reference: https://platform.openai.com/docs/guides/images-vision.
 func (m *Message) AddImageFilePath(path string, detail string) error {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	// Infer format from the file extension.
-	ext := filepath.Ext(path)
-	var format string
-	switch ext {
-	case ".png":
-		format = "png"
-	case ".jpg":
-		format = "jpg"
-	case ".jpeg":
-		format = "jpeg"
-	case ".webp":
-		format = "webp"
-	case ".gif":
-		format = "gif"
-	default:
-		return fmt.Errorf("unsupported image format: %s", ext)
-	}
-	m.AddImageData(content, detail, format)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Infer format from the file extension.
 
 // AddImageData adds an image data to the message.
 // The argument of data is the raw image data without base64 encoding.
 // The argument of detail is the detail level: "low", "high", "auto".
 // If detail is empty, it will be set to "auto".
 func (m *Message) AddImageData(data []byte, detail, format string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeImage,
-		Image: &Image{
-			Data:   data,
-			Detail: detail,
-			Format: format,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 // AddAudioFilePath adds an audio file path to the message.
-func (m *Message) AddAudioFilePath(path string) error {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	// Infer format from the file extension.
-	format := filepath.Ext(path)
-	if format == ".wav" {
-		format = "wav"
-	} else if format == ".mp3" {
-		format = "mp3"
-	} else {
-		return fmt.Errorf("unsupported audio format: %s", format)
-	}
-	m.AddAudioData(content, format)
-	return nil
-}
+func (m *Message) AddAudioFilePath(path string) error { _ = "STUB: not implemented"; return nil }
+
+// Infer format from the file extension.
 
 // AddAudioData adds an audio data to the message.
 // The argument of data is the raw audio data without base64 encoding.
 // The argument of format is the format of the audio data.
 // Currently supports "wav" and "mp3".
-func (m *Message) AddAudioData(data []byte, format string) {
-	m.ContentParts = append(m.ContentParts, ContentPart{
-		Type: ContentTypeAudio,
-		Audio: &Audio{
-			Data:   data,
-			Format: format,
-		},
-	})
-}
+func (m *Message) AddAudioData(data []byte, format string) { _ = "STUB: not implemented"; return }
 
 // ContentType represents the type of content.
 type ContentType string
@@ -287,27 +179,7 @@ type File struct {
 }
 
 // FileURLText returns a textual representation for providers that cannot accept URL-based files.
-func FileURLText(file *File) string {
-	if file == nil {
-		return ""
-	}
-	fileURL := strings.TrimSpace(file.URL)
-	if fileURL == "" {
-		return ""
-	}
-	name := strings.TrimSpace(file.Name)
-	mimeType := strings.TrimSpace(file.MimeType)
-	if name != "" && mimeType != "" {
-		return fmt.Sprintf("File URL: %s (%s): %s", name, mimeType, fileURL)
-	}
-	if name != "" {
-		return fmt.Sprintf("File URL: %s: %s", name, fileURL)
-	}
-	if mimeType != "" {
-		return fmt.Sprintf("File URL (%s): %s", mimeType, fileURL)
-	}
-	return "File URL: " + fileURL
-}
+func FileURLText(file *File) string { _ = "STUB: not implemented"; return "" }
 
 // Image represents an image data for vision models.
 type Image struct {
@@ -332,38 +204,19 @@ type Audio struct {
 }
 
 // NewSystemMessage creates a new system message.
-func NewSystemMessage(content string) Message {
-	return Message{
-		Role:    RoleSystem,
-		Content: content,
-	}
-}
+func NewSystemMessage(content string) Message { _ = "STUB: not implemented"; return *new(Message) }
 
 // NewUserMessage creates a new user message.
-func NewUserMessage(content string) Message {
-	return Message{
-		Role:    RoleUser,
-		Content: content,
-	}
-}
+func NewUserMessage(content string) Message { _ = "STUB: not implemented"; return *new(Message) }
 
 // NewToolMessage creates a new tool message.
 func NewToolMessage(toolID, toolName, content string) Message {
-	return Message{
-		Role:     RoleTool,
-		ToolID:   toolID,
-		ToolName: toolName,
-		Content:  content,
-	}
+	_ = "STUB: not implemented"
+	return *new(Message)
 }
 
 // NewAssistantMessage creates a new assistant message.
-func NewAssistantMessage(content string) Message {
-	return Message{
-		Role:    RoleAssistant,
-		Content: content,
-	}
-}
+func NewAssistantMessage(content string) Message { _ = "STUB: not implemented"; return *new(Message) }
 
 // GenerationConfig contains configuration for text generation.
 type GenerationConfig struct {
@@ -449,37 +302,8 @@ func ApplyGenerationConfigPatch(
 	base GenerationConfig,
 	patch GenerationConfigPatch,
 ) GenerationConfig {
-	if patch.MaxTokens != nil {
-		base.MaxTokens = patch.MaxTokens
-	}
-	if patch.Temperature != nil {
-		base.Temperature = patch.Temperature
-	}
-	if patch.TopP != nil {
-		base.TopP = patch.TopP
-	}
-	if patch.Stream != nil {
-		base.Stream = *patch.Stream
-	}
-	if patch.Stop != nil {
-		base.Stop = append([]string{}, patch.Stop...)
-	}
-	if patch.PresencePenalty != nil {
-		base.PresencePenalty = patch.PresencePenalty
-	}
-	if patch.FrequencyPenalty != nil {
-		base.FrequencyPenalty = patch.FrequencyPenalty
-	}
-	if patch.ReasoningEffort != nil {
-		base.ReasoningEffort = patch.ReasoningEffort
-	}
-	if patch.ThinkingEnabled != nil {
-		base.ThinkingEnabled = patch.ThinkingEnabled
-	}
-	if patch.ThinkingTokens != nil {
-		base.ThinkingTokens = patch.ThinkingTokens
-	}
-	return base
+	_ = "STUB: not implemented"
+	return *new(GenerationConfig)
 }
 
 // Request is the request to the model.
@@ -509,15 +333,8 @@ type RequestOption func(*Request)
 
 // NewRequest creates a model request from messages and applies options.
 func NewRequest(messages []Message, opts ...RequestOption) *Request {
-	req := &Request{
-		Messages: messages,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(req)
-		}
-	}
-	return req
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithStructuredOutputJSON sets JSON schema structured output for a request.
@@ -527,11 +344,8 @@ func NewRequest(messages []Message, opts ...RequestOption) *Request {
 // model callers still receive normal model.Response values and should unmarshal
 // the final JSON content themselves.
 func WithStructuredOutputJSON(examplePtr any, strict bool, description string) RequestOption {
-	return func(req *Request) {
-		if out := structuredOutputJSON(examplePtr, strict, description); out != nil {
-			req.StructuredOutput = out
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RequestOption)
 }
 
 // ToolCall represents a call to a tool (function) in the model response.
@@ -573,30 +387,14 @@ type FunctionDefinitionParam struct {
 // MarshalJSON customizes JSON marshaling for FunctionDefinitionParam.
 // This prevents double-encoding of the Arguments field by treating it as a string.
 func (f FunctionDefinitionParam) MarshalJSON() ([]byte, error) {
-	type Alias FunctionDefinitionParam
-	return json.Marshal(&struct {
-		Arguments string `json:"arguments,omitempty"`
-		*Alias
-	}{
-		Arguments: string(f.Arguments),
-		Alias:     (*Alias)(&f),
-	})
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UnmarshalJSON customizes JSON unmarshaling for FunctionDefinitionParam.
 // This ensures the Arguments field is properly decoded from JSON string to []byte.
 func (f *FunctionDefinitionParam) UnmarshalJSON(data []byte) error {
-	type Alias FunctionDefinitionParam
-	aux := &struct {
-		Arguments string `json:"arguments,omitempty"`
-		*Alias
-	}{
-		Alias: (*Alias)(f),
-	}
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-	f.Arguments = []byte(aux.Arguments)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -626,13 +424,7 @@ var toMIME = map[string]string{
 
 // inferMimeType infers the MIME type from the file extension of the given path.
 // Returns the MIME type string, or an error if the extension is unknown.
-func inferMimeType(path string) (string, error) {
-	ext := strings.ToLower(filepath.Ext(path))
-	if mime, ok := toMIME[ext]; ok {
-		return mime, nil
-	}
-	return "", fmt.Errorf("unknown file extension: %s", ext)
-}
+func inferMimeType(path string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // StructuredOutputType defines the type of structured output.
 type StructuredOutputType string
@@ -663,17 +455,6 @@ type StructuredOutput struct {
 }
 
 func structuredOutputJSON(examplePtr any, strict bool, description string) *StructuredOutput {
-	name, schema, _ := structuredoutput.FromType(examplePtr, strict)
-	if schema == nil {
-		return nil
-	}
-	return &StructuredOutput{
-		Type: StructuredOutputJSONSchema,
-		JSONSchema: &JSONSchemaConfig{
-			Name:        name,
-			Schema:      schema,
-			Strict:      strict,
-			Description: description,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -46,19 +46,14 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
@@ -87,12 +82,7 @@ var (
 	)
 )
 
-func getModelName() string {
-	if *modelName != "" {
-		return *modelName
-	}
-	return "deepseek-v4-flash"
-}
+func getModelName() string { _ = "STUB: not implemented"; return "" }
 
 func main() {
 	flag.Parse()
@@ -229,16 +219,8 @@ func main() {
 const appName = "content-filter-demo"
 
 func printSessionEvents(svc session.Service, userID, sessionID string) {
-	ctx := context.Background()
-	if err := util.PrintSessionEvents(
-		ctx,
-		svc,
-		appName,
-		userID,
-		sessionID,
-	); err != nil {
-		fmt.Printf("PrintSessionEvents error: %v\n", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func chat(
@@ -248,31 +230,7 @@ func chat(
 	message string,
 	requestID string,
 ) error {
-	ctx := context.Background()
-	eventChan, err := r.Run(
-		ctx,
-		userID,
-		sessionID,
-		model.NewUserMessage(message),
-		agent.WithRequestID(requestID),
-	)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("User: %s\n", message)
-	fmt.Print("Assistant: ")
-	for evt := range eventChan {
-		if evt.Error != nil {
-			fmt.Println()
-			return fmt.Errorf("event error: %s", evt.Error.Message)
-		}
-		if len(evt.Response.Choices) > 0 {
-			content := evt.Response.Choices[0].Message.Content
-			fmt.Print(content)
-		}
-	}
-	fmt.Println()
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -288,44 +246,12 @@ func simulateConsecutiveUserMessages(
 	userID string,
 	sessionID string,
 ) error {
-	ctx := context.Background()
-	key := session.Key{AppName: appName, UserID: userID, SessionID: sessionID}
-
-	sess, err := svc.GetSession(ctx, key)
-	if err != nil {
-		return fmt.Errorf("get session: %w", err)
-	}
-	if sess == nil {
-		return fmt.Errorf("session not found")
-	}
-
-	// Simulate: user sends a message but disconnects before receiving response.
-	// The user message is written to session, but no assistant response follows.
-	simulatedUserEvent := &event.Event{
-		ID: fmt.Sprintf("simulated-user-%d", time.Now().UnixNano()),
-		Response: &model.Response{
-			Done: true,
-			Choices: []model.Choice{
-				{
-					Message: model.Message{
-						Role:    model.RoleUser,
-						Content: "I was disconnected before getting a response",
-					},
-				},
-			},
-		},
-	}
-
-	// Use AppendEvent to persist the simulated message.
-	// This ensures the message is stored properly in the session backend.
-	if err := svc.AppendEvent(ctx, sess, simulatedUserEvent); err != nil {
-		return fmt.Errorf("append simulated event: %w", err)
-	}
-
-	fmt.Printf(
-		"Simulated user message: %s\n",
-		simulatedUserEvent.Response.Choices[0].Message.Content,
-	)
-	fmt.Println("(No assistant response - simulating disconnection)")
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Simulate: user sends a message but disconnects before receiving response.
+// The user message is written to session, but no assistant response follows.
+
+// Use AppendEvent to persist the simulated message.
+// This ensures the message is stored properly in the session backend.

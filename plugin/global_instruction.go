@@ -11,7 +11,6 @@ package plugin
 
 import (
 	"context"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -33,10 +32,8 @@ type GlobalInstruction struct {
 // NewGlobalInstruction creates a GlobalInstruction plugin with a default
 // name.
 func NewGlobalInstruction(instruction string) *GlobalInstruction {
-	return NewNamedGlobalInstruction(
-		defaultGlobalInstructionPluginName,
-		instruction,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNamedGlobalInstruction creates a GlobalInstruction plugin with a custom
@@ -45,59 +42,26 @@ func NewNamedGlobalInstruction(
 	name string,
 	instruction string,
 ) *GlobalInstruction {
-	if name == "" {
-		name = defaultGlobalInstructionPluginName
-	}
-	return &GlobalInstruction{name: name, instruction: instruction}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Name implements Plugin.
-func (p *GlobalInstruction) Name() string { return p.name }
+func (p *GlobalInstruction) Name() string {
+	_ = "STUB: not implemented"
 
-// Register implements Plugin.
-func (p *GlobalInstruction) Register(r *Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	r.BeforeModel(p.beforeModel)
+	// Register implements Plugin.
+	return ""
 }
+
+func (p *GlobalInstruction) Register(r *Registry) { _ = "STUB: not implemented"; return }
 
 func (p *GlobalInstruction) beforeModel(
 	_ context.Context,
 	args *model.BeforeModelArgs,
 ) (*model.BeforeModelResult, error) {
-	if p == nil || args == nil || args.Request == nil {
-		return nil, nil
-	}
-	applyGlobalInstruction(args.Request, p.instruction)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func applyGlobalInstruction(req *model.Request, instr string) {
-	if req == nil {
-		return
-	}
-	instr = strings.TrimSpace(instr)
-	if instr == "" {
-		return
-	}
-
-	if len(req.Messages) == 0 {
-		req.Messages = []model.Message{model.NewSystemMessage(instr)}
-		return
-	}
-
-	if req.Messages[0].Role == model.RoleSystem {
-		if req.Messages[0].Content == "" {
-			req.Messages[0].Content = instr
-			return
-		}
-		req.Messages[0].Content = instr + doubleNewline + req.Messages[0].Content
-		return
-	}
-
-	req.Messages = append(
-		[]model.Message{model.NewSystemMessage(instr)},
-		req.Messages...,
-	)
-}
+func applyGlobalInstruction(req *model.Request, instr string) { _ = "STUB: not implemented"; return }

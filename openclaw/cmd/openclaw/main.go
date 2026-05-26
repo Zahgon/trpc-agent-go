@@ -12,7 +12,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/app"
@@ -30,13 +29,4 @@ func main() {
 	os.Exit(run(os.Args[1:]))
 }
 
-func run(args []string) int {
-	if isTopLevelVersionRequest(args) {
-		_, _ = fmt.Fprintln(os.Stdout, currentVersion())
-		return 0
-	}
-	if isTopLevelUpgradeRequest(args) {
-		return runUpgradeCommandFunc(args[1:])
-	}
-	return runAppFunc(args)
-}
+func run(args []string) int { _ = "STUB: not implemented"; return 0 }

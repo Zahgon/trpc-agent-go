@@ -13,7 +13,6 @@
 package programsession
 
 import (
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
@@ -45,88 +44,26 @@ func WaitForProgramOutput(
 	yield time.Duration,
 	limit *int,
 ) codeexecutor.ProgramPoll {
-	deadline := time.Now()
-	if yield > 0 {
-		deadline = deadline.Add(yield)
-	}
-	var (
-		out            strings.Builder
-		offset         int
-		nextOffset     int
-		haveChunk      bool
-		settleDeadline time.Time
-	)
-	for {
-		poll := proc.Poll(limit)
-		if poll.Output != "" {
-			if !haveChunk {
-				offset = poll.Offset
-				haveChunk = true
-			}
-			out.WriteString(poll.Output)
-			nextOffset = poll.NextOffset
-			settleDeadline = time.Now().Add(DefaultPollSettle)
-			if yield <= 0 {
-				deadline = settleDeadline
-			}
-		} else if !haveChunk {
-			offset = poll.Offset
-			nextOffset = poll.NextOffset
-		} else {
-			nextOffset = poll.NextOffset
-		}
-		if poll.Status == codeexecutor.ProgramStatusExited {
-			poll.Output = out.String()
-			poll.Offset = offset
-			poll.NextOffset = nextOffset
-			return poll
-		}
-		now := time.Now()
-		if !settleDeadline.IsZero() && now.After(settleDeadline) {
-			poll.Output = out.String()
-			poll.Offset = offset
-			poll.NextOffset = nextOffset
-			return poll
-		}
-		if yield > 0 && now.After(deadline) {
-			poll.Output = out.String()
-			poll.Offset = offset
-			poll.NextOffset = nextOffset
-			return poll
-		}
-		time.Sleep(DefaultPollWait)
-	}
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.ProgramPoll)
 }
 
 // YieldDuration normalizes a millisecond input into a duration, using the
 // fallback when the provided value is zero and clamping negatives to zero.
 func YieldDuration(ms int, fallback int) time.Duration {
-	if ms < 0 {
-		ms = 0
-	}
-	if ms == 0 {
-		ms = fallback
-	}
-	return time.Duration(ms) * time.Millisecond
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 // PollLineLimit returns a pointer to a positive poll-line limit, falling back
 // to DefaultPollLines when the provided value is not positive.
-func PollLineLimit(lines int) *int {
-	if lines <= 0 {
-		lines = DefaultPollLines
-	}
-	return &lines
-}
+func PollLineLimit(lines int) *int { _ = "STUB: not implemented"; return nil }
 
 // State returns non-destructive program state when the session exposes
 // ProgramStateProvider, together with a boolean indicating support.
 func State(
 	proc codeexecutor.ProgramSession,
 ) (codeexecutor.ProgramState, bool) {
-	provider, ok := proc.(codeexecutor.ProgramStateProvider)
-	if !ok {
-		return codeexecutor.ProgramState{}, false
-	}
-	return provider.State(), true
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.ProgramState), false
 }

@@ -87,9 +87,7 @@ type Surface struct {
 }
 
 // SurfaceID returns the stable surface id for one node and surface type.
-func SurfaceID(nodeID string, surfaceType SurfaceType) string {
-	return nodeID + "#" + string(surfaceType)
-}
+func SurfaceID(nodeID string, surfaceType SurfaceType) string { _ = "STUB: not implemented"; return "" }
 
 // SurfaceValue is a discriminated union keyed by SurfaceType.
 type SurfaceValue struct {

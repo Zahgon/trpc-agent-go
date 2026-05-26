@@ -10,15 +10,11 @@
 package rubriccritic
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"text/template"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/internal/rubrics"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor/internal/content"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -160,68 +156,22 @@ type rubricCriticMessagesConstructor struct {
 
 // New returns a messages constructor for rubric critic evaluation.
 func New() messagesconstructor.MessagesConstructor {
-	return &rubricCriticMessagesConstructor{}
+	_ = "STUB: not implemented"
+	return *new(messagesconstructor.MessagesConstructor)
 }
 
 // ConstructMessages builds structured-output critic prompts for rubric evaluation.
 func (e *rubricCriticMessagesConstructor) ConstructMessages(ctx context.Context, actuals, expecteds []*evalset.Invocation,
 	evalMetric *metric.EvalMetric) ([]model.Message, error) {
-	if len(actuals) == 0 {
-		return nil, fmt.Errorf("actuals is empty")
-	}
-	if len(expecteds) == 0 {
-		return nil, fmt.Errorf("expecteds is empty")
-	}
-	if evalMetric == nil {
-		return nil, fmt.Errorf("eval metric is nil")
-	}
-	if evalMetric.Criterion == nil || evalMetric.Criterion.LLMJudge == nil {
-		return nil, fmt.Errorf("llm judge criterion is required")
-	}
-	if rubrics.Count(evalMetric) == 0 {
-		return nil, fmt.Errorf("llm judge rubrics are required")
-	}
-	actual := actuals[len(actuals)-1]
-	expected := expecteds[len(expecteds)-1]
-	if actual == nil {
-		return nil, fmt.Errorf("actual invocation is nil")
-	}
-	if expected == nil {
-		return nil, fmt.Errorf("expected invocation is nil")
-	}
-	if expected.FinalResponse == nil {
-		return nil, fmt.Errorf("expected final response is required for llm_rubric_critic")
-	}
-	data := rubricCriticPromptData{
-		UserInput:        content.ExtractTextFromContent(actual.UserContent),
-		FinalResponse:    content.ExtractTextFromContent(actual.FinalResponse),
-		ExpectedResponse: content.ExtractTextFromContent(expected.FinalResponse),
-		Rubrics:          content.ExtractRubrics(evalMetric.Criterion.LLMJudge.Rubrics),
-	}
-	var buf bytes.Buffer
-	if err := rubricCriticPromptTemplate.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("execute rubric critic prompt template: %w", err)
-	}
-	return []model.Message{
-		{
-			Role:    model.RoleUser,
-			Content: buf.String(),
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StructuredOutput returns the structured output schema for rubric critic evaluation.
 func (e *rubricCriticMessagesConstructor) StructuredOutput(ctx context.Context,
 	actuals, expecteds []*evalset.Invocation, evalMetric *metric.EvalMetric) (*model.StructuredOutput, error) {
-	visibleRubrics, err := rubrics.ValidateStructured(evalMetric)
-	if err != nil {
-		return nil, err
-	}
-	return rubrics.ScoresOutput(
-		"rubric_critic_scores",
-		"Per-rubric binary scores and reasons for rubric critic evaluation.",
-		visibleRubrics,
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type rubricCriticPromptData struct {

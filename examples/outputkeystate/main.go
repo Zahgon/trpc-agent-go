@@ -13,25 +13,15 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/chainagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -49,79 +39,23 @@ type StateAccessTool struct {
 }
 
 // Declaration returns tool metadata.
-func (t *StateAccessTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:        "get_session_state",
-		Description: "Retrieve data from the current session state. Use this to access information stored by previous agents in the chain.",
-		InputSchema: &tool.Schema{
-			Type: "object",
-			Properties: map[string]*tool.Schema{
-				"key": {
-					Type:        "string",
-					Description: "The key of the data to retrieve from session state.",
-				},
-			},
-			Required: []string{"key"},
-		},
-	}
-}
+func (t *StateAccessTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // Call executes the tool to retrieve data from session state.
 func (t *StateAccessTool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	var params map[string]any
-	if err := json.Unmarshal(jsonArgs, &params); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal arguments: %w", err)
-	}
-
-	key, ok := params["key"].(string)
-	if !ok {
-		return nil, fmt.Errorf("key parameter must be a string")
-	}
-
-	// Create session key.
-	sessionKey := session.Key{
-		AppName:   t.appName,
-		UserID:    t.userID,
-		SessionID: t.sessionID,
-	}
-
-	// Get session state.
-	sessionData, err := t.sessionService.GetSession(ctx, sessionKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get session: %w", err)
-	}
-
-	// Extract data from session state.
-	if sessionData == nil {
-		return map[string]any{
-			"result": "No data found in session state",
-		}, nil
-	}
-
-	// Look for the specific key in the state.
-	if data, exists := sessionData.GetState(key); exists {
-		return map[string]any{
-			"result": fmt.Sprintf("Found data for key '%s': %s", key, string(data)),
-		}, nil
-	}
-
-	// If key not found, return available keys.
-	state := sessionData.SnapshotState()
-	if len(state) == 0 {
-		return map[string]any{
-			"result": "No data found in session state",
-		}, nil
-	}
-
-	availableKeys := make([]string, 0, len(state))
-	for k := range state {
-		availableKeys = append(availableKeys, k)
-	}
-
-	return map[string]any{
-		"result": fmt.Sprintf("Key '%s' not found. Available keys: %v", key, availableKeys),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Create session key.
+
+// Get session state.
+
+// Extract data from session state.
+
+// Look for the specific key in the state.
+
+// If key not found, return available keys.
 
 // outputKeyStateChainChat manages the output key state chain conversation.
 type outputKeyStateChainChat struct {
@@ -133,169 +67,66 @@ type outputKeyStateChainChat struct {
 }
 
 // run starts the interactive chat session.
-func (c *outputKeyStateChainChat) run() error {
-	ctx := context.Background()
+func (c *outputKeyStateChainChat) run() error { _ = "STUB: not implemented"; return nil }
 
-	// Setup the runner with chain agent.
-	if err := c.setup(ctx); err != nil {
-		return fmt.Errorf("setup failed: %w", err)
-	}
+// Setup the runner with chain agent.
 
-	// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
-	defer c.runner.Close()
+// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
 
-	// Start interactive chat.
-	return c.startChat(ctx)
-}
+// Start interactive chat.
 
 // setup creates the runner with chain agent and sub-agents.
 func (c *outputKeyStateChainChat) setup(_ context.Context) error {
+	_ = "STUB: not implemented"
 	// Create OpenAI model.
-	modelInstance := openai.New(c.modelName)
-
-	// Create session service.
-	sessionService := inmemory.NewSessionService()
-	c.sessionService = sessionService
-
-	// Create generation config.
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(maxTokens),
-		Temperature: floatPtr(temperature),
-		Stream:      true,
-	}
-
-	// Create Research Agent that finds and stores key information.
-	researchAgent := llmagent.New(
-		"research-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A research assistant that finds and extracts key information from user queries"),
-		llmagent.WithInstruction("You are a skilled research assistant specializing in comprehensive topic analysis. "+
-			"When users ask questions, conduct thorough research and extract the most important facts, statistics, "+
-			"and insights. Focus on accuracy, relevance, and providing actionable information. "+
-			"Structure your findings in a clear, organized manner that would be valuable for content creation. "+
-			"Be thorough but concise, and always cite sources when possible."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithOutputKey("research_findings"),
-	)
-	// Setup identifiers.
-	c.userID = "user"
-	c.sessionID = fmt.Sprintf("output-key-state-session-%d", time.Now().Unix())
-
-	// Create state access tool for the writer agent.
-	stateTool := &StateAccessTool{
-		sessionService: sessionService,
-		appName:        "output-key-state-chain-demo",
-		userID:         c.userID,
-		sessionID:      c.sessionID,
-	}
-
-	// Create Content Writer Agent that creates summaries based on research from state.
-	writerAgent := llmagent.New(
-		"writer-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A content writer that creates engaging summaries based on research findings from session state"),
-		llmagent.WithInstruction("You are an experienced content writer and editor. Your task is to transform research findings "+
-			"into compelling, well-structured content. First, use the get_session_state tool to retrieve the research data "+
-			"using the key 'research_findings'. Then, create an engaging summary that is informative, accessible, and "+
-			"tailored for a general audience. Use clear headings, bullet points where appropriate, and maintain a "+
-			"conversational yet professional tone. Focus on the most important insights and present them in a logical flow. "+
-			"Always start by retrieving the research data before beginning your writing process."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools([]tool.Tool{stateTool}),
-	)
-
-	// Create Chain Agent with sub-agents.
-	chainAgent := chainagent.New(
-		"output-key-state-chain",
-		chainagent.WithSubAgents([]agent.Agent{researchAgent, writerAgent}),
-	)
-
-	// Create runner with the chain agent and session service.
-	appName := "output-key-state-chain-demo"
-	c.runner = runner.NewRunner(
-		appName,
-		chainAgent,
-		runner.WithSessionService(sessionService),
-	)
-
-	fmt.Printf("✅ Output Key State Chain ready! Session: %s\n", c.sessionID)
-	fmt.Printf("📝 Agents: %s → %s\n",
-		researchAgent.Info().Name,
-		writerAgent.Info().Name)
-	fmt.Printf("🔗 Data Flow: Research Agent (output_key) → Session State → Writer Agent (tool access)\n\n")
-
 	return nil
 }
+
+// Create session service.
+
+// Create generation config.
+
+// Create Research Agent that finds and stores key information.
+
+// Setup identifiers.
+
+// Create state access tool for the writer agent.
+
+// Create Content Writer Agent that creates summaries based on research from state.
+
+// Create Chain Agent with sub-agents.
+
+// Create runner with the chain agent and session service.
 
 // startChat runs the interactive conversation loop.
 func (c *outputKeyStateChainChat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
-
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
-
-		// Handle exit command.
-		if strings.ToLower(userInput) == "exit" {
-			fmt.Println("👋 Goodbye!")
-			return nil
-		}
-
-		// Process the user message.
-		if err := c.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println() // Add spacing between turns
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Handle exit command.
+
+// Process the user message.
+
+// Add spacing between turns
 
 // processMessage handles a single message exchange through the agent chain.
 func (c *outputKeyStateChainChat) processMessage(ctx context.Context, userMessage string) error {
-	message := model.NewUserMessage(userMessage)
-
-	// Run the chain agent through the runner.
-	eventChan, err := c.runner.Run(ctx, c.userID, c.sessionID, message)
-	if err != nil {
-		return fmt.Errorf("failed to run chain agent: %w", err)
-	}
-
-	// Process streaming response.
-	return c.processStreamingResponse(eventChan)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Run the chain agent through the runner.
+
+// Process streaming response.
 
 // processStreamingResponse handles the streaming response from the agent chain.
 func (c *outputKeyStateChainChat) processStreamingResponse(eventChan <-chan *event.Event) error {
-	var (
-		currentAgent string
-		agentStarted bool
-	)
-	for event := range eventChan {
-		if err := c.handleChainEvent(event, &currentAgent, &agentStarted); err != nil {
-			return err
-		}
-
-		// Check if this is the final runner completion event.
-		if event.Done && event.Response != nil && event.Response.Object == model.ObjectTypeRunnerCompletion {
-			fmt.Printf("\n")
-			break
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Check if this is the final runner completion event.
 
 // handleChainEvent processes a single event from the agent chain.
 func (c *outputKeyStateChainChat) handleChainEvent(
@@ -303,20 +134,14 @@ func (c *outputKeyStateChainChat) handleChainEvent(
 	currentAgent *string,
 	agentStarted *bool,
 ) error {
+	_ = "STUB: not implemented"
 	// Handle errors.
-	if event.Error != nil {
-		fmt.Printf("\n❌ Error: %s\n", event.Error.Message)
-		return nil
-	}
-
-	// Handle agent transitions.
-	c.handleAgentTransition(event, currentAgent, agentStarted)
-
-	// Handle streaming content.
-	c.handleStreamingContent(event, currentAgent)
-
 	return nil
 }
+
+// Handle agent transitions.
+
+// Handle streaming content.
 
 // handleAgentTransition manages agent switching and display.
 func (c *outputKeyStateChainChat) handleAgentTransition(
@@ -324,49 +149,31 @@ func (c *outputKeyStateChainChat) handleAgentTransition(
 	currentAgent *string,
 	agentStarted *bool,
 ) {
-	if event.Author != *currentAgent {
-		if *agentStarted {
-			fmt.Printf("\n")
-		}
-		*currentAgent = event.Author
-		*agentStarted = true
-
-		// Display agent transition.
-		c.displayAgentTransition(*currentAgent)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Display agent transition.
 
 // displayAgentTransition shows the current agent with appropriate emoji.
 func (c *outputKeyStateChainChat) displayAgentTransition(currentAgent string) {
-	switch currentAgent {
-	case "research-agent":
-		fmt.Printf("🔬 Research Agent: ")
-	case "writer-agent":
-		fmt.Printf("✍️  Writer Agent: ")
-	default:
-		// No display for unknown agents.
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// No display for unknown agents.
 
 // handleStreamingContent processes streaming content from agents.
 func (c *outputKeyStateChainChat) handleStreamingContent(event *event.Event, currentAgent *string) {
-	if len(event.Response.Choices) > 0 {
-		choice := event.Response.Choices[0]
-		if choice.Delta.Content != "" {
-			fmt.Print(choice.Delta.Content)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Helper functions.
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }
 
 func main() {
 	// Parse command line flags.

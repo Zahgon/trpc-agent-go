@@ -18,13 +18,11 @@ import (
 	"time"
 )
 
-func preparePipeCommand(_ *exec.Cmd) {}
+func preparePipeCommand(_ *exec.Cmd) { _ = "STUB: not implemented"; return }
 
-func preparePTYCommand(_ *exec.Cmd) {}
+func preparePTYCommand(_ *exec.Cmd) { _ = "STUB: not implemented"; return }
 
-func commandProcessGroupID(_ *exec.Cmd) int {
-	return 0
-}
+func commandProcessGroupID(_ *exec.Cmd) int { _ = "STUB: not implemented"; return 0 }
 
 func terminateProcessTree(
 	_ context.Context,
@@ -32,5 +30,6 @@ func terminateProcessTree(
 	_ int,
 	_ time.Duration,
 ) error {
-	return killProcess(process)
+	_ = "STUB: not implemented"
+	return nil
 }

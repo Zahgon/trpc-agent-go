@@ -10,10 +10,6 @@
 package app
 
 import (
-	"errors"
-	"path/filepath"
-	"strings"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -77,15 +73,8 @@ func resolveSQLiteDSN(
 	dsn string,
 	missingPathErr string,
 ) (string, string, error) {
-	resolvedPath := strings.TrimSpace(path)
-	resolvedDSN := strings.TrimSpace(dsn)
-	if resolvedDSN == "" {
-		resolvedDSN = resolvedPath
-	}
-	if resolvedDSN == "" {
-		return "", "", errors.New(missingPathErr)
-	}
-	return resolvedPath, resolvedDSN, nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
 func defaultSQLiteSessionConfigNode(
@@ -93,19 +82,8 @@ func defaultSQLiteSessionConfigNode(
 	stateDir string,
 	cfg *yaml.Node,
 ) *yaml.Node {
-	if strings.ToLower(strings.TrimSpace(backend)) != sessionBackendSQLite {
-		return cfg
-	}
-	if cfg != nil {
-		return cfg
-	}
-
-	stateDir = strings.TrimSpace(stateDir)
-	if stateDir == "" {
-		return nil
-	}
-	dbPath := filepath.Join(stateDir, defaultSQLiteSessionDBFile)
-	return sqliteConfigNode(dbPath)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func defaultSQLiteMemoryConfigNode(
@@ -113,40 +91,10 @@ func defaultSQLiteMemoryConfigNode(
 	stateDir string,
 	cfg *yaml.Node,
 ) *yaml.Node {
-	dbFile := sqliteMemoryDBFileByBackend(backend)
-	if dbFile == "" {
-		return cfg
-	}
-	if cfg != nil {
-		return cfg
-	}
-
-	stateDir = strings.TrimSpace(stateDir)
-	if stateDir == "" {
-		return nil
-	}
-
-	dbPath := filepath.Join(stateDir, dbFile)
-	return sqliteConfigNode(dbPath)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func sqliteConfigNode(path string) *yaml.Node {
-	return &yaml.Node{
-		Kind: yaml.MappingNode,
-		Content: []*yaml.Node{
-			{Kind: yaml.ScalarNode, Value: sqliteSessionConfigKeyPath},
-			{Kind: yaml.ScalarNode, Value: path},
-		},
-	}
-}
+func sqliteConfigNode(path string) *yaml.Node { _ = "STUB: not implemented"; return nil }
 
-func sqliteMemoryDBFileByBackend(backend string) string {
-	switch strings.ToLower(strings.TrimSpace(backend)) {
-	case memoryBackendSQLite:
-		return defaultSQLiteMemoryDBFile
-	case memoryBackendSQLiteVec:
-		return defaultSQLiteVecDBFile
-	default:
-		return ""
-	}
-}
+func sqliteMemoryDBFileByBackend(backend string) string { _ = "STUB: not implemented"; return "" }

@@ -15,7 +15,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
@@ -82,15 +81,15 @@ func main() {
 	}
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
 func floatPtr(f float64) *float64 {
-	return &f
+	_ = "STUB: not implemented"
+
+	// codeExecutionInstruction is the system instruction for code execution agent.
+	return nil
 }
 
-// codeExecutionInstruction is the system instruction for code execution agent.
 const codeExecutionInstruction = `You are a helpful assistant that can execute Python code to solve problems.
 
 When you need to perform calculations, data analysis, or any task that requires code execution:
@@ -113,9 +112,4 @@ Important guidelines:
 - Provide clear explanations along with your code
 `
 
-func getEnvOrDefault(key, defaultValue string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return defaultValue
-}
+func getEnvOrDefault(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }

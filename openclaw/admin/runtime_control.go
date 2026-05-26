@@ -11,8 +11,6 @@ package admin
 
 import (
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -117,195 +115,56 @@ type RuntimeLifecyclePageStatus struct {
 }
 
 func (s *Service) runtimeLifecycleProvider() RuntimeLifecycleProvider {
-	if s == nil {
-		return nil
-	}
-	return s.runtimeLifecycle
+	_ = "STUB: not implemented"
+	return *new(RuntimeLifecycleProvider)
 }
 
-func (s *Service) hasRuntimeLifecycleProvider() bool {
-	return s.runtimeLifecycleProvider() != nil
-}
+func (s *Service) hasRuntimeLifecycleProvider() bool { _ = "STUB: not implemented"; return false }
 
 func (s *Service) runtimeLifecycleStatus(
 	r *http.Request,
 ) RuntimeLifecyclePageStatus {
-	provider := s.runtimeLifecycleProvider()
-	if provider == nil {
-		return RuntimeLifecyclePageStatus{}
-	}
-
-	status, err := provider.RuntimeLifecycleStatus()
-	if err != nil {
-		return RuntimeLifecyclePageStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-
-	state := RuntimeLifecyclePageStatus{
-		Enabled: true,
-		Status:  status,
-	}
-
-	index, err := provider.RuntimeLifecycleVersions()
-	if err != nil {
-		state.Error = strings.TrimSpace(err.Error())
-		return state
-	}
-	state.Index = index
-
-	selected := resolveRuntimeLifecycleSelectedVersion(r, state)
-	state.SelectedVersion = selected
-	if selected == "" {
-		return state
-	}
-
-	changelog, err := provider.RuntimeLifecycleChangelog(selected)
-	if err != nil {
-		state.Error = strings.TrimSpace(err.Error())
-		return state
-	}
-	state.Changelog = changelog
-	return state
+	_ = "STUB: not implemented"
+	return *new(RuntimeLifecyclePageStatus)
 }
 
 func (s *Service) runtimeLifecycleRefreshStatus(
 	r *http.Request,
 ) RuntimeLifecyclePageStatus {
-	provider := s.runtimeLifecycleProvider()
-	if provider == nil {
-		return RuntimeLifecyclePageStatus{}
-	}
-
-	status, err := provider.RuntimeLifecycleStatus()
-	if err != nil {
-		return RuntimeLifecyclePageStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-
-	return RuntimeLifecyclePageStatus{
-		Enabled:         true,
-		Status:          status,
-		SelectedVersion: resolveRuntimeLifecycleRefreshVersion(r, status),
-	}
+	_ = "STUB: not implemented"
+	return *new(RuntimeLifecyclePageStatus)
 }
 
 func resolveRuntimeLifecycleSelectedVersion(
 	r *http.Request,
 	state RuntimeLifecyclePageStatus,
 ) string {
-	if r != nil && r.URL != nil {
-		version := strings.TrimSpace(
-			r.URL.Query().Get(queryRuntimeVersion),
-		)
-		if version != "" {
-			return version
-		}
-	}
-	if state.Status.Pending != nil {
-		version := strings.TrimSpace(
-			state.Status.Pending.TargetVersion,
-		)
-		if version != "" {
-			return version
-		}
-	}
-	version := strings.TrimSpace(state.Index.LatestVersion)
-	if version != "" {
-		return version
-	}
-	return strings.TrimSpace(state.Status.CurrentVersion)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func resolveRuntimeLifecycleRefreshVersion(
 	r *http.Request,
 	status RuntimeLifecycleStatus,
 ) string {
-	if r != nil && r.URL != nil {
-		version := strings.TrimSpace(
-			r.URL.Query().Get(queryRuntimeVersion),
-		)
-		if version != "" {
-			return version
-		}
-	}
-	if status.Pending != nil {
-		version := strings.TrimSpace(
-			status.Pending.TargetVersion,
-		)
-		if version != "" {
-			return version
-		}
-	}
-	return strings.TrimSpace(status.CurrentVersion)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (s *Service) handleRuntimeControlPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewRuntimeControl)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleRuntimeControlAction(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	provider := s.runtimeLifecycleProvider()
-	if provider == nil {
-		s.redirectRuntimeControlWithMessage(
-			w,
-			r,
-			queryError,
-			"runtime lifecycle provider is not available",
-			"",
-			returnTo,
-		)
-		return
-	}
-
-	req, err := runtimeLifecycleActionRequestFromForm(r)
-	if err != nil {
-		s.redirectRuntimeControlWithMessage(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			"",
-			returnTo,
-		)
-		return
-	}
-
-	if _, err := provider.RequestRuntimeLifecycleAction(req); err != nil {
-		s.redirectRuntimeControlWithMessage(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			req.TargetVersion,
-			returnTo,
-		)
-		return
-	}
-
-	s.redirectRuntimeControlWithMessage(
-		w,
-		r,
-		queryNotice,
-		runtimeLifecycleActionNotice(req),
-		req.TargetVersion,
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) redirectRuntimeControlWithMessage(
@@ -316,129 +175,32 @@ func (s *Service) redirectRuntimeControlWithMessage(
 	version string,
 	fragment string,
 ) {
-	target := &url.URL{
-		Path:     routeRuntimeControlPage,
-		Fragment: strings.TrimSpace(fragment),
-	}
-	values := url.Values{}
-	values.Set(key, message)
-	version = strings.TrimSpace(version)
-	if version != "" {
-		values.Set(queryRuntimeVersion, version)
-	}
-	target.RawQuery = values.Encode()
-	http.Redirect(
-		w,
-		r,
-		target.String(),
-		http.StatusSeeOther,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func runtimeLifecycleActionRequestFromForm(
 	r *http.Request,
 ) (RuntimeLifecycleActionRequest, error) {
-	if r == nil {
-		return RuntimeLifecycleActionRequest{}, errRuntimeActionRequired(
-			"request is required",
-		)
-	}
-	if err := r.ParseForm(); err != nil {
-		return RuntimeLifecycleActionRequest{}, errRuntimeActionRequired(
-			err.Error(),
-		)
-	}
-
-	kind := normalizeRuntimeLifecycleAction(
-		r.FormValue(formRuntimeActionKind),
-	)
-	switch kind {
-	case runtimeActionRestart, runtimeActionUpgrade:
-	default:
-		return RuntimeLifecycleActionRequest{}, errRuntimeActionRequired(
-			"runtime action kind is required",
-		)
-	}
-
-	mode := normalizeRuntimeLifecycleMode(
-		r.FormValue(formRuntimeActionMode),
-	)
-	switch mode {
-	case runtimeModeGraceful, runtimeModeForce:
-	default:
-		return RuntimeLifecycleActionRequest{}, errRuntimeActionRequired(
-			"runtime action mode is required",
-		)
-	}
-
-	req := RuntimeLifecycleActionRequest{
-		Kind: kind,
-		Mode: mode,
-	}
-	if kind == runtimeActionUpgrade {
-		req.TargetVersion = strings.TrimSpace(
-			r.FormValue(formRuntimeTargetVersion),
-		)
-	}
-	return req, nil
+	_ = "STUB: not implemented"
+	return *new(RuntimeLifecycleActionRequest), nil
 }
 
-func errRuntimeActionRequired(message string) error {
-	return &runtimeLifecycleFormError{
-		Message: strings.TrimSpace(message),
-	}
-}
+func errRuntimeActionRequired(message string) error { _ = "STUB: not implemented"; return nil }
 
 type runtimeLifecycleFormError struct {
 	Message string
 }
 
-func (e *runtimeLifecycleFormError) Error() string {
-	if e == nil {
-		return "runtime action is invalid"
-	}
-	return e.Message
-}
+func (e *runtimeLifecycleFormError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func normalizeRuntimeLifecycleAction(raw string) string {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case runtimeActionRestart:
-		return runtimeActionRestart
-	case runtimeActionUpgrade:
-		return runtimeActionUpgrade
-	default:
-		return ""
-	}
-}
+func normalizeRuntimeLifecycleAction(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func normalizeRuntimeLifecycleMode(raw string) string {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case runtimeModeGraceful:
-		return runtimeModeGraceful
-	case runtimeModeForce:
-		return runtimeModeForce
-	default:
-		return ""
-	}
-}
+func normalizeRuntimeLifecycleMode(raw string) string { _ = "STUB: not implemented"; return "" }
 
 func runtimeLifecycleActionNotice(
 	req RuntimeLifecycleActionRequest,
 ) string {
-	mode := "graceful"
-	if req.Mode == runtimeModeForce {
-		mode = "force"
-	}
-	switch req.Kind {
-	case runtimeActionRestart:
-		return "Requested " + mode + " restart."
-	case runtimeActionUpgrade:
-		target := strings.TrimSpace(req.TargetVersion)
-		if target == "" {
-			return "Requested " + mode + " upgrade to latest."
-		}
-		return "Requested " + mode + " switch to " + target + "."
-	default:
-		return "Requested runtime action."
-	}
+	_ = "STUB: not implemented"
+	return ""
 }

@@ -21,25 +21,9 @@ func RunAppendEventHooks(
 	ctx *session.AppendEventContext,
 	final session.AppendEventHook,
 ) error {
+	_ = "STUB: not implemented"
 	// Wrap final as a hook that ignores next (it's the terminal)
-	allHooks := make([]session.AppendEventHook, 0, len(hooks)+1)
-	allHooks = append(allHooks, hooks...)
-	if final != nil {
-		allHooks = append(allHooks, final)
-	}
-
-	if len(allHooks) == 0 {
-		return nil
-	}
-
-	var run func(idx int) error
-	run = func(idx int) error {
-		if idx >= len(allHooks) {
-			return nil
-		}
-		return allHooks[idx](ctx, func() error { return run(idx + 1) })
-	}
-	return run(0)
+	return nil
 }
 
 // RunGetSessionHooks executes GetSession hooks chain.
@@ -49,23 +33,7 @@ func RunGetSessionHooks(
 	ctx *session.GetSessionContext,
 	final session.GetSessionHook,
 ) (*session.Session, error) {
+	_ = "STUB: not implemented"
 	// Wrap final as a hook that ignores next (it's the terminal)
-	allHooks := make([]session.GetSessionHook, 0, len(hooks)+1)
-	allHooks = append(allHooks, hooks...)
-	if final != nil {
-		allHooks = append(allHooks, final)
-	}
-
-	if len(allHooks) == 0 {
-		return nil, nil
-	}
-
-	var run func(idx int) (*session.Session, error)
-	run = func(idx int) (*session.Session, error) {
-		if idx >= len(allHooks) {
-			return nil, nil
-		}
-		return allHooks[idx](ctx, func() (*session.Session, error) { return run(idx + 1) })
-	}
-	return run(0)
+	return nil, nil
 }

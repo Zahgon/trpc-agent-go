@@ -42,29 +42,7 @@ type Document struct {
 }
 
 // IsEmpty checks if the document has no content.
-func (d *Document) IsEmpty() bool {
-	if d == nil || d.Content == "" {
-		return true
-	}
-	return false
-}
+func (d *Document) IsEmpty() bool { _ = "STUB: not implemented"; return false }
 
 // Clone creates a deep copy of the document.
-func (d *Document) Clone() *Document {
-	clone := &Document{
-		ID:            d.ID,
-		Name:          d.Name,
-		Content:       d.Content,
-		EmbeddingText: d.EmbeddingText,
-		CreatedAt:     d.CreatedAt,
-		UpdatedAt:     d.UpdatedAt,
-	}
-
-	if d.Metadata != nil {
-		clone.Metadata = make(map[string]any)
-		for k, v := range d.Metadata {
-			clone.Metadata[k] = v
-		}
-	}
-	return clone
-}
+func (d *Document) Clone() *Document { _ = "STUB: not implemented"; return nil }

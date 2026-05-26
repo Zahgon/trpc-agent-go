@@ -11,8 +11,6 @@ package cos
 
 import (
 	"net/http"
-	"net/url"
-	"os"
 	"time"
 
 	cos "github.com/tencentyun/cos-go-sdk-v5"
@@ -33,90 +31,41 @@ type options struct {
 
 // WithClient sets the COS client directly.
 // This option takes precedence over all other options when provided.
-func WithClient(client *cos.Client) Option {
-	return func(o *options) {
-		o.client = newCosClient(client)
-	}
-}
+func WithClient(client *cos.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClient sets the HTTP client to use for COS requests.
-func WithHTTPClient(client *http.Client) Option {
-	return func(o *options) {
-		o.httpClient = client
-	}
-}
+func WithHTTPClient(client *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the timeout duration for HTTP requests.
-func WithTimeout(timeout time.Duration) Option {
-	return func(o *options) {
-		o.timeout = timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSecretID sets the COS secret ID for authentication.
 // If not provided, the service will use the COS_SECRETID environment variable.
-func WithSecretID(secretID string) Option {
-	return func(o *options) {
-		o.secretID = secretID
-	}
-}
+func WithSecretID(secretID string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSecretKey sets the COS secret key for authentication.
 // If not provided, the service will use the COS_SECRETKEY environment variable.
-func WithSecretKey(secretKey string) Option {
-	return func(o *options) {
-		o.secretKey = secretKey
-	}
-}
+func WithSecretKey(secretKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // SetClientBuilder sets the redis client builder.
 // This function signature is unstable and may change in the future.
 // You should not rely on it.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 var globalBuilder = defaultClientBuilder
 
 type clientBuilder = func(name string, bucketURL string, opts ...Option) (any, error)
 
 func defaultClientBuilder(name string, bucketURL string, opts ...Option) (any, error) {
+	_ = "STUB: not implemented"
 	// Set default options
-	options := &options{
-		timeout:   defaultTimeout,
-		secretID:  os.Getenv("COS_SECRETID"),
-		secretKey: os.Getenv("COS_SECRETKEY"),
-	}
-
-	// Apply provided options
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	// If a COS client is directly provided, use it
-	if options.client != nil {
-		return options.client, nil
-	}
-
-	u, _ := url.Parse(bucketURL)
-	b := &cos.BaseURL{BucketURL: u}
-
-	// Use provided HTTP client or create a default one
-	var httpClient *http.Client
-	if options.httpClient != nil {
-		httpClient = options.httpClient
-		if options.timeout > 0 {
-			httpClient.Timeout = options.timeout
-		}
-	} else {
-		// Create default HTTP client with COS authentication
-		httpClient = &http.Client{
-			Timeout: options.timeout,
-			Transport: &cos.AuthorizationTransport{
-				SecretID:  options.secretID,
-				SecretKey: options.secretKey,
-			},
-		}
-	}
-	return newCosClient(cos.NewClient(b, httpClient)), nil
+	return *new(any), nil
 }
+
+// Apply provided options
+
+// If a COS client is directly provided, use it
+
+// Use provided HTTP client or create a default one
+
+// Create default HTTP client with COS authentication

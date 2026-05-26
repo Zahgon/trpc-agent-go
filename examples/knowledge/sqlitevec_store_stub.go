@@ -12,8 +12,6 @@
 package util
 
 import (
-	"errors"
-
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore"
 )
 
@@ -23,5 +21,6 @@ const sqliteVecUnavailableMessage = "" +
 	"a system with sqlite3 development headers"
 
 func newSQLiteVecStore() (vectorstore.VectorStore, error) {
-	return nil, errors.New(sqliteVecUnavailableMessage)
+	_ = "STUB: not implemented"
+	return *new(vectorstore.VectorStore), nil
 }

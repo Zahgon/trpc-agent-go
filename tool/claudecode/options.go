@@ -66,47 +66,25 @@ type toolSetOptions struct {
 }
 
 // WithBaseDir sets the base directory used by the toolset.
-func WithBaseDir(baseDir string) Option {
-	return func(options *toolSetOptions) {
-		options.baseDir = baseDir
-	}
-}
+func WithBaseDir(baseDir string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithName overrides the toolset name.
-func WithName(name string) Option {
-	return func(options *toolSetOptions) {
-		options.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReadOnly disables mutating tools when set to true.
-func WithReadOnly(readOnly bool) Option {
-	return func(options *toolSetOptions) {
-		options.readOnly = readOnly
-	}
-}
+func WithReadOnly(readOnly bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxFileSize sets the maximum readable file size in bytes.
-func WithMaxFileSize(maxFileSize int64) Option {
-	return func(options *toolSetOptions) {
-		options.maxFileSize = maxFileSize
-		options.hasMaxSize = true
-	}
-}
+func WithMaxFileSize(maxFileSize int64) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithWebFetchOptions overrides WebFetch options.
 func WithWebFetchOptions(webFetch WebFetchOptions) Option {
-	return func(options *toolSetOptions) {
-		options.webFetch = webFetch
-		options.hasWebFetch = true
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithWebSearchOptions overrides WebSearch options.
 func WithWebSearchOptions(webSearch WebSearchOptions) Option {
-	return func(options *toolSetOptions) {
-		webSearchCopy := webSearch
-		options.webSearch = &webSearchCopy
-		options.hasWebSearch = true
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

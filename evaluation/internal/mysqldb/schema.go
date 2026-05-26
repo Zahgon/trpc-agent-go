@@ -11,11 +11,7 @@ package mysqldb
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	storage "trpc.group/trpc-go/trpc-agent-go/storage/mysql"
 )
 
@@ -119,59 +115,11 @@ const (
 )
 
 // BuildTables builds table names with the given prefix.
-func BuildTables(prefix string) Tables {
-	return Tables{
-		EvalSets:       sqldb.BuildTableName(prefix, TableNameEvalSets),
-		EvalCases:      sqldb.BuildTableName(prefix, TableNameEvalCases),
-		Metrics:        sqldb.BuildTableName(prefix, TableNameMetrics),
-		EvalSetResults: sqldb.BuildTableName(prefix, TableNameEvalSetResults),
-	}
-}
+func BuildTables(prefix string) Tables { _ = "STUB: not implemented"; return *new(Tables) }
 
 // EnsureSchema creates selected evaluation MySQL tables if they do not exist.
 func EnsureSchema(ctx context.Context, db storage.Client, tables Tables, target SchemaTarget) error {
-	if target == 0 {
-		return errors.New("no schema target specified")
-	}
-
-	tableDefs := []tableDefinition{}
-	indexDefs := []indexDefinition{}
-
-	for _, spec := range schemaSpecs {
-		if target&spec.target == 0 {
-			continue
-		}
-		tableName := spec.tableName(tables)
-		tableDefs = append(tableDefs, tableDefinition{
-			name:     tableName,
-			template: spec.tableSQL,
-		})
-		for _, idx := range spec.indexes {
-			indexDefs = append(indexDefs, indexDefinition{
-				table:    tableName,
-				name:     idx.name,
-				template: idx.template,
-			})
-		}
-	}
-
-	for _, tableDef := range tableDefs {
-		query := strings.ReplaceAll(tableDef.template, "{{TABLE_NAME}}", tableDef.name)
-		if _, err := db.Exec(ctx, query); err != nil {
-			return fmt.Errorf("create table %s failed: %w", tableDef.name, err)
-		}
-	}
-
-	for _, indexDef := range indexDefs {
-		query := strings.ReplaceAll(indexDef.template, "{{TABLE_NAME}}", indexDef.table)
-		query = strings.ReplaceAll(query, "{{INDEX_NAME}}", indexDef.name)
-		if _, err := db.Exec(ctx, query); err != nil {
-			if IsDuplicateKeyName(err) {
-				continue
-			}
-			return fmt.Errorf("create index %s on table %s failed: %w", indexDef.name, indexDef.table, err)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 

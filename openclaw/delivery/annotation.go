@@ -11,7 +11,6 @@ package delivery
 
 import (
 	"encoding/json"
-	"strings"
 )
 
 const extensionKey = "openclaw:delivery_target:v1"
@@ -27,56 +26,18 @@ func MergeRequestExtension(
 	extensions map[string]json.RawMessage,
 	target Target,
 ) (map[string]json.RawMessage, error) {
-	target = sanitizeTarget(target)
-	if isZeroTarget(target) {
-		return extensions, nil
-	}
-
-	raw, err := json.Marshal(target)
-	if err != nil {
-		return nil, err
-	}
-	if extensions == nil {
-		extensions = make(map[string]json.RawMessage)
-	}
-
-	cloned := make([]byte, len(raw))
-	copy(cloned, raw)
-	extensions[extensionKey] = json.RawMessage(cloned)
-	return extensions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // TargetFromRequestExtensions decodes request delivery metadata.
 func TargetFromRequestExtensions(
 	extensions map[string]json.RawMessage,
 ) (Target, bool, error) {
-	if len(extensions) == 0 {
-		return Target{}, false, nil
-	}
-
-	raw, ok := extensions[extensionKey]
-	if !ok || len(raw) == 0 {
-		return Target{}, false, nil
-	}
-
-	var decoded Target
-	if err := json.Unmarshal(raw, &decoded); err != nil {
-		return Target{}, false, err
-	}
-	decoded = sanitizeTarget(decoded)
-	if isZeroTarget(decoded) {
-		return Target{}, false, nil
-	}
-	return decoded, true, nil
+	_ = "STUB: not implemented"
+	return *new(Target), false, nil
 }
 
-func sanitizeTarget(target Target) Target {
-	return Target{
-		Channel: strings.TrimSpace(target.Channel),
-		Target:  strings.TrimSpace(target.Target),
-	}
-}
+func sanitizeTarget(target Target) Target { _ = "STUB: not implemented"; return *new(Target) }
 
-func isZeroTarget(target Target) bool {
-	return target.Channel == "" || target.Target == ""
-}
+func isZeroTarget(target Target) bool { _ = "STUB: not implemented"; return false }

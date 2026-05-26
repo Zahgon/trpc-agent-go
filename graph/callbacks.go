@@ -96,32 +96,30 @@ type NodeCallbacks struct {
 }
 
 // NewNodeCallbacks creates a new NodeCallbacks instance.
-func NewNodeCallbacks() *NodeCallbacks {
-	return &NodeCallbacks{}
-}
+func NewNodeCallbacks() *NodeCallbacks { _ = "STUB: not implemented"; return nil }
 
 // RegisterBeforeNode registers a before node callback.
 func (c *NodeCallbacks) RegisterBeforeNode(cb BeforeNodeCallback) *NodeCallbacks {
-	c.BeforeNode = append(c.BeforeNode, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterNode registers an after node callback.
 func (c *NodeCallbacks) RegisterAfterNode(cb AfterNodeCallback) *NodeCallbacks {
-	c.AfterNode = append(c.AfterNode, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterOnNodeError registers an on node error callback.
 func (c *NodeCallbacks) RegisterOnNodeError(cb OnNodeErrorCallback) *NodeCallbacks {
-	c.OnNodeError = append(c.OnNodeError, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAgentEvent registers an agent event callback.
 func (c *NodeCallbacks) RegisterAgentEvent(cb AgentEventCallback) *NodeCallbacks {
-	c.AgentEvent = append(c.AgentEvent, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunBeforeNode runs all before node callbacks in order.
@@ -132,21 +130,11 @@ func (c *NodeCallbacks) RunBeforeNode(
 	callbackCtx *NodeCallbackContext,
 	state State,
 ) (any, error) {
-	for _, cb := range c.BeforeNode {
-		if cb == nil {
-			// Skip nil callback entries defensively.
-			continue
-		}
-		customResult, err := cb(ctx, callbackCtx, state)
-		if err != nil {
-			return nil, err
-		}
-		if customResult != nil {
-			return customResult, nil
-		}
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Skip nil callback entries defensively.
 
 // RunAfterNode runs all after node callbacks in order.
 // Returns (customResult, error).
@@ -158,30 +146,11 @@ func (c *NodeCallbacks) RunAfterNode(
 	result any,
 	nodeErr error,
 ) (any, error) {
-	currentResult := result
-	currentErr := nodeErr
-	for _, cb := range c.AfterNode {
-		if cb == nil {
-			// Skip nil callback entries defensively.
-			continue
-		}
-		customResult, err := cb(
-			ctx,
-			callbackCtx,
-			state,
-			currentResult,
-			currentErr,
-		)
-		if err != nil {
-			return nil, err
-		}
-		if customResult != nil {
-			currentResult = customResult
-			currentErr = nil
-		}
-	}
-	return currentResult, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Skip nil callback entries defensively.
 
 // RunOnNodeError runs all on node error callbacks in order.
 // This method does not return any values as error callbacks are for side effects only.
@@ -191,14 +160,11 @@ func (c *NodeCallbacks) RunOnNodeError(
 	state State,
 	err error,
 ) {
-	for _, cb := range c.OnNodeError {
-		if cb == nil {
-			// Skip nil callback entries defensively.
-			continue
-		}
-		cb(ctx, callbackCtx, state, err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Skip nil callback entries defensively.
 
 // RunAgentEvent runs all agent event callbacks in order.
 func (c *NodeCallbacks) RunAgentEvent(
@@ -207,10 +173,6 @@ func (c *NodeCallbacks) RunAgentEvent(
 	state State,
 	evt *event.Event,
 ) {
-	for _, cb := range c.AgentEvent {
-		if cb == nil {
-			continue
-		}
-		cb(ctx, callbackCtx, state, evt)
-	}
+	_ = "STUB: not implemented"
+	return
 }

@@ -16,7 +16,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/invocationsaggregator"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/status"
 )
 
 type averageInvocationsAggregator struct {
@@ -24,34 +23,13 @@ type averageInvocationsAggregator struct {
 
 // New returns an invocations aggregator that averages evaluated scores.
 func New() invocationsaggregator.InvocationsAggregator {
-	return &averageInvocationsAggregator{}
+	_ = "STUB: not implemented"
+	return *new(invocationsaggregator.InvocationsAggregator)
 }
 
 // AggregateInvocations summarizes per-invocation results into an overall score while skipping not-evaluated entries.
 func (a *averageInvocationsAggregator) AggregateInvocations(ctx context.Context,
 	results []*evaluator.PerInvocationResult, evalMetric *metric.EvalMetric) (*evaluator.EvaluateResult, error) {
-	sumScore := 0.0
-	numEvaluated := 0.0
-	for _, result := range results {
-		if result.Status == status.EvalStatusNotEvaluated {
-			continue
-		}
-		numEvaluated++
-		sumScore += result.Score
-	}
-	if numEvaluated == 0 {
-		return &evaluator.EvaluateResult{
-			OverallStatus: status.EvalStatusNotEvaluated,
-		}, nil
-	}
-	overallScore := sumScore / numEvaluated
-	overallStatus := status.EvalStatusPassed
-	if overallScore < evalMetric.Threshold {
-		overallStatus = status.EvalStatusFailed
-	}
-	return &evaluator.EvaluateResult{
-		OverallScore:         overallScore,
-		OverallStatus:        overallStatus,
-		PerInvocationResults: results,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

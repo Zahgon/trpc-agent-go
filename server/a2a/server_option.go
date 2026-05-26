@@ -11,10 +11,7 @@ package a2a
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-a2a-go/auth"
 	"trpc.group/trpc-go/trpc-a2a-go/protocol"
@@ -22,7 +19,6 @@ import (
 	"trpc.group/trpc-go/trpc-a2a-go/taskmanager"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
@@ -32,26 +28,14 @@ var serverUserIDHeader = "X-User-ID"
 
 // UserIDFromContext returns the user ID from the context.
 func UserIDFromContext(ctx context.Context) (string, bool) {
-	if ctx == nil {
-		return "", false
-	}
-	user, ok := ctx.Value(auth.AuthUserKey).(*auth.User)
-	if !ok {
-		return "", false
-	}
-	return user.ID, true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // NewContextWithUserID returns a new context with the user ID.
 func NewContextWithUserID(ctx context.Context, userID string) context.Context {
-	if ctx == nil {
-		log.WarnfContext(
-			ctx,
-			"NewContextWithUserID: ctx is nil, do nothing",
-		)
-		return ctx
-	}
-	return context.WithValue(ctx, auth.AuthUserKey, &auth.User{ID: userID})
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // ProcessorBuilder returns a message processor for the given agent.
@@ -87,10 +71,8 @@ func (f ResponseRewriterFuncs) RewriteUnary(
 	ctx context.Context,
 	result protocol.UnaryMessageResult,
 ) protocol.UnaryMessageResult {
-	if f.Unary == nil {
-		return result
-	}
-	return f.Unary(ctx, result)
+	_ = "STUB: not implemented"
+	return *new(protocol.UnaryMessageResult)
 }
 
 // RewriteStreaming implements ResponseRewriter.
@@ -98,10 +80,8 @@ func (f ResponseRewriterFuncs) RewriteStreaming(
 	ctx context.Context,
 	result protocol.StreamingMessageResult,
 ) protocol.StreamingMessageResult {
-	if f.Streaming == nil {
-		return result
-	}
-	return f.Streaming(ctx, result)
+	_ = "STUB: not implemented"
+	return *new(protocol.StreamingMessageResult)
 }
 
 // EventToA2APartMapper converts an agent event into additional A2A parts.
@@ -115,21 +95,8 @@ type defaultAuthProvider struct {
 }
 
 func (d *defaultAuthProvider) Authenticate(r *http.Request) (*auth.User, error) {
-	if r == nil {
-		return nil, errors.New("request is nil")
-	}
-	userID := r.Header.Get(d.userIDHeader)
-	if userID == "" {
-		log.DebugfContext(
-			r.Context(),
-			"UserID(Header %s) not set, will be generated from "+
-				"context ID. You can use WithUserIDHeader in "+
-				"A2AAgent and A2AServer to specify the header "+
-				"that transfers user info.",
-			d.userIDHeader,
-		)
-	}
-	return &auth.User{ID: userID}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type options struct {
@@ -179,70 +146,38 @@ const (
 
 // WithSessionService sets the session service to use.
 func WithSessionService(service session.Service) Option {
-	return func(opts *options) {
-		opts.sessionService = service
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAgent sets the agent to use.
 // It is mutually exclusive with WithRunner.
 func WithAgent(agent agent.Agent, enableStreaming bool) Option {
-	return func(opts *options) {
-		opts.agent = agent
-		opts.enableStreaming = enableStreaming
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRunner sets the runner to use.
 // It is mutually exclusive with WithAgent and requires WithAgentCard.
-func WithRunner(r runner.Runner) Option {
-	return func(opts *options) {
-		opts.runner = r
-	}
-}
+func WithRunner(r runner.Runner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func normalizeMetadataKeys(keys []string) []string {
-	if len(keys) == 0 {
-		return []string{}
-	}
-
-	normalized := make([]string, 0, len(keys))
-	dedup := make(map[string]struct{}, len(keys))
-	for _, key := range keys {
-		key = strings.TrimSpace(key)
-		if key == "" {
-			continue
-		}
-		if _, ok := dedup[key]; ok {
-			continue
-		}
-		dedup[key] = struct{}{}
-		normalized = append(normalized, key)
-	}
-	return normalized
-}
+func normalizeMetadataKeys(keys []string) []string { _ = "STUB: not implemented"; return nil }
 
 // WithAgentCard sets the agent card to use.
 // Use BuildBasicAgentCard to derive a basic card from an agent when needed.
-func WithAgentCard(agentCard a2a.AgentCard) Option {
-	return func(opts *options) {
-		opts.agentCard = &agentCard
-	}
-}
+func WithAgentCard(agentCard a2a.AgentCard) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithProcessorBuilder sets the processor builder to use.
 func WithProcessorBuilder(builder ProcessorBuilder) Option {
-	return func(opts *options) {
-		opts.processorBuilder = builder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithProcessMessageHook sets the process message hook to use.
 // The hook can be used to wrap the message processor with additional functionality.
 func WithProcessMessageHook(hook ProcessMessageHook) Option {
-	return func(opts *options) {
-		opts.processorHook = hook
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHost sets the host address for the A2A server's agent card URL.
@@ -266,36 +201,21 @@ func WithProcessMessageHook(hook ProcessMessageHook) Option {
 //	    // or
 //	    a2a.WithHost("http://example.com/api/v1"),  // URL: "http://example.com/api/v1", basePath: "/api/v1"
 //	)
-func WithHost(host string) Option {
-	return func(opts *options) {
-		opts.host = host
-	}
-}
+func WithHost(host string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUserIDHeader sets the HTTP header name to extract UserID from requests.
 // If not set, defaults to "X-User-ID".
-func WithUserIDHeader(header string) Option {
-	return func(opts *options) {
-		if header != "" {
-			opts.userIDHeader = header
-		}
-	}
-}
+func WithUserIDHeader(header string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraA2AOptions passes extra options to the underlying A2A server.
 // For example, it can be combined with a2a.WithAgentCardHandler and
 // NewAgentCardHandler(...) to serve a dynamically updated AgentCard.
-func WithExtraA2AOptions(opts ...a2a.Option) Option {
-	return func(options *options) {
-		options.extraOptions = append(options.extraOptions, opts...)
-	}
-}
+func WithExtraA2AOptions(opts ...a2a.Option) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTaskManagerBuilder sets the task manager builder to use.
 func WithTaskManagerBuilder(builder TaskManagerBuilder) Option {
-	return func(opts *options) {
-		opts.taskManagerBuilder = builder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRunOptions appends additional run options for every agent invocation.
@@ -303,16 +223,14 @@ func WithTaskManagerBuilder(builder TaskManagerBuilder) Option {
 // If both WithRunOptions and A2A message metadata set the same RuntimeState key,
 // the A2A metadata value takes precedence (last-write-wins).
 func WithRunOptions(runOpts ...agent.RunOption) Option {
-	return func(opts *options) {
-		opts.runOptions = append(opts.runOptions, runOpts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithA2AToAgentConverter sets the A2A message to agent message converter to use.
 func WithA2AToAgentConverter(converter A2AMessageToAgentMessage) Option {
-	return func(opts *options) {
-		opts.a2aToAgentConverter = converter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // Converter-related options.
@@ -329,9 +247,8 @@ func WithA2AToAgentConverter(converter A2AMessageToAgentMessage) Option {
 // output unless their comments explicitly say they also affect server-generated
 // metadata.
 func WithEventToA2AConverter(converter EventToA2AMessage) Option {
-	return func(opts *options) {
-		opts.eventToA2AConverter = converter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphEventObjectAllowlist configures which graph object types
@@ -345,9 +262,8 @@ func WithEventToA2AConverter(converter EventToA2AMessage) Option {
 //   - suffix rule: "*step" or "*.step" (leading '*' means suffix match)
 //   - wildcard rule: "*" (allow all graph.* object types)
 func WithGraphEventObjectAllowlist(objectTypes ...string) Option {
-	return func(opts *options) {
-		opts.graphEventObjectAllowlist = normalizeMetadataKeys(objectTypes)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithResponseRewriter rewrites outbound A2A results before they are returned
@@ -367,9 +283,8 @@ func WithGraphEventObjectAllowlist(objectTypes ...string) Option {
 //
 // Returning nil drops the outbound result.
 func WithResponseRewriter(rewriter ResponseRewriter) Option {
-	return func(opts *options) {
-		opts.responseRewriter = rewriter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithADKCompatibility enables ADK compatibility mode.
@@ -381,11 +296,7 @@ func WithResponseRewriter(rewriter ResponseRewriter) Option {
 // When enabled, metadata keys in A2A messages will use the "adk_" prefix
 // (e.g., "adk_app_name", "adk_user_id", "adk_session_id") to be compatible
 // with ADK (Agent Development Kit) Python implementation.
-func WithADKCompatibility(enabled bool) Option {
-	return func(opts *options) {
-		opts.adkCompatibility = enabled
-	}
-}
+func WithADKCompatibility(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStreamingEventType configures which A2A protocol type is used to emit
 // agent output in streaming mode.
@@ -395,9 +306,8 @@ func WithADKCompatibility(enabled bool) Option {
 // (assistant text/tool calls/code execution). Task status updates
 // (submitted/completed) are still emitted as TaskStatusUpdateEvent.
 func WithStreamingEventType(eventType StreamingEventType) Option {
-	return func(opts *options) {
-		opts.streamingEventType = eventType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEventToA2APartMapper registers a lightweight event-to-part mapper on the
@@ -410,48 +320,27 @@ func WithStreamingEventType(eventType StreamingEventType) Option {
 // The mapper is ignored when WithEventToA2AConverter is used to replace the
 // converter entirely.
 func WithEventToA2APartMapper(mapper EventToA2APartMapper) Option {
-	return func(opts *options) {
-		if mapper == nil {
-			return
-		}
-		opts.eventPartMappers = append(opts.eventPartMappers, mapper)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithDebugLogging sets the debug logging to use.
-func WithDebugLogging(debug bool) Option {
-	return func(opts *options) {
-		opts.debugLogging = debug
-	}
-}
+func WithDebugLogging(debug bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithErrorHandler sets a custom error handler.
-func WithErrorHandler(handler ErrorHandler) Option {
-	return func(opts *options) {
-		opts.errorHandler = handler
-	}
-}
+func WithErrorHandler(handler ErrorHandler) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStructuredTaskErrors enables structured propagation of agent
 // Response.Error values through A2A task status metadata.
-func WithStructuredTaskErrors(enable bool) Option {
-	return func(opts *options) {
-		opts.structuredTaskErrors = enable
-	}
-}
+func WithStructuredTaskErrors(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // ErrorHandler converts errors to user-friendly messages
 type ErrorHandler func(ctx context.Context, msg *protocol.Message, err error) (*protocol.Message, error)
 
 // DefaultErrorHandler provides intelligent error handling based on error type
 func defaultErrorHandler(ctx context.Context, msg *protocol.Message, err error) (*protocol.Message, error) {
-	outputMsg := protocol.NewMessage(
-		protocol.MessageRoleAgent,
-		[]protocol.Part{
-			protocol.NewTextPart("An error occurred while processing your request."),
-		},
-	)
-	return &outputMsg, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type singleMsgSubscriber struct {
@@ -459,32 +348,28 @@ type singleMsgSubscriber struct {
 }
 
 func newSingleResultSubscriber(result protocol.StreamingMessageResult) *singleMsgSubscriber {
-	ch := make(chan protocol.StreamingMessageEvent, 1)
-	if result != nil {
-		ch <- protocol.StreamingMessageEvent{
-			Result: result,
-		}
-	}
-	close(ch)
-	return &singleMsgSubscriber{
-		ch: ch,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e *singleMsgSubscriber) Send(event protocol.StreamingMessageEvent) error {
-	return fmt.Errorf("send msg is not allowed for singleMsgSubscriber")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Channel returns the channel of the task subscriber
 func (e *singleMsgSubscriber) Channel() <-chan protocol.StreamingMessageEvent {
-	return e.ch
+	_ = "STUB: not implemented"
+
+	// Closed returns true if the task subscriber is closed
+	return nil
 }
 
-// Closed returns true if the task subscriber is closed
 func (e *singleMsgSubscriber) Closed() bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// Close close the task subscriber
+	return false
 }
 
-// Close close the task subscriber
-func (e *singleMsgSubscriber) Close() {
-}
+func (e *singleMsgSubscriber) Close() { _ = "STUB: not implemented"; return }

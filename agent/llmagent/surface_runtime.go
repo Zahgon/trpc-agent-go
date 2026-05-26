@@ -12,163 +12,74 @@ import (
 	"context"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
-	"trpc.group/trpc-go/trpc-agent-go/internal/flow/llmflow"
-	toolsessionrecall "trpc.group/trpc-go/trpc-agent-go/internal/session/tool/recall"
 	"trpc.group/trpc-go/trpc-agent-go/internal/skillprofile"
 	"trpc.group/trpc-go/trpc-agent-go/internal/surfacepatch"
-	itool "trpc.group/trpc-go/trpc-agent-go/internal/tool"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/skill"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	toolawaitreply "trpc.group/trpc-go/trpc-agent-go/tool/awaitreply"
-	"trpc.group/trpc-go/trpc-agent-go/tool/transfer"
 )
 
 func (a *LLMAgent) rootSurfacePatch(
 	inv *agent.Invocation,
 ) (surfacepatch.Patch, bool) {
-	if inv == nil {
-		return surfacepatch.Patch{}, false
-	}
-	nodeID := agent.InvocationSurfaceRootNodeID(inv)
-	if nodeID == "" {
-		return surfacepatch.Patch{}, false
-	}
-	return surfacepatch.PatchForNode(
-		inv.RunOptions.CustomAgentConfigs,
-		nodeID,
-	)
+	_ = "STUB: not implemented"
+	return *new(surfacepatch.Patch), false
 }
 
 func (a *LLMAgent) fewShotForInvocation(
 	inv *agent.Invocation,
 ) [][]model.Message {
-	patch, ok := a.rootSurfacePatch(inv)
-	if !ok {
-		return nil
-	}
-	examples, ok := patch.FewShot()
-	if !ok {
-		return nil
-	}
-	return examples
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *LLMAgent) skillRepositoryForInvocation(
 	inv *agent.Invocation,
 ) skill.Repository {
-	if patch, ok := a.rootSurfacePatch(inv); ok {
-		if repo, ok := patch.SkillRepository(); ok {
-			return repo
-		}
-	}
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	return a.option.skillsRepository
+	_ = "STUB: not implemented"
+	return *new(skill.Repository)
 }
 
 func (a *LLMAgent) modelSurfaceForInvocation(
 	inv *agent.Invocation,
 ) (model.Model, bool) {
-	patch, ok := a.rootSurfacePatch(inv)
-	if !ok {
-		return nil, false
-	}
-	return patch.Model()
+	_ = "STUB: not implemented"
+	return *new(model.Model), false
 }
 
 func (a *LLMAgent) codeExecutorForInvocation(
 	inv *agent.Invocation,
 ) codeexecutor.CodeExecutor {
-	if inv != nil && inv.RunOptions.CodeExecutor != nil {
-		return inv.RunOptions.CodeExecutor
-	}
-	if a == nil {
-		return nil
-	}
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	if a.codeExecutor != nil {
-		return a.codeExecutor
-	}
-	return a.option.codeExecutor
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.CodeExecutor)
 }
 
 func (a *LLMAgent) supportsWorkspaceExecForInvocation(
 	inv *agent.Invocation,
 ) bool {
-	if a == nil {
-		return false
-	}
-	a.mu.RLock()
-	options := a.option
-	a.mu.RUnlock()
-	if !workspaceExecSurfaceEnabled(&options) {
-		return false
-	}
-	return codeExecutorSupportsWorkspaceExec(a.codeExecutorForInvocation(inv))
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (a *LLMAgent) supportsWorkspaceExecSessionsForInvocation(
 	inv *agent.Invocation,
 ) bool {
-	if a == nil {
-		return false
-	}
-	a.mu.RLock()
-	options := a.option
-	a.mu.RUnlock()
-	if !workspaceExecSurfaceEnabled(&options) {
-		return false
-	}
-	return codeExecutorSupportsWorkspaceExecSessions(
-		a.codeExecutorForInvocation(inv),
-	)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (a *LLMAgent) skillToolFlagsForInvocation(
 	inv *agent.Invocation,
 ) skillprofile.Flags {
-	if a == nil {
-		return skillprofile.Flags{}
-	}
-	a.mu.RLock()
-	options := a.option
-	a.mu.RUnlock()
-	return mustResolveSkillToolFlagsWithExecutor(
-		&options,
-		a.codeExecutorForInvocation(inv),
-	)
+	_ = "STUB: not implemented"
+	return *new(skillprofile.Flags)
 }
 
 // ExecutionTraceAppliedSurfaceIDs reports the effective surfaces that affected one invocation step.
 func (a *LLMAgent) ExecutionTraceAppliedSurfaceIDs(inv *agent.Invocation) []string {
-	nodeID := agent.InvocationSurfaceRootNodeID(inv)
-	if nodeID == "" {
-		return nil
-	}
-	appliedSurfaceIDs := make([]string, 0, 6)
-	if a.instructionForInvocation(inv) != "" {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeInstruction))
-	}
-	if a.systemPromptForInvocation(inv) != "" {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeGlobalInstruction))
-	}
-	if examples := a.fewShotForInvocation(inv); len(examples) > 0 {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeFewShot))
-	}
-	if inv != nil && inv.Model != nil {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeModel))
-	}
-	if hasUserTools, ok := llmflow.InvocationHasFilteredUserTools(inv); ok && hasUserTools {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeTool))
-	}
-	if a.skillRepositoryForInvocation(inv) != nil {
-		appliedSurfaceIDs = append(appliedSurfaceIDs, astructure.SurfaceID(nodeID, astructure.SurfaceTypeSkill))
-	}
-	return appliedSurfaceIDs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // InvocationToolSurface returns the invocation-scoped tool surface and user tool names.
@@ -176,130 +87,34 @@ func (a *LLMAgent) InvocationToolSurface(
 	ctx context.Context,
 	inv *agent.Invocation,
 ) ([]tool.Tool, map[string]bool) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	patch, _ := a.rootSurfacePatch(inv)
-	userTools, userToolNames := a.userToolsForInvocation(ctx, patch)
-	a.mu.RLock()
-	options := a.option
-	subAgents := append([]agent.Agent(nil), a.subAgents...)
-	a.mu.RUnlock()
-	userTools, userToolNames = filterInvocationUserTools(
-		ctx,
-		userTools,
-		userToolNames,
-		options.toolFilter,
-	)
-
-	allTools := append([]tool.Tool(nil), userTools...)
-	allTools = appendKnowledgeTools(allTools, &options)
-	effectiveSkills := a.skillRepositoryForInvocation(inv)
-	effectiveExec := a.codeExecutorForInvocation(inv)
-	workspaceExecEnabled := workspaceExecSurfaceEnabled(&options) &&
-		codeExecutorSupportsWorkspaceExec(effectiveExec)
-	workspaceExecSessions := workspaceExecEnabled &&
-		codeExecutorSupportsWorkspaceExecSessions(effectiveExec)
-	var workspaceRegistry *codeexecutor.WorkspaceRegistry
-	if effectiveSkills != nil && effectiveExec != nil {
-		workspaceRegistry = a.workspaceRegistryForInvocation(inv, effectiveExec)
-	} else if workspaceExecEnabled {
-		workspaceRegistry = a.workspaceRegistryForInvocation(inv, effectiveExec)
-	}
-	// Pass effectiveSkills so workspace_exec's loaded-skills
-	// reconcile reads the same repository that skill tools and the
-	// skills request processor use on this invocation. Without this
-	// alignment, a surface-patch repo override would be honored by
-	// the skill tools but silently ignored by the reconciler path
-	// added in this change set, causing the model context and the
-	// materialized skill working copy to drift apart.
-	allTools = appendWorkspaceExecToolWithExecutor(
-		allTools,
-		effectiveExec,
-		workspaceExecEnabled,
-		workspaceExecSessions,
-		workspaceRegistry,
-		inv,
-		&options,
-		effectiveSkills,
-	)
-	allTools = appendSkillToolsWithRepoAndFlags(
-		allTools,
-		&options,
-		effectiveSkills,
-		workspaceRegistry,
-		nil,
-		effectiveExec,
-		mustResolveSkillToolFlagsWithExecutor(
-			&options,
-			effectiveExec,
-		),
-	)
-	if toolsessionrecall.SupportsOnDemandSession(inv) {
-		allTools = appendOnDemandSessionTools(allTools, &options, inv)
-	}
-	if options.EnableAwaitUserReplyTool {
-		allTools = append(allTools, toolawaitreply.New())
-	}
-	if len(subAgents) == 0 {
-		allTools = appendExtensionTools(allTools, &options)
-		return allTools, userToolNames
-	}
-	agentInfos := make([]agent.Info, len(subAgents))
-	for i, subAgent := range subAgents {
-		agentInfos[i] = subAgent.Info()
-	}
-	allTools = append(allTools, transfer.New(agentInfos))
-	// Extension-contributed tools (WithExtensions →
-	// extension.Registry.Tools) sit at the same logical layer as
-	// other framework-managed auto-injected tools: not folded into
-	// userToolNames, yet present on the outbound tool surface.
-	//
-	// Append them after every framework tool (knowledge, workspace,
-	// skills, session recall, await_user_reply and transfer) so
-	// earlier-wins dedup also protects later framework declarations
-	// from extension name collisions.
-	allTools = appendExtensionTools(allTools, &options)
-	return allTools, userToolNames
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Pass effectiveSkills so workspace_exec's loaded-skills
+// reconcile reads the same repository that skill tools and the
+// skills request processor use on this invocation. Without this
+// alignment, a surface-patch repo override would be honored by
+// the skill tools but silently ignored by the reconciler path
+// added in this change set, causing the model context and the
+// materialized skill working copy to drift apart.
+
+// Extension-contributed tools (WithExtensions →
+// extension.Registry.Tools) sit at the same logical layer as
+// other framework-managed auto-injected tools: not folded into
+// userToolNames, yet present on the outbound tool surface.
+//
+// Append them after every framework tool (knowledge, workspace,
+// skills, session recall, await_user_reply and transfer) so
+// earlier-wins dedup also protects later framework declarations
+// from extension name collisions.
 
 func (a *LLMAgent) userToolsForInvocation(
 	ctx context.Context,
 	patch surfacepatch.Patch,
 ) ([]tool.Tool, map[string]bool) {
-	a.mu.RLock()
-	refreshToolSets := a.option.RefreshToolSetsOnRun
-	staticTools := append([]tool.Tool(nil), a.tools...)
-	userToolNames := make(map[string]bool, len(a.userToolNames))
-	for name, isUser := range a.userToolNames {
-		userToolNames[name] = isUser
-	}
-	baseTools := append([]tool.Tool(nil), a.option.Tools...)
-	toolSets := append([]tool.ToolSet(nil), a.option.ToolSets...)
-	a.mu.RUnlock()
-
-	if patchedTools, ok := patch.Tools(); ok {
-		return patchedTools, collectUserToolNames(patchedTools)
-	}
-	if !refreshToolSets {
-		userTools := make([]tool.Tool, 0, len(userToolNames))
-		for _, t := range staticTools {
-			if userToolNames[t.Declaration().Name] {
-				userTools = append(userTools, t)
-			}
-		}
-		return applyUserToolPatch(userTools, userToolNames, patch)
-	}
-	userTools := append([]tool.Tool(nil), baseTools...)
-	userToolNames = collectUserToolNames(baseTools)
-	for _, toolSet := range toolSets {
-		namedToolSet := itool.NewNamedToolSet(toolSet)
-		for _, t := range namedToolSet.Tools(ctx) {
-			userTools = append(userTools, t)
-			userToolNames[t.Declaration().Name] = true
-		}
-	}
-	return applyUserToolPatch(userTools, userToolNames, patch)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func applyUserToolPatch(
@@ -307,11 +122,8 @@ func applyUserToolPatch(
 	userToolNames map[string]bool,
 	patch surfacepatch.Patch,
 ) ([]tool.Tool, map[string]bool) {
-	patchedTools, ok := patch.ApplyTools(userTools)
-	if !ok {
-		return userTools, userToolNames
-	}
-	return patchedTools, collectUserToolNames(patchedTools)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func filterInvocationUserTools(
@@ -320,19 +132,6 @@ func filterInvocationUserTools(
 	userToolNames map[string]bool,
 	filter tool.FilterFunc,
 ) ([]tool.Tool, map[string]bool) {
-	if filter == nil || len(userTools) == 0 {
-		return userTools, userToolNames
-	}
-	filtered := make([]tool.Tool, 0, len(userTools))
-	filteredNames := make(map[string]bool, len(userToolNames))
-	for _, tl := range userTools {
-		if tl == nil || tl.Declaration() == nil {
-			continue
-		}
-		if filter(ctx, tl) {
-			filtered = append(filtered, tl)
-			filteredNames[tl.Declaration().Name] = true
-		}
-	}
-	return filtered, filteredNames
+	_ = "STUB: not implemented"
+	return nil, nil
 }

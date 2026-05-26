@@ -11,7 +11,6 @@ package langfuse
 
 import (
 	"sync/atomic"
-	"unicode/utf8"
 )
 
 const defaultTruncateMarker = "…[truncated]…"
@@ -29,97 +28,27 @@ func init() {
 	observationMaxBytes.Store(-1)
 }
 
-func setObservationMaxBytes(maxBytes *int) {
-	if maxBytes == nil {
-		observationMaxBytes.Store(-1)
-		return
-	}
-	if *maxBytes < 0 {
-		observationMaxBytes.Store(-1)
-		return
-	}
-	observationMaxBytes.Store(int64(*maxBytes))
-}
+func setObservationMaxBytes(maxBytes *int) { _ = "STUB: not implemented"; return }
 
 // getObservationMaxBytes returns the max byte length for each observation JSON leaf node.
-func getObservationMaxBytes() int {
-	return int(observationMaxBytes.Load())
-}
+func getObservationMaxBytes() int { _ = "STUB: not implemented"; return 0 }
 
 // truncateObservationValue limits the size of Langfuse observation input/output.
 //
 // It is intentionally simple (scheme-agnostic): apply to the final string value.
 // Truncation is disabled by default unless configured.
-func truncateObservationValue(s string) string {
-	maxBytes := getObservationMaxBytes()
-	if maxBytes < 0 {
-		return s
-	}
-	if maxBytes == 0 {
-		return ""
-	}
-	return truncateStringBytes(s, maxBytes)
-}
+func truncateObservationValue(s string) string { _ = "STUB: not implemented"; return "" }
 
-func truncateStringBytes(s string, maxBytes int) string {
-	if maxBytes <= 0 {
-		return ""
-	}
-	if len(s) <= maxBytes {
-		return s
-	}
-	b := []byte(s)
+func truncateStringBytes(s string, maxBytes int) string { _ = "STUB: not implemented"; return "" }
 
-	marker := []byte(defaultTruncateMarker)
-	if len(marker) >= maxBytes {
-		return string(safeUTF8Prefix(marker, maxBytes))
-	}
+// Prefer keeping more head than tail, but always keep both sides.
 
-	remaining := maxBytes - len(marker)
-	// Prefer keeping more head than tail, but always keep both sides.
-	headBytes := remaining * 2 / 3
-	tailBytes := remaining - headBytes
+// Best-effort validity: should already be valid due to boundary trimming.
 
-	head := safeUTF8Prefix(b, headBytes)
-	tail := safeUTF8Suffix(b, tailBytes)
-	out := make([]byte, 0, len(head)+len(marker)+len(tail))
-	out = append(out, head...)
-	out = append(out, marker...)
-	out = append(out, tail...)
+func safeUTF8Prefix(b []byte, n int) []byte { _ = "STUB: not implemented"; return nil }
 
-	// Best-effort validity: should already be valid due to boundary trimming.
-	if !utf8.Valid(out) {
-		out = safeUTF8Prefix(b, maxBytes)
-	}
-	return string(out)
-}
+// Back up from a UTF-8 continuation byte.
 
-func safeUTF8Prefix(b []byte, n int) []byte {
-	if n <= 0 {
-		return nil
-	}
-	if n >= len(b) {
-		return b
-	}
-	end := n
-	// Back up from a UTF-8 continuation byte.
-	for end > 0 && (b[end]&0xC0) == 0x80 {
-		end--
-	}
-	return b[:end]
-}
+func safeUTF8Suffix(b []byte, n int) []byte { _ = "STUB: not implemented"; return nil }
 
-func safeUTF8Suffix(b []byte, n int) []byte {
-	if n <= 0 {
-		return nil
-	}
-	if n >= len(b) {
-		return b
-	}
-	start := len(b) - n
-	// Advance to a rune boundary (skip UTF-8 continuation bytes).
-	for start < len(b) && (b[start]&0xC0) == 0x80 {
-		start++
-	}
-	return b[start:]
-}
+// Advance to a rune boundary (skip UTF-8 continuation bytes).

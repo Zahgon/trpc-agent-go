@@ -20,7 +20,6 @@ type Option func(*options)
 
 // WithCandidates appends failover candidates in priority order.
 func WithCandidates(candidates ...model.Model) Option {
-	return func(o *options) {
-		o.candidates = append(o.candidates, candidates...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

@@ -139,19 +139,8 @@ type Observer interface {
 type ObserverFunc func(ctx context.Context, run Run)
 
 // OnRunUpdate implements Observer.
-func (f ObserverFunc) OnRunUpdate(ctx context.Context, run Run) {
-	if f != nil {
-		f(ctx, run)
-	}
-}
+func (f ObserverFunc) OnRunUpdate(ctx context.Context, run Run) { _ = "STUB: not implemented"; return }
 
 // IsTerminal reports whether the status will no longer change under normal
 // execution.
-func (s Status) IsTerminal() bool {
-	switch s {
-	case StatusCompleted, StatusFailed, StatusCanceled:
-		return true
-	default:
-		return false
-	}
-}
+func (s Status) IsTerminal() bool { _ = "STUB: not implemented"; return false }

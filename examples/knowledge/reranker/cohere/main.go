@@ -35,11 +35,7 @@ import (
 	"os"
 	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/reranker"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/reranker/cohere"
-
-	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
 )
 
 var (
@@ -113,47 +109,12 @@ func main() {
 }
 
 func runComparison(ctx context.Context, queryText string, documents []string) {
-	emb := util.NewOpenAIEmbedder(*embeddingModel)
-
-	// 1. Calculate embedding similarity scores
-	fmt.Println("\n--- Embedding Similarity (Bi-Encoder) ---")
-	embeddingScores := util.CalculateEmbeddingScores(ctx, queryText, documents, emb)
-	util.PrintEmbeddingResults(embeddingScores, documents)
-
-	// 2. Rerank with Cohere
-	fmt.Println("\n--- Reranker Scores (Cohere Cross-Encoder) ---")
-	candidates := make([]*reranker.Result, len(documents))
-	for i, doc := range documents {
-		candidates[i] = &reranker.Result{
-			Document: &document.Document{Content: doc},
-			Score:    embeddingScores[i],
-		}
-	}
-
-	query := &reranker.Query{
-		Text:       queryText,
-		FinalQuery: queryText,
-	}
-
-	r, err := cohere.New(
-		cohere.WithAPIKey(*apiKey),
-		cohere.WithModel(*modelName),
-	)
-	if err != nil {
-		log.Printf("Create cohere reranker failed: %v", err)
-		return
-	}
-
-	results, err := r.Rerank(ctx, query, candidates)
-	if err != nil {
-		log.Printf("Rerank failed: %v", err)
-		return
-	}
-	printRerankerResults(results)
+	_ = "STUB: not implemented"
+	return
 }
 
-func printRerankerResults(results []*reranker.Result) {
-	for i, res := range results {
-		fmt.Printf("%d. [Score: %.7f] %s\n", i+1, res.Score, res.Document.Content)
-	}
-}
+// 1. Calculate embedding similarity scores
+
+// 2. Rerank with Cohere
+
+func printRerankerResults(results []*reranker.Result) { _ = "STUB: not implemented"; return }

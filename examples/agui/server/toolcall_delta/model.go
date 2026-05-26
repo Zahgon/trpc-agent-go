@@ -9,41 +9,25 @@
 package main
 
 import (
-	"strings"
-
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 )
 
 func newLLMModel(name string, baseURL string, apiKey string) model.Model {
-	return openai.New(name, buildOpenAIOptions(baseURL, apiKey)...)
+	_ = "STUB: not implemented"
+	return *new(model.Model)
 }
 
 func newGenerationConfig(stream bool) model.GenerationConfig {
-	return model.GenerationConfig{
-		MaxTokens:   intPtr(2048),
-		Temperature: floatPtr(0.2),
-		Stream:      stream,
-	}
+	_ = "STUB: not implemented"
+	return *new(model.GenerationConfig)
 }
 
 func buildOpenAIOptions(baseURL string, apiKey string) []openai.Option {
-	opts := []openai.Option{openai.WithShowToolCallDelta(true)}
-	baseURL = strings.TrimSpace(baseURL)
-	if baseURL != "" {
-		opts = append(opts, openai.WithBaseURL(baseURL))
-	}
-	apiKey = strings.TrimSpace(apiKey)
-	if apiKey != "" {
-		opts = append(opts, openai.WithAPIKey(apiKey))
-	}
-	return opts
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

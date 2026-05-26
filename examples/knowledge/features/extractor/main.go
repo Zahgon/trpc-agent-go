@@ -27,18 +27,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
-	neturl "net/url"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/extractor"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/extractor/docling"
-	urlsource "trpc.group/trpc-go/trpc-agent-go/knowledge/source/url"
 
 	// Register readers.
 	_ "trpc.group/trpc-go/trpc-agent-go/knowledge/document/reader/markdown"
@@ -177,82 +173,13 @@ func main() {
 // demonstrateKnowledgeSource shows how to use url.WithExtractor to produce
 // chunked documents directly and write chunks from the same source into one file.
 func demonstrateKnowledgeSource(ctx context.Context, ext extractor.Extractor, urls []string, outputDir string) {
-	fmt.Println("\nCreating URL knowledge source with Docling extractor...")
-	fmt.Println("  Using: url.WithExtractor(doclingExtractor)")
-
-	src := urlsource.New(
-		urls,
-		urlsource.WithName("docling-extracted-urls"),
-		urlsource.WithExtractor(ext),
-		urlsource.WithMetadataValue("extractor", "docling"),
-		urlsource.WithChunkSize(500),
-		urlsource.WithChunkOverlap(50),
-	)
-
-	fmt.Println("  Reading chunked documents directly from URL source...")
-	startTime := time.Now()
-	docs, err := src.ReadDocuments(ctx)
-	if err != nil {
-		log.Printf("  Read failed: %v", err)
-		return
-	}
-	fmt.Printf("  Read time:  %v\n", time.Since(startTime))
-	fmt.Printf("  Chunks:     %d\n", len(docs))
-
-	chunkDir := filepath.Join(outputDir, "chunked")
-	if err := os.MkdirAll(chunkDir, 0755); err != nil {
-		log.Printf("  Failed to create chunk output dir: %v", err)
-		return
-	}
-
-	groupedDocs := groupDocumentsBySourceURL(docs)
-	for _, rawURL := range urls {
-		groupDocs := groupedDocs[rawURL]
-		if len(groupDocs) == 0 {
-			log.Printf("  No chunks generated for %s", rawURL)
-			continue
-		}
-
-		fileName := outputBaseNameFromURL(rawURL) + "_chunks.md"
-		filePath := filepath.Join(chunkDir, fileName)
-		content := buildGroupedChunkFileContent(rawURL, groupDocs)
-		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
-			log.Printf("  Failed to write %s: %v", filePath, err)
-			continue
-		}
-
-		fmt.Printf("  Source: %s\n", rawURL)
-		fmt.Printf("  Chunks: %d\n", len(groupDocs))
-		fmt.Printf("  Output: %s\n", filePath)
-		printPreview(groupDocs[0].Content, 200)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func buildGroupedChunkFileContent(rawURL string, docs []anyDocument) string {
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf("# Chunked Output for %s\n\n", rawURL))
-	b.WriteString(fmt.Sprintf("- Total Chunks: %d\n\n", len(docs)))
-
-	for i, doc := range docs {
-		b.WriteString("-----\n")
-		b.WriteString(fmt.Sprintf("Chunk %03d\n", i+1))
-		b.WriteString(fmt.Sprintf("Name: %s\n", doc.Name))
-		b.WriteString("Metadata:\n")
-
-		keys := make([]string, 0, len(doc.Metadata))
-		for k := range doc.Metadata {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			b.WriteString(fmt.Sprintf("  - %s: %v\n", k, doc.Metadata[k]))
-		}
-
-		b.WriteString("-----\n\n")
-		b.WriteString(doc.Content)
-		b.WriteString("\n\n")
-	}
-	return b.String()
+	_ = "STUB: not implemented"
+	return ""
 }
 
 type anyDocument struct {
@@ -263,66 +190,16 @@ type anyDocument struct {
 }
 
 func groupDocumentsBySourceURL(docs []*document.Document) map[string][]anyDocument {
-	grouped := make(map[string][]anyDocument)
-	for _, doc := range docs {
-		rawURL, _ := doc.Metadata["trpc_agent_go_url"].(string)
-		grouped[rawURL] = append(grouped[rawURL], anyDocument{
-			Name:     doc.Name,
-			Content:  doc.Content,
-			Metadata: doc.Metadata,
-			URL:      rawURL,
-		})
-	}
-	return grouped
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func downloadURL(ctx context.Context, rawURL string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "trpc-agent-go/docling-example")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP status %d", resp.StatusCode)
-	}
-
-	return io.ReadAll(resp.Body)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func outputBaseNameFromURL(rawURL string) string {
-	parsed, err := neturl.Parse(rawURL)
-	if err != nil {
-		return "document"
-	}
-	base := filepath.Base(strings.TrimSuffix(parsed.Path, "/"))
-	if base == "" || base == "." || base == "/" {
-		if parsed.Host != "" {
-			return parsed.Host
-		}
-		return "document"
-	}
-	return base
-}
+func outputBaseNameFromURL(rawURL string) string { _ = "STUB: not implemented"; return "" }
 
 // printPreview prints the first n characters of content with indentation.
-func printPreview(content string, n int) {
-	if len(content) > n {
-		content = content[:n] + "..."
-	}
-	lines := strings.Split(content, "\n")
-	maxLines := 15
-	if len(lines) > maxLines {
-		lines = lines[:maxLines]
-		lines = append(lines, "  ...")
-	}
-	for _, line := range lines {
-		fmt.Printf("    %s\n", line)
-	}
-}
+func printPreview(content string, n int) { _ = "STUB: not implemented"; return }

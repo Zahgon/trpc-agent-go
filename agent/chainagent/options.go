@@ -35,25 +35,14 @@ var (
 // WithSubAgents sets the sub-agents that will be executed in sequence.
 // The agents will run one after another, with each agent's output potentially
 // influencing the next agent's execution.
-func WithSubAgents(subAgents []agent.Agent) Option {
-	return func(o *Options) { o.subAgents = subAgents }
-}
+func WithSubAgents(subAgents []agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the buffer size for the event channel.
 // This controls how many events can be buffered before blocking.
 // Default is 256 if not specified.
-func WithChannelBufferSize(size int) Option {
-	return func(o *Options) {
-		if size < 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentCallbacks attaches lifecycle callbacks to the chain agent.
 // These callbacks allow custom logic to be executed before and after
 // the chain agent runs.
-func WithAgentCallbacks(cb *agent.Callbacks) Option {
-	return func(o *Options) { o.agentCallbacks = cb }
-}
+func WithAgentCallbacks(cb *agent.Callbacks) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -32,10 +32,8 @@ var errNoDynamicSummarizerResolved = errors.New("no dynamic summarizer resolved"
 func NewDynamicSummarizer(
 	resolve func(context.Context, *session.Session) (SessionSummarizer, error),
 ) SessionSummarizer {
-	if resolve == nil {
-		return nil
-	}
-	return &dynamicSummarizer{resolve: resolve}
+	_ = "STUB: not implemented"
+	return *new(SessionSummarizer)
 }
 
 type dynamicSummarizer struct {
@@ -48,15 +46,14 @@ func (d *dynamicSummarizer) resolveSummarizer(
 	ctx context.Context,
 	sess *session.Session,
 ) (SessionSummarizer, error) {
-	if d == nil || d.resolve == nil {
-		return nil, nil
-	}
-	return d.resolve(ctx, sess)
+	_ = "STUB: not implemented"
+	return *new(SessionSummarizer), nil
 }
 
 // ShouldSummarize checks if the session should be summarized.
 func (d *dynamicSummarizer) ShouldSummarize(sess *session.Session) bool {
-	return d.ShouldSummarizeWithContext(context.Background(), sess)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // ShouldSummarizeWithContext resolves the current summarizer and evaluates its
@@ -65,14 +62,8 @@ func (d *dynamicSummarizer) ShouldSummarizeWithContext(
 	ctx context.Context,
 	sess *session.Session,
 ) bool {
-	resolved, err := d.resolveSummarizer(ctx, sess)
-	if err != nil || resolved == nil {
-		return false
-	}
-	if contextual, ok := resolved.(ContextAwareSummarizer); ok {
-		return contextual.ShouldSummarizeWithContext(ctx, sess)
-	}
-	return resolved.ShouldSummarize(sess)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Summarize resolves the current summarizer and delegates summary generation
@@ -81,27 +72,25 @@ func (d *dynamicSummarizer) Summarize(
 	ctx context.Context,
 	sess *session.Session,
 ) (string, error) {
-	resolved, err := d.resolveSummarizer(ctx, sess)
-	if err != nil {
-		return "", err
-	}
-	if resolved == nil {
-		return "", errNoDynamicSummarizerResolved
-	}
-	return resolved.Summarize(ctx, sess)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // SetPrompt is a no-op for dynamic summarizers. Configure request-scoped
 // prompts in the resolver instead.
-func (d *dynamicSummarizer) SetPrompt(string) {}
+func (d *dynamicSummarizer) SetPrompt(string) {
+	_ = "STUB: not implemented"
 
-// SetModel is a no-op for dynamic summarizers. Configure request-scoped models
-// in the resolver instead.
-func (d *dynamicSummarizer) SetModel(model.Model) {}
-
-// Metadata returns metadata about the dynamic summarizer.
-func (d *dynamicSummarizer) Metadata() map[string]any {
-	return map[string]any{
-		"type": metadataDynamicSummarizerType,
-	}
+	// SetModel is a no-op for dynamic summarizers. Configure request-scoped models
+	// in the resolver instead.
+	return
 }
+
+func (d *dynamicSummarizer) SetModel(model.Model) {
+	_ = "STUB: not implemented"
+
+	// Metadata returns metadata about the dynamic summarizer.
+	return
+}
+
+func (d *dynamicSummarizer) Metadata() map[string]any { _ = "STUB: not implemented"; return nil }

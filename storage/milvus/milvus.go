@@ -10,8 +10,6 @@ package milvus
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
 	"google.golang.org/grpc"
@@ -42,16 +40,17 @@ type clientBuilder func(ctx context.Context, builderOpts ...ClientBuilderOpt) (C
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the postgres client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the postgres client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// ClientBuilderOpt is the option for the milvus client.
+	new(clientBuilder)
 }
 
-// ClientBuilderOpt is the option for the milvus client.
 type ClientBuilderOpt func(*ClientBuilderOpts)
 
 // ClientBuilderOpts is the options for the milvus client.
@@ -73,87 +72,55 @@ type ClientBuilderOpts struct {
 
 // WithAddress sets the address of the milvus server.
 func WithAddress(address string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.Address = address
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithUsername sets the username of the milvus server.
 func WithUsername(username string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.Username = username
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithPassword sets the password of the milvus server.
 func WithPassword(password string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.Password = password
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithDBName sets the name of the database, "default"
 func WithDBName(dbName string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.DBName = dbName
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithAPIKey sets the API key
 func WithAPIKey(apiKey string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.APIKey = apiKey
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithDialOptions sets the dial options for the milvus server.
 func WithDialOptions(opts ...grpc.DialOption) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.DialOptions = opts
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // defaultClientBuilder is the default client builder for milvus.
 func defaultClientBuilder(ctx context.Context, builderOpts ...ClientBuilderOpt) (Client, error) {
-	opts := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(opts)
-	}
-
-	if opts.Address == "" {
-		return nil, fmt.Errorf("milvus address is empty")
-	}
-
-	var cfg client.ClientConfig
-	cfg.Address = opts.Address
-	if opts.Username != "" {
-		cfg.Username = opts.Username
-	}
-	if opts.Password != "" {
-		cfg.Password = opts.Password
-	}
-	if opts.DBName != "" {
-		cfg.DBName = opts.DBName
-	}
-	if opts.APIKey != "" {
-		cfg.APIKey = opts.APIKey
-	}
-	if len(opts.DialOptions) > 0 {
-		cfg.DialOptions = opts.DialOptions
-	} else {
-		cfg.DialOptions = []grpc.DialOption{grpc.WithTimeout(5 * time.Second)}
-	}
-	return client.New(ctx, &cfg)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // RegisterMilvusInstance registers a milvus instance options.
 // If the instance already exists, it will be overwritten.
 func RegisterMilvusInstance(name string, opts ...ClientBuilderOpt) {
-	milvusRegistry[name] = opts
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetMilvusInstance gets the milvus instance options.
 func GetMilvusInstance(name string) ([]ClientBuilderOpt, bool) {
-	instance, ok := milvusRegistry[name]
-	return instance, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }

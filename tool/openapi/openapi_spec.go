@@ -27,16 +27,14 @@ type LoaderOption func(*openapi.Loader)
 
 // WithExternalRefs sets whether to allow external $ref references.
 func WithExternalRefs(allow bool) LoaderOption {
-	return func(l *openapi.Loader) {
-		l.IsExternalRefsAllowed = allow
-	}
+	_ = "STUB: not implemented"
+	return *new(LoaderOption)
 }
 
 // WithReadFromURI sets the function to read from URI.
 func WithReadFromURI(f openapi.ReadFromURIFunc) LoaderOption {
-	return func(l *openapi.Loader) {
-		l.ReadFromURIFunc = f
-	}
+	_ = "STUB: not implemented"
+	return *new(LoaderOption)
 }
 
 type dataLoader struct {
@@ -46,17 +44,14 @@ type dataLoader struct {
 
 // Load loads the OpenAPI spec from io.Reader.
 func (d *dataLoader) Load(ctx context.Context) (*openapi.T, error) {
-	d.loader.Context = ctx
-	return d.loader.LoadFromData(d.data)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewDataLoader creates a new data spec loader.
 func NewDataLoader(data []byte, opts ...LoaderOption) (*dataLoader, error) {
-	loader := &openapi.Loader{}
-	for _, opt := range opts {
-		opt(loader)
-	}
-	return &dataLoader{loader: loader, data: data}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type fileLoader struct {
@@ -66,17 +61,14 @@ type fileLoader struct {
 
 // Load loads the OpenAPI spec from file.
 func (f *fileLoader) Load(ctx context.Context) (*openapi.T, error) {
-	f.loader.Context = ctx
-	return f.loader.LoadFromFile(f.path)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewFileLoader creates a new file spec loader.
 func NewFileLoader(filePath string, opts ...LoaderOption) (*fileLoader, error) {
-	loader := &openapi.Loader{}
-	for _, opt := range opts {
-		opt(loader)
-	}
-	return &fileLoader{loader: loader, path: filePath}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type urlLoader struct {
@@ -86,26 +78,17 @@ type urlLoader struct {
 
 // Load loads the OpenAPI spec from url.
 func (u *urlLoader) Load(ctx context.Context) (*openapi.T, error) {
-	loader := openapi.Loader{Context: ctx}
-	return loader.LoadFromURI(u.location)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewURILoader creates a new url spec loader.
 func NewURILoader(uri string, opts ...LoaderOption) (*urlLoader, error) {
-	u, err := url.Parse(uri)
-	if err != nil {
-		return nil, err
-	}
-	loader := &openapi.Loader{}
-	for _, opt := range opts {
-		opt(loader)
-	}
-	return &urlLoader{loader: loader, location: u}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func newDocProcessor(doc *openapi.T) *docProcessor {
-	return &docProcessor{doc: doc}
-}
+func newDocProcessor(doc *openapi.T) *docProcessor { _ = "STUB: not implemented"; return nil }
 
 type docProcessor struct {
 	doc        *openapi.T
@@ -113,45 +96,15 @@ type docProcessor struct {
 }
 
 // InfoTitle returns the title of the spec.
-func (s *docProcessor) InfoTitle() string {
-	if s.doc.Info == nil {
-		return ""
-	}
-	return s.doc.Info.Title
-}
+func (s *docProcessor) InfoTitle() string { _ = "STUB: not implemented"; return "" }
 
 const defaultBaseURL = "/"
 
 // processOperations processes the operations in the spec.
 // Currently, only the first server URL is used as the base URL.
 // And variables are not supported.
-func (s *docProcessor) processOperations() error {
-	baseURL := defaultBaseURL
-	if len(s.doc.Servers) != 0 {
-		baseURL = s.doc.Servers[0].URL
-	}
+func (s *docProcessor) processOperations() error { _ = "STUB: not implemented"; return nil }
 
-	// TODO: security scheme, if any
-	for path, pathItem := range s.doc.Paths.Map() {
-		if pathItem == nil {
-			continue
-		}
-		// TODO: add path-level parameters
-		for method, specOperation := range methodOperations(pathItem) {
-			if specOperation == nil {
-				continue
-			}
-			op := newOperation(
-				operationName(specOperation, path, method),
-				operationDesc(specOperation),
-				newOperationEndpoint(baseURL, path, method),
-				specOperation,
-			)
-			op.collectSpecOperationParameters(specOperation.Parameters)
-			op.collectSpecRequestParameters(specOperation.RequestBody)
-			op.collectResponseParameter(specOperation.Responses)
-			s.operations = append(s.operations, op)
-		}
-	}
-	return nil
-}
+// TODO: security scheme, if any
+
+// TODO: add path-level parameters

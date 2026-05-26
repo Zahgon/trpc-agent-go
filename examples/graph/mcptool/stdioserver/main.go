@@ -12,7 +12,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	mcp "trpc.group/trpc-go/trpc-mcp-go"
@@ -94,70 +93,18 @@ func main() {
 
 // handleEcho handles the echo tool.
 func handleEcho(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	_ = "STUB: not implemented"
 	// Parse message parameter.
-	message := ""
-	if msgArg, ok := req.Params.Arguments["message"]; ok {
-		if msgStr, ok := msgArg.(string); ok {
-			message = msgStr
-		}
-	}
-	if message == "" {
-		return nil, fmt.Errorf("missing required parameter: message")
-	}
-
-	// Parse prefix parameter.
-	prefix := "Echo: "
-	if prefixArg, ok := req.Params.Arguments["prefix"]; ok {
-		if prefixStr, ok := prefixArg.(string); ok && prefixStr != "" {
-			prefix = prefixStr
-		}
-	}
-
-	result := prefix + message
-
-	return &mcp.CallToolResult{
-		Content: []mcp.Content{
-			mcp.NewTextContent(result),
-		},
-	}, nil
+	return nil, nil
 }
+
+// Parse prefix parameter.
 
 // handleAdd handles the add tool.
 func handleAdd(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	_ = "STUB: not implemented"
 	// Parse a parameter.
-	var a float64
-	if aArg, ok := req.Params.Arguments["a"]; ok {
-		if aFloat, ok := aArg.(float64); ok {
-			a = aFloat
-		} else if aInt, ok := aArg.(int); ok {
-			a = float64(aInt)
-		} else {
-			return nil, fmt.Errorf("invalid parameter 'a': must be a number")
-		}
-	} else {
-		return nil, fmt.Errorf("missing required parameter: a")
-	}
-
-	// Parse b parameter.
-	var b float64
-	if bArg, ok := req.Params.Arguments["b"]; ok {
-		if bFloat, ok := bArg.(float64); ok {
-			b = bFloat
-		} else if bInt, ok := bArg.(int); ok {
-			b = float64(bInt)
-		} else {
-			return nil, fmt.Errorf("invalid parameter 'b': must be a number")
-		}
-	} else {
-		return nil, fmt.Errorf("missing required parameter: b")
-	}
-
-	result := a + b
-	resultText := fmt.Sprintf("%.2f + %.2f = %.2f", a, b, result)
-
-	return &mcp.CallToolResult{
-		Content: []mcp.Content{
-			mcp.NewTextContent(resultText),
-		},
-	}, nil
+	return nil, nil
 }
+
+// Parse b parameter.

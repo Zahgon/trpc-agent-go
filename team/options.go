@@ -81,9 +81,8 @@ type MemberToolConfig struct {
 // DefaultMemberToolConfig returns the default member tool configuration used
 // by coordinator teams.
 func DefaultMemberToolConfig() MemberToolConfig {
-	return MemberToolConfig{
-		HistoryScope: defaultMemberToolHistoryScope,
-	}
+	_ = "STUB: not implemented"
+	return *new(MemberToolConfig)
 }
 
 type memberToolOptions struct {
@@ -98,38 +97,25 @@ type memberToolOptions struct {
 type Option func(*options)
 
 // WithDescription sets the team description returned by Info().
-func WithDescription(desc string) Option {
-	return func(o *options) {
-		o.description = desc
-	}
-}
+func WithDescription(desc string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMemberToolSetName sets the ToolSet name used to expose member
 // AgentTools to the coordinator agent.
 //
 // This only applies to coordinator teams.
-func WithMemberToolSetName(name string) Option {
-	return func(o *options) {
-		o.memberTools.name = name
-	}
-}
+func WithMemberToolSetName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMemberToolStreamInner controls whether member AgentTools forward inner
 // agent events to the parent flow.
 //
 // This only applies to coordinator teams.
-func WithMemberToolStreamInner(enabled bool) Option {
-	return func(o *options) {
-		o.memberTools.streamInner = enabled
-	}
-}
+func WithMemberToolStreamInner(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMemberToolInnerTextMode controls whether forwarded inner assistant text
 // is visible in the parent flow when StreamInner is enabled.
 func WithMemberToolInnerTextMode(mode InnerTextMode) Option {
-	return func(o *options) {
-		o.memberTools.innerTextMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMemberToolConfig configures how the Team exposes member Agents as
@@ -137,27 +123,14 @@ func WithMemberToolInnerTextMode(mode InnerTextMode) Option {
 //
 // This only applies to coordinator teams.
 func WithMemberToolConfig(cfg MemberToolConfig) Option {
-	return func(o *options) {
-		o.memberTools.streamInner = cfg.StreamInner
-		o.memberTools.innerTextMode = cfg.InnerTextMode
-		o.memberTools.skipSummarization = cfg.SkipSummarization
-
-		if cfg.HistoryScope == HistoryScopeDefault {
-			o.memberTools.historyScope = defaultMemberToolHistoryScope
-			return
-		}
-		o.memberTools.historyScope = cfg.HistoryScope
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSwarmConfig sets swarm-specific limits for a swarm team.
 //
 // This only applies to swarm teams.
-func WithSwarmConfig(cfg SwarmConfig) Option {
-	return func(o *options) {
-		o.swarm = cfg
-	}
-}
+func WithSwarmConfig(cfg SwarmConfig) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCrossRequestTransfer enables cross-request transfer for swarm teams.
 //
@@ -167,15 +140,7 @@ func WithSwarmConfig(cfg SwarmConfig) Option {
 // Default: false (disabled by default)
 //
 // This only applies to swarm teams.
-func WithCrossRequestTransfer(enabled bool) Option {
-	return func(o *options) {
-		if enabled {
-			o.swarmHandoff.turnRouting = swarmTurnRoutingTargetTakesOver
-			return
-		}
-		o.swarmHandoff.turnRouting = swarmTurnRoutingEntry
-	}
-}
+func WithCrossRequestTransfer(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSwarmIndependentAgents makes Swarm members keep private history.
 //
@@ -192,11 +157,7 @@ func WithCrossRequestTransfer(enabled bool) Option {
 // root session only.
 //
 // This only applies to swarm teams.
-func WithSwarmIndependentAgents() Option {
-	return func(o *options) {
-		o.swarmHandoff.sessionScope = swarmSessionScopePerAgent
-	}
-}
+func WithSwarmIndependentAgents() Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSwarmHandoffInputBuilder sets the target input builder used by Swarm
 // handoffs.
@@ -213,9 +174,8 @@ func WithSwarmIndependentAgents() Option {
 //
 // This only applies to swarm teams.
 func WithSwarmHandoffInputBuilder(builder SwarmHandoffInputBuilder) Option {
-	return func(o *options) {
-		o.swarmHandoffInput = builder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 const (
@@ -224,15 +184,7 @@ const (
 	defaultMemberToolHistoryScope = HistoryScopeParentBranch
 )
 
-func defaultOptions(teamName string) options {
-	return options{
-		memberTools: memberToolOptions{
-			name:         defaultMemberToolSetNamePrefix + teamName,
-			historyScope: defaultMemberToolHistoryScope,
-		},
-		swarm: DefaultSwarmConfig(),
-	}
-}
+func defaultOptions(teamName string) options { _ = "STUB: not implemented"; return *new(options) }
 
 type toolSetAdder interface {
 	AddToolSet(tool.ToolSet)

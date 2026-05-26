@@ -22,59 +22,35 @@ import (
 type Option func(*Source)
 
 // WithName sets the name of the auto source.
-func WithName(name string) Option {
-	return func(s *Source) {
-		s.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadata sets the metadata for the auto source.
-func WithMetadata(metadata map[string]any) Option {
-	return func(s *Source) {
-		for k, v := range metadata {
-			s.metadata[k] = v
-		}
-	}
-}
+func WithMetadata(metadata map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataValue adds a single metadata key-value pair.
 func WithMetadataValue(key string, value any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		s.metadata[key] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCustomChunkingStrategy sets a custom chunking strategy for document splitting.
 // This option will be passed to directory and file sources when auto-detecting the source type.
 func WithCustomChunkingStrategy(strategy chunking.Strategy) Option {
-	return func(s *Source) {
-		s.customChunkingStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChunkSize sets the chunk size for the reader's default chunking strategy.
-func WithChunkSize(size int) Option {
-	return func(s *Source) {
-		s.chunkSize = size
-	}
-}
+func WithChunkSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChunkOverlap sets the chunk overlap for the reader's default chunking strategy.
-func WithChunkOverlap(overlap int) Option {
-	return func(s *Source) {
-		s.chunkOverlap = overlap
-	}
-}
+func WithChunkOverlap(overlap int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOCRExtractor sets an OCR extractor for processing images in documents (e.g., PDFs).
 // This option will be passed to directory and file sources when auto-detecting the source type.
 func WithOCRExtractor(extractor ocr.Extractor) Option {
-	return func(s *Source) {
-		s.ocrExtractor = extractor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTransformers sets transformers for document processing.
@@ -88,9 +64,8 @@ func WithOCRExtractor(extractor ocr.Extractor) Option {
 //	    transform.NewCharDedup(" "),
 //	))
 func WithTransformers(transformers ...transform.Transformer) Option {
-	return func(s *Source) {
-		s.transformers = append(s.transformers, transformers...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFileReaderType sets the file type to use for text input processing.
@@ -102,9 +77,8 @@ func WithTransformers(transformers ...transform.Transformer) Option {
 //
 //	source := auto.New([]string{"# Title\nContent"}, auto.WithFileReaderType(source.FileReaderTypeMarkdown))
 func WithFileReaderType(fileType source.FileReaderType) Option {
-	return func(s *Source) {
-		s.fileReaderType = fileType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExtractor sets a content extractor for handling complex or unsupported formats.
@@ -113,8 +87,4 @@ func WithFileReaderType(fileType source.FileReaderType) Option {
 // Example:
 //
 //	source := auto.New(inputs, auto.WithExtractor(myVisionExtractor))
-func WithExtractor(e extractor.Extractor) Option {
-	return func(s *Source) {
-		s.contentExtractor = e
-	}
-}
+func WithExtractor(e extractor.Extractor) Option { _ = "STUB: not implemented"; return *new(Option) }

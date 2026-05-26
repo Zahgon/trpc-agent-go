@@ -16,8 +16,6 @@ package toolcache
 
 import (
 	"context"
-	"slices"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
@@ -44,11 +42,8 @@ func StoreSkillRunOutputFilesFromContext(
 	ctx context.Context,
 	files []codeexecutor.File,
 ) {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return
-	}
-	StoreSkillRunOutputFiles(inv, files)
+	_ = "STUB: not implemented"
+	return
 }
 
 // DeleteSkillRunOutputFilesFromContext deletes skill_run output_files from
@@ -58,11 +53,8 @@ func DeleteSkillRunOutputFilesFromContext(
 	ctx context.Context,
 	names []string,
 ) {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return
-	}
-	DeleteSkillRunOutputFiles(inv, names)
+	_ = "STUB: not implemented"
+	return
 }
 
 // StoreSkillRunOutputFiles stores skill_run output_files into inv so other
@@ -71,34 +63,8 @@ func StoreSkillRunOutputFiles(
 	inv *agent.Invocation,
 	files []codeexecutor.File,
 ) {
-	if inv == nil || len(files) == 0 {
-		return
-	}
-
-	merged := make(map[string]cachedSkillRunFile, len(files))
-	if existing, ok := inv.GetState(stateKeySkillRunOutputFiles); ok {
-		if m, ok := existing.(map[string]cachedSkillRunFile); ok {
-			for k, v := range m {
-				merged[k] = v
-			}
-		}
-	}
-
-	for _, f := range files {
-		name := strings.TrimSpace(f.Name)
-		if name == "" {
-			continue
-		}
-		merged[name] = cachedSkillRunFile{
-			Content:  f.Content,
-			MIMEType: f.MIMEType,
-		}
-	}
-
-	if len(merged) == 0 {
-		return
-	}
-	inv.SetState(stateKeySkillRunOutputFiles, merged)
+	_ = "STUB: not implemented"
+	return
 }
 
 // DeleteSkillRunOutputFiles deletes skill_run output_files from inv so other
@@ -107,39 +73,8 @@ func DeleteSkillRunOutputFiles(
 	inv *agent.Invocation,
 	names []string,
 ) {
-	if inv == nil || len(names) == 0 {
-		return
-	}
-
-	existing, ok := inv.GetState(stateKeySkillRunOutputFiles)
-	if !ok {
-		return
-	}
-	merged, ok := existing.(map[string]cachedSkillRunFile)
-	if !ok || len(merged) == 0 {
-		return
-	}
-
-	deleted := false
-	for _, name := range names {
-		n := strings.TrimSpace(name)
-		if n == "" {
-			continue
-		}
-		if _, ok := merged[n]; !ok {
-			continue
-		}
-		delete(merged, n)
-		deleted = true
-	}
-	if !deleted {
-		return
-	}
-	if len(merged) == 0 {
-		inv.DeleteState(stateKeySkillRunOutputFiles)
-		return
-	}
-	inv.SetState(stateKeySkillRunOutputFiles, merged)
+	_ = "STUB: not implemented"
+	return
 }
 
 // LookupSkillRunOutputFileFromContext looks up an exported skill_run output
@@ -148,11 +83,8 @@ func LookupSkillRunOutputFileFromContext(
 	ctx context.Context,
 	name string,
 ) (string, string, bool) {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return "", "", false
-	}
-	return LookupSkillRunOutputFile(inv, name)
+	_ = "STUB: not implemented"
+	return "", "", false
 }
 
 // LookupSkillRunOutputFile looks up an exported skill_run output file by name
@@ -161,27 +93,8 @@ func LookupSkillRunOutputFile(
 	inv *agent.Invocation,
 	name string,
 ) (string, string, bool) {
-	if inv == nil {
-		return "", "", false
-	}
-	n := strings.TrimSpace(name)
-	if n == "" {
-		return "", "", false
-	}
-
-	v, ok := inv.GetState(stateKeySkillRunOutputFiles)
-	if !ok {
-		return "", "", false
-	}
-	m, ok := v.(map[string]cachedSkillRunFile)
-	if !ok {
-		return "", "", false
-	}
-	f, ok := m[n]
-	if !ok {
-		return "", "", false
-	}
-	return f.Content, f.MIMEType, true
+	_ = "STUB: not implemented"
+	return "", "", false
 }
 
 // SkillRunOutputFilesFromContext returns a stable list of exported skill_run
@@ -189,11 +102,8 @@ func LookupSkillRunOutputFile(
 func SkillRunOutputFilesFromContext(
 	ctx context.Context,
 ) []SkillRunOutputFile {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return nil
-	}
-	return SkillRunOutputFiles(inv)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SkillRunOutputFiles returns a stable list of exported skill_run output
@@ -201,28 +111,6 @@ func SkillRunOutputFilesFromContext(
 func SkillRunOutputFiles(
 	inv *agent.Invocation,
 ) []SkillRunOutputFile {
-	if inv == nil {
-		return nil
-	}
-	v, ok := inv.GetState(stateKeySkillRunOutputFiles)
-	if !ok {
-		return nil
-	}
-	m, ok := v.(map[string]cachedSkillRunFile)
-	if !ok || len(m) == 0 {
-		return nil
-	}
-
-	out := make([]SkillRunOutputFile, 0, len(m))
-	for name, f := range m {
-		out = append(out, SkillRunOutputFile{
-			Name:     name,
-			Content:  f.Content,
-			MIMEType: f.MIMEType,
-		})
-	}
-	slices.SortFunc(out, func(a, b SkillRunOutputFile) int {
-		return strings.Compare(a.Name, b.Name)
-	})
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }

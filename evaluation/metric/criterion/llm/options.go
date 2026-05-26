@@ -40,65 +40,34 @@ type options struct {
 }
 
 // newOptions applies Option overrides on top of sensible defaults.
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		numSamples: DefaultNumSamples,
-		generation: &DefaultGeneration,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures judge model settings.
 type Option func(*options)
 
 // WithRubrics sets the list of rubrics to use.
-func WithRubrics(rubrics []*Rubric) Option {
-	return func(o *options) {
-		o.rubrics = rubrics
-	}
-}
+func WithRubrics(rubrics []*Rubric) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVariant sets the OpenAI-compatible variant for the judge model.
-func WithVariant(variant string) Option {
-	return func(o *options) {
-		o.variant = variant
-	}
-}
+func WithVariant(variant string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseURL sets a custom base URL for the judge model endpoint.
-func WithBaseURL(baseURL string) Option {
-	return func(o *options) {
-		o.baseURL = baseURL
-	}
-}
+func WithBaseURL(baseURL string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAPIKey sets the API key used when invoking the judge model provider.
-func WithAPIKey(apiKey string) Option {
-	return func(o *options) {
-		o.apiKey = apiKey
-	}
-}
+func WithAPIKey(apiKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraFields supplies provider-specific parameters for the judge model.
 func WithExtraFields(extraFields map[string]any) Option {
-	return func(o *options) {
-		o.extraFields = extraFields
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithNumSamples overrides how many judge samples to collect.
-func WithNumSamples(numSamples int) Option {
-	return func(o *options) {
-		o.numSamples = numSamples
-	}
-}
+func WithNumSamples(numSamples int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGeneration sets the generation configuration for the judge model.
 func WithGeneration(generation *model.GenerationConfig) Option {
-	return func(o *options) {
-		o.generation = generation
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

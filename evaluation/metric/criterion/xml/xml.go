@@ -10,13 +10,6 @@
 // Package xml defines XML-based content criteria.
 package xml
 
-import (
-	"encoding/xml"
-	"fmt"
-	"io"
-	"strings"
-)
-
 // CompareFunc defines custom XML comparison logic.
 type CompareFunc func(actual, expected string) (bool, error)
 
@@ -41,76 +34,12 @@ type XMLCriterion struct {
 }
 
 // New creates an XMLCriterion with the provided options.
-func New(opt ...Option) *XMLCriterion {
-	opts := newOptions(opt...)
-	return &XMLCriterion{
-		Ignore:        opts.ignore,
-		Valid:         opts.valid,
-		MatchStrategy: opts.matchStrategy,
-		Compare:       opts.compare,
-	}
-}
+func New(opt ...Option) *XMLCriterion { _ = "STUB: not implemented"; return nil }
 
 // Match compares or validates XML content using the configured rule.
 func (c *XMLCriterion) Match(actual, expected string) (bool, error) {
-	if c.Ignore {
-		return true, nil
-	}
-	if c.Compare != nil {
-		return c.Compare(actual, expected)
-	}
-	if c.MatchStrategy == "" {
-		return false, fmt.Errorf("xml match strategy is empty")
-	}
-	if c.MatchStrategy != XMLMatchStrategySkip {
-		return false, fmt.Errorf("invalid match strategy %s", c.MatchStrategy)
-	}
-	if c.Valid {
-		return matchValid(actual)
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func matchValid(content string) (bool, error) {
-	if strings.TrimSpace(content) == "" {
-		return false, fmt.Errorf("xml content is empty")
-	}
-	decoder := xml.NewDecoder(strings.NewReader(content))
-	var depth int
-	var rootCount int
-	for {
-		token, err := decoder.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return false, err
-		}
-		switch t := token.(type) {
-		case xml.StartElement:
-			if depth == 0 {
-				rootCount++
-				if rootCount > 1 {
-					return false, fmt.Errorf("xml content must contain a single root element")
-				}
-			}
-			depth++
-		case xml.EndElement:
-			depth--
-			if depth < 0 {
-				return false, fmt.Errorf("xml content has unexpected closing element")
-			}
-		case xml.CharData:
-			if depth == 0 && strings.TrimSpace(string(t)) != "" {
-				return false, fmt.Errorf("xml content has non-whitespace text outside the root element")
-			}
-		}
-	}
-	if rootCount == 0 {
-		return false, fmt.Errorf("xml content must contain a root element")
-	}
-	if depth != 0 {
-		return false, fmt.Errorf("xml content has unclosed elements")
-	}
-	return true, nil
-}
+func matchValid(content string) (bool, error) { _ = "STUB: not implemented"; return false, nil }

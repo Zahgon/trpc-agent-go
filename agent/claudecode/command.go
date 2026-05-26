@@ -11,10 +11,7 @@
 package claudecode
 
 import (
-	"bytes"
 	"context"
-	"os"
-	"os/exec"
 )
 
 // command describes one CLI invocation.
@@ -40,19 +37,10 @@ type execCommandRunner struct{}
 
 // Run executes cmd with exec.CommandContext and captures stdout/stderr.
 func (execCommandRunner) Run(ctx context.Context, cmd command) ([]byte, []byte, error) {
+	_ = "STUB: not implemented"
 	// nosemgrep: go.lang.security.audit.dangerous-exec-command
 	// This agent intentionally executes a locally installed Claude Code CLI binary.
-	c := exec.CommandContext(ctx, cmd.bin, cmd.args...) //nolint:gosec // The executable path is provided via agent options.
-	env := os.Environ()
-	if len(cmd.env) > 0 {
-		env = append(env, cmd.env...)
-	}
-	c.Env = env
-	c.Dir = cmd.dir
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	c.Stdout = &stdout
-	c.Stderr = &stderr
-	runErr := c.Run()
-	return stdout.Bytes(), stderr.Bytes(), runErr
+	return nil, nil, nil
 }
+
+//nolint:gosec // The executable path is provided via agent options.

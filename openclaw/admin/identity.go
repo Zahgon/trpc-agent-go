@@ -11,7 +11,6 @@ package admin
 
 import (
 	"net/http"
-	"strings"
 )
 
 const (
@@ -37,81 +36,32 @@ type IdentityStatus struct {
 }
 
 func (s *Service) identityStatus() IdentityStatus {
-	if s == nil || s.cfg.Identity == nil {
-		return IdentityStatus{}
-	}
-	status, err := s.cfg.Identity.IdentityStatus()
-	if err != nil {
-		return IdentityStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-	status.Enabled = true
-	return status
+	_ = "STUB: not implemented"
+	return *new(IdentityStatus)
 }
 
 func (s *Service) handleIdentityJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.identityStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSaveIdentity(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	name, returnTo, ok := s.requireIdentityPOST(w, r)
-	if !ok {
-		return
-	}
-	if err := s.cfg.Identity.SaveAssistantName(name); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	message := "Saved default name."
-	if strings.TrimSpace(name) == "" {
-		message = "Cleared default name."
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		message,
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) requireIdentityPOST(
 	w http.ResponseWriter,
 	r *http.Request,
 ) (string, string, bool) {
-	if s == nil || s.cfg.Identity == nil {
-		http.Error(w, "identity is not enabled", http.StatusNotFound)
-		return "", "", false
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return "", "", false
-	}
-	return r.FormValue(formAssistantName),
-		strings.TrimSpace(r.FormValue(formReturnTo)),
-		true
+	_ = "STUB: not implemented"
+	return "", "", false
 }
 
 const identityPageTemplateHTML = `

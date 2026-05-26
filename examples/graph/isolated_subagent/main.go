@@ -25,25 +25,15 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 var (
@@ -64,12 +54,7 @@ const (
 	nodeCollect    = "collect"
 )
 
-func getEnvOrDefault(key, defaultVal string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return defaultVal
-}
+func getEnvOrDefault(key, defaultVal string) string { _ = "STUB: not implemented"; return "" }
 
 func main() {
 	flag.Parse()
@@ -94,247 +79,79 @@ func main() {
 	}
 }
 
-func readQuestionFromStdin() string {
-	fmt.Println("Enter a math question (e.g., 'What is 12 + 7?'):")
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			fmt.Println("No input provided, using default question")
-			return "What is 12 + 7?"
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text != "" {
-			return text
-		}
-	}
-}
+func readQuestionFromStdin() string { _ = "STUB: not implemented"; return "" }
 
-func run(prompt string) error {
-	ctx := context.Background()
+func run(prompt string) error { _ = "STUB: not implemented"; return nil }
 
-	// Build the child LLMAgent with calculator tool
-	childAgent := buildChildAgent()
+// Build the child LLMAgent with calculator tool
 
-	// Build the parent graph that delegates to the child agent
-	parentGraph, err := buildParentGraph()
-	if err != nil {
-		return fmt.Errorf("failed to build parent graph: %w", err)
-	}
+// Build the parent graph that delegates to the child agent
 
-	// Create the parent GraphAgent with the child as a sub-agent
-	parentGA, err := graphagent.New(
-		parentName,
-		parentGraph,
-		graphagent.WithDescription("Parent graph that delegates to calculator agent"),
-		graphagent.WithSubAgents([]agent.Agent{childAgent}),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create parent graph agent: %w", err)
-	}
+// Create the parent GraphAgent with the child as a sub-agent
 
-	// Create runner with in-memory session
-	sessSvc := inmemory.NewSessionService()
-	r := runner.NewRunner(appName, parentGA, runner.WithSessionService(sessSvc))
-	defer r.Close()
-
-	userID := "demo-user"
-	sessionID := fmt.Sprintf("session-%d", time.Now().Unix())
-
-	fmt.Printf("Session: %s\n", sessionID)
-	fmt.Printf("Question: %s\n", prompt)
-	fmt.Println(strings.Repeat("-", 64))
-
-	message := model.NewUserMessage(prompt)
-	eventChan, err := r.Run(ctx, userID, sessionID, message)
-	if err != nil {
-		return fmt.Errorf("run failed: %w", err)
-	}
-
-	return streamEvents(eventChan)
-}
+// Create runner with in-memory session
 
 func buildChildAgent() agent.Agent {
+	_ = "STUB: not implemented"
 	// Create model using environment variables for configuration
-	mdl := openai.New(*modelName)
-
-	// Create calculator tool
-	calculatorTool := function.NewFunctionTool(
-		calculator,
-		function.WithName("calculator"),
-		function.WithDescription("Perform basic arithmetic operations. "+
-			"Parameters: operation (add/subtract/multiply/divide), a (first number), b (second number)."),
-	)
-
-	instruction := `You are a calculator assistant. When the user asks a math question:
-1. Use the calculator tool to compute the result
-2. Return the answer in a clear format
-
-IMPORTANT: Only call the calculator tool ONCE per calculation. After getting the result, 
-provide the final answer to the user.`
-
-	opts := []llmagent.Option{
-		llmagent.WithModel(mdl),
-		llmagent.WithInstruction(instruction),
-		llmagent.WithTools([]tool.Tool{calculatorTool}),
-		llmagent.WithGenerationConfig(model.GenerationConfig{Stream: true}),
-		llmagent.WithMaxToolIterations(*maxIter), // Prevent infinite loop
-	}
-
-	// Optionally use ReActPlanner
-	if *useReact {
-		// Import and use react planner if needed
-		// opts = append(opts, llmagent.WithPlanner(react.New()))
-	}
-
-	return llmagent.New(childAgentName, opts...)
+	return *new(agent.Agent)
 }
 
-func buildParentGraph() (*graph.Graph, error) {
-	schema := graph.MessagesStateSchema()
-	sg := graph.NewStateGraph(schema)
+// Create calculator tool
 
-	// Preprocess node - just passes through
-	sg.AddNode(nodePreprocess, preprocess)
+// Prevent infinite loop
 
-	// Agent node with optional isolation
-	agentOpts := []graph.Option{}
-	if *isolate {
-		// WithSubgraphIsolatedMessages(true) isolates the child agent from parent's
-		// session history while preserving the child's own tool call history within
-		// the current invocation. This allows proper ReAct loop execution.
-		agentOpts = append(agentOpts, graph.WithSubgraphIsolatedMessages(true))
-	}
-	sg.AddAgentNode(nodeAgent, agentOpts...)
+// Optionally use ReActPlanner
 
-	// Collect node - gathers the result
-	sg.AddNode(nodeCollect, collect)
+// Import and use react planner if needed
+// opts = append(opts, llmagent.WithPlanner(react.New()))
 
-	// Wire up the graph
-	sg.SetEntryPoint(nodePreprocess)
-	sg.AddEdge(nodePreprocess, nodeAgent)
-	sg.AddEdge(nodeAgent, nodeCollect)
-	sg.SetFinishPoint(nodeCollect)
+func buildParentGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	return sg.Compile()
-}
+// Preprocess node - just passes through
+
+// Agent node with optional isolation
+
+// WithSubgraphIsolatedMessages(true) isolates the child agent from parent's
+// session history while preserving the child's own tool call history within
+// the current invocation. This allows proper ReAct loop execution.
+
+// Collect node - gathers the result
+
+// Wire up the graph
 
 func preprocess(ctx context.Context, state graph.State) (any, error) {
-	if *verbose {
-		fmt.Println("[preprocess] Passing input to calculator agent")
-	}
-	// Just pass through - the user input is already in the state
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Just pass through - the user input is already in the state
 
 func collect(ctx context.Context, state graph.State) (any, error) {
-	if *verbose {
-		fmt.Println("[collect] Gathering result from calculator agent")
-	}
-	// Extract the last response
-	lastResp, _ := state[graph.StateKeyLastResponse].(string)
-	return graph.State{
-		"final_answer": lastResp,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func streamEvents(eventChan <-chan *event.Event) error {
-	toolCallCount := 0
-	var lastContent string
+// Extract the last response
 
-	for evt := range eventChan {
-		if evt == nil {
-			continue
-		}
+func streamEvents(eventChan <-chan *event.Event) error { _ = "STUB: not implemented"; return nil }
 
-		// Track tool calls
-		if evt.IsToolCallResponse() && evt.Response != nil {
-			for _, choice := range evt.Response.Choices {
-				for _, tc := range choice.Message.ToolCalls {
-					toolCallCount++
-					fmt.Printf("🔧 Tool call #%d: %s(%s)\n",
-						toolCallCount, tc.Function.Name, string(tc.Function.Arguments))
-				}
-			}
-			continue
-		}
+// Track tool calls
 
-		// Track tool results
-		if evt.IsToolResultResponse() && evt.Response != nil {
-			for _, choice := range evt.Response.Choices {
-				if choice.Message.Role == model.RoleTool {
-					fmt.Printf("✅ Tool result: %s\n", choice.Message.Content)
-				}
-			}
-			continue
-		}
+// Track tool results
 
-		// Stream assistant content
-		if evt.Response != nil && len(evt.Response.Choices) > 0 {
-			choice := evt.Response.Choices[0]
+// Stream assistant content
 
-			// Delta content (streaming)
-			if choice.Delta.Content != "" {
-				fmt.Print(choice.Delta.Content)
-				continue
-			}
+// Delta content (streaming)
 
-			// Full message content
-			if choice.Message.Role == model.RoleAssistant && choice.Message.Content != "" {
-				if choice.Message.Content != lastContent {
-					fmt.Println(choice.Message.Content)
-					lastContent = choice.Message.Content
-				}
-			}
-		}
+// Full message content
 
-		// Handle errors
-		if evt.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", evt.Error.Message)
-		}
-	}
-
-	fmt.Println()
-	fmt.Println(strings.Repeat("-", 64))
-	fmt.Printf("Total tool calls: %d\n", toolCallCount)
-
-	if toolCallCount == 1 {
-		fmt.Println("✅ Success! The agent correctly called the tool only once.")
-		if *isolate {
-			fmt.Println("   WithSubgraphIsolatedMessages(true) properly isolates parent history")
-			fmt.Println("   while preserving the current invocation's tool call history.")
-		}
-	} else if toolCallCount > 1 {
-		fmt.Println("⚠️  Multiple tool calls detected - this may indicate an issue.")
-	}
-
-	return nil
-}
+// Handle errors
 
 // calculator implements the calculator tool
 func calculator(_ context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch strings.ToLower(args.Operation) {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B == 0 {
-			return calculatorResult{}, fmt.Errorf("cannot divide by zero")
-		}
-		result = args.A / args.B
-	default:
-		return calculatorResult{}, fmt.Errorf("unsupported operation: %s", args.Operation)
-	}
-	return calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    result,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {

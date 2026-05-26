@@ -268,15 +268,10 @@ type webSearchOutput struct {
 }
 
 func (s *compositeToolSet) Tools(ctx context.Context) []tool.Tool {
-	out := make([]tool.Tool, 0, len(s.tools))
-	out = append(out, s.tools...)
-	return out
-}
-
-func (s *compositeToolSet) Close() error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *compositeToolSet) Name() string {
-	return s.name
-}
+func (s *compositeToolSet) Close() error { _ = "STUB: not implemented"; return nil }
+
+func (s *compositeToolSet) Name() string { _ = "STUB: not implemented"; return "" }

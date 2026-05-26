@@ -93,10 +93,4 @@ type ClientConfig struct {
 }
 
 // DefaultConfig returns the default configuration for the arXiv client
-func DefaultConfig() ClientConfig {
-	return ClientConfig{
-		PageSize:     100,
-		DelaySeconds: 3 * time.Second,
-		NumRetries:   3,
-	}
-}
+func DefaultConfig() ClientConfig { _ = "STUB: not implemented"; return *new(ClientConfig) }

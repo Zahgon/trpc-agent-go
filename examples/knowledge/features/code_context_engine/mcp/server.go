@@ -15,25 +15,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"flag"
-	"fmt"
 	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge"
-	openaiembedder "trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/searchfilter"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source/repo"
-	knowledgetool "trpc.group/trpc-go/trpc-agent-go/knowledge/tool"
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
 	mcp "trpc.group/trpc-go/trpc-mcp-go"
 )
@@ -77,277 +64,62 @@ func main() {
 	}
 }
 
-func run() error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	storeType := util.VectorStoreType(*flagStoreType)
-	embeddingModelName := util.GetEnvOrDefault(
-		embeddingModelNameEnvKey,
-		defaultEmbeddingModelName,
-	)
-
-	skipLoad := *flagSkipLoad
-	truncateOld := *flagTruncateOld
-	if truncateOld && skipLoad {
-		log.Printf("-truncate-old=true overrides -skip-load=true; forcing a fresh ingestion")
-		skipLoad = false
-	}
-
-	log.Printf("%s v%s starting", serverName, serverVersion)
-	log.Printf("repository: %s (%s)", repoURL, repoBranch)
-	log.Printf("vector store: %s, embedding model: %s", storeType, embeddingModelName)
-	log.Printf("skip-load: %t, truncate-old: %t", skipLoad, truncateOld)
-
-	kb, err := buildKnowledge(storeType, embeddingModelName)
-	if err != nil {
-		return fmt.Errorf("build knowledge: %w", err)
-	}
-
-	if !skipLoad {
-		loadCtx, loadCancel := context.WithTimeout(ctx, 30*time.Minute)
-		defer loadCancel()
-		loadOpts := []knowledge.LoadOption{
-			knowledge.WithShowProgress(true),
-			knowledge.WithDocConcurrency(15),
-			knowledge.WithSourceConcurrency(10),
-		}
-		if truncateOld {
-			log.Printf("truncate-old enabled: recreating vector store (all existing documents will be deleted)")
-			loadOpts = append(loadOpts, knowledge.WithRecreate(true))
-		}
-		log.Printf("loading repository code into knowledge base ...")
-		loadStart := time.Now()
-		if err := kb.Load(loadCtx, loadOpts...); err != nil {
-			return fmt.Errorf("knowledge.Load failed: %w", err)
-		}
-		util.WaitForIndexRefresh(storeType)
-		log.Printf("knowledge.Load completed in %s", time.Since(loadStart).Round(time.Millisecond))
-	} else {
-		log.Printf("reuse existing vector-store data, skip knowledge.Load")
-	}
-
-	searchTool := knowledgetool.NewCodeSearchTool(
-		kb,
-		knowledgetool.WithCodeSearchMaxResults(maxResults),
-	)
-	callable, ok := searchTool.(agenttool.CallableTool)
-	if !ok {
-		return fmt.Errorf("code_search tool does not implement CallableTool")
-	}
-	decl := searchTool.Declaration()
-	if decl == nil {
-		return fmt.Errorf("code_search tool has nil declaration")
-	}
-
-	httpServer := &http.Server{Addr: *flagAddr}
-	server := mcp.NewServer(
-		serverName,
-		serverVersion,
-		mcp.WithServerPath(*flagPath),
-		mcp.WithCustomServer(httpServer),
-		mcp.WithServerLogger(mcp.GetDefaultLogger()),
-	)
-
-	mcpTool := newCodeSearchMCPTool(decl)
-
-	handler := newCodeSearchHandler(callable)
-	server.RegisterTool(mcpTool, handler)
-	log.Printf("registered MCP tool: %s", decl.Name)
-
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-
-	serverErr := make(chan error, 1)
-	go func() {
-		log.Printf("MCP server listening on %s%s", *flagAddr, *flagPath)
-		serverErr <- server.Start()
-	}()
-
-	select {
-	case sig := <-stop:
-		log.Printf("received signal %s, shutting down", sig)
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer shutdownCancel()
-		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			return fmt.Errorf("shutdown MCP server: %w", err)
-		}
-		if err := <-serverErr; err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return fmt.Errorf("MCP server exited after shutdown: %w", err)
-		}
-		return nil
-	case err := <-serverErr:
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return fmt.Errorf("MCP server exited: %w", err)
-		}
-		return nil
-	}
-}
+func run() error { _ = "STUB: not implemented"; return nil }
 
 func buildKnowledge(
 	storeType util.VectorStoreType,
 	embeddingModelName string,
 ) (*knowledge.BuiltinKnowledge, error) {
-	emb := openaiembedder.New(openaiembedder.WithModel(embeddingModelName))
-
-	vs, err := util.NewVectorStoreByTypeWithDimension(storeType, emb.GetDimensions())
-	if err != nil {
-		return nil, fmt.Errorf("create vector store: %w", err)
-	}
-
-	repoSource := repo.New(
-		repo.WithRepository(repo.Repository{
-			URL:         repoURL,
-			Branch:      repoBranch,
-			RepoName:    repoName,
-			Description: "tRPC agent framework for Go (this repository).",
-			RepoURL:     repoURL,
-		}),
-		repo.WithFileExtensions([]string{".go", ".md"}),
-		repo.WithSkipSuffixes([]string{".pb.go", ".pb.grpc.go", ".trpc.go", "_mock.go", "_test.go"}),
-	)
-
-	kb := knowledge.New(
-		knowledge.WithVectorStore(vs),
-		knowledge.WithEmbedder(emb),
-		knowledge.WithSources([]source.Source{repoSource}),
-	)
-	return kb, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func newCodeSearchMCPTool(decl *agenttool.Declaration) *mcp.Tool {
-	return mcp.NewTool(
-		decl.Name,
-		mcp.WithDescription(decl.Description),
-		withInputSchema(codeSearchInputSchema()),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func withInputSchema(schema *openapi3.Schema) mcp.ToolOption {
-	return func(t *mcp.Tool) {
-		t.InputSchema = schema
-	}
+	_ = "STUB: not implemented"
+	return *new(mcp.ToolOption)
 }
 
-func codeSearchInputSchema() *openapi3.Schema {
-	return &openapi3.Schema{
-		Type: &openapi3.Types{openapi3.TypeObject},
-		Properties: openapi3.Schemas{
-			"query":  schemaRef(stringSchema(codeSearchQueryDescription)),
-			"filter": schemaRef(codeSearchFilterConditionSchema(filterSchemaDepth)),
-		},
-		AdditionalProperties: disallowAdditionalProperties(),
-	}
-}
+func codeSearchInputSchema() *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
 func codeSearchFilterConditionSchema(depth int) *openapi3.Schema {
-	return &openapi3.Schema{
-		Type:        &openapi3.Types{openapi3.TypeObject},
-		Description: codeSearchFilterDescription,
-		Properties: openapi3.Schemas{
-			"field": schemaRef(stringSchema(codeSearchFilterFieldDescription)),
-			"operator": schemaRef(&openapi3.Schema{
-				Type:        &openapi3.Types{openapi3.TypeString},
-				Description: codeSearchFilterOperatorDescription,
-				Enum:        codeSearchOperatorEnum(),
-			}),
-			"value": schemaRef(codeSearchFilterValueSchema(depth)),
-		},
-		AdditionalProperties: disallowAdditionalProperties(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func codeSearchFilterValueSchema(depth int) *openapi3.Schema {
-	return &openapi3.Schema{
-		Description: codeSearchFilterValueDescription,
-		AnyOf:       codeSearchFilterValueAnyOf(depth),
-	}
-}
+func codeSearchFilterValueSchema(depth int) *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
 func codeSearchFilterValueAnyOf(depth int) openapi3.SchemaRefs {
-	return openapi3.SchemaRefs{
-		schemaRef(stringSchema("")),
-		schemaRef(numberSchema(openapi3.TypeNumber)),
-		schemaRef(numberSchema(openapi3.TypeInteger)),
-		schemaRef(booleanSchema()),
-		schemaRef(objectSchema()),
-		schemaRef(arraySchema(codeSearchFilterArrayItemSchema(depth))),
-	}
+	_ = "STUB: not implemented"
+	return *new(openapi3.SchemaRefs)
 }
 
 func codeSearchFilterArrayItemSchema(depth int) *openapi3.Schema {
-	itemAnyOf := openapi3.SchemaRefs{
-		schemaRef(stringSchema("")),
-		schemaRef(numberSchema(openapi3.TypeNumber)),
-		schemaRef(numberSchema(openapi3.TypeInteger)),
-		schemaRef(booleanSchema()),
-		schemaRef(objectSchema()),
-	}
-	if depth > 0 {
-		itemAnyOf = append(itemAnyOf, schemaRef(codeSearchFilterConditionSchema(depth-1)))
-	}
-	return &openapi3.Schema{
-		AnyOf: itemAnyOf,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func codeSearchOperatorEnum() []any {
-	return []any{
-		searchfilter.OperatorEqual,
-		searchfilter.OperatorNotEqual,
-		searchfilter.OperatorGreaterThan,
-		searchfilter.OperatorGreaterThanOrEqual,
-		searchfilter.OperatorLessThan,
-		searchfilter.OperatorLessThanOrEqual,
-		searchfilter.OperatorIn,
-		searchfilter.OperatorNotIn,
-		searchfilter.OperatorLike,
-		searchfilter.OperatorNotLike,
-		searchfilter.OperatorBetween,
-		searchfilter.OperatorAnd,
-		searchfilter.OperatorOr,
-	}
-}
+func codeSearchOperatorEnum() []any { _ = "STUB: not implemented"; return nil }
 
-func schemaRef(schema *openapi3.Schema) *openapi3.SchemaRef {
-	return openapi3.NewSchemaRef("", schema)
-}
+func schemaRef(schema *openapi3.Schema) *openapi3.SchemaRef { _ = "STUB: not implemented"; return nil }
 
-func stringSchema(description string) *openapi3.Schema {
-	return &openapi3.Schema{
-		Type:        &openapi3.Types{openapi3.TypeString},
-		Description: description,
-	}
-}
+func stringSchema(description string) *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
-func numberSchema(schemaType string) *openapi3.Schema {
-	return &openapi3.Schema{
-		Type: &openapi3.Types{schemaType},
-	}
-}
+func numberSchema(schemaType string) *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
-func booleanSchema() *openapi3.Schema {
-	return &openapi3.Schema{
-		Type: &openapi3.Types{openapi3.TypeBoolean},
-	}
-}
+func booleanSchema() *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
-func objectSchema() *openapi3.Schema {
-	return &openapi3.Schema{
-		Type: &openapi3.Types{openapi3.TypeObject},
-	}
-}
+func objectSchema() *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
-func arraySchema(items *openapi3.Schema) *openapi3.Schema {
-	return &openapi3.Schema{
-		Type:  &openapi3.Types{openapi3.TypeArray},
-		Items: schemaRef(items),
-	}
-}
+func arraySchema(items *openapi3.Schema) *openapi3.Schema { _ = "STUB: not implemented"; return nil }
 
 func disallowAdditionalProperties() openapi3.AdditionalProperties {
-	falseValue := false
-	return openapi3.AdditionalProperties{Has: &falseValue}
+	_ = "STUB: not implemented"
+	return *new(openapi3.AdditionalProperties)
 }
 
 // newCodeSearchHandler bridges an MCP CallToolRequest to the underlying
@@ -355,50 +127,8 @@ func disallowAdditionalProperties() openapi3.AdditionalProperties {
 // forwarded as-is, so the behavior matches what comparison/local_agent.go
 // sees when the local LLMAgent calls code_search directly.
 func newCodeSearchHandler(callable agenttool.CallableTool) func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		select {
-		case <-ctx.Done():
-			return mcp.NewErrorResult("request cancelled"), ctx.Err()
-		default:
-		}
-
-		args := req.Params.Arguments
-		if args == nil {
-			args = map[string]any{}
-		}
-
-		jsonArgs, err := json.Marshal(args)
-		if err != nil {
-			return mcp.NewErrorResult(fmt.Sprintf("marshal arguments: %v", err)), nil
-		}
-
-		result, err := callable.Call(ctx, jsonArgs)
-		if err != nil {
-			return mcp.NewErrorResult(fmt.Sprintf("code_search call failed: %v", err)), nil
-		}
-
-		text, err := renderToolResult(result)
-		if err != nil {
-			return mcp.NewErrorResult(fmt.Sprintf("render tool result: %v", err)), nil
-		}
-		return mcp.NewTextResult(text), nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func renderToolResult(result any) (string, error) {
-	if result == nil {
-		return "", nil
-	}
-	switch v := result.(type) {
-	case string:
-		return v, nil
-	case []byte:
-		return string(v), nil
-	default:
-		data, err := json.MarshalIndent(v, "", "  ")
-		if err != nil {
-			return "", fmt.Errorf("marshal result: %w", err)
-		}
-		return string(data), nil
-	}
-}
+func renderToolResult(result any) (string, error) { _ = "STUB: not implemented"; return "", nil }

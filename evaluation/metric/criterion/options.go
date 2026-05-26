@@ -26,36 +26,25 @@ type options struct {
 }
 
 // newOptions creates a Options with the provided options.
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		toolTrajectory: tooltrajectory.New(),
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures Criterion.
 type Option func(*options)
 
 // WithToolTrajectory sets the tool trajectory criterion.
 func WithToolTrajectory(toolTrajectory *tooltrajectory.ToolTrajectoryCriterion) Option {
-	return func(o *options) {
-		o.toolTrajectory = toolTrajectory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFinalResponse sets the final response criterion.
 func WithFinalResponse(finalResponse *finalresponse.FinalResponseCriterion) Option {
-	return func(o *options) {
-		o.finalResponse = finalResponse
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithLLMJudge sets the LLM judge criterion.
 func WithLLMJudge(llmJudge *llm.LLMCriterion) Option {
-	return func(o *options) {
-		o.llmJudge = llmJudge
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

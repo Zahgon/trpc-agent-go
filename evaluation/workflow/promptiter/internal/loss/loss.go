@@ -12,17 +12,4 @@ package loss
 import "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter"
 
 // SeverityRank maps one loss severity to a stable sort rank.
-func SeverityRank(severity promptiter.LossSeverity) int {
-	switch severity {
-	case promptiter.LossSeverityP0:
-		return 0
-	case promptiter.LossSeverityP1:
-		return 1
-	case promptiter.LossSeverityP2:
-		return 2
-	case promptiter.LossSeverityP3:
-		return 3
-	default:
-		return 4
-	}
-}
+func SeverityRank(severity promptiter.LossSeverity) int { _ = "STUB: not implemented"; return 0 }

@@ -31,11 +31,7 @@ import (
 	"os"
 	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/plugin"
-	"trpc.group/trpc-go/trpc-agent-go/plugin/identity"
-	"trpc.group/trpc-go/trpc-agent-go/session"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
 const (
@@ -61,77 +57,22 @@ func main() {
 
 // runWithoutPlugin invokes the two tools directly, without ever resolving
 // identity. Each tool finds an empty identity in its context.
-func runWithoutPlugin() error {
-	fmt.Println("[1] Tools invoked without the identity plugin.")
-	ctx := context.Background()
-
-	httpResult, err := newHTTPTool().Call(ctx, []byte(`{"path":"/api/v1/me"}`))
-	if err != nil {
-		return err
-	}
-	fmt.Printf("  http_tool    -> %v\n", httpResult)
-
-	cmdResult, err := newCommandTool().Call(ctx, []byte(`{"command":"printenv"}`))
-	if err != nil {
-		return err
-	}
-	fmt.Printf("  command_tool -> %v\n", cmdResult)
-	return nil
-}
+func runWithoutPlugin() error { _ = "STUB: not implemented"; return nil }
 
 // runWithPlugin wires identity.NewPlugin into a plugin.Manager, manually
 // drives the BeforeAgent / BeforeTool lifecycle, and then invokes the tools
 // against the enriched context. This mirrors what Runner does internally
 // for every tool call.
-func runWithPlugin() error {
-	fmt.Println("[2] Tools invoked with the identity plugin enabled.")
+func runWithPlugin() error { _ = "STUB: not implemented"; return nil }
 
-	mgr, err := plugin.NewManager(identity.NewPlugin(newDemoProvider()))
-	if err != nil {
-		return fmt.Errorf("create plugin manager: %w", err)
-	}
+// 1. BeforeAgent resolves identity once and stores it on the invocation.
 
-	ctx := context.Background()
-	inv := &agent.Invocation{
-		AgentName: agentName,
-		Session: &session.Session{
-			UserID: userID,
-			ID:     sessionID,
-		},
-	}
+// The invocation must be present on the context so BeforeTool can find
+// the resolved Identity in state. Runner does this automatically.
+// *InvocationContext embeds context.Context and therefore satisfies the
+// context.Context interface directly; no field access is required.
 
-	// 1. BeforeAgent resolves identity once and stores it on the invocation.
-	if cb := mgr.AgentCallbacks(); cb != nil {
-		if _, err := cb.RunBeforeAgent(ctx, &agent.BeforeAgentArgs{
-			Invocation: inv,
-		}); err != nil {
-			return fmt.Errorf("before agent: %w", err)
-		}
-	}
-	// The invocation must be present on the context so BeforeTool can find
-	// the resolved Identity in state. Runner does this automatically.
-	// *InvocationContext embeds context.Context and therefore satisfies the
-	// context.Context interface directly; no field access is required.
-	var toolCtx context.Context = agent.NewInvocationContext(ctx, inv)
-
-	// 2. BeforeTool attaches the Identity to each per-tool context.
-	toolCtx = applyBeforeTool(toolCtx, mgr, "http_tool",
-		[]byte(`{"path":"/api/v1/me"}`))
-	httpResult, err := newHTTPTool().Call(toolCtx, []byte(`{"path":"/api/v1/me"}`))
-	if err != nil {
-		return err
-	}
-	fmt.Printf("  http_tool    -> %v\n", httpResult)
-
-	toolCtx = applyBeforeTool(toolCtx, mgr, "command_tool",
-		[]byte(`{"command":"printenv"}`))
-	cmdResult, err := newCommandTool().Call(toolCtx, []byte(`{"command":"printenv"}`))
-	if err != nil {
-		return err
-	}
-	fmt.Printf("  command_tool -> %v\n", cmdResult)
-	return nil
-}
+// 2. BeforeTool attaches the Identity to each per-tool context.
 
 // applyBeforeTool simulates the Runner-internal dispatch for one tool call:
 // it invokes the plugin manager's BeforeTool callbacks and threads any
@@ -142,20 +83,6 @@ func applyBeforeTool(
 	toolName string,
 	jsonArgs []byte,
 ) context.Context {
-	cb := mgr.ToolCallbacks()
-	if cb == nil {
-		return ctx
-	}
-	res, err := cb.RunBeforeTool(ctx, &tool.BeforeToolArgs{
-		ToolName:  toolName,
-		Arguments: jsonArgs,
-	})
-	if err != nil {
-		fmt.Printf("  [warn] before_tool %s: %v\n", toolName, err)
-		return ctx
-	}
-	if res != nil && res.Context != nil {
-		return res.Context
-	}
-	return ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

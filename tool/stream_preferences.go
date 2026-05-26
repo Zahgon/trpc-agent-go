@@ -30,12 +30,6 @@ const (
 // NormalizeInnerTextMode normalizes a possibly empty or unknown mode to a
 // concrete runtime behavior.
 func NormalizeInnerTextMode(mode InnerTextMode) InnerTextMode {
-	switch mode {
-	case InnerTextModeExclude:
-		return InnerTextModeExclude
-	case InnerTextModeDefault, InnerTextModeInclude:
-		return InnerTextModeInclude
-	default:
-		return InnerTextModeInclude
-	}
+	_ = "STUB: not implemented"
+	return *new(InnerTextMode)
 }

@@ -13,11 +13,9 @@ package gateway
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/gwproto"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/debugrecorder"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/memoryfile"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/persona"
@@ -80,125 +78,45 @@ type options struct {
 // Option is a function that configures a gateway server.
 type Option func(*options)
 
-func newOptions(opts ...Option) options {
-	o := options{
-		basePath:       defaultBasePath,
-		messagesPath:   defaultMessagesPath,
-		statusPath:     defaultStatusPath,
-		cancelPath:     defaultCancelPath,
-		healthPath:     defaultHealthPath,
-		maxBodyBytes:   defaultMaxBodyBytes,
-		maxPartBytes:   defaultMaxContentPartBytes,
-		sessionIDFunc:  nil,
-		allowUsers:     nil,
-		requireMention: false,
-	}
-	for _, opt := range opts {
-		opt(&o)
-	}
-	if strings.TrimSpace(o.basePath) == "" {
-		o.basePath = defaultBasePath
-	}
-	if strings.TrimSpace(o.messagesPath) == "" {
-		o.messagesPath = defaultMessagesPath
-	}
-	if o.streamPathSet {
-		if strings.TrimSpace(o.streamPath) == "" {
-			o.streamPath = defaultMessagesStreamPath
-		}
-	} else {
-		o.streamPath = o.messagesPath + gwproto.MessagesStreamSuffix
-	}
-	if strings.TrimSpace(o.statusPath) == "" {
-		o.statusPath = defaultStatusPath
-	}
-	if strings.TrimSpace(o.cancelPath) == "" {
-		o.cancelPath = defaultCancelPath
-	}
-	if strings.TrimSpace(o.healthPath) == "" {
-		o.healthPath = defaultHealthPath
-	}
-	if o.maxBodyBytes <= 0 {
-		o.maxBodyBytes = defaultMaxBodyBytes
-	}
-	if o.maxPartBytes <= 0 {
-		o.maxPartBytes = defaultMaxContentPartBytes
-	}
-	return o
-}
+func newOptions(opts ...Option) options { _ = "STUB: not implemented"; return *new(options) }
 
 // WithBasePath sets the base path for all gateway endpoints except health.
-func WithBasePath(basePath string) Option {
-	return func(o *options) {
-		o.basePath = basePath
-	}
-}
+func WithBasePath(basePath string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessagesPath sets the relative path for the messages endpoint.
-func WithMessagesPath(path string) Option {
-	return func(o *options) {
-		o.messagesPath = path
-	}
-}
+func WithMessagesPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessagesStreamPath sets the relative path for the streaming
 // messages endpoint.
-func WithMessagesStreamPath(path string) Option {
-	return func(o *options) {
-		o.streamPath = path
-		o.streamPathSet = true
-	}
-}
+func WithMessagesStreamPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStatusPath sets the relative path for the status endpoint.
-func WithStatusPath(path string) Option {
-	return func(o *options) {
-		o.statusPath = path
-	}
-}
+func WithStatusPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCancelPath sets the relative path for the cancel endpoint.
-func WithCancelPath(path string) Option {
-	return func(o *options) {
-		o.cancelPath = path
-	}
-}
+func WithCancelPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHealthPath sets the health check endpoint path.
-func WithHealthPath(path string) Option {
-	return func(o *options) {
-		o.healthPath = path
-	}
-}
+func WithHealthPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxBodyBytes sets the maximum bytes to read from an HTTP body.
-func WithMaxBodyBytes(max int64) Option {
-	return func(o *options) {
-		o.maxBodyBytes = max
-	}
-}
+func WithMaxBodyBytes(max int64) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxContentPartBytes sets the maximum bytes to fetch for one
 // content part.
-func WithMaxContentPartBytes(max int64) Option {
-	return func(o *options) {
-		o.maxPartBytes = max
-	}
-}
+func WithMaxContentPartBytes(max int64) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentPartFetcher sets a custom content-part fetcher.
 func WithContentPartFetcher(fetcher partFetcher) Option {
-	return func(o *options) {
-		o.partFetcher = fetcher
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAllowPrivateContentPartURLs allows content parts to fetch URLs that
 // resolve to loopback or private network addresses.
 func WithAllowPrivateContentPartURLs(enabled bool) Option {
-	return func(o *options) {
-		o.allowPrivatePartURLs = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAllowedContentPartDomains restricts content-part URL fetches to the
@@ -210,154 +128,63 @@ func WithAllowPrivateContentPartURLs(enabled bool) Option {
 //
 // The host match is case-insensitive and allows subdomains.
 func WithAllowedContentPartDomains(domains ...string) Option {
-	return func(o *options) {
-		if len(domains) == 0 {
-			o.allowedPartPatterns = nil
-			return
-		}
-		out := make([]string, 0, len(domains))
-		for _, domain := range domains {
-			domain = strings.TrimSpace(domain)
-			if domain == "" {
-				continue
-			}
-			out = append(out, domain)
-		}
-		o.allowedPartPatterns = out
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPersonaStore sets the preset persona store used for per-chat
 // system-message injection.
-func WithPersonaStore(store *persona.Store) Option {
-	return func(o *options) {
-		o.personaStore = store
-	}
-}
+func WithPersonaStore(store *persona.Store) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMemoryFileStore sets the file-based memory store used for per-run
 // context injection.
 func WithMemoryFileStore(store *memoryfile.Store) Option {
-	return func(o *options) {
-		o.memoryFileStore = store
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAppName sets the app name used by file-based memory injection.
-func WithAppName(appName string) Option {
-	return func(o *options) {
-		o.appName = strings.TrimSpace(appName)
-	}
-}
+func WithAppName(appName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSessionIDFunc sets a custom session ID function.
-func WithSessionIDFunc(fn SessionIDFunc) Option {
-	return func(o *options) {
-		o.sessionIDFunc = fn
-	}
-}
+func WithSessionIDFunc(fn SessionIDFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAllowUsers sets a user allowlist.
 //
 // When set, only the listed user IDs are allowed to send messages.
 // If called with no arguments, the allowlist becomes empty and all users are
 // denied.
-func WithAllowUsers(users ...string) Option {
-	return func(o *options) {
-		if o.allowUsers == nil {
-			o.allowUsers = make(map[string]struct{})
-		}
-		for _, user := range users {
-			user = strings.TrimSpace(user)
-			if user == "" {
-				continue
-			}
-			o.allowUsers[user] = struct{}{}
-		}
-	}
-}
+func WithAllowUsers(users ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRequireMentionInThreads enables mention gating for thread messages.
 func WithRequireMentionInThreads(enabled bool) Option {
-	return func(o *options) {
-		o.requireMention = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMentionPatterns sets patterns used for mention gating.
-func WithMentionPatterns(patterns ...string) Option {
-	return func(o *options) {
-		if len(patterns) == 0 {
-			o.mentionPatterns = nil
-			return
-		}
-		copied := make([]string, 0, len(patterns))
-		for _, pattern := range patterns {
-			pattern = strings.TrimSpace(pattern)
-			if pattern == "" {
-				continue
-			}
-			copied = append(copied, pattern)
-		}
-		o.mentionPatterns = copied
-	}
-}
+func WithMentionPatterns(patterns ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDebugRecorder enables file-based debug recording for gateway requests.
 //
 // When set, the gateway creates a per-request trace when no trace is present
 // in the request context.
 func WithDebugRecorder(rec *debugrecorder.Recorder) Option {
-	return func(o *options) {
-		o.recorder = rec
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRunOptionResolver decorates one gateway run before runner.Run.
 func WithRunOptionResolver(resolver RunOptionResolver) Option {
-	return func(o *options) {
-		if resolver == nil {
-			o.runOptionResolver = nil
-			return
-		}
-		prev := o.runOptionResolver
-		if prev == nil {
-			o.runOptionResolver = resolver
-			return
-		}
-		o.runOptionResolver = func(
-			ctx context.Context,
-			input RunOptionInput,
-		) (context.Context, []agent.RunOption, error) {
-			prevCtx, prevOpts, err := prev(ctx, input)
-			if err != nil {
-				return ctx, nil, err
-			}
-			if prevCtx == nil {
-				prevCtx = ctx
-			}
-			nextCtx, nextOpts, err := resolver(prevCtx, input)
-			if err != nil {
-				return prevCtx, prevOpts, err
-			}
-			if nextCtx == nil {
-				nextCtx = prevCtx
-			}
-			return nextCtx, append(prevOpts, nextOpts...), nil
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithUploadStore persists inbound file parts to stable host paths.
-func WithUploadStore(store *uploads.Store) Option {
-	return func(o *options) {
-		o.uploads = store
-	}
-}
+func WithUploadStore(store *uploads.Store) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAudioTranscriber overrides inbound audio transcription.
 func WithAudioTranscriber(transcriber audioTranscriber) Option {
-	return func(o *options) {
-		o.audioTranscriber = transcriber
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

@@ -29,28 +29,24 @@ type cosClient struct {
 	*cos.Client
 }
 
-func newCosClient(client *cos.Client) client {
-	return &cosClient{Client: client}
-}
+func newCosClient(client *cos.Client) client { _ = "STUB: not implemented"; return *new(client) }
 
 func (c *cosClient) GetBucket(ctx context.Context, prefix string) (*cos.BucketGetResult, error) {
-	result, _, err := c.Client.Bucket.Get(ctx, &cos.BucketGetOptions{Prefix: prefix})
-	return result, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *cosClient) PutObject(ctx context.Context, name string, content io.Reader, opt cos.ObjectPutOptions) error {
-	_, err := c.Client.Object.Put(ctx, name, content, &opt)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
 func (c *cosClient) GetObject(ctx context.Context, name string) (body io.ReadCloser, header http.Header, err error) {
-	resp, err := c.Client.Object.Get(ctx, name, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	return resp.Body, resp.Header, nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), *new(http.Header), nil
 }
 
 func (c *cosClient) DeleteObject(ctx context.Context, name string) error {
-	_, err := c.Client.Object.Delete(ctx, name)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }

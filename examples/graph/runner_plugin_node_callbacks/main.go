@@ -14,13 +14,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"log"
-	"reflect"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
@@ -98,75 +94,27 @@ func main() {
 	}
 }
 
-func buildGraph() (*graph.Graph, error) {
-	schema := graph.NewStateSchema().
-		AddField(graph.StateKeyUserInput, graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		}).
-		AddField(stateKeyUpper, graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		}).
-		AddField(graph.StateKeyLastResponse, graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		})
-
-	return graph.NewStateGraph(schema).
-		AddNode(nodeUpper, upperNode).
-		AddNode(nodeAnswer, answerNode).
-		SetEntryPoint(nodeUpper).
-		AddEdge(nodeUpper, nodeAnswer).
-		SetFinishPoint(nodeAnswer).
-		Compile()
-}
+func buildGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func upperNode(ctx context.Context, state graph.State) (any, error) {
-	_ = ctx
-	input, _ := state[graph.StateKeyUserInput].(string)
-	return graph.State{
-		stateKeyUpper: strings.ToUpper(input),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func answerNode(ctx context.Context, state graph.State) (any, error) {
-	_ = ctx
-	upper, _ := state[stateKeyUpper].(string)
-	if upper == "" {
-		upper = emptyInput
-	}
-	answer := answerPrefix + upper
-	return graph.State{
-		graph.StateKeyLastResponse: answer,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func newNodeLoggerCallbacks() *graph.NodeCallbacks {
-	return graph.NewNodeCallbacks().
-		RegisterBeforeNode(beforeNodeLog).
-		RegisterAfterNode(afterNodeLog).
-		RegisterOnNodeError(onNodeErrorLog)
-}
+func newNodeLoggerCallbacks() *graph.NodeCallbacks { _ = "STUB: not implemented"; return nil }
 
 func beforeNodeLog(
 	ctx context.Context,
 	cbCtx *graph.NodeCallbackContext,
 	state graph.State,
 ) (any, error) {
-	_ = ctx
-	_ = state
-
-	if cbCtx == nil || cbCtx.NodeType != graph.NodeTypeFunction {
-		return nil, nil
-	}
-
-	fmt.Printf(
-		"[node before] step=%d id=%s\n",
-		cbCtx.StepNumber,
-		cbCtx.NodeID,
-	)
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func afterNodeLog(
@@ -176,21 +124,8 @@ func afterNodeLog(
 	result any,
 	nodeErr error,
 ) (any, error) {
-	_ = ctx
-	_ = state
-	_ = result
-	_ = nodeErr
-
-	if cbCtx == nil || cbCtx.NodeType != graph.NodeTypeFunction {
-		return nil, nil
-	}
-
-	fmt.Printf(
-		"[node after]  step=%d id=%s\n",
-		cbCtx.StepNumber,
-		cbCtx.NodeID,
-	)
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func onNodeErrorLog(
@@ -199,113 +134,36 @@ func onNodeErrorLog(
 	state graph.State,
 	err error,
 ) {
-	_ = ctx
-	_ = state
-
-	if cbCtx == nil || err == nil {
-		return
-	}
-
-	fmt.Printf(
-		"[node error] id=%s err=%v\n",
-		cbCtx.NodeID,
-		err,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 type nodeCallbacksPlugin struct {
 	callbacks *graph.NodeCallbacks
 }
 
-func (p *nodeCallbacksPlugin) Name() string { return pluginName }
+func (p *nodeCallbacksPlugin) Name() string { _ = "STUB: not implemented"; return "" }
 
-func (p *nodeCallbacksPlugin) Register(reg *plugin.Registry) {
-	reg.BeforeAgent(p.beforeAgent)
-}
+func (p *nodeCallbacksPlugin) Register(reg *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *nodeCallbacksPlugin) beforeAgent(
 	ctx context.Context,
 	args *agent.BeforeAgentArgs,
 ) (*agent.BeforeAgentResult, error) {
-	_ = ctx
-	if p == nil || p.callbacks == nil {
-		return nil, nil
-	}
-	if args == nil || args.Invocation == nil {
-		return nil, nil
-	}
-
-	inv := args.Invocation
-	if inv.RunOptions.RuntimeState == nil {
-		inv.RunOptions.RuntimeState = make(map[string]any)
-	}
-	if inv.RunOptions.RuntimeState[graph.StateKeyNodeCallbacks] != nil {
-		return nil, nil
-	}
-	inv.RunOptions.RuntimeState[graph.StateKeyNodeCallbacks] = p.callbacks
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func waitRunnerCompletion(events <-chan *event.Event) *event.Event {
-	var completion *event.Event
-	for e := range events {
-		if e == nil || e.Response == nil {
-			continue
-		}
-		if e.Response.Object == model.ObjectTypeRunnerCompletion {
-			completion = e
-		}
-	}
-	return completion
-}
-
-func printCompletion(e *event.Event) error {
-	if e == nil || e.Response == nil {
-		return errors.New("missing runner completion event")
-	}
-
-	fmt.Println()
-	fmt.Println("Final answer:")
-	if text, ok := assistantText(e); ok {
-		fmt.Println(text)
-	}
-
-	fmt.Println()
-	fmt.Println("Selected final state values:")
-	if upper, ok := stateString(e.StateDelta, stateKeyUpper); ok {
-		fmt.Printf("- %s: %s\n", stateKeyUpper, upper)
-	}
-	if last, ok := stateString(e.StateDelta, graph.StateKeyLastResponse); ok {
-		fmt.Printf("- %s: %s\n", graph.StateKeyLastResponse, last)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func assistantText(e *event.Event) (string, bool) {
-	if e == nil || e.Response == nil {
-		return "", false
-	}
-	if len(e.Response.Choices) == 0 {
-		return "", false
-	}
-	msg := e.Response.Choices[0].Message
-	if msg.Role != model.RoleAssistant || msg.Content == "" {
-		return "", false
-	}
-	return msg.Content, true
-}
+func printCompletion(e *event.Event) error { _ = "STUB: not implemented"; return nil }
+
+func assistantText(e *event.Event) (string, bool) { _ = "STUB: not implemented"; return "", false }
 
 func stateString(delta map[string][]byte, key string) (string, bool) {
-	if delta == nil || key == "" {
-		return "", false
-	}
-	raw, ok := delta[key]
-	if !ok || len(raw) == 0 {
-		return "", false
-	}
-	var out string
-	if err := json.Unmarshal(raw, &out); err != nil {
-		return "", false
-	}
-	return out, true
+	_ = "STUB: not implemented"
+	return "", false
 }

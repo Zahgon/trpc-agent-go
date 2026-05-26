@@ -15,9 +15,6 @@ package codeexecutor
 
 import (
 	"context"
-	"fmt"
-	"regexp"
-	"strings"
 )
 
 // CodeExecutor executes code blocks via a friendly front-door API.
@@ -42,20 +39,7 @@ type CodeExecutionResult struct {
 }
 
 // String formats a human-readable result.
-func (r CodeExecutionResult) String() string {
-	if r.Output != "" && len(r.OutputFiles) == 0 {
-		return fmt.Sprintf("Code execution result:\n%s\n", r.Output)
-	}
-	if len(r.OutputFiles) != 0 {
-		var filesNames []string
-		for _, file := range r.OutputFiles {
-			filesNames = append(filesNames, file.Name)
-		}
-		return "Code execution result:\n Saved output files:\n" +
-			strings.Join(filesNames, "\n")
-	}
-	return "Code execution result: No output or errors."
-}
+func (r CodeExecutionResult) String() string { _ = "STUB: not implemented"; return "" }
 
 // File represents a file generated during code execution.
 type File struct {
@@ -83,18 +67,6 @@ func ExtractCodeBlock(
 	input string,
 	delimiter CodeBlockDelimiter,
 ) []CodeBlock {
-	var blocks []CodeBlock
-	startDelim := regexp.QuoteMeta(delimiter.Start)
-	endDelim := regexp.QuoteMeta(delimiter.End)
-	re := `(?s)` + startDelim + `([^\n]*)\n(.*?)` + endDelim
-	pattern := regexp.MustCompile(re)
-	matches := pattern.FindAllStringSubmatch(input, -1)
-	for _, match := range matches {
-		if len(match) >= 3 {
-			language := strings.TrimSpace(match[1])
-			code := match[2]
-			blocks = append(blocks, CodeBlock{Code: code, Language: language})
-		}
-	}
-	return blocks
+	_ = "STUB: not implemented"
+	return nil
 }

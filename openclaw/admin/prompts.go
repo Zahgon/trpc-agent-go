@@ -11,8 +11,6 @@ package admin
 
 import (
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -152,599 +150,175 @@ type PersonaView struct {
 }
 
 func promptSections(status PromptsStatus) []PromptSectionState {
-	if len(status.Sections) > 0 {
-		return append([]PromptSectionState(nil), status.Sections...)
-	}
-	if len(status.Bundles) == 0 {
-		return nil
-	}
-	return []PromptSectionState{{
-		Key:     "prompt_blocks",
-		Title:   "Prompt Blocks",
-		Summary: "Edit the prompt blocks that feed into this runtime.",
-		Bundles: append([]PromptBundleState(nil), status.Bundles...),
-	}}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func promptBlockCount(status PromptsStatus) int {
-	if len(status.Sections) == 0 {
-		return len(status.Bundles)
-	}
-	total := 0
-	for _, section := range status.Sections {
-		total += len(section.Bundles)
-	}
-	return total
-}
+func promptBlockCount(status PromptsStatus) int { _ = "STUB: not implemented"; return 0 }
 
-func hasPromptValue(raw string) bool {
-	return strings.TrimSpace(raw) != ""
-}
+func hasPromptValue(raw string) bool { _ = "STUB: not implemented"; return false }
 
-func promptValuesDiffer(left string, right string) bool {
-	return strings.TrimSpace(left) != strings.TrimSpace(right)
-}
+func promptValuesDiffer(left string, right string) bool { _ = "STUB: not implemented"; return false }
 
 const promptSummaryMaxRunes = 120
 
-func promptCollapsedSummary(raw string) string {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return "No prompt text is currently active."
-	}
-	snippet := promptSummarySnippet(trimmed)
-	lineCount := promptLineCount(trimmed)
-	if lineCount <= 1 {
-		return "1 line. Starts with: " + snippet
-	}
-	return strconv.Itoa(lineCount) +
-		" lines. Starts with: " + snippet
-}
+func promptCollapsedSummary(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func promptSummarySnippet(raw string) string {
-	for _, line := range strings.Split(raw, "\n") {
-		line = strings.Join(strings.Fields(line), " ")
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		runes := []rune(line)
-		if len(runes) <= promptSummaryMaxRunes {
-			return line
-		}
-		return string(runes[:promptSummaryMaxRunes]) + "..."
-	}
+func promptSummarySnippet(raw string) string { _ = "STUB: not implemented"; return "" }
+
+func promptLineCount(raw string) int { _ = "STUB: not implemented"; return 0 }
+
+func promptInlineEditorTitle(bundle PromptBundleState) string { _ = "STUB: not implemented"; return "" }
+
+func promptInlineEditorSummary(bundle PromptBundleState) string {
+	_ = "STUB: not implemented"
 	return ""
 }
 
-func promptLineCount(raw string) int {
-	if strings.TrimSpace(raw) == "" {
-		return 0
-	}
-	return len(strings.Split(strings.TrimRight(raw, "\n"), "\n"))
-}
-
-func promptInlineEditorTitle(bundle PromptBundleState) string {
-	if strings.TrimSpace(bundle.Title) == "" {
-		return "Text Stored In Config"
-	}
-	return bundle.Title + " Config Text"
-}
-
-func promptInlineEditorSummary(bundle PromptBundleState) string {
-	return "This edits the text stored directly in the config file " +
-		"for this block. It is combined with any file-based sources " +
-		"before the live prompt is assembled."
-}
-
 func promptRuntimeEditorSummary(bundle PromptBundleState) string {
-	return "This temporary text replaces the configured text for " +
-		"the running process only. Clear it to fall back to config " +
-		"and files."
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func personaStoreTitle(store PersonaStoreView) string {
-	title := strings.TrimSpace(store.Title)
-	if title != "" {
-		return title
-	}
-	labels := personaStoreUsageLabels(store)
-	if len(labels) == 1 {
-		return labels[0]
-	}
-	if len(labels) > 1 {
-		return personaStoreSharedTitle
-	}
-	return personaStoreTitleFallback
-}
+func personaStoreTitle(store PersonaStoreView) string { _ = "STUB: not implemented"; return "" }
 
 func personaStoreUsageLabels(store PersonaStoreView) []string {
-	if len(store.UsageLabels) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(store.UsageLabels))
-	seen := map[string]struct{}{}
-	for _, raw := range store.UsageLabels {
-		label := strings.TrimSpace(raw)
-		if label == "" {
-			continue
-		}
-		if _, ok := seen[label]; ok {
-			continue
-		}
-		seen[label] = struct{}{}
-		out = append(out, label)
-	}
-	title := strings.TrimSpace(store.Title)
-	if len(out) == 1 && title != "" && title == out[0] {
-		return nil
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func personaCustomPersonas(store PersonaStoreView) []PersonaView {
-	return personaViewsByKind(store.Personas, false)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func personaBuiltInPersonas(store PersonaStoreView) []PersonaView {
-	return personaViewsByKind(store.Personas, true)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func personaViewsByKind(
 	personas []PersonaView,
 	builtIn bool,
 ) []PersonaView {
-	out := make([]PersonaView, 0, len(personas))
-	for _, persona := range personas {
-		if persona.BuiltIn != builtIn {
-			continue
-		}
-		out = append(out, persona)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func personaStoreBuiltInCount(store PersonaStoreView) int {
-	return len(personaBuiltInPersonas(store))
-}
+func personaStoreBuiltInCount(store PersonaStoreView) int { _ = "STUB: not implemented"; return 0 }
 
-func personaStoreCustomCount(store PersonaStoreView) int {
-	return len(personaCustomPersonas(store))
-}
+func personaStoreCustomCount(store PersonaStoreView) int { _ = "STUB: not implemented"; return 0 }
 
-func personaDisplayName(view PersonaView) string {
-	name := strings.TrimSpace(view.Name)
-	if name != "" {
-		return name
-	}
-	return strings.TrimSpace(view.ID)
-}
+func personaDisplayName(view PersonaView) string { _ = "STUB: not implemented"; return "" }
 
-func personaKindLabel(view PersonaView) string {
-	if view.BuiltIn {
-		return personaKindBuiltIn
-	}
-	return personaKindCustom
-}
+func personaKindLabel(view PersonaView) string { _ = "STUB: not implemented"; return "" }
 
-func personaSummaryText(view PersonaView) string {
-	summary := strings.TrimSpace(view.Summary)
-	if summary != "" {
-		return summary
-	}
-	return promptCollapsedSummary(view.Prompt)
-}
+func personaSummaryText(view PersonaView) string { _ = "STUB: not implemented"; return "" }
 
 func (s *Service) promptsStatus() PromptsStatus {
-	if s == nil || s.cfg.Prompts == nil {
-		return PromptsStatus{}
-	}
-	status, err := s.cfg.Prompts.PromptsStatus()
-	if err != nil {
-		return PromptsStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-	status.Enabled = true
-	return status
+	_ = "STUB: not implemented"
+	return *new(PromptsStatus)
 }
 
 func (s *Service) personasStatus() PersonasStatus {
-	if s == nil || s.cfg.Personas == nil {
-		return PersonasStatus{}
-	}
-	status, err := s.cfg.Personas.PersonasStatus()
-	if err != nil {
-		return PersonasStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-	status.Enabled = true
-	return status
+	_ = "STUB: not implemented"
+	return *new(PersonasStatus)
 }
 
 func (s *Service) handlePromptsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.promptsStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handlePersonasJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.personasStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSavePromptInline(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	bundleKey, content, returnTo, ok := s.requirePromptPOST(w, r)
-	if !ok {
-		return
-	}
-	if err := s.cfg.Prompts.SavePromptInline(bundleKey, content); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Saved inline prompt value.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSavePromptRuntime(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	bundleKey, content, returnTo, ok := s.requirePromptPOST(w, r)
-	if !ok {
-		return
-	}
-	if err := s.cfg.Prompts.SavePromptRuntime(bundleKey, content); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	message := "Saved runtime prompt override."
-	if strings.TrimSpace(content) == "" {
-		message = "Cleared runtime prompt override."
-	}
-	s.redirectWithMessageAt(w, r, queryNotice, message, returnTo)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSavePromptFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	bundleKey, content, returnTo, ok := s.requirePromptPOST(w, r)
-	if !ok {
-		return
-	}
-	path := strings.TrimSpace(r.FormValue(formPromptPath))
-	if path == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"path is required",
-			returnTo,
-		)
-		return
-	}
-	if err := s.cfg.Prompts.SavePromptFile(
-		bundleKey,
-		path,
-		content,
-	); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Saved prompt file.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleCreatePromptFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	bundleKey, content, returnTo, ok := s.requirePromptPOST(w, r)
-	if !ok {
-		return
-	}
-	fileName := strings.TrimSpace(r.FormValue(formPromptFileName))
-	if fileName == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"file_name is required",
-			returnTo,
-		)
-		return
-	}
-	if err := s.cfg.Prompts.CreatePromptFile(
-		bundleKey,
-		fileName,
-		content,
-	); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Created prompt file.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleDeletePromptFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	bundleKey, _, returnTo, ok := s.requirePromptPOST(w, r)
-	if !ok {
-		return
-	}
-	path := strings.TrimSpace(r.FormValue(formPromptPath))
-	if path == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"path is required",
-			returnTo,
-		)
-		return
-	}
-	if err := s.cfg.Prompts.DeletePromptFile(bundleKey, path); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Deleted prompt file.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSavePersona(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	storeKey, personaID, name, prompt, returnTo, ok := s.requirePersonaPOST(
-		w,
-		r,
-	)
-	if !ok {
-		return
-	}
-	if err := s.cfg.Personas.SavePersona(
-		storeKey,
-		personaID,
-		name,
-		prompt,
-	); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Saved persona.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleDeletePersona(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	storeKey, personaID, _, _, returnTo, ok := s.requirePersonaPOST(w, r)
-	if !ok {
-		return
-	}
-	if strings.TrimSpace(personaID) == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"persona_id is required",
-			returnTo,
-		)
-		return
-	}
-	if err := s.cfg.Personas.DeletePersona(storeKey, personaID); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Deleted persona.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSaveDefaultPersona(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	if s == nil || s.cfg.Personas == nil {
-		http.Error(w, "personas are not enabled", http.StatusNotFound)
-		return
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	personaID := strings.TrimSpace(r.FormValue(formPersonaID))
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	if err := s.cfg.Personas.SetDefaultPersona(personaID); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Updated default persona.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) requirePromptPOST(
 	w http.ResponseWriter,
 	r *http.Request,
 ) (string, string, string, bool) {
-	if s == nil || s.cfg.Prompts == nil {
-		http.Error(w, "prompts are not enabled", http.StatusNotFound)
-		return "", "", "", false
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return "", "", "", false
-	}
-	bundleKey := strings.TrimSpace(r.FormValue(formPromptBundleKey))
-	if bundleKey == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"bundle_key is required",
-			"",
-		)
-		return "", "", "", false
-	}
-	return bundleKey,
-		r.FormValue(formPromptContent),
-		strings.TrimSpace(r.FormValue(formReturnTo)),
-		true
+	_ = "STUB: not implemented"
+	return "", "", "", false
 }
 
 func (s *Service) requirePersonaPOST(
 	w http.ResponseWriter,
 	r *http.Request,
 ) (string, string, string, string, string, bool) {
-	if s == nil || s.cfg.Personas == nil {
-		http.Error(w, "personas are not enabled", http.StatusNotFound)
-		return "", "", "", "", "", false
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return "", "", "", "", "", false
-	}
-	return strings.TrimSpace(r.FormValue(formPersonaStoreKey)),
-		strings.TrimSpace(r.FormValue(formPersonaID)),
-		strings.TrimSpace(r.FormValue(formPersonaName)),
-		r.FormValue(formPersonaPrompt),
-		strings.TrimSpace(r.FormValue(formReturnTo)),
-		true
+	_ = "STUB: not implemented"
+	return "", "", "", "", "", false
 }
 
 const promptsPageTemplateHTML = `

@@ -12,10 +12,6 @@ package finalresponse
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
 	cjson "trpc.group/trpc-go/trpc-agent-go/evaluation/metric/criterion/json"
@@ -44,133 +40,44 @@ type FinalResponseCriterion struct {
 }
 
 // New creates a FinalResponseCriterion with the provided options.
-func New(opt ...Option) *FinalResponseCriterion {
-	opts := newOptions(opt...)
-	return &FinalResponseCriterion{
-		Text:        opts.text,
-		JSON:        opts.json,
-		Rouge:       opts.rouge,
-		XML:         opts.xml,
-		CompareName: opts.compareName,
-		Compare:     opts.compare,
-	}
-}
+func New(opt ...Option) *FinalResponseCriterion { _ = "STUB: not implemented"; return nil }
 
 // Match compares the final responses of actual and expected invocations using the provided context.
 func (c *FinalResponseCriterion) Match(ctx context.Context, actual, expected *evalset.Invocation) (bool, error) {
-	if c == nil {
-		return false, fmt.Errorf("final response criterion is nil")
-	}
-	if c.Compare != nil {
-		return c.Compare(actual, expected)
-	}
-	if !c.hasConfiguredCriterion() {
-		return false, fmt.Errorf("final response criterion must configure text, json, rouge, or xml")
-	}
-	if actual == nil || expected == nil {
-		return false, fmt.Errorf("actual or expected invocation is nil")
-	}
-	return c.matchFinalResponseContent(ctx, actual, expected)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (c *FinalResponseCriterion) hasConfiguredCriterion() bool {
-	return c.Text != nil || c.JSON != nil || c.Rouge != nil || c.XML != nil
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (c *FinalResponseCriterion) matchFinalResponseContent(ctx context.Context, actual, expected *evalset.Invocation) (bool, error) {
-	actualMessage := actual.FinalResponse
-	expectedMessage := expected.FinalResponse
-	if actualMessage == nil && expectedMessage == nil {
-		return true, nil
-	}
-	if actualMessage == nil {
-		return false, fmt.Errorf("actual or expected final response is nil")
-	}
-	actualContent := actualMessage.Content
-	expectedContent := ""
-	if expectedMessage != nil {
-		expectedContent = expectedMessage.Content
-	}
-	mismatchMessages := make([]string, 0, 5)
-	appendMismatch := func(err error) {
-		if err != nil {
-			mismatchMessages = append(mismatchMessages, err.Error())
-		}
-	}
-	if c.JSON != nil {
-		appendMismatch(matchContentAsJSON(actualContent, expectedContent, c.JSON))
-	}
-	if c.Text != nil {
-		appendMismatch(matchContentAsText(actualContent, expectedContent, c.Text))
-	}
-	if c.Rouge != nil {
-		appendMismatch(matchContentAsRouge(ctx, actualContent, expectedContent, c.Rouge))
-	}
-	if c.XML != nil {
-		appendMismatch(matchContentAsXML(actualContent, expectedContent, c.XML))
-	}
-	if len(mismatchMessages) > 0 {
-		return false, errors.New(strings.Join(mismatchMessages, "; "))
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // matchContentAsText compares two strings using a TextCriterion.
 func matchContentAsText(actual, expected string, criterion *text.TextCriterion) error {
-	if criterion == nil || criterion.Ignore {
-		return nil
-	}
-	ok, err := criterion.Match(actual, expected)
-	if err != nil {
-		return fmt.Errorf("text mismatch: %w", err)
-	}
-	if !ok {
-		return fmt.Errorf("text mismatch")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // matchContentAsJSON validates or compares JSON content using a JSONCriterion.
 func matchContentAsJSON(actual, expected string, criterion *cjson.JSONCriterion) error {
-	if criterion == nil || criterion.Ignore {
-		return nil
-	}
-	ok, err := criterion.Match(json.RawMessage(actual), json.RawMessage(expected))
-	if err != nil {
-		return fmt.Errorf("json mismatch: %w", err)
-	}
-	if !ok {
-		return fmt.Errorf("json mismatch")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // matchContentAsXML validates a string using an XMLCriterion.
 func matchContentAsXML(actual, expected string, criterion *cxml.XMLCriterion) error {
-	if criterion == nil || criterion.Ignore {
-		return nil
-	}
-	ok, err := criterion.Match(actual, expected)
-	if err != nil {
-		return fmt.Errorf("xml mismatch: %w", err)
-	}
-	if !ok {
-		return fmt.Errorf("xml mismatch")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // matchContentAsRouge scores and validates two strings using a RougeCriterion.
 func matchContentAsRouge(ctx context.Context, actual, expected string, criterion *crouge.RougeCriterion) error {
-	if criterion == nil || criterion.Ignore {
-		return nil
-	}
-	result, err := criterion.Match(ctx, expected, actual)
-	if err != nil {
-		return fmt.Errorf("rouge mismatch: %w", err)
-	}
-	if !result.Passed {
-		return fmt.Errorf("rouge mismatch: %s", result.Reason())
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

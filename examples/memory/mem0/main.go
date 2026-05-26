@@ -145,41 +145,14 @@ func main() {
 // summariseExtras renders the option-driven fields (tags, agent_id, run_id)
 // that mem0 echoes back inside Entry.Memory.Topics / Memory.Metadata so the
 // example clearly shows the per-request options round-tripping.
-func summariseExtras(entry *memory.Entry) string {
-	if entry == nil || entry.Memory == nil {
-		return ""
-	}
-	parts := make([]string, 0, 3)
-	if len(entry.Memory.Topics) > 0 {
-		parts = append(parts, "topics="+strings.Join(entry.Memory.Topics, ","))
-	}
-	return strings.Join(parts, " ")
-}
+func summariseExtras(entry *memory.Entry) string { _ = "STUB: not implemented"; return "" }
 
 func newMem0Service(timeout time.Duration) (*memorymem0.Service, error) {
-	opts := []memorymem0.ServiceOpt{
-		memorymem0.WithAPIKey(os.Getenv("MEM0_API_KEY")),
-		memorymem0.WithTimeout(timeout),
-		memorymem0.WithMemoryJobTimeout(timeout),
-		memorymem0.WithAsyncMemoryNum(1),
-		memorymem0.WithMemoryQueueSize(8),
-		memorymem0.WithLoadToolEnabled(true),
-	}
-	if host := mem0Host(); host != "" {
-		opts = append(opts, memorymem0.WithHost(host))
-	}
-	if orgID := os.Getenv("MEM0_ORG_ID"); orgID != "" || os.Getenv("MEM0_PROJECT_ID") != "" {
-		opts = append(opts, memorymem0.WithOrgProject(orgID, os.Getenv("MEM0_PROJECT_ID")))
-	}
-	return memorymem0.NewService(opts...)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func mem0Host() string {
-	if host := os.Getenv("MEM0_HOST"); host != "" {
-		return host
-	}
-	return os.Getenv("MEM0_BASE_URL")
-}
+func mem0Host() string { _ = "STUB: not implemented"; return "" }
 
 type runResult struct {
 	toolCalls []string
@@ -187,80 +160,24 @@ type runResult struct {
 }
 
 func runOnce(ctx context.Context, r runner.Runner, userID, sessionID string, msg model.Message) (*runResult, error) {
-	ch, err := r.Run(ctx, userID, sessionID, msg)
-	if err != nil {
-		return nil, err
-	}
-	out := &runResult{}
-	seen := make(map[string]struct{})
-	for evt := range ch {
-		if evt == nil {
-			continue
-		}
-		if evt.Error != nil {
-			return nil, fmt.Errorf("runner event error: %s", evt.Error.Message)
-		}
-		collectResponse(out, seen, evt)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func collectResponse(out *runResult, seen map[string]struct{}, evt *event.Event) {
-	if evt == nil || evt.Response == nil {
-		return
-	}
-	for _, choice := range evt.Response.Choices {
-		for _, tc := range choice.Message.ToolCalls {
-			name := strings.TrimSpace(tc.Function.Name)
-			if name == "" {
-				continue
-			}
-			if _, ok := seen[name]; ok {
-				continue
-			}
-			seen[name] = struct{}{}
-			out.toolCalls = append(out.toolCalls, name)
-		}
-		if text := strings.TrimSpace(choice.Message.Content); text != "" {
-			out.reply = text
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // lookupSession fetches the persisted session the runner just produced from
 // the supplied session.Service. It is used by the -with-options demo to call
 // IngestSession directly with custom per-request IngestOption values.
 func lookupSession(ctx context.Context, svc session.Service, userID, sessionID string) (*session.Session, error) {
-	if svc == nil {
-		return nil, fmt.Errorf("nil session service")
-	}
-	sess, err := svc.GetSession(ctx, session.Key{
-		AppName:   *appName,
-		UserID:    userID,
-		SessionID: sessionID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if sess == nil {
-		return nil, fmt.Errorf("session %s not found", sessionID)
-	}
-	return sess, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func waitForToken(ctx context.Context, svc *memorymem0.Service, userKey memory.UserKey, token string, timeout time.Duration) ([]*memory.Entry, error) {
-	deadline := time.Now().Add(timeout)
-	for {
-		entries, err := svc.SearchMemories(ctx, userKey, token)
-		if err == nil && len(entries) > 0 {
-			return entries, nil
-		}
-		if time.Now().After(deadline) {
-			if err != nil {
-				return nil, err
-			}
-			return nil, fmt.Errorf("timed out waiting for token %q", token)
-		}
-		time.Sleep(2 * time.Second)
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }

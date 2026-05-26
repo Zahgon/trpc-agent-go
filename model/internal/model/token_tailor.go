@@ -57,13 +57,7 @@ const (
 //   - ~1.5% (2048 tokens) reserved for output generation
 //   - 10% safety margin for token counting inaccuracies
 //   - Protocol overhead (512 tokens) for request/response formatting
-func CalculateMaxInputTokens(contextWindow int) int {
-	safetyMargin := int(float64(contextWindow) * DefaultSafetyMarginRatio)
-	calculatedMax := max(contextWindow-DefaultReserveOutputTokens-
-		DefaultProtocolOverheadTokens-safetyMargin, 0)
-	ratioLimit := int(float64(contextWindow) * DefaultMaxInputTokensRatio)
-	return max(min(calculatedMax, ratioLimit), DefaultInputTokensFloor)
-}
+func CalculateMaxInputTokens(contextWindow int) int { _ = "STUB: not implemented"; return 0 }
 
 // CalculateMaxInputTokensWithParams calculates the maximum input tokens
 // with custom budget parameters.
@@ -75,9 +69,6 @@ func CalculateMaxInputTokensWithParams(
 	safetyMarginRatio float64,
 	maxInputTokensRatio float64,
 ) int {
-	safetyMargin := int(float64(contextWindow) * safetyMarginRatio)
-	calculatedMax := max(contextWindow-reserveOutputTokens-
-		protocolOverheadTokens-safetyMargin, 0)
-	ratioLimit := int(float64(contextWindow) * maxInputTokensRatio)
-	return max(min(calculatedMax, ratioLimit), inputTokensFloor)
+	_ = "STUB: not implemented"
+	return 0
 }

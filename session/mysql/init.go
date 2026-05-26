@@ -11,14 +11,9 @@ package mysql
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
-	"strings"
 
-	"github.com/go-sql-driver/mysql"
 	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // SQL templates for table creation (MySQL syntax)
@@ -513,282 +508,90 @@ var tdsqlIndexDefs = []indexDefinition{
 }
 
 // initDB initializes the database schema.
-func (s *Service) initDB(ctx context.Context) error {
-	log.InfoContext(ctx, "initializing mysql session database schema...")
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Select table and index definitions based on TDSQL mode.
-	tables := tableDefs
-	indexes := indexDefs
-	if s.opts.tdsqlSharding {
-		tables = tdsqlTableDefs
-		indexes = tdsqlIndexDefs
-		log.InfoContext(ctx, "TDSQL sharding mode enabled, using TDSQL schema")
-	}
+// Select table and index definitions based on TDSQL mode.
 
-	// Create tables
-	for _, tableDef := range tables {
-		fullTableName := sqldb.BuildTableName(s.opts.tablePrefix, tableDef.name)
-		sql := strings.ReplaceAll(tableDef.template, "{{TABLE_NAME}}", fullTableName)
+// Create tables
 
-		if _, err := s.mysqlClient.Exec(ctx, sql); err != nil {
-			return fmt.Errorf("create table %s failed: %w", fullTableName, err)
-		}
-		log.InfofContext(ctx, "created table: %s", fullTableName)
-	}
+// Create indexes
 
-	// Create indexes
-	for _, indexDef := range indexes {
-		fullTableName := sqldb.BuildTableName(s.opts.tablePrefix, indexDef.table)
-		indexName := sqldb.BuildIndexName(s.opts.tablePrefix, indexDef.table, indexDef.suffix)
-		sql := indexDef.template
-		sql = strings.ReplaceAll(sql, "{{TABLE_NAME}}", fullTableName)
-		sql = strings.ReplaceAll(sql, "{{INDEX_NAME}}", indexName)
+// MySQL doesn't have "IF NOT EXISTS" for indexes in older versions
+// We'll use a different approach: try to create and ignore duplicate key errors
 
-		// MySQL doesn't have "IF NOT EXISTS" for indexes in older versions
-		// We'll use a different approach: try to create and ignore duplicate key errors
-		if _, err := s.mysqlClient.Exec(ctx, sql); err != nil {
-			// Check if it's a duplicate index name error (error code 1061).
-			// This means the index already exists, which is safe to skip.
-			if !isDuplicateIndexNameError(err) {
-				return fmt.Errorf(
-					"create index %s on table %s failed: %w",
-					indexName,
-					fullTableName,
-					err,
-				)
-			}
-			// Index already exists, log and continue.
-			log.InfofContext(ctx, "index %s already exists on table %s, skipping", indexName, fullTableName)
-		} else {
-			log.InfofContext(ctx, "created index: %s on table %s", indexName, fullTableName)
-		}
-	}
+// Check if it's a duplicate index name error (error code 1061).
+// This means the index already exists, which is safe to skip.
 
-	// Verify schema
-	if err := s.verifySchema(ctx); err != nil {
-		return fmt.Errorf("schema verification failed: %w", err)
-	}
+// Index already exists, log and continue.
 
-	log.InfoContext(ctx, "mysql session database schema initialized successfully")
-	return nil
-}
+// Verify schema
 
 // verifySchema verifies that the database schema matches expectations.
-func (s *Service) verifySchema(ctx context.Context) error {
-	tables := tableDefs
-	schemas := expectedSchema
-	if s.opts.tdsqlSharding {
-		tables = tdsqlTableDefs
-		schemas = tdsqlExpectedSchema
-	}
-	for _, tableDef := range tables {
-		tableName := tableDef.name
-		schema, ok := schemas[tableName]
-		if !ok {
-			continue
-		}
-		fullTableName := sqldb.BuildTableName(s.opts.tablePrefix, tableName)
+func (s *Service) verifySchema(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-		// Check if table exists
-		exists, err := s.tableExists(ctx, fullTableName)
-		if err != nil {
-			return fmt.Errorf("check table %s existence failed: %w", fullTableName, err)
-		}
-		if !exists {
-			return fmt.Errorf("table %s does not exist", fullTableName)
-		}
+// Check if table exists
 
-		// Verify columns
-		if err := s.verifyColumns(ctx, fullTableName, schema.columns); err != nil {
-			return fmt.Errorf("verify columns for table %s failed: %w", fullTableName, err)
-		}
+// Verify columns
 
-		// Verify indexes (non-fatal, just log warnings)
-		if err := s.verifyIndexes(ctx, fullTableName, schema.indexes); err != nil {
-			log.WarnfContext(ctx, "verify indexes for table %s failed (non-fatal): %v", fullTableName, err)
-		}
-	}
-
-	return nil
-}
+// Verify indexes (non-fatal, just log warnings)
 
 // tableExists checks if a table exists in the database.
 func (s *Service) tableExists(ctx context.Context, tableName string) (bool, error) {
-	var count int
-	err := s.mysqlClient.QueryRow(ctx,
-		[]any{&count},
-		`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?`,
-		tableName)
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // verifyColumns verifies that table columns match expectations.
 func (s *Service) verifyColumns(ctx context.Context, tableName string, expectedColumns []tableColumn) error {
+	_ = "STUB: not implemented"
 	// Get actual columns from database
-	actualColumns := make(map[string]tableColumn)
-	err := s.mysqlClient.Query(ctx, func(rows *sql.Rows) error {
-		var name, dataType, isNullable string
-		if err := rows.Scan(&name, &dataType, &isNullable); err != nil {
-			return err
-		}
-		actualColumns[name] = tableColumn{
-			name:     name,
-			dataType: dataType,
-			nullable: isNullable == "YES",
-		}
-		return nil
-	}, `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-		FROM information_schema.columns
-		WHERE table_schema = DATABASE()
-		AND table_name = ?
-		ORDER BY ORDINAL_POSITION`, tableName)
-
-	if err != nil {
-		return fmt.Errorf("query columns failed: %w", err)
-	}
-
-	// Check each expected column
-	for _, expected := range expectedColumns {
-		actual, exists := actualColumns[expected.name]
-		if !exists {
-			return fmt.Errorf("column %s.%s is missing", tableName, expected.name)
-		}
-
-		// Check data type
-		if actual.dataType != expected.dataType {
-			return fmt.Errorf("column %s.%s has type %s, expected %s",
-				tableName, expected.name, actual.dataType, expected.dataType)
-		}
-
-		// Check nullable
-		if actual.nullable != expected.nullable {
-			return fmt.Errorf("column %s.%s nullable mismatch: got %v, expected %v",
-				tableName, expected.name, actual.nullable, expected.nullable)
-		}
-	}
-
 	return nil
 }
+
+// Check each expected column
+
+// Check data type
+
+// Check nullable
 
 // verifyIndexes verifies that table indexes exist.
 func (s *Service) verifyIndexes(ctx context.Context, fullTableName string, expectedIndexes []tableIndex) error {
+	_ = "STUB: not implemented"
 	// Build map of expected index names
-	expectedIndexNames := make(map[string]bool)
-	for _, expected := range expectedIndexes {
-		expectedIndexName := sqldb.BuildIndexName(s.opts.tablePrefix, expected.table, expected.suffix)
-		expectedIndexNames[expectedIndexName] = true
-	}
-
-	// Get actual indexes from database
-	actualIndexes := make(map[string][]string)
-	err := s.mysqlClient.Query(ctx, func(rows *sql.Rows) error {
-		var indexName, columnName string
-		if err := rows.Scan(&indexName, &columnName); err != nil {
-			return err
-		}
-		actualIndexes[indexName] = append(actualIndexes[indexName], columnName)
-		return nil
-	}, `SELECT INDEX_NAME, COLUMN_NAME
-		FROM information_schema.statistics
-		WHERE table_schema = DATABASE()
-		AND table_name = ?
-		ORDER BY INDEX_NAME, SEQ_IN_INDEX`, fullTableName)
-
-	if err != nil {
-		return fmt.Errorf("query indexes failed: %w", err)
-	}
-
-	// Check each expected index
-	for _, expected := range expectedIndexes {
-		expectedIndexName := sqldb.BuildIndexName(s.opts.tablePrefix, expected.table, expected.suffix)
-		actualColumns, exists := actualIndexes[expectedIndexName]
-		if !exists {
-			// Build CREATE INDEX statement for user reference.
-			columnsStr := buildIndexColumnsStr(expected.table, expected.suffix, expected.columns, s.opts.tdsqlSharding)
-			createSQL := buildCreateIndexSQL(expectedIndexName, fullTableName, columnsStr, expected.unique)
-			log.WarnfContext(ctx, "index %s on table %s is missing, please run: %s",
-				expectedIndexName, fullTableName, createSQL)
-			continue
-		}
-
-		if !stringSlicesEqual(actualColumns, expected.columns) {
-			// Build DROP and CREATE INDEX statements for user reference.
-			columnsStr := buildIndexColumnsStr(expected.table, expected.suffix, expected.columns, s.opts.tdsqlSharding)
-			dropSQL := fmt.Sprintf("DROP INDEX %s ON %s;", expectedIndexName, fullTableName)
-			createSQL := buildCreateIndexSQL(expectedIndexName, fullTableName, columnsStr, expected.unique)
-			log.WarnfContext(ctx, "index %s on table %s has wrong columns: got %v, want %v. "+
-				"Please drop and recreate: %s %s",
-				expectedIndexName, fullTableName, actualColumns, expected.columns, dropSQL, createSQL)
-		}
-	}
-
-	// Check for extra/unexpected indexes
-	for actualName := range actualIndexes {
-		if actualName == "PRIMARY" {
-			continue
-		}
-		if !expectedIndexNames[actualName] {
-			dropSQL := fmt.Sprintf("DROP INDEX %s ON %s;", actualName, fullTableName)
-			log.WarnfContext(ctx, "unexpected index %s found on table %s (wrong name or deprecated index), "+
-				"consider removing: %s", actualName, fullTableName, dropSQL)
-		}
-	}
-
 	return nil
 }
 
-func stringSlicesEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if !strings.EqualFold(a[i], b[i]) {
-			return false
-		}
-	}
-	return true
-}
+// Get actual indexes from database
+
+// Check each expected index
+
+// Build CREATE INDEX statement for user reference.
+
+// Build DROP and CREATE INDEX statements for user reference.
+
+// Check for extra/unexpected indexes
+
+func stringSlicesEqual(a, b []string) bool { _ = "STUB: not implemented"; return false }
 
 // buildIndexColumnsStr builds a comma-separated column list with appropriate
 // prefix lengths for indexes that require them.
 func buildIndexColumnsStr(table, suffix string, columns []string, tdsqlSharding bool) string {
+	_ = "STUB: not implemented"
 	// MySQL mode: session_summaries unique_active index requires prefix lengths
 	// to avoid Error 1071. TDSQL mode uses VARCHAR(128) so no prefix needed.
-	if !tdsqlSharding && table == sqldb.TableNameSessionSummaries && suffix == sqldb.IndexSuffixUniqueActive {
-		var prefixed []string
-		for _, col := range columns {
-			prefixed = append(prefixed, fmt.Sprintf("%s(%d)", col, mysqlVarCharIndexPrefixLen))
-		}
-		return strings.Join(prefixed, ", ")
-	}
-	// For all other indexes, use columns as-is.
-	return strings.Join(columns, ", ")
+	return ""
 }
+
+// For all other indexes, use columns as-is.
 
 // buildCreateIndexSQL builds a CREATE INDEX SQL statement.
 func buildCreateIndexSQL(indexName, tableName, columns string, unique bool) string {
-	if unique {
-		return fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s(%s);", indexName, tableName, columns)
-	}
-	return fmt.Sprintf("CREATE INDEX %s ON %s(%s);", indexName, tableName, columns)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // isDuplicateIndexNameError checks if the error is a MySQL duplicate index name error (1061).
 // This is used when creating indexes - if the index name already exists, we can safely skip.
 // Note: This should NOT match error 1062 (duplicate entry), which indicates a data constraint
 // violation and should not be silently ignored.
-func isDuplicateIndexNameError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	var mysqlErr *mysql.MySQLError
-	if errors.As(err, &mysqlErr) {
-		return mysqlErr.Number == sqldb.MySQLErrDuplicateKeyName
-	}
-
-	return false
-}
+func isDuplicateIndexNameError(err error) bool { _ = "STUB: not implemented"; return false }

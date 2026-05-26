@@ -27,13 +27,8 @@ type RunEnvProvider func(ctx context.Context) map[string]string
 //
 // If eng or provider is nil the original engine is returned unchanged.
 func NewEnvInjectingEngine(eng Engine, provider RunEnvProvider) Engine {
-	if eng == nil || provider == nil {
-		return eng
-	}
-	return &envEngine{
-		inner:    eng,
-		provider: provider,
-	}
+	_ = "STUB: not implemented"
+	return *new(Engine)
 }
 
 type envEngine struct {
@@ -41,24 +36,14 @@ type envEngine struct {
 	provider RunEnvProvider
 }
 
-func (e *envEngine) Manager() WorkspaceManager { return e.inner.Manager() }
-func (e *envEngine) FS() WorkspaceFS           { return e.inner.FS() }
-func (e *envEngine) Describe() Capabilities    { return e.inner.Describe() }
-
-func (e *envEngine) Runner() ProgramRunner {
-	inner := e.inner.Runner()
-	if inner == nil {
-		return nil
-	}
-	base := &envRunner{inner: inner, provider: e.provider}
-	if ir, ok := inner.(InteractiveProgramRunner); ok {
-		return &envInteractiveRunner{
-			envRunner:   *base,
-			interactive: ir,
-		}
-	}
-	return base
+func (e *envEngine) Manager() WorkspaceManager {
+	_ = "STUB: not implemented"
+	return *new(WorkspaceManager)
 }
+func (e *envEngine) FS() WorkspaceFS        { _ = "STUB: not implemented"; return *new(WorkspaceFS) }
+func (e *envEngine) Describe() Capabilities { _ = "STUB: not implemented"; return *new(Capabilities) }
+
+func (e *envEngine) Runner() ProgramRunner { _ = "STUB: not implemented"; return *new(ProgramRunner) }
 
 // envRunner wraps a ProgramRunner to inject per-run env vars.
 type envRunner struct {
@@ -71,8 +56,8 @@ func (r *envRunner) RunProgram(
 	ws Workspace,
 	spec RunProgramSpec,
 ) (RunResult, error) {
-	mergeProviderEnv(ctx, r.provider, &spec)
-	return r.inner.RunProgram(ctx, ws, spec)
+	_ = "STUB: not implemented"
+	return *new(RunResult), nil
 }
 
 // envInteractiveRunner extends envRunner with InteractiveProgramRunner
@@ -88,8 +73,8 @@ func (r *envInteractiveRunner) StartProgram(
 	ws Workspace,
 	spec InteractiveProgramSpec,
 ) (ProgramSession, error) {
-	mergeProviderEnv(ctx, r.provider, &spec.RunProgramSpec)
-	return r.interactive.StartProgram(ctx, ws, spec)
+	_ = "STUB: not implemented"
+	return *new(ProgramSession), nil
 }
 
 // NewEnvInjectingCodeExecutor wraps exec so that Engine() returns an
@@ -104,18 +89,8 @@ func NewEnvInjectingCodeExecutor(
 	exec CodeExecutor,
 	provider RunEnvProvider,
 ) CodeExecutor {
-	if exec == nil || provider == nil {
-		return exec
-	}
-	ep, ok := exec.(EngineProvider)
-	if !ok {
-		return exec
-	}
-	return &envCodeExecutor{
-		CodeExecutor: exec,
-		ep:           ep,
-		provider:     provider,
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeExecutor)
 }
 
 type envCodeExecutor struct {
@@ -124,9 +99,7 @@ type envCodeExecutor struct {
 	provider RunEnvProvider
 }
 
-func (e *envCodeExecutor) Engine() Engine {
-	return NewEnvInjectingEngine(e.ep.Engine(), e.provider)
-}
+func (e *envCodeExecutor) Engine() Engine { _ = "STUB: not implemented"; return *new(Engine) }
 
 // mergeProviderEnv builds a fresh Env map that contains all entries
 // from spec.Env plus any provider-supplied entries whose keys are not
@@ -136,21 +109,6 @@ func mergeProviderEnv(
 	provider RunEnvProvider,
 	spec *RunProgramSpec,
 ) {
-	if provider == nil {
-		return
-	}
-	extra := provider(ctx)
-	if len(extra) == 0 {
-		return
-	}
-	merged := make(map[string]string, len(spec.Env)+len(extra))
-	for k, v := range spec.Env {
-		merged[k] = v
-	}
-	for k, v := range extra {
-		if _, exists := merged[k]; !exists {
-			merged[k] = v
-		}
-	}
-	spec.Env = merged
+	_ = "STUB: not implemented"
+	return
 }

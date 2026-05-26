@@ -114,185 +114,79 @@ var defaultOptions = options{
 type Option func(*options)
 
 // WithAddresses sets the Elasticsearch node addresses.
-func WithAddresses(addresses []string) Option {
-	return func(o *options) {
-		o.addresses = addresses
-	}
-}
+func WithAddresses(addresses []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUsername sets the username for authentication.
-func WithUsername(username string) Option {
-	return func(o *options) {
-		o.username = username
-	}
-}
+func WithUsername(username string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) Option {
-	return func(o *options) {
-		o.password = password
-	}
-}
+func WithPassword(password string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAPIKey sets the API key for authentication.
-func WithAPIKey(apiKey string) Option {
-	return func(o *options) {
-		o.apiKey = apiKey
-	}
-}
+func WithAPIKey(apiKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCertificateFingerprint sets the certificate fingerprint.
 func WithCertificateFingerprint(fingerprint string) Option {
-	return func(o *options) {
-		o.certificateFingerprint = fingerprint
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCompressRequestBody enables request compression.
-func WithCompressRequestBody(compress bool) Option {
-	return func(o *options) {
-		o.compressRequestBody = compress
-	}
-}
+func WithCompressRequestBody(compress bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableMetrics enables metrics collection.
-func WithEnableMetrics(enable bool) Option {
-	return func(o *options) {
-		o.enableMetrics = enable
-	}
-}
+func WithEnableMetrics(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableDebugLogger enables debug logging.
-func WithEnableDebugLogger(enable bool) Option {
-	return func(o *options) {
-		o.enableDebugLogger = enable
-	}
-}
+func WithEnableDebugLogger(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRetryOnStatus sets HTTP status codes to retry on.
-func WithRetryOnStatus(statusCodes []int) Option {
-	return func(o *options) {
-		o.retryOnStatus = statusCodes
-	}
-}
+func WithRetryOnStatus(statusCodes []int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxRetries sets the maximum number of retries.
-func WithMaxRetries(maxRetries int) Option {
-	return func(o *options) {
-		o.maxRetries = maxRetries
-	}
-}
+func WithMaxRetries(maxRetries int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIndexName sets the Elasticsearch index name.
-func WithIndexName(indexName string) Option {
-	return func(o *options) {
-		if indexName == "" {
-			indexName = defaultIndexName
-		}
-		o.indexName = indexName
-	}
-}
+func WithIndexName(indexName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithScoreThreshold sets the minimum similarity score threshold.
-func WithScoreThreshold(threshold float64) Option {
-	return func(o *options) {
-		o.scoreThreshold = threshold
-	}
-}
+func WithScoreThreshold(threshold float64) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxResults sets the maximum number of search results.
-func WithMaxResults(maxResults int) Option {
-	return func(o *options) {
-		if maxResults <= 0 {
-			maxResults = defaultMaxResults
-		}
-		o.maxResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVectorDimension sets the dimension of embedding vectors.
-func WithVectorDimension(dimension int) Option {
-	return func(o *options) {
-		if dimension <= 0 {
-			dimension = defaultVectorDimension
-		}
-		o.vectorDimension = dimension
-	}
-}
+func WithVectorDimension(dimension int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableTSVector enables text search vector capabilities.
-func WithEnableTSVector(enable bool) Option {
-	return func(o *options) {
-		o.enableTSVector = enable
-	}
-}
+func WithEnableTSVector(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVersion sets the Elasticsearch version to use (v7, v8, v9).
-func WithVersion(version string) Option {
-	return func(o *options) {
-		o.version = elasticsearch.ESVersion(version)
-	}
-}
+func WithVersion(version string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIDField sets the Elasticsearch field name for ID.
-func WithIDField(field string) Option {
-	return func(o *options) {
-		o.idFieldName = field
-	}
-}
+func WithIDField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNameField sets the Elasticsearch field name for name/title.
-func WithNameField(field string) Option {
-	return func(o *options) {
-		o.nameFieldName = field
-	}
-}
+func WithNameField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentField sets the Elasticsearch field name for content.
-func WithContentField(field string) Option {
-	return func(o *options) {
-		o.contentFieldName = field
-	}
-}
+func WithContentField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEmbeddingField sets the Elasticsearch field name for embedding.
-func WithEmbeddingField(field string) Option {
-	return func(o *options) {
-		o.embeddingFieldName = field
-	}
-}
+func WithEmbeddingField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataField sets the Elasticsearch field name for metadata.
-func WithMetadataField(field string) Option {
-	return func(o *options) {
-		o.metadataFieldName = field
-	}
-}
+func WithMetadataField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCreatedAtField sets the Elasticsearch field name for createdAt.
-func WithCreatedAtField(field string) Option {
-	return func(o *options) {
-		o.createdAtFieldName = field
-	}
-}
+func WithCreatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUpdatedAtField sets the Elasticsearch field name for updatedAt.
-func WithUpdatedAtField(field string) Option {
-	return func(o *options) {
-		o.updatedAtFieldName = field
-	}
-}
+func WithUpdatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraOptions sets extra builder-specific options for the storage client.
-func WithExtraOptions(extraOptions ...any) Option {
-	return func(o *options) {
-		o.extraOptions = append(o.extraOptions, extraOptions...)
-	}
-}
+func WithExtraOptions(extraOptions ...any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDocBuilder sets the document builder function.
-func WithDocBuilder(builder DocBuilderFunc) Option {
-	return func(o *options) {
-		o.docBuilder = builder
-	}
-}
+func WithDocBuilder(builder DocBuilderFunc) Option { _ = "STUB: not implemented"; return *new(Option) }

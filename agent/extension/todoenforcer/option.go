@@ -141,88 +141,43 @@ type Option func(*Options)
 
 // WithName overrides the extension.Extension Name. Empty input
 // ignored.
-func WithName(name string) Option {
-	return func(o *Options) {
-		if name != "" {
-			o.Name = name
-		}
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxRetries sets the block-retry budget. Non-positive inputs
 // fall back to DefaultMaxRetries.
-func WithMaxRetries(n int) Option {
-	return func(o *Options) {
-		if n > 0 {
-			o.MaxRetries = n
-		}
-	}
-}
+func WithMaxRetries(n int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTodoTool injects a pre-configured todo.Tool to reuse
 // instead of constructing a default. Useful when the agent needs
 // a custom state-key prefix or NudgeHook shared across multiple
 // todo_write callsites.
-func WithTodoTool(t *todo.Tool) Option {
-	return func(o *Options) {
-		if t != nil {
-			o.TodoTool = t
-		}
-	}
-}
+func WithTodoTool(t *todo.Tool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDeclareBlockerToolName overrides the registered name of
 // the escape-hatch tool. Empty input ignored.
-func WithDeclareBlockerToolName(name string) Option {
-	return func(o *Options) {
-		if name != "" {
-			o.DeclareBlockerToolName = name
-		}
-	}
-}
+func WithDeclareBlockerToolName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDeclareBlockerToolDescription overrides the LLM-facing
 // description of the escape-hatch tool. Empty input ignored.
 func WithDeclareBlockerToolDescription(desc string) Option {
-	return func(o *Options) {
-		if desc != "" {
-			o.DeclareBlockerToolDescription = desc
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithNudgeFormatter overrides the message renderer. Pass nil to
 // keep the default.
-func WithNudgeFormatter(f NudgeFormatter) Option {
-	return func(o *Options) {
-		if f != nil {
-			o.NudgeFormatter = f
-		}
-	}
-}
+func WithNudgeFormatter(f NudgeFormatter) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithScopedAgents restricts enforcement to invocations whose
 // AgentName is in the supplied list.
-func WithScopedAgents(names ...string) Option {
-	return func(o *Options) {
-		o.ScopedAgents = append(o.ScopedAgents, names...)
-	}
-}
+func WithScopedAgents(names ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBypassAgents exempts invocations whose AgentName is in the
 // supplied list. Bypass takes precedence over Scope.
-func WithBypassAgents(names ...string) Option {
-	return func(o *Options) {
-		o.BypassAgents = append(o.BypassAgents, names...)
-	}
-}
+func WithBypassAgents(names ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOnEnforce installs an observer for enforcement events.
-func WithOnEnforce(cb EnforceCallback) Option {
-	return func(o *Options) {
-		o.OnEnforce = cb
-	}
-}
+func WithOnEnforce(cb EnforceCallback) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // inScope decides whether enforcement applies to a given
 // invocation. Order of operations:
@@ -232,23 +187,4 @@ func WithOnEnforce(cb EnforceCallback) Option {
 //     scope. This is the common case since agent-level extensions
 //     are already per-agent.
 //   - When both lists are empty, every invocation is in scope.
-func (o *Options) inScope(inv *agent.Invocation) bool {
-	name := ""
-	if inv != nil {
-		name = inv.AgentName
-	}
-	for _, n := range o.BypassAgents {
-		if n == name {
-			return false
-		}
-	}
-	if len(o.ScopedAgents) == 0 {
-		return true
-	}
-	for _, n := range o.ScopedAgents {
-		if n == name {
-			return true
-		}
-	}
-	return false
-}
+func (o *Options) inScope(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }

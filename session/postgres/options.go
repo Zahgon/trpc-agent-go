@@ -10,10 +10,8 @@
 package postgres
 
 import (
-	"strings"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 	"trpc.group/trpc-go/trpc-agent-go/session/summary"
 )
@@ -96,9 +94,8 @@ type ServiceOpt func(*ServiceOpts)
 // Note: WithPostgresClientDSN has the highest priority.
 // If DSN is specified, other connection settings (WithHost, WithPort, etc.) will be ignored.
 func WithPostgresClientDSN(dsn string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.dsn = dsn
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 var (
@@ -118,191 +115,124 @@ var (
 )
 
 func (opts ServiceOpts) shouldCascadeFullSessionSummary() bool {
-	if opts.cascadeFullSessionSummary == nil {
-		return true
-	}
-	return *opts.cascadeFullSessionSummary
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithSessionEventLimit sets the limit of events in a session.
 func WithSessionEventLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionEventLimit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithHost sets the PostgreSQL host.
-func WithHost(host string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.host = host
-	}
-}
+func WithHost(host string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPort sets the PostgreSQL port.
-func WithPort(port int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.port = port
-	}
-}
+func WithPort(port int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithUser sets the username for authentication.
-func WithUser(user string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.user = user
-	}
-}
+func WithUser(user string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.password = password
-	}
-}
+func WithPassword(password string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithDatabase sets the database name.
-func WithDatabase(database string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.database = database
-	}
-}
+func WithDatabase(database string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSSLMode sets the SSL mode for connection.
-func WithSSLMode(sslMode string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sslMode = sslMode
-	}
-}
+func WithSSLMode(sslMode string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPostgresInstance uses a postgres instance from storage.
 // Note: Direct connection settings (WithHost, WithPort, etc.) have higher priority than WithPostgresInstance.
 // If both are specified, direct connection settings will be used.
 func WithPostgresInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets the extra options for the postgres session service.
 // this option mainly used for the customized postgres client builder, it will be passed to the builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSessionTTL sets the TTL for session state and event list.
 // If not set, session will not expire, set 0 will not expire.
 func WithSessionTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppStateTTL sets the TTL for app state.
 // If not set, app state will not expire.
 func WithAppStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithUserStateTTL sets the TTL for user state.
 // If not set, user state will not expire.
 func WithUserStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.userStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEnableAsyncPersist enables async persistence for session state and event list.
 // if not set, default is false.
 func WithEnableAsyncPersist(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.enableAsyncPersist = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncPersisterNum sets the number of workers for async persistence.
-func WithAsyncPersisterNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncPersisterNum
-		}
-		opts.asyncPersisterNum = num
-	}
-}
+func WithAsyncPersisterNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummarizer injects a summarizer for LLM-based summaries.
 func WithSummarizer(s summary.SessionSummarizer) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summarizer = s
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncSummaryNum sets the number of workers for async summary processing.
-func WithAsyncSummaryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncSummaryNum
-		}
-		opts.asyncSummaryNum = num
-	}
-}
+func WithAsyncSummaryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryQueueSize sets the size of the summary job queue.
-func WithSummaryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = defaultSummaryQueueSize
-		}
-		opts.summaryQueueSize = size
-	}
-}
+func WithSummaryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryJobTimeout sets the timeout for processing a single summary job.
 // If not set, a sensible default will be applied.
 func WithSummaryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if timeout <= 0 {
-			return
-		}
-		opts.summaryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummaryFilterAllowlist restricts which non-empty filterKeys may trigger
 // branch summaries. Keys use the same exact format as event filter keys.
 func WithSummaryFilterAllowlist(filterKeys ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summaryFilterAllowlist = append([]string{}, filterKeys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCascadeFullSessionSummary controls whether an allowed branch summary also
 // refreshes the full-session summary keyed by SummaryFilterKeyAllContents.
 func WithCascadeFullSessionSummary(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		enabled := enable
-		opts.cascadeFullSessionSummary = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSoftDelete enables or disables soft delete.
 // When enabled (default), DELETE operations set deleted_at timestamp instead of removing records.
 // When disabled, DELETE operations permanently remove records from database.
-func WithSoftDelete(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.softDelete = enable
-	}
-}
+func WithSoftDelete(enable bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCleanupInterval sets the interval for automatic cleanup of expired data.
 // If set to 0, automatic cleanup will be determined based on TTL configuration.
 // Default cleanup interval is 5 minutes if any TTL is configured.
 func WithCleanupInterval(interval time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.cleanupInterval = interval
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSkipDBInit skips database initialization (table and index creation).
@@ -310,11 +240,7 @@ func WithCleanupInterval(interval time.Duration) ServiceOpt {
 // - User doesn't have DDL permissions
 // - Tables are managed by migration tools
 // - Running in production environment where schema is pre-created
-func WithSkipDBInit(skip bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithTablePrefix sets a prefix for all table names.
 // For example, with prefix "trpc", tables will be named:
@@ -326,23 +252,11 @@ func WithSkipDBInit(skip bool) ServiceOpt {
 // "trpc" and "trpc_" both result in "trpc_" prefix.
 //
 // Security: Uses internal/session/sqldb.ValidateTablePrefix to prevent SQL injection.
-func WithTablePrefix(prefix string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if prefix == "" {
-			opts.tablePrefix = ""
-			return
-		}
+func WithTablePrefix(prefix string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
-		// Use internal/session/sqldb validation
-		sqldb.MustValidateTablePrefix(prefix)
+// Use internal/session/sqldb validation
 
-		// Automatically add underscore if not present
-		if !strings.HasSuffix(prefix, "_") {
-			prefix += "_"
-		}
-		opts.tablePrefix = prefix
-	}
-}
+// Automatically add underscore if not present
 
 // WithSchema sets the PostgreSQL schema name where tables will be created.
 // If not set, tables will be created in the default schema (typically "public").
@@ -353,26 +267,18 @@ func WithTablePrefix(prefix string) ServiceOpt {
 //
 // Note: The schema must already exist in the database before using this option.
 // Security: Uses internal/session/sqldb.ValidateTableName to prevent SQL injection.
-func WithSchema(schema string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if schema != "" {
-			// Use internal/session/sqldb validation
-			sqldb.MustValidateTableName(schema)
-		}
-		opts.schema = schema
-	}
-}
+func WithSchema(schema string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
+
+// Use internal/session/sqldb validation
 
 // WithAppendEventHook adds AppendEvent hooks.
 func WithAppendEventHook(hooks ...session.AppendEventHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appendEventHooks = append(opts.appendEventHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithGetSessionHook adds GetSession hooks.
 func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.getSessionHooks = append(opts.getSessionHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }

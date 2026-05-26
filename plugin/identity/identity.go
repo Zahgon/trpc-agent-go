@@ -11,7 +11,6 @@ package identity
 
 import (
 	"context"
-	"maps"
 )
 
 // Identity represents a resolved user identity with credentials and metadata
@@ -70,7 +69,8 @@ type ProviderFunc func(ctx context.Context, userID, sessionID string) (*Identity
 
 // Resolve implements Provider.
 func (f ProviderFunc) Resolve(ctx context.Context, userID, sessionID string) (*Identity, error) {
-	return f(ctx, userID, sessionID)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ---- context helpers ----
@@ -79,10 +79,8 @@ type identityCtxKey struct{}
 
 // NewContext returns a copy of ctx that carries the given Identity.
 func NewContext(ctx context.Context, id *Identity) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return context.WithValue(ctx, identityCtxKey{}, id)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // FromContext extracts the Identity stored in ctx by NewContext.
@@ -92,14 +90,8 @@ func NewContext(ctx context.Context, id *Identity) context.Context {
 // (nil, false), so callers branching on ok always see a consistent notion of
 // "identity absent".
 func FromContext(ctx context.Context) (*Identity, bool) {
-	if ctx == nil {
-		return nil, false
-	}
-	id, ok := ctx.Value(identityCtxKey{}).(*Identity)
-	if !ok || id == nil {
-		return nil, false
-	}
-	return id, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // HeadersFromContext returns a copy of identity headers stored in ctx.
@@ -126,11 +118,8 @@ func FromContext(ctx context.Context) (*Identity, bool) {
 // itself never returns a non-nil error today, so callers can ignore it if
 // preferred.
 func HeadersFromContext(ctx context.Context) (map[string]string, error) {
-	id, ok := FromContext(ctx)
-	if !ok || id == nil || len(id.Headers) == 0 {
-		return nil, nil
-	}
-	return maps.Clone(id.Headers), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // EnvVarsFromContext returns a copy of identity environment variables stored
@@ -147,9 +136,6 @@ func HeadersFromContext(ctx context.Context) (map[string]string, error) {
 // current user's EnvVars in exec.Cmd.Env. Without the wrap, Identity.EnvVars
 // is set on context by the Plugin but no one consumes it.
 func EnvVarsFromContext(ctx context.Context) map[string]string {
-	id, ok := FromContext(ctx)
-	if !ok || id == nil || len(id.EnvVars) == 0 {
-		return nil
-	}
-	return maps.Clone(id.EnvVars)
+	_ = "STUB: not implemented"
+	return nil
 }

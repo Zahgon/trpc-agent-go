@@ -27,32 +27,21 @@ type ClientBuilderOpts struct {
 
 // WithHost sets the Qdrant server host.
 func WithHost(host string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if host != "" {
-			o.Host = host
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithPort sets the Qdrant server gRPC port.
-func WithPort(port int) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if port > 0 && port <= 65535 {
-			o.Port = port
-		}
-	}
-}
+func WithPort(port int) ClientBuilderOpt { _ = "STUB: not implemented"; return *new(ClientBuilderOpt) }
 
 // WithAPIKey sets the API key for Qdrant Cloud authentication.
 func WithAPIKey(apiKey string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.APIKey = apiKey
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithTLS enables TLS for secure connections (required for Qdrant Cloud).
 func WithTLS(enabled bool) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.UseTLS = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }

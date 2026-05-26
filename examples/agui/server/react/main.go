@@ -13,11 +13,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"math"
 	"net/http"
 	"regexp"
-	"strings"
 
 	aguievents "github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
@@ -90,113 +87,50 @@ type reactTranslator struct {
 
 func newReactTranslator(ctx context.Context, input *adapter.RunAgentInput,
 	opts ...translator.Option) (translator.Translator, error) {
-	inner, err := translator.New(ctx, input.ThreadID, input.RunID, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("create inner translator: %w", err)
-	}
-	return &reactTranslator{
-		inner: inner,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(translator.Translator), nil
 }
 
 // Translate routes AG-UI events through a small state machine to rebuild final answers and custom sections for React UI consumption.
 func (t *reactTranslator) Translate(ctx context.Context, event *event.Event) ([]aguievents.Event, error) {
-	events, err := t.inner.Translate(ctx, event)
-	if err != nil {
-		return nil, err
-	}
-	var reactEvents []aguievents.Event
-	for _, e := range events {
-		processed, err := t.handleAGUIEvent(e)
-		if err != nil {
-			return nil, err
-		}
-		if len(processed) > 0 {
-			reactEvents = append(reactEvents, processed...)
-		}
-	}
-	return reactEvents, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // handleAGUIEvent keeps track of streaming state and dispatches events to the appropriate handlers.
 func (t *reactTranslator) handleAGUIEvent(e aguievents.Event) ([]aguievents.Event, error) {
-	if t.receivingMessage {
-		return t.handleReceivingEvent(e)
-	}
-	if e.Type() == aguievents.EventTypeTextMessageStart {
-		t.startReceiving()
-		return nil, nil
-	}
-	return []aguievents.Event{e}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // handleReceivingEvent consumes text message chunks until the message is done.
 func (t *reactTranslator) handleReceivingEvent(e aguievents.Event) ([]aguievents.Event, error) {
-	switch e.Type() {
-	case aguievents.EventTypeTextMessageContent:
-		return t.collectContent(e)
-	case aguievents.EventTypeTextMessageEnd:
-		return t.finishMessage(e)
-	default:
-		return nil, fmt.Errorf("unexpected event type %s while receiving message", e.Type())
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // collectContent appends streamed delta text into the buffered message.
 func (t *reactTranslator) collectContent(e aguievents.Event) ([]aguievents.Event, error) {
-	contentEvent, ok := e.(*aguievents.TextMessageContentEvent)
-	if !ok {
-		return nil, fmt.Errorf("invalid text message content event %T", e)
-	}
-	t.message += contentEvent.Delta
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 // finishMessage finalizes the aggregated text and converts planner sections to React events.
 func (t *reactTranslator) finishMessage(e aguievents.Event) ([]aguievents.Event, error) {
-	endEvent, ok := e.(*aguievents.TextMessageEndEvent)
-	if !ok {
-		return nil, fmt.Errorf("invalid text message end event %T", e)
-	}
-	sections := splitTaggedSections(t.message)
-	t.resetReceiving()
-	return t.buildSectionEvents(endEvent.MessageID, sections), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // startReceiving initializes state for a new streamed message.
-func (t *reactTranslator) startReceiving() {
-	t.receivingMessage = true
-	t.message = ""
-}
+func (t *reactTranslator) startReceiving() { _ = "STUB: not implemented"; return }
 
 // resetReceiving clears state after a message has been fully processed.
-func (t *reactTranslator) resetReceiving() {
-	t.receivingMessage = false
-	t.message = ""
-}
+func (t *reactTranslator) resetReceiving() { _ = "STUB: not implemented"; return }
 
 // buildSectionEvents converts planner tagged sections into AG-UI events for the React frontend.
 func (t *reactTranslator) buildSectionEvents(messageID string, sections []taggedSection) []aguievents.Event {
-	var reactEvents []aguievents.Event
-	for _, section := range sections {
-		if section.tag == react.FinalAnswerTag {
-			reactEvents = append(reactEvents,
-				aguievents.NewTextMessageStartEvent(messageID),
-				aguievents.NewTextMessageContentEvent(messageID, section.content),
-				aguievents.NewTextMessageEndEvent(messageID))
-			continue
-		}
-		customEvent := aguievents.NewCustomEvent(
-			fmt.Sprintf("react.%s", strings.ToLower(section.name)),
-			aguievents.WithValue(map[string]any{
-				"tag":       section.tag,
-				"content":   section.content,
-				"messageId": messageID,
-			}),
-		)
-		reactEvents = append(reactEvents, customEvent)
-	}
-	return reactEvents
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var tagPattern = regexp.MustCompile(`/\*([A-Z_]+)\*/`)
@@ -208,40 +142,11 @@ type taggedSection struct {
 }
 
 // splitTaggedSections splits content by React planner tags.
-func splitTaggedSections(message string) []taggedSection {
-	matches := tagPattern.FindAllStringSubmatchIndex(message, -1)
-	sections := make([]taggedSection, 0, len(matches))
-	for i, match := range matches {
-		tag := message[match[0]:match[1]]
-		name := message[match[2]:match[3]]
-		contentStart := match[1]
-		contentEnd := len(message)
-		if i+1 < len(matches) {
-			contentEnd = matches[i+1][0]
-		}
-		content := message[contentStart:contentEnd]
-		sections = append(sections, taggedSection{tag: tag, name: name, content: content})
-	}
-	return sections
-}
+func splitTaggedSections(message string) []taggedSection { _ = "STUB: not implemented"; return nil }
 
 func calculator(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch args.Operation {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		result = args.A / args.B
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	default:
-		return calculatorResult{Result: 0}, fmt.Errorf("invalid operation: %s", args.Operation)
-	}
-	return calculatorResult{Result: result}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {
@@ -254,10 +159,6 @@ type calculatorResult struct {
 	Result float64 `json:"result"`
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

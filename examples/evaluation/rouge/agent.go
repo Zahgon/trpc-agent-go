@@ -10,9 +10,6 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 )
 
 const (
@@ -24,21 +21,16 @@ const (
 
 // newRougeAgent creates an LLM-based agent for the ROUGE evaluation example.
 func newRougeAgent(modelName string, stream bool) agent.Agent {
-	genCfg := model.GenerationConfig{
-		MaxTokens:   intPtr(64),
-		Temperature: floatPtr(0.0),
-		Stream:      stream,
-	}
-	return llmagent.New(
-		rougeAgentName,
-		llmagent.WithModel(openai.New(modelName)),
-		llmagent.WithInstruction(rougeAgentInstruction),
-		llmagent.WithGenerationConfig(genCfg),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 // intPtr returns a pointer to v.
-func intPtr(v int) *int { return &v }
+func intPtr(v int) *int {
+	_ = "STUB: not implemented"
 
-// floatPtr returns a pointer to v.
-func floatPtr(v float64) *float64 { return &v }
+	// floatPtr returns a pointer to v.
+	return nil
+}
+
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

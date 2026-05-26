@@ -26,26 +26,26 @@ type clientBuilder func(builderOpts ...ClientBuilderOpt) (any, error)
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the global Elasticsearch client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the global Elasticsearch client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// RegisterElasticsearchInstance registers a named Elasticsearch instance options.
+	new(clientBuilder)
 }
 
-// RegisterElasticsearchInstance registers a named Elasticsearch instance options.
 func RegisterElasticsearchInstance(name string, opts ...ClientBuilderOpt) {
-	esRegistry[name] = append(esRegistry[name], opts...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetElasticsearchInstance gets the registered options for a named instance.
 func GetElasticsearchInstance(name string) ([]ClientBuilderOpt, bool) {
-	if _, ok := esRegistry[name]; !ok {
-		return nil, false
-	}
-	return esRegistry[name], true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // ClientBuilderOpt is the option for the Elasticsearch client builder.
@@ -86,59 +86,68 @@ type ClientBuilderOpts struct {
 
 // WithAddresses sets node addresses.
 func WithAddresses(addresses []string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.Addresses = addresses }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithUsername sets username.
 func WithUsername(username string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.Username = username }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithPassword sets password.
 func WithPassword(password string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.Password = password }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithAPIKey sets API key.
 func WithAPIKey(apiKey string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.APIKey = apiKey }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithCertificateFingerprint sets TLS certificate fingerprint.
 func WithCertificateFingerprint(fp string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.CertificateFingerprint = fp }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithCompressRequestBody toggles request body compression.
 func WithCompressRequestBody(enabled bool) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.CompressRequestBody = enabled }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithEnableMetrics toggles transport metrics.
 func WithEnableMetrics(enabled bool) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.EnableMetrics = enabled }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithEnableDebugLogger toggles debug logger.
 func WithEnableDebugLogger(enabled bool) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.EnableDebugLogger = enabled }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithRetryOnStatus sets HTTP retry status codes.
 func WithRetryOnStatus(codes []int) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.RetryOnStatus = codes }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithMaxRetries sets max retries.
 func WithMaxRetries(n int) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.MaxRetries = n }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions adds extra, builder-specific options.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ExtraOptions = append(opts.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // ESVersion represents the Elasticsearch major version.
@@ -157,5 +166,6 @@ const (
 
 // WithVersion sets the preferred Elasticsearch major version.
 func WithVersion(v ESVersion) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) { o.Version = v }
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }

@@ -9,12 +9,8 @@
 package templateresolver
 
 import (
-	"fmt"
-
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/invocationsaggregator"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/invocationsaggregator/average"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/samplesaggregator"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/samplesaggregator/majorityvote"
 )
 
 const (
@@ -26,20 +22,12 @@ const (
 
 // ResolveSamplesAggregator returns the samples aggregator identified by name.
 func ResolveSamplesAggregator(name string) (samplesaggregator.SamplesAggregator, error) {
-	switch name {
-	case "", SampleAggregatorMajorityVoteName:
-		return majorityvote.New(), nil
-	default:
-		return nil, fmt.Errorf("unsupported samples aggregator %q", name)
-	}
+	_ = "STUB: not implemented"
+	return *new(samplesaggregator.SamplesAggregator), nil
 }
 
 // ResolveInvocationsAggregator returns the invocations aggregator identified by name.
 func ResolveInvocationsAggregator(name string) (invocationsaggregator.InvocationsAggregator, error) {
-	switch name {
-	case "", InvocationAggregatorAverageName:
-		return average.New(), nil
-	default:
-		return nil, fmt.Errorf("unsupported invocations aggregator %q", name)
-	}
+	_ = "STUB: not implemented"
+	return *new(invocationsaggregator.InvocationsAggregator), nil
 }

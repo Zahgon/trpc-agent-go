@@ -24,26 +24,26 @@ type clientBuilder func(builderOpts ...ClientBuilderOpt) (Client, error)
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the global ClickHouse client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the global ClickHouse client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// RegisterClickHouseInstance registers a named ClickHouse instance options.
+	new(clientBuilder)
 }
 
-// RegisterClickHouseInstance registers a named ClickHouse instance options.
 func RegisterClickHouseInstance(name string, opts ...ClientBuilderOpt) {
-	clickhouseRegistry[name] = append(clickhouseRegistry[name], opts...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetClickHouseInstance gets the registered options for a named instance.
 func GetClickHouseInstance(name string) ([]ClientBuilderOpt, bool) {
-	if _, ok := clickhouseRegistry[name]; !ok {
-		return nil, false
-	}
-	return clickhouseRegistry[name], true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // ClientBuilderOpt is the option for the ClickHouse client builder.
@@ -62,15 +62,13 @@ type ClientBuilderOpts struct {
 
 // WithClientBuilderDSN sets the ClickHouse connection DSN for clientBuilder.
 func WithClientBuilderDSN(dsn string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.DSN = dsn
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets the ClickHouse client extra options for clientBuilder.
 // This option is mainly used for customized ClickHouse client builders.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.ExtraOptions = append(o.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }

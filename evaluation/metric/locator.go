@@ -9,10 +9,6 @@
 
 package metric
 
-import (
-	"path/filepath"
-)
-
 // defaultMetricsFileSuffix is the default suffix for metric files.
 const defaultMetricsFileSuffix = ".metrics.json"
 
@@ -27,5 +23,6 @@ type locator struct{}
 
 // Build builds the path of a metric file.
 func (l *locator) Build(baseDir, appName, evalSetID string) string {
-	return filepath.Join(baseDir, appName, evalSetID+defaultMetricsFileSuffix)
+	_ = "STUB: not implemented"
+	return ""
 }

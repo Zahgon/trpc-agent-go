@@ -10,44 +10,19 @@
 package mysqldb
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/go-sql-driver/mysql"
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	storage "trpc.group/trpc-go/trpc-agent-go/storage/mysql"
 )
 
 // BuildClient builds a MySQL client with either DSN or a registered instance name.
 func BuildClient(dsn, instanceName string, extraOptions []any) (storage.Client, error) {
-	builderOpts := []storage.ClientBuilderOpt{
-		storage.WithClientBuilderDSN(dsn),
-		storage.WithExtraOptions(extraOptions...),
-	}
-	// Priority: dsn > instanceName.
-	if dsn == "" && instanceName != "" {
-		var ok bool
-		if builderOpts, ok = storage.GetMySQLInstance(instanceName); !ok {
-			return nil, fmt.Errorf("mysql instance %s not found", instanceName)
-		}
-	}
-	return storage.GetClientBuilder()(builderOpts...)
+	_ = "STUB: not implemented"
+	return *new(storage.Client), nil
 }
+
+// Priority: dsn > instanceName.
 
 // IsDuplicateEntry reports whether the error is a MySQL duplicate entry error.
-func IsDuplicateEntry(err error) bool {
-	var mysqlErr *mysql.MySQLError
-	if !errors.As(err, &mysqlErr) {
-		return false
-	}
-	return mysqlErr.Number == sqldb.MySQLErrDuplicateEntry
-}
+func IsDuplicateEntry(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsDuplicateKeyName reports whether the error is a MySQL duplicate index name error.
-func IsDuplicateKeyName(err error) bool {
-	var mysqlErr *mysql.MySQLError
-	if !errors.As(err, &mysqlErr) {
-		return false
-	}
-	return mysqlErr.Number == sqldb.MySQLErrDuplicateKeyName
-}
+func IsDuplicateKeyName(err error) bool { _ = "STUB: not implemented"; return false }

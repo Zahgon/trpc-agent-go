@@ -38,11 +38,8 @@ type ClientBuilderOpts struct {
 
 // WithEndpoint sets a custom endpoint URL for S3-compatible services.
 func WithEndpoint(endpoint string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if endpoint != "" {
-			o.Endpoint = endpoint
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithRegion sets the AWS region.
@@ -51,52 +48,34 @@ func WithEndpoint(endpoint string) ClientBuilderOpt {
 //   - ~/.aws/config shared configuration file
 //   - EC2/ECS instance metadata
 func WithRegion(region string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if region != "" {
-			o.Region = region
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithBucket sets the S3 bucket name.
 // This is required for creating a client.
 func WithBucket(bucket string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if bucket != "" {
-			o.Bucket = bucket
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithCredentials sets static AWS credentials.
 func WithCredentials(accessKeyID, secretAccessKey string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if accessKeyID != "" && secretAccessKey != "" {
-			o.AccessKeyID = accessKeyID
-			o.SecretAccessKey = secretAccessKey
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithSessionToken sets the session token for temporary credentials.
 func WithSessionToken(token string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.SessionToken = token
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithPathStyle enables path-style addressing (required for MinIO).
 func WithPathStyle(enabled bool) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.UsePathStyle = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithRetries sets the maximum number of retries (default: 3).
-func WithRetries(n int) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		if n > 0 {
-			o.MaxRetries = n
-		}
-	}
-}
+func WithRetries(n int) ClientBuilderOpt { _ = "STUB: not implemented"; return *new(ClientBuilderOpt) }

@@ -40,27 +40,10 @@ type options struct {
 	finishReason string
 }
 
-func newOptions(opts ...Option) *options {
-	o := &options{
-		name:         defaultPluginName,
-		finishReason: defaultFinishReason,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(o)
-		}
-	}
-	return o
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithName sets the plugin name. The name must be unique within a Runner.
-func WithName(name string) Option {
-	return func(o *options) {
-		if name != "" {
-			o.name = name
-		}
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContent sets a static message that replaces the framework's default
 // fallback content for all error events.
@@ -68,33 +51,15 @@ func WithName(name string) Option {
 // It is shorthand for a Resolver that returns (content, content != ""), so
 // passing an empty string is a no-op and the event is left untouched, which
 // means Runner's built-in fallback message still applies.
-func WithContent(content string) Option {
-	return WithResolver(func(
-		_ context.Context,
-		_ *agent.Invocation,
-		_ *event.Event,
-	) (string, bool) {
-		return content, content != ""
-	})
-}
+func WithContent(content string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithResolver registers a Resolver that computes the assistant-visible
 // content for each error event. It is called only when the event is an error
 // event with no existing valid content, so returning a message is always a
 // safe, non-destructive operation.
-func WithResolver(resolver Resolver) Option {
-	return func(o *options) {
-		o.resolver = resolver
-	}
-}
+func WithResolver(resolver Resolver) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFinishReason overrides the FinishReason attached to the synthesised
 // assistant choice. It is used only when the choice does not carry a
 // FinishReason yet. The default is "error".
-func WithFinishReason(reason string) Option {
-	return func(o *options) {
-		if reason != "" {
-			o.finishReason = reason
-		}
-	}
-}
+func WithFinishReason(reason string) Option { _ = "STUB: not implemented"; return *new(Option) }

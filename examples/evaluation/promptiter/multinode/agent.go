@@ -10,13 +10,8 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -42,149 +37,45 @@ const (
 )
 
 func newSportsRecapAgent(m model.Model) (agent.Agent, error) {
-	cfg := model.GenerationConfig{
-		MaxTokens:   intPtr(32768),
-		Temperature: floatPtr(0.0),
-		Stream:      false,
-	}
-	subAgents := []agent.Agent{
-		newStageAgent(headlineAgentName, headlineInstruction, m, cfg),
-		newStageAgent(highlightsAgentName, highlightsInstruction, m, cfg),
-		newStageAgent(statsAngleAgentName, statsAngleInstruction, m, cfg),
-		newStageAgent(recapWriterAgentName, recapWriterInstruction, m, cfg),
-		newStageAgent(sportsEditorAgentName, sportsEditorInstruction, m, cfg),
-	}
-	g, err := buildSportsRecapGraph()
-	if err != nil {
-		return nil, fmt.Errorf("build graph: %w", err)
-	}
-	return graphagent.New(
-		sportsRecapAgentName,
-		g,
-		graphagent.WithDescription("PromptIter multinode sports recap example."),
-		graphagent.WithSubAgents(subAgents),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil
 }
 
 func newStageAgent(name string, instruction string, m model.Model, cfg model.GenerationConfig) agent.Agent {
-	return llmagent.New(
-		name,
-		llmagent.WithModel(m),
-		llmagent.WithInstruction(instruction),
-		llmagent.WithGenerationConfig(cfg),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
-func buildSportsRecapGraph() (*graph.Graph, error) {
-	sg := graph.NewStateGraph(graph.NewStateSchema())
-	sg.AddNode(nodePrepareGameInput, prepareGameInput)
-	sg.AddAgentNode(headlineAgentName, branchOptions(keyHeadlineInput, keyHeadline)...)
-	sg.AddAgentNode(highlightsAgentName, branchOptions(keyHighlightsInput, keyHighlights)...)
-	sg.AddAgentNode(statsAngleAgentName, branchOptions(keyStatsAngleInput, keyStatsAngle)...)
-	sg.AddNode(nodeJoinRecapParts, joinRecapParts)
-	sg.AddAgentNode(
-		recapWriterAgentName,
-		graph.WithUserInputKey(keyWriterInput),
-		graph.WithSubgraphIsolatedMessages(true),
-		graph.WithSubgraphOutputMapper(storeDraft),
-	)
-	sg.AddAgentNode(
-		sportsEditorAgentName,
-		graph.WithUserInputKey(keyEditorInput),
-		graph.WithSubgraphIsolatedMessages(true),
-		graph.WithSubgraphOutputMapper(storeFinal),
-	)
-	sg.SetEntryPoint(nodePrepareGameInput)
-	sg.AddEdge(nodePrepareGameInput, headlineAgentName)
-	sg.AddEdge(nodePrepareGameInput, highlightsAgentName)
-	sg.AddEdge(nodePrepareGameInput, statsAngleAgentName)
-	sg.AddJoinEdge([]string{headlineAgentName, highlightsAgentName, statsAngleAgentName}, nodeJoinRecapParts)
-	sg.AddEdge(nodeJoinRecapParts, recapWriterAgentName)
-	sg.AddEdge(recapWriterAgentName, sportsEditorAgentName)
-	sg.SetFinishPoint(sportsEditorAgentName)
-	return sg.Compile()
-}
+func buildSportsRecapGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func branchOptions(inputKey string, outputKey string) []graph.Option {
-	return []graph.Option{
-		graph.WithUserInputKey(inputKey),
-		graph.WithSubgraphIsolatedMessages(true),
-		graph.WithSubgraphOutputMapper(func(parent graph.State, result graph.SubgraphResult) graph.State {
-			return graph.State{outputKey: strings.TrimSpace(result.LastResponse)}
-		}),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func prepareGameInput(ctx context.Context, state graph.State) (any, error) {
-	gameJSON, _ := graph.GetStateValue[string](state, graph.StateKeyUserInput)
-	if strings.TrimSpace(gameJSON) == "" {
-		return nil, errors.New("game input is empty")
-	}
-	return graph.State{
-		keyHeadlineInput:   gameJSON,
-		keyHighlightsInput: gameJSON,
-		keyStatsAngleInput: gameJSON,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func joinRecapParts(ctx context.Context, state graph.State) (any, error) {
-	gameJSON, _ := graph.GetStateValue[string](state, graph.StateKeyUserInput)
-	headline, _ := graph.GetStateValue[string](state, keyHeadline)
-	highlights, _ := graph.GetStateValue[string](state, keyHighlights)
-	statsAngle, _ := graph.GetStateValue[string](state, keyStatsAngle)
-	if strings.TrimSpace(headline) == "" || strings.TrimSpace(highlights) == "" || strings.TrimSpace(statsAngle) == "" {
-		return nil, errors.New("recap parts are incomplete")
-	}
-	brief := strings.Join([]string{
-		"GAME_JSON:",
-		gameJSON,
-		"HEADLINE:",
-		headline,
-		"HIGHLIGHTS:",
-		highlights,
-		"STATS_ANGLE:",
-		statsAngle,
-	}, "\n\n")
-	return graph.State{keyWriterInput: brief}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func storeDraft(parent graph.State, result graph.SubgraphResult) graph.State {
-	gameJSON, _ := graph.GetStateValue[string](parent, graph.StateKeyUserInput)
-	headline, _ := graph.GetStateValue[string](parent, keyHeadline)
-	highlights, _ := graph.GetStateValue[string](parent, keyHighlights)
-	statsAngle, _ := graph.GetStateValue[string](parent, keyStatsAngle)
-	draft := strings.TrimSpace(result.LastResponse)
-	return graph.State{
-		keyEditorInput: strings.Join([]string{
-			"GAME_JSON:",
-			gameJSON,
-			"HEADLINE:",
-			headline,
-			"HIGHLIGHTS:",
-			highlights,
-			"STATS_ANGLE:",
-			statsAngle,
-			"DRAFT:",
-			draft,
-		}, "\n\n"),
-	}
+	_ = "STUB: not implemented"
+	return *new(graph.State)
 }
 
 func storeFinal(parent graph.State, result graph.SubgraphResult) graph.State {
-	final := strings.TrimSpace(result.LastResponse)
-	return graph.State{
-		keyFinalRecap:              final,
-		graph.StateKeyLastResponse: final,
-	}
+	_ = "STUB: not implemented"
+	return *new(graph.State)
 }
 
-func intPtr(value int) *int {
-	return &value
-}
+func intPtr(value int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(value float64) *float64 {
-	return &value
-}
+func floatPtr(value float64) *float64 { _ = "STUB: not implemented"; return nil }
 
 const headlineInstruction = `生成标题。`
 

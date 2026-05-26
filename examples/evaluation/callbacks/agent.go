@@ -10,38 +10,13 @@ package main
 
 import (
 	"context"
-	"math"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 func newCalculatorAgent(modelName string, stream bool) agent.Agent {
-	calculatorTool := function.NewFunctionTool(
-		calculate,
-		function.WithName("calculator"),
-		function.WithDescription("Perform arithmetic operations including add, subtract, multiply, and divide."),
-	)
-
-	genCfg := model.GenerationConfig{
-		MaxTokens:   intPtr(512),
-		Temperature: floatPtr(0.0),
-		Stream:      stream,
-	}
-
-	return llmagent.New(
-		"calculator-agent",
-		llmagent.WithModel(openai.New(modelName)),
-		llmagent.WithTools([]tool.Tool{calculatorTool}),
-		llmagent.WithInstruction("Use the calculator function tool for every math problem."),
-		llmagent.WithDescription("Calculator agent demonstrating function calling for evaluation workflow."),
-		llmagent.WithGenerationConfig(genCfg),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 type calculatorArgs struct {
@@ -58,33 +33,10 @@ type calculatorResult struct {
 }
 
 func calculate(_ context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch strings.ToLower(args.Operation) {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B != 0 {
-			result = args.A / args.B
-		}
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	}
-	return calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    result,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
-func intPtr(v int) *int {
-	return &v
-}
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(v float64) *float64 {
-	return &v
-}
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

@@ -10,11 +10,7 @@
 package engine
 
 import (
-	"errors"
-	"fmt"
-
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
-	isurface "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/surface"
 )
 
 type structureState struct {
@@ -25,79 +21,14 @@ type structureState struct {
 }
 
 func newStructureState(snapshot *astructure.Snapshot) (*structureState, error) {
-	if snapshot == nil {
-		return nil, errors.New("structure snapshot is nil")
-	}
-	if snapshot.StructureID == "" {
-		return nil, errors.New("structure id is empty")
-	}
-	nodeIndex := make(map[string]astructure.Node, len(snapshot.Nodes))
-	for _, node := range snapshot.Nodes {
-		if node.NodeID == "" {
-			return nil, errors.New("node id is empty")
-		}
-		if _, ok := nodeIndex[node.NodeID]; ok {
-			return nil, fmt.Errorf("duplicate node id %q", node.NodeID)
-		}
-		nodeIndex[node.NodeID] = node
-	}
-	supportedSurfaces := make([]astructure.Surface, 0, len(snapshot.Surfaces))
-	for _, surface := range snapshot.Surfaces {
-		if !isurface.IsSupportedType(surface.Type) {
-			continue
-		}
-		supportedSurfaces = append(supportedSurfaces, surface)
-	}
-	surfaceIndex, err := isurface.BuildIndex(supportedSurfaces)
-	if err != nil {
-		return nil, fmt.Errorf("build surface index: %w", err)
-	}
-	knownSurfaceIDs, err := buildKnownSurfaceIDs(snapshot.Surfaces, nodeIndex)
-	if err != nil {
-		return nil, err
-	}
-	seenNodeTypes := make(map[string]struct{}, len(supportedSurfaces))
-	for _, surface := range supportedSurfaces {
-		if _, ok := nodeIndex[surface.NodeID]; !ok {
-			return nil, fmt.Errorf("surface %q references unknown node id %q", surface.SurfaceID, surface.NodeID)
-		}
-		nodeTypeKey := fmt.Sprintf("%s\x00%s", surface.NodeID, surface.Type)
-		if _, ok := seenNodeTypes[nodeTypeKey]; ok {
-			return nil, fmt.Errorf(
-				"duplicate surface type %q for node id %q",
-				surface.Type,
-				surface.NodeID,
-			)
-		}
-		seenNodeTypes[nodeTypeKey] = struct{}{}
-	}
-	return &structureState{
-		snapshot:        snapshot,
-		nodeIndex:       nodeIndex,
-		surfaceIndex:    surfaceIndex,
-		knownSurfaceIDs: knownSurfaceIDs,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func buildKnownSurfaceIDs(
 	surfaces []astructure.Surface,
 	nodeIndex map[string]astructure.Node,
 ) (map[string]struct{}, error) {
-	known := make(map[string]struct{}, len(surfaces))
-	for _, surface := range surfaces {
-		if surface.SurfaceID == "" {
-			return nil, errors.New("surface id is empty")
-		}
-		if surface.NodeID == "" {
-			return nil, errors.New("surface node id is empty")
-		}
-		if _, ok := nodeIndex[surface.NodeID]; !ok {
-			return nil, fmt.Errorf("surface %q references unknown node id %q", surface.SurfaceID, surface.NodeID)
-		}
-		if _, ok := known[surface.SurfaceID]; ok {
-			return nil, fmt.Errorf("duplicate surface id %q", surface.SurfaceID)
-		}
-		known[surface.SurfaceID] = struct{}{}
-	}
-	return known, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

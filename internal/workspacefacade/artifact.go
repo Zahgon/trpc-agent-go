@@ -14,8 +14,6 @@ import (
 	"context"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/artifact"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 )
 
 // DefaultArtifactMaxBytes is the default per-file cap for artifact
@@ -35,32 +33,12 @@ const (
 // invocation persist artifacts?". ArtifactSaveSkipReason, WithArtifactContext
 // and tool/workspaceexec.SupportsArtifactSave all forward to this helper so
 // the predicate stays consistent across the codebase.
-func ArtifactSaveSkipReasonInv(inv *agent.Invocation) string {
-	if inv == nil {
-		return SaveReasonNoInvocation
-	}
-	if inv.ArtifactService == nil {
-		return SaveReasonNoService
-	}
-	if inv.Session == nil {
-		return SaveReasonNoSession
-	}
-	if inv.Session.AppName == "" || inv.Session.UserID == "" || inv.Session.ID == "" {
-		return SaveReasonNoSessionIDs
-	}
-	return ""
-}
+func ArtifactSaveSkipReasonInv(inv *agent.Invocation) string { _ = "STUB: not implemented"; return "" }
 
 // ArtifactSaveSkipReason returns a non-empty string explaining why the
 // current invocation cannot persist artifacts, or "" when persistence
 // is supported.
-func ArtifactSaveSkipReason(ctx context.Context) string {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok {
-		return SaveReasonNoInvocation
-	}
-	return ArtifactSaveSkipReasonInv(inv)
-}
+func ArtifactSaveSkipReason(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
 // WithArtifactContext copies the invocation's artifact service and
 // session info onto ctx so codeexecutor backends can persist files.
@@ -68,15 +46,6 @@ func ArtifactSaveSkipReason(ctx context.Context) string {
 // ArtifactSaveSkipReason — if any prerequisite is missing, ctx is
 // returned as-is so backends never receive a half-populated session.
 func WithArtifactContext(ctx context.Context) context.Context {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || ArtifactSaveSkipReasonInv(inv) != "" {
-		return ctx
-	}
-	ctxIO := codeexecutor.WithArtifactService(ctx, inv.ArtifactService)
-	ctxIO = codeexecutor.WithArtifactSession(ctxIO, artifact.SessionInfo{
-		AppName:   inv.Session.AppName,
-		UserID:    inv.Session.UserID,
-		SessionID: inv.Session.ID,
-	})
-	return ctxIO
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

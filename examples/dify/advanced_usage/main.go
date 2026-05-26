@@ -37,58 +37,19 @@ func (c *CustomEventConverter) ConvertToEvent(
 	agentName string,
 	invocation *agent.Invocation,
 ) *event.Event {
-	var content string
-	if resp != nil {
-		// Add custom formatting and metadata
-		content = fmt.Sprintf("[Dify:%s] %s", resp.ConversationID, resp.Answer)
-	}
-
-	message := model.Message{
-		Role:    model.RoleAssistant,
-		Content: content,
-	}
-
-	evt := event.New(
-		invocation.InvocationID,
-		agentName,
-		event.WithResponse(&model.Response{
-			Choices:   []model.Choice{{Message: message}},
-			Timestamp: time.Now(),
-			Created:   time.Now().Unix(),
-			Done:      true,
-		}),
-	)
-
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Add custom formatting and metadata
 
 func (c *CustomEventConverter) ConvertStreamingToEvent(
 	resp difySDK.ChatMessageStreamChannelResponse,
 	agentName string,
 	invocation *agent.Invocation,
 ) *event.Event {
-	if resp.Answer == "" {
-		return nil
-	}
-
-	message := model.Message{
-		Role:    model.RoleAssistant,
-		Content: resp.Answer,
-	}
-
-	evt := event.New(
-		invocation.InvocationID,
-		agentName,
-		event.WithResponse(&model.Response{
-			Object:    model.ObjectTypeChatCompletionChunk,
-			Choices:   []model.Choice{{Delta: message}},
-			Timestamp: time.Now(),
-			Created:   time.Now().Unix(),
-			IsPartial: true,
-		}),
-	)
-
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CustomRequestConverter demonstrates how to customize requests sent to Dify
@@ -99,64 +60,28 @@ func (c *CustomRequestConverter) ConvertToDifyRequest(
 	invocation *agent.Invocation,
 	isStream bool,
 ) (*difySDK.ChatMessageRequest, error) {
+	_ = "STUB: not implemented"
 	// Extract user preferences from runtime state
-	userPrefs := extractUserPreferences(invocation.RunOptions.RuntimeState)
-
-	req := &difySDK.ChatMessageRequest{
-		Query:  invocation.Message.Content,
-		Inputs: make(map[string]any),
-	}
-
-	// Set user ID
-	if invocation.Session != nil {
-		req.User = invocation.Session.UserID
-	}
-	if req.User == "" {
-		req.User = "anonymous"
-	}
-
-	// Add user preferences to inputs
-	for key, value := range userPrefs {
-		req.Inputs[key] = value
-	}
-
-	// Add context information
-	req.Inputs["timestamp"] = time.Now().Format(time.RFC3339)
-	req.Inputs["invocation_id"] = invocation.InvocationID
-
-	// Handle streaming
-	if isStream {
-		req.ResponseMode = "streaming"
-	}
-
-	// Add conversation context if available
-	if conversationID, ok := invocation.RunOptions.RuntimeState["conversation_id"]; ok {
-		req.ConversationID = conversationID.(string)
-	}
-
-	return req, nil
+	return nil, nil
 }
+
+// Set user ID
+
+// Add user preferences to inputs
+
+// Add context information
+
+// Handle streaming
+
+// Add conversation context if available
 
 // extractUserPreferences extracts user preferences from runtime state
 func extractUserPreferences(state map[string]any) map[string]any {
-	prefs := make(map[string]any)
-
-	// Extract common preferences
-	if lang, ok := state["user_language"]; ok {
-		prefs["language"] = lang
-	}
-	if tone, ok := state["response_tone"]; ok {
-		prefs["tone"] = tone
-	}
-	if format, ok := state["response_format"]; ok {
-		prefs["format"] = format
-	}
-	if expertise, ok := state["expertise_level"]; ok {
-		prefs["expertise_level"] = expertise
-	}
-
-	return prefs
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Extract common preferences
 
 func main() {
 	// Get Dify configuration

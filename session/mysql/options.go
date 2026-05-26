@@ -12,7 +12,6 @@ package mysql
 import (
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 	"trpc.group/trpc-go/trpc-agent-go/session/summary"
 )
@@ -96,17 +95,14 @@ var (
 )
 
 func (opts ServiceOpts) shouldCascadeFullSessionSummary() bool {
-	if opts.cascadeFullSessionSummary == nil {
-		return true
-	}
-	return *opts.cascadeFullSessionSummary
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithSessionEventLimit sets the limit of events in a session.
 func WithSessionEventLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionEventLimit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithMySQLClientDSN sets the MySQL DSN connection string directly (recommended).
@@ -116,11 +112,7 @@ func WithSessionEventLimit(limit int) ServiceOpt {
 // - Simplifies configuration (all connection params in one string)
 // - Supports all MySQL connection parameters
 // - Is consistent with memory/mysql and storage/mysql
-func WithMySQLClientDSN(dsn string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.dsn = dsn
-	}
-}
+func WithMySQLClientDSN(dsn string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMySQLInstance uses a MySQL instance from storage.
 // The instance must be registered via storage.RegisterMySQLInstance() before use.
@@ -128,132 +120,92 @@ func WithMySQLClientDSN(dsn string) ServiceOpt {
 // Note: WithMySQLClientDSN has higher priority than WithMySQLInstance.
 // If both are specified, DSN will be used.
 func WithMySQLInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets the extra options for the MySQL session service.
 // These options will be passed to the MySQL client builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSessionTTL sets the TTL for session state and event list.
 // If not set or set to 0, sessions will not expire.
 func WithSessionTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppStateTTL sets the TTL for app state.
 // If not set or set to 0, app state will not expire.
 func WithAppStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithUserStateTTL sets the TTL for user state.
 // If not set or set to 0, user state will not expire.
 func WithUserStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.userStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEnableAsyncPersist enables async persistence for session state and event list.
 // Default is false.
 func WithEnableAsyncPersist(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.enableAsyncPersist = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncPersisterNum sets the number of workers for async persistence.
-func WithAsyncPersisterNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncPersisterNum
-		}
-		opts.asyncPersisterNum = num
-	}
-}
+func WithAsyncPersisterNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummarizer injects a summarizer for LLM-based summaries.
 func WithSummarizer(s summary.SessionSummarizer) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summarizer = s
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncSummaryNum sets the number of workers for async summary processing.
-func WithAsyncSummaryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncSummaryNum
-		}
-		opts.asyncSummaryNum = num
-	}
-}
+func WithAsyncSummaryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryQueueSize sets the size of the summary job queue.
-func WithSummaryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = defaultSummaryQueueSize
-		}
-		opts.summaryQueueSize = size
-	}
-}
+func WithSummaryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryJobTimeout sets the timeout for processing a single summary job.
 // If not set, a sensible default will be applied.
 func WithSummaryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if timeout <= 0 {
-			return
-		}
-		opts.summaryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummaryFilterAllowlist restricts which non-empty filterKeys may trigger
 // branch summaries. Keys use the same exact format as event filter keys.
 func WithSummaryFilterAllowlist(filterKeys ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summaryFilterAllowlist = append([]string{}, filterKeys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCascadeFullSessionSummary controls whether an allowed branch summary also
 // refreshes the full-session summary keyed by SummaryFilterKeyAllContents.
 func WithCascadeFullSessionSummary(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		enabled := enable
-		opts.cascadeFullSessionSummary = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSoftDelete enables or disables soft delete.
 // When enabled (default), DELETE operations set deleted_at timestamp instead of removing records.
 // When disabled, DELETE operations permanently remove records from database.
-func WithSoftDelete(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.softDelete = enable
-	}
-}
+func WithSoftDelete(enable bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCleanupInterval sets the interval for automatic cleanup of expired data.
 // If set to 0, automatic cleanup will be determined based on TTL configuration.
 // Default cleanup interval is 5 minutes if any TTL is configured.
 func WithCleanupInterval(interval time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.cleanupInterval = interval
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSkipDBInit skips database initialization (table and index creation).
@@ -261,11 +213,7 @@ func WithCleanupInterval(interval time.Duration) ServiceOpt {
 // - User doesn't have DDL permissions
 // - Tables are managed by migration tools
 // - Running in production environment where schema is pre-created
-func WithSkipDBInit(skip bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithTablePrefix sets a prefix for all table names.
 // For example, with prefix "trpc", tables will be named:
@@ -277,32 +225,20 @@ func WithSkipDBInit(skip bool) ServiceOpt {
 // "trpc" and "trpc_" both result in "trpc_" prefix.
 //
 // Security: Uses internal/session/sqldb.ValidateTablePrefix to prevent SQL injection.
-func WithTablePrefix(prefix string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if prefix == "" {
-			opts.tablePrefix = ""
-			return
-		}
+func WithTablePrefix(prefix string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
-		// Use the common validation logic from internal/session/sqldb
-		sqldb.MustValidateTablePrefix(prefix)
-
-		opts.tablePrefix = prefix
-	}
-}
+// Use the common validation logic from internal/session/sqldb
 
 // WithAppendEventHook adds AppendEvent hooks.
 func WithAppendEventHook(hooks ...session.AppendEventHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appendEventHooks = append(opts.appendEventHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithGetSessionHook adds GetSession hooks.
 func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.getSessionHooks = append(opts.getSessionHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithTDSQLSharding enables TDSQL distributed instance mode.
@@ -314,8 +250,4 @@ func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
 //
 // Constraint: user_id must be ASCII-only. TDSQL proxy does not convert
 // character sets; non-ASCII shardkey values may cause routing instability.
-func WithTDSQLSharding(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.tdsqlSharding = enable
-	}
-}
+func WithTDSQLSharding(enable bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }

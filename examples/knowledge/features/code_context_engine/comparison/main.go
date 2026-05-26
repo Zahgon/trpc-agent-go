@@ -15,17 +15,14 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	openaimodel "trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -188,18 +185,11 @@ func main() {
 }
 
 func newAgentModel(modelName string) model.Model {
-	return openaimodel.New(modelName)
+	_ = "STUB: not implemented"
+	return *new(model.Model)
 }
 
-func defaultCases() []comparisonCase {
-	return []comparisonCase{
-		{
-			Name:        "multi_agent_session_isolation",
-			Description: "Ask how sub-agents share or isolate session state / message history in a multi-agent setup.",
-			Prompt:      "In trpc-agent-go's multi-agent system, when a coordinator LLMAgent calls a sub-agent via AgentTool or via WithSubAgents, how is session state isolated between them? Please explain: (1) whether they share the same session by default, (2) what the MessageFilterMode values (FullContext / RequestContext / IsolatedRequest / IsolatedInvocation) mean and when each should be used, (3) how GraphAgent's WithSubgraphIsolatedMessages differs from LLMAgent.WithMessageFilterMode(IsolatedInvocation) especially for multi-turn tool calling, and (4) how skill state keys are scoped between coordinator and sub-agent. Cite exact function / option names and file paths.",
-		},
-	}
-}
+func defaultCases() []comparisonCase { _ = "STUB: not implemented"; return nil }
 
 func runAgentInvocation(
 	ctx context.Context,
@@ -208,88 +198,15 @@ func runAgentInvocation(
 	sessionID string,
 	prompt string,
 ) (*agentRunResult, error) {
-	eventCh, err := r.Run(ctx, userID, sessionID, model.NewUserMessage(prompt))
-	if err != nil {
-		return nil, fmt.Errorf("run failed: %w", err)
-	}
-
-	result := &agentRunResult{}
-	seenToolCalls := map[string]int{}
-	seenToolResults := map[string]int{}
-	for evt := range eventCh {
-		if evt == nil {
-			continue
-		}
-		if evt.Error != nil {
-			return result, fmt.Errorf("runner event error: %s", evt.Error.Message)
-		}
-		if evt.Response == nil || len(evt.Response.Choices) == 0 {
-			continue
-		}
-		for _, choice := range evt.Response.Choices {
-			for _, toolCall := range choice.Message.ToolCalls {
-				trace := toolCallTrace{
-					CallID:    toolCall.ID,
-					ToolName:  toolCall.Function.Name,
-					Arguments: string(toolCall.Function.Arguments),
-				}
-				if idx, ok := seenToolCalls[toolCall.ID]; ok && toolCall.ID != "" {
-					result.ToolCalls[idx] = trace
-					continue
-				}
-				if toolCall.ID != "" {
-					seenToolCalls[toolCall.ID] = len(result.ToolCalls)
-				}
-				result.ToolCalls = append(result.ToolCalls, trace)
-			}
-			if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-				trace := toolResultTrace{
-					CallID:   choice.Message.ToolID,
-					ToolName: choice.Message.ToolName,
-					Content:  choice.Message.Content,
-				}
-				if idx, ok := seenToolResults[choice.Message.ToolID]; ok {
-					result.ToolResults[idx] = trace
-				} else {
-					seenToolResults[choice.Message.ToolID] = len(result.ToolResults)
-					result.ToolResults = append(result.ToolResults, trace)
-				}
-			}
-			if evt.IsFinalResponse() && choice.Message.Role == model.RoleAssistant && strings.TrimSpace(choice.Message.Content) != "" {
-				result.FinalAnswer = strings.TrimSpace(choice.Message.Content)
-			}
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func printCaseHeader(c comparisonCase) {
-	fmt.Println("\n" + strings.Repeat("-", 72))
-	fmt.Printf("CASE :: %s\n", c.Name)
-	fmt.Println(strings.Repeat("-", 72))
-	fmt.Printf("Description: %s\n", c.Description)
-	fmt.Printf("Prompt: %s\n", c.Prompt)
-}
+func printCaseHeader(c comparisonCase) { _ = "STUB: not implemented"; return }
 
 func printAgentSummary(label string, result *agentRunResult, err error) {
-	fmt.Printf("\n[%s]\n", label)
-	if err != nil {
-		fmt.Printf("  error: %v\n", err)
-		return
-	}
-	if result == nil {
-		fmt.Println("  no result")
-		return
-	}
-	fmt.Printf("  tool_calls: %d | tool_results: %d\n", len(result.ToolCalls), len(result.ToolResults))
-	if result.FinalAnswer != "" {
-		fmt.Printf("  final_answer: %s\n", compactText(result.FinalAnswer, 220))
-	} else {
-		fmt.Println("  final_answer: <empty>")
-	}
-	if len(result.ToolCalls) > 0 {
-		fmt.Printf("  first_tool: %s\n", result.ToolCalls[0].ToolName)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func writeCaseReport(
@@ -301,105 +218,17 @@ func writeCaseReport(
 	augmentResult *agentRunResult,
 	augmentErr error,
 ) (string, error) {
-	var b strings.Builder
-	b.WriteString("# Code Context Agent Comparison\n\n")
-	b.WriteString("## Case\n")
-	b.WriteString(fmt.Sprintf("- Name: %s\n", c.Name))
-	b.WriteString(fmt.Sprintf("- Description: %s\n", c.Description))
-	b.WriteString(fmt.Sprintf("- Prompt: %s\n", c.Prompt))
-	b.WriteString(fmt.Sprintf("- Run Mode: %s\n", mode))
-
-	if mode == runModeBoth || mode == runModeLocal {
-		b.WriteString("\n## Local Agent + code_search\n")
-		b.WriteString(renderAgentReport(localResult, localErr))
-	}
-
-	if mode == runModeBoth || mode == runModeAugment {
-		b.WriteString("\n## Augment Agent + MCP\n")
-		b.WriteString(renderAgentReport(augmentResult, augmentErr))
-	}
-
-	path := filepath.Join(dir, c.Name+".md")
-	if err := os.WriteFile(path, []byte(b.String()), 0o644); err != nil {
-		return "", err
-	}
-	return path, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func renderAgentReport(result *agentRunResult, err error) string {
-	if err != nil && result == nil {
-		return fmt.Sprintf("Error: %v\n", err)
-	}
-	if result == nil {
-		return "Not executed.\n"
-	}
-	var b strings.Builder
-	if err != nil {
-		b.WriteString(fmt.Sprintf("> Error: %v\n\n", err))
-	}
-	b.WriteString("### Final Answer\n")
-	if strings.TrimSpace(result.FinalAnswer) == "" {
-		b.WriteString("<empty>\n")
-	} else {
-		b.WriteString("```text\n")
-		b.WriteString(strings.TrimSpace(result.FinalAnswer))
-		b.WriteString("\n```\n")
-	}
-
-	b.WriteString("\n### Tool Calls\n")
-	if len(result.ToolCalls) == 0 {
-		b.WriteString("No tool calls.\n")
-	} else {
-		for i, call := range result.ToolCalls {
-			b.WriteString(fmt.Sprintf("#### [%d] %s\n", i+1, call.ToolName))
-			b.WriteString(fmt.Sprintf("- Call ID: `%s`\n", call.CallID))
-			b.WriteString("- Arguments:\n")
-			b.WriteString("```json\n")
-			b.WriteString(prettyToolPayload(call.Arguments))
-			b.WriteString("\n```\n")
-		}
-	}
-
-	b.WriteString("\n### Tool Results\n")
-	if len(result.ToolResults) == 0 {
-		b.WriteString("No tool results.\n")
-	} else {
-		for i, toolResult := range result.ToolResults {
-			b.WriteString(fmt.Sprintf("#### [%d] %s\n", i+1, toolResult.ToolName))
-			b.WriteString(fmt.Sprintf("- Call ID: `%s`\n", toolResult.CallID))
-			b.WriteString("- Content:\n")
-			b.WriteString("```json\n")
-			b.WriteString(prettyToolPayload(toolResult.Content))
-			b.WriteString("\n```\n")
-		}
-	}
-	return b.String()
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func compactText(text string, limit int) string {
-	text = strings.Join(strings.Fields(strings.TrimSpace(text)), " ")
-	if len(text) <= limit {
-		return text
-	}
-	return text[:limit] + "..."
-}
+func compactText(text string, limit int) string { _ = "STUB: not implemented"; return "" }
 
-func prettyToolPayload(raw string) string {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return "{}"
-	}
-	var payload any
-	if err := json.Unmarshal([]byte(trimmed), &payload); err == nil {
-		return prettyJSON(payload)
-	}
-	return trimmed
-}
+func prettyToolPayload(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func prettyJSON(value any) string {
-	data, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return fmt.Sprintf("%v", value)
-	}
-	return string(data)
-}
+func prettyJSON(value any) string { _ = "STUB: not implemented"; return "" }

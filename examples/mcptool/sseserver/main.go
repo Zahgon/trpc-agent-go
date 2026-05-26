@@ -14,7 +14,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -65,56 +64,18 @@ func main() {
 
 // Handle recipe tool.
 func handleRecipe(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	_ = "STUB: not implemented"
 	// Extract dish parameter.
-	dish := "Red braised pork"
-	if dishArg, ok := req.Params.Arguments["dish"]; ok {
-		if dishStr, ok := dishArg.(string); ok && dishStr != "" {
-			dish = dishStr
-		}
-	}
-
-	// Return a simplified but real recipe.
-	result := "【Red braised pork】\n" +
-		"Main ingredients: 500g pork belly\n" +
-		"Seasoning: soy sauce, cooking wine, rock sugar, star anise\n" +
-		"Steps:\n" +
-		"1. Cut pork into pieces and boil\n" +
-		"2. Cook sugar\n" +
-		"3. Add pork and cook\n" +
-		"4. Add seasoning and water\n" +
-		"5. Simmer for 40 minutes\n" +
-		"6. Stir-fry"
-	log.Printf("Recipe request: dish=%s", dish)
-
-	return &mcp.CallToolResult{
-		Content: []mcp.Content{
-			mcp.NewTextContent(result),
-		},
-	}, nil
+	return nil, nil
 }
+
+// Return a simplified but real recipe.
 
 // Handle health tip tool.
 func handleHealthTip(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	_ = "STUB: not implemented"
 	// Extract category parameter.
-	category := "general"
-	if catArg, ok := req.Params.Arguments["category"]; ok {
-		if catStr, ok := catArg.(string); ok && catStr != "" {
-			category = catStr
-		}
-	}
-
-	// Return a simplified tip.
-	result := "【Health tips】\n" +
-		"1. Balanced diet\n" +
-		"2. Regular exercise\n" +
-		"3. Sufficient sleep\n" +
-		"4. Maintain a good attitude\n" +
-		"5. Regular physical examination"
-	log.Printf("Health tip request: category=%s", category)
-
-	return &mcp.CallToolResult{
-		Content: []mcp.Content{
-			mcp.NewTextContent(result),
-		},
-	}, nil
+	return nil, nil
 }
+
+// Return a simplified tip.

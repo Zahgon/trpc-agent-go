@@ -10,67 +10,20 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
-func (c *failoverChat) printBanner() {
-	fmt.Printf("🚀 Model failover chat with LLMAgent and Runner\n")
-	fmt.Printf("Primary model: %s (%s)\n", c.config.primaryModelName, c.config.primaryBaseURL)
-	fmt.Printf("Backup model: %s (%s)\n", c.config.backupModelName, c.config.backupBaseURL)
-	fmt.Printf("Streaming: %t\n", c.config.streaming)
-	fmt.Printf("Failover policy: switch before the first non-error chunk only.\n")
-	fmt.Println(strings.Repeat("=", 50))
-	fmt.Printf("✅ Chat ready! Session: %s\n\n", c.sessionID)
-}
+func (c *failoverChat) printBanner() { _ = "STUB: not implemented"; return }
 
-func printCommands() {
-	fmt.Println("💡 Commands:")
-	fmt.Println("   /new      - Start a new session")
-	fmt.Println("   /exit     - End the conversation")
-	fmt.Println()
-}
+func printCommands() { _ = "STUB: not implemented"; return }
 
 func (c *failoverChat) processResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("🤖 Assistant: ")
-	var output strings.Builder
-	for evt := range eventChan {
-		if evt == nil {
-			continue
-		}
-		if evt.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", evt.Error.Message)
-			return nil
-		}
-		if len(evt.Choices) == 0 {
-			if evt.Done {
-				break
-			}
-			continue
-		}
-		content := c.extractContent(evt.Choices[0])
-		if content != "" {
-			fmt.Print(content)
-			output.WriteString(content)
-		}
-		if evt.Done {
-			break
-		}
-	}
-	if output.Len() > 0 {
-		fmt.Println()
-	} else {
-		fmt.Println("(empty response)")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *failoverChat) extractContent(choice model.Choice) string {
-	if c.config.streaming {
-		return choice.Delta.Content
-	}
-	return choice.Message.Content
+	_ = "STUB: not implemented"
+	return ""
 }

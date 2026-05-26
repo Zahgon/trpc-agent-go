@@ -10,10 +10,6 @@
 package conversation
 
 import (
-	"context"
-
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/plugin"
 	"trpc.group/trpc-go/trpc-agent-go/session/summary"
 )
@@ -24,46 +20,20 @@ const pluginName = "openclaw_conversation"
 type Plugin struct{}
 
 // Name implements plugin.Plugin.
-func (Plugin) Name() string { return pluginName }
+func (Plugin) Name() string {
+	_ = "STUB: not implemented"
 
-// Register implements plugin.Plugin.
-func (Plugin) Register(r *plugin.Registry) {
-	if r == nil {
-		return
-	}
-	r.OnEvent(func(
-		_ context.Context,
-		invocation *agent.Invocation,
-		evt *event.Event,
-	) (*event.Event, error) {
-		if evt == nil || evt.Author != authorUser || invocation == nil {
-			return evt, nil
-		}
-		annotation, ok := AnnotationFromRuntimeState(
-			invocation.RunOptions.RuntimeState,
-		)
-		if !ok {
-			return evt, nil
-		}
-		if err := SetEventAnnotation(evt, annotation); err != nil {
-			return nil, err
-		}
-		return evt, nil
-	})
+	// Register implements plugin.Plugin.
+	return ""
 }
+
+func (Plugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 // PreSummaryHook rewrites summary input using persisted speaker metadata
 // when available.
 func PreSummaryHook(
 	in *summary.PreSummaryHookContext,
 ) error {
-	if in == nil || len(in.Events) == 0 {
-		return nil
-	}
-	text := BuildSummaryText(in.Events)
-	if text == "" {
-		return nil
-	}
-	in.Text = text
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -10,9 +10,6 @@
 package extension
 
 import (
-	"fmt"
-	"runtime/debug"
-
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -64,39 +61,8 @@ type Contributions struct {
 // When extensions is empty the function returns (nil, nil) so the
 // nil-Contributions short-circuit path on the consumer side stays simple.
 func Collect(extensions []Extension) (*Contributions, error) {
-	if len(extensions) == 0 {
-		return nil, nil
-	}
-	contrib := &Contributions{
-		agentCallbacks: agent.NewCallbacks(),
-		modelCallbacks: model.NewCallbacks(),
-		toolCallbacks:  tool.NewCallbacks(),
-	}
-	seen := make(map[string]struct{}, len(extensions))
-	for i, e := range extensions {
-		if e == nil {
-			return nil, fmt.Errorf("extension: nil extension at index %d", i)
-		}
-		name := e.Name()
-		if name == "" {
-			return nil, fmt.Errorf(
-				"extension: empty name at index %d (%T)", i, e,
-			)
-		}
-		if _, dup := seen[name]; dup {
-			return nil, fmt.Errorf(
-				"extension: duplicate name %q (extension index %d)", name, i,
-			)
-		}
-		seen[name] = struct{}{}
-
-		r := newRegistry(name, contrib.agentCallbacks, contrib.modelCallbacks, contrib.toolCallbacks)
-		if err := safeRegister(e, r, name, i); err != nil {
-			return nil, err
-		}
-		contrib.tools = append(contrib.tools, r.tools...)
-	}
-	return contrib, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func safeRegister(
@@ -105,83 +71,35 @@ func safeRegister(
 	name string,
 	index int,
 ) (err error) {
-	defer func() {
-		if recovered := recover(); recovered != nil {
-			err = fmt.Errorf(
-				"extension: panic during register %q at index %d: %v\n%s",
-				name,
-				index,
-				recovered,
-				string(debug.Stack()),
-			)
-		}
-	}()
-	e.Register(r)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // AgentCallbacks returns an independent copy of the contributed
 // agent callback chain, or nil when no extension contributed agent
 // callbacks.
-func (c *Contributions) AgentCallbacks() *agent.Callbacks {
-	if c == nil || !hasAgentContent(c.agentCallbacks) {
-		return nil
-	}
-	return c.agentCallbacks.Clone()
-}
+func (c *Contributions) AgentCallbacks() *agent.Callbacks { _ = "STUB: not implemented"; return nil }
 
 // ModelCallbacks returns an independent copy of the contributed
 // model callback chain, or nil when no extension contributed model
 // callbacks.
-func (c *Contributions) ModelCallbacks() *model.Callbacks {
-	if c == nil || !hasModelContent(c.modelCallbacks) {
-		return nil
-	}
-	return c.modelCallbacks.Clone()
-}
+func (c *Contributions) ModelCallbacks() *model.Callbacks { _ = "STUB: not implemented"; return nil }
 
 // ToolCallbacks returns an independent copy of the contributed tool
 // callback chain, or nil when no extension contributed tool
 // callbacks.
-func (c *Contributions) ToolCallbacks() *tool.Callbacks {
-	if c == nil || !hasToolContent(c.toolCallbacks) {
-		return nil
-	}
-	return c.toolCallbacks.Clone()
-}
+func (c *Contributions) ToolCallbacks() *tool.Callbacks { _ = "STUB: not implemented"; return nil }
 
 // Tools returns a shallow copy of the contributed tools in install
 // order. Tool values themselves are not cloned; consuming agents
 // should treat tool.Tool implementations as immutable after
 // construction.
-func (c *Contributions) Tools() []tool.Tool {
-	if c == nil || len(c.tools) == 0 {
-		return nil
-	}
-	return append([]tool.Tool(nil), c.tools...)
-}
+func (c *Contributions) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 // IsEmpty reports whether c carries no contributions. Convenience
 // helper for consumers that want to skip the merge pipeline
 // entirely when no extension actually populated anything.
-func (c *Contributions) IsEmpty() bool {
-	if c == nil {
-		return true
-	}
-	if len(c.tools) > 0 {
-		return false
-	}
-	if hasAgentContent(c.agentCallbacks) {
-		return false
-	}
-	if hasModelContent(c.modelCallbacks) {
-		return false
-	}
-	if hasToolContent(c.toolCallbacks) {
-		return false
-	}
-	return true
-}
+func (c *Contributions) IsEmpty() bool { _ = "STUB: not implemented"; return false }
 
 // hasAgentContent / hasModelContent / hasToolContent are tiny
 // content predicates. They live next to Contributions because consumers
@@ -190,16 +108,8 @@ func (c *Contributions) IsEmpty() bool {
 // the user-side; centralising the answer keeps the per-agent
 // merge code free of "is this empty Callbacks worth merging?"
 // boilerplate.
-func hasAgentContent(c *agent.Callbacks) bool {
-	return c != nil && (len(c.BeforeAgent) > 0 || len(c.AfterAgent) > 0)
-}
+func hasAgentContent(c *agent.Callbacks) bool { _ = "STUB: not implemented"; return false }
 
-func hasModelContent(c *model.Callbacks) bool {
-	return c != nil && (len(c.BeforeModel) > 0 || len(c.AfterModel) > 0)
-}
+func hasModelContent(c *model.Callbacks) bool { _ = "STUB: not implemented"; return false }
 
-func hasToolContent(c *tool.Callbacks) bool {
-	return c != nil &&
-		(len(c.BeforeTool) > 0 || len(c.AfterTool) > 0 ||
-			c.ToolResultMessages != nil)
-}
+func hasToolContent(c *tool.Callbacks) bool { _ = "STUB: not implemented"; return false }

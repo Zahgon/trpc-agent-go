@@ -11,7 +11,6 @@ package guardrail
 
 import (
 	"context"
-	"errors"
 
 	"trpc.group/trpc-go/trpc-agent-go/plugin"
 	"trpc.group/trpc-go/trpc-agent-go/plugin/guardrail/approval"
@@ -28,57 +27,17 @@ type Plugin struct {
 }
 
 // New creates a new guardrail plugin.
-func New(options ...Option) (*Plugin, error) {
-	opts := newOptions(options...)
-	return &Plugin{
-		name:            opts.name,
-		approval:        opts.approval,
-		promptInjection: opts.promptInjection,
-		unsafeIntent:    opts.unsafeIntent,
-	}, nil
-}
+func New(options ...Option) (*Plugin, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // Name implements plugin.Plugin.
 func (p *Plugin) Name() string {
-	return p.name
+	_ = "STUB: not implemented"
+
+	// Register implements plugin.Plugin.
+	return ""
 }
 
-// Register implements plugin.Plugin.
-func (p *Plugin) Register(r *plugin.Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	if p.unsafeIntent != nil {
-		p.unsafeIntent.Register(r)
-	}
-	if p.promptInjection != nil {
-		p.promptInjection.Register(r)
-	}
-	if p.approval != nil {
-		p.approval.Register(r)
-	}
-}
+func (p *Plugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 // Close implements plugin.Closer when sub-capabilities need cleanup.
-func (p *Plugin) Close(ctx context.Context) error {
-	var closeErr error
-	if p.promptInjection != nil {
-		closer, ok := any(p.promptInjection).(plugin.Closer)
-		if ok {
-			closeErr = errors.Join(closeErr, closer.Close(ctx))
-		}
-	}
-	if p.unsafeIntent != nil {
-		closer, ok := any(p.unsafeIntent).(plugin.Closer)
-		if ok {
-			closeErr = errors.Join(closeErr, closer.Close(ctx))
-		}
-	}
-	if p.approval != nil {
-		closer, ok := any(p.approval).(plugin.Closer)
-		if ok {
-			closeErr = errors.Join(closeErr, closer.Close(ctx))
-		}
-	}
-	return closeErr
-}
+func (p *Plugin) Close(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

@@ -13,8 +13,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // pgx driver for database/sql
 )
@@ -30,41 +28,26 @@ type clientBuilder func(ctx context.Context, builderOpts ...ClientBuilderOpt) (C
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the postgres client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the postgres client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// defaultClientBuilder is the default postgres client builder.
+	// It creates a database/sql connection using pgx driver.
+	new(clientBuilder)
 }
 
-// defaultClientBuilder is the default postgres client builder.
-// It creates a database/sql connection using pgx driver.
 func defaultClientBuilder(ctx context.Context, builderOpts ...ClientBuilderOpt) (Client, error) {
-	o := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(o)
-	}
-
-	if o.ConnString == "" {
-		return nil, errors.New("postgres: connection string is empty")
-	}
-
-	// Open database connection using pgx driver
-	db, err := sql.Open("pgx", o.ConnString)
-	if err != nil {
-		return nil, fmt.Errorf("postgres: open connection: %w", err)
-	}
-
-	// Verify connection
-	if err := db.PingContext(ctx); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("postgres: ping database: %w", err)
-	}
-
-	return &sqlClient{db: db}, nil
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
+
+// Open database connection using pgx driver
+
+// Verify connection
 
 // ClientBuilderOpt is the option for the postgres client.
 type ClientBuilderOpt func(*ClientBuilderOpts)
@@ -82,28 +65,27 @@ type ClientBuilderOpts struct {
 
 // WithClientConnString sets the postgres connection string for clientBuilder.
 func WithClientConnString(connString string) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ConnString = connString
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets the postgres client extra options for clientBuilder.
 // This option is mainly used for customized postgres client builders.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ExtraOptions = append(opts.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // RegisterPostgresInstance registers a postgres instance with the given options.
 func RegisterPostgresInstance(name string, opts ...ClientBuilderOpt) {
-	postgresRegistry[name] = append(postgresRegistry[name], opts...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetPostgresInstance gets the postgres instance options by name.
 func GetPostgresInstance(name string) ([]ClientBuilderOpt, bool) {
-	instance, ok := postgresRegistry[name]
-	return instance, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // Client defines the interface for PostgreSQL operations.
@@ -142,69 +124,40 @@ type sqlClient struct {
 
 // ExecContext executes a query that doesn't return rows.
 func (c *sqlClient) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
-	return c.db.ExecContext(ctx, query, args...)
+	_ = "STUB: not implemented"
+	return *new(sql.Result), nil
 }
 
 // Query executes a query that returns rows and passes them to the handler.
 // It automatically closes the rows after the handler completes or panics.
 func (c *sqlClient) Query(ctx context.Context, handler HandlerFunc, query string, args ...any) error {
-	rows, err := c.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("query: %w", err)
-	}
-
-	// Ensure rows are always closed, even on panic
-	defer rows.Close()
-
-	// Execute handler with rows
-	if err := handler(rows); err != nil {
-		return err
-	}
-
-	// Check for errors from iteration
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("rows iteration: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Ensure rows are always closed, even on panic
+
+// Execute handler with rows
+
+// Check for errors from iteration
 
 // Transaction executes a function within a transaction.
 // It automatically handles commit on success and rollback on error or panic.
 func (c *sqlClient) Transaction(ctx context.Context, fn TxFunc) error {
-	tx, err := c.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
-	}
-
-	// Ensure transaction is always finalized
-	defer func() {
-		if p := recover(); p != nil {
-			// Rollback on panic and re-panic
-			_ = tx.Rollback()
-			panic(p)
-		} else if err != nil {
-			// Rollback on error
-			_ = tx.Rollback()
-		}
-	}()
-
-	// Execute the transaction function
-	err = fn(tx)
-	if err != nil {
-		return err
-	}
-
-	// Commit the transaction
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("commit transaction: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Ensure transaction is always finalized
+
+// Rollback on panic and re-panic
+
+// Rollback on error
+
+// Execute the transaction function
+
+// Commit the transaction
+
 // Close closes the database connection pool and releases all resources.
 // It's safe to call Close multiple times.
-func (c *sqlClient) Close() error {
-	return c.db.Close()
-}
+func (c *sqlClient) Close() error { _ = "STUB: not implemented"; return nil }

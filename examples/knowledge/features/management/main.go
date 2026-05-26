@@ -195,83 +195,24 @@ func main() {
 }
 
 func showSources(ctx context.Context, kb *knowledge.BuiltinKnowledge) {
-	docInfos, err := kb.ShowDocumentInfo(ctx)
-	if err != nil {
-		fmt.Printf("   Error: %v\n", err)
-		return
-	}
-
-	// Count documents per source
-	sourceCounts := make(map[string]int)
-	sourceMetadata := make(map[string]map[string]any)
-	for _, info := range docInfos {
-		sourceCounts[info.SourceName]++
-		if sourceMetadata[info.SourceName] == nil {
-			sourceMetadata[info.SourceName] = filterInternalMetadata(info.AllMeta)
-		}
-	}
-
-	fmt.Printf("   Sources: %d, Total documents: %d\n", len(sourceCounts), len(docInfos))
-	for name, count := range sourceCounts {
-		fmt.Printf("   - %s: %d docs, metadata: %v\n", name, count, sourceMetadata[name])
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func printSearchResults(result *knowledge.SearchResult) {
-	fmt.Printf("   Found %d results:\n", len(result.Documents))
-	for i, doc := range result.Documents {
-		sourceName := ""
-		if name, ok := doc.Document.Metadata[source.MetaSourceName].(string); ok {
-			sourceName = name
-		}
-		content := doc.Document.Content
-		if len(content) > 80 {
-			content = content[:80] + "..."
-		}
-		fmt.Printf("   %d. [%s] score=%.3f: %s\n", i+1, sourceName, doc.Score, content)
-	}
-}
+// Count documents per source
+
+func printSearchResults(result *knowledge.SearchResult) { _ = "STUB: not implemented"; return }
 
 func printDocInfo(ctx context.Context, kb *knowledge.BuiltinKnowledge, label string) {
-	docInfos, err := kb.ShowDocumentInfo(ctx, knowledge.WithShowDocumentInfoFilter(map[string]any{
-		"topic": "llm",
-	}))
-	if err != nil {
-		log.Printf("   ❌ Failed to fetch docInfo: %v", err)
-		return
-	}
-	if len(docInfos) == 0 {
-		fmt.Printf("   ℹ️  No documents found for the filter\n")
-		return
-	}
-
-	docInfo := docInfos[0]
-	fmt.Printf("   📄 %s\n", label)
-	fmt.Printf("      ID: %s\n", docInfo.DocumentID)
-	fmt.Printf("      Source: %s\n", docInfo.SourceName)
-	fmt.Printf("      URI: %s\n", docInfo.URI)
-
-	// Filter out metadata keys starting with "trpc_agent_go"
-	filteredMeta := make(map[string]any)
-	for k, v := range docInfo.AllMeta {
-		if !strings.HasPrefix(k, "trpc_agent_go") {
-			filteredMeta[k] = v
-		}
-	}
-
-	// Print metadata nicely
-	fmt.Printf("      Metadata:\n")
-	for k, v := range filteredMeta {
-		fmt.Printf("        %s: %v\n", k, v)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// Filter out metadata keys starting with "trpc_agent_go"
+
+// Print metadata nicely
+
 func filterInternalMetadata(metadata map[string]any) map[string]any {
-	filtered := make(map[string]any)
-	for k, v := range metadata {
-		if !strings.HasPrefix(k, source.MetaPrefix) {
-			filtered[k] = v
-		}
-	}
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }

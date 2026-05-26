@@ -15,34 +15,16 @@ type options struct {
 	max    *int
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures LengthCriterion.
 type Option func(*options)
 
 // WithIgnore sets the ignore flag.
-func WithIgnore(ignore bool) Option {
-	return func(o *options) {
-		o.ignore = ignore
-	}
-}
+func WithIgnore(ignore bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMin sets the inclusive minimum length.
-func WithMin(min int) Option {
-	return func(o *options) {
-		o.min = &min
-	}
-}
+func WithMin(min int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMax sets the inclusive maximum length.
-func WithMax(max int) Option {
-	return func(o *options) {
-		o.max = &max
-	}
-}
+func WithMax(max int) Option { _ = "STUB: not implemented"; return *new(Option) }

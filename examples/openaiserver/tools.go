@@ -11,8 +11,6 @@ package main
 
 import (
 	"context"
-	"strings"
-	"time"
 )
 
 // Constants for supported calculator operations.
@@ -55,50 +53,21 @@ type timeResult struct {
 // calculate performs the requested mathematical operation.
 // It supports add, subtract, multiply, and divide operations.
 func calculate(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
+	_ = "STUB: not implemented"
+
 	// Select operation based on input.
-	switch strings.ToLower(args.Operation) {
-	case opAdd:
-		result = args.A + args.B
-	case opSubtract:
-		result = args.A - args.B
-	case opMultiply:
-		result = args.A * args.B
-	case opDivide:
-		if args.B != 0 {
-			result = args.A / args.B
-		}
-	}
-	return calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    result,
-	}, nil
+	return *new(calculatorResult), nil
 }
 
 // Time tool implementation.
 // getCurrentTime returns the current time for the specified timezone.
 // If the timezone is invalid or empty, it defaults to local time.
 func getCurrentTime(ctx context.Context, args timeArgs) (timeResult, error) {
-	loc := time.Local
-	zone := args.Timezone
-	// Attempt to load the specified timezone.
-	if zone != "" {
-		var err error
-		loc, err = time.LoadLocation(zone)
-		if err != nil {
-			loc = time.Local
-		}
-	}
-	now := time.Now().In(loc)
-	return timeResult{
-		Timezone: loc.String(),
-		Time:     now.Format("15:04:05"),
-		Date:     now.Format("2006-01-02"),
-		Weekday:  now.Weekday().String(),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(timeResult), nil
 }
+
+// Attempt to load the specified timezone.
 
 // This example demonstrates how to integrate tRPC agent orchestration
 // with LLM-based tools, providing a simple HTTP server compatible with

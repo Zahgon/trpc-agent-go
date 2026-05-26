@@ -23,115 +23,96 @@ type InvocationOptions func(*Invocation)
 
 // WithInvocationID set invocation id for the Invocation.
 func WithInvocationID(id string) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.InvocationID = id
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationAgent set agent for the Invocation.
 func WithInvocationAgent(agent Agent) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Agent = agent
-		if agent != nil {
-			inv.AgentName = agent.Info().Name
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationBranch set branch for the Invocation.
 func WithInvocationBranch(branch string) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Branch = branch
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationEndInvocation set endInvocation for the Invocation.
 func WithInvocationEndInvocation(endInvocation bool) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.EndInvocation = endInvocation
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationSession set session for the Invocation.
 func WithInvocationSession(session *session.Session) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Session = session
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationSessionService set session service for the Invocation.
 func WithInvocationSessionService(sessionService session.Service) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.SessionService = sessionService
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationModel set model for the Invocation.
 func WithInvocationModel(model model.Model) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Model = model
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationMessage set message for the Invocation.
 func WithInvocationMessage(message model.Message) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Message = message
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationRunOptions set runOptions for the Invocation.
 func WithInvocationRunOptions(runOptions RunOptions) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.RunOptions = runOptions
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationTransferInfo set transferInfo for the Invocation.
 func WithInvocationTransferInfo(transferInfo *TransferInfo) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.TransferInfo = transferInfo
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationStructuredOutput set structuredOutput for the Invocation.
 func WithInvocationStructuredOutput(structuredOutput *model.StructuredOutput) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.StructuredOutput = structuredOutput
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationStructuredOutputType set structuredOutputType for the Invocation.
 func WithInvocationStructuredOutputType(structuredOutputType reflect.Type) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.StructuredOutputType = structuredOutputType
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationMemoryService set memoryService for the Invocation.
 func WithInvocationMemoryService(memoryService memory.Service) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.MemoryService = memoryService
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationArtifactService set artifactService for the Invocation.
 func WithInvocationArtifactService(artifactService artifact.Service) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.ArtifactService = artifactService
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationPlugins sets the PluginManager for this invocation.
 func WithInvocationPlugins(pm PluginManager) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.Plugins = pm
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }
 
 // WithInvocationEventFilterKey set eventFilterKey for the Invocation.
 func WithInvocationEventFilterKey(key string) InvocationOptions {
-	return func(inv *Invocation) {
-		inv.eventFilterKey = key
-	}
+	_ = "STUB: not implemented"
+	return *new(InvocationOptions)
 }

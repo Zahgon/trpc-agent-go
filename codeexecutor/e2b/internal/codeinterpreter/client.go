@@ -10,21 +10,12 @@
 package codeinterpreter
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
-	"crypto/x509"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // ConnectionConfig holds the configuration needed to talk to the E2B API and
@@ -92,162 +83,26 @@ func (c *ConnectionConfig) init() {
 
 // newDefaultHTTPClient builds the default *http.Client used by the SDK.
 // this respects SSL_CERT_FILE and SSL_CERT_DIR.
-func newDefaultHTTPClient() *http.Client {
-	tlsCfg := buildTLSConfigFromEnv()
-	if tlsCfg == nil {
-		return &http.Client{}
-	}
-	tr, ok := http.DefaultTransport.(*http.Transport)
-	if !ok {
-		// Extremely unlikely, but fall back to a plain transport so we
-		// at least honor the custom trust store.
-		return &http.Client{Transport: &http.Transport{TLSClientConfig: tlsCfg}}
-	}
-	clone := tr.Clone()
-	clone.TLSClientConfig = tlsCfg
-	return &http.Client{Transport: clone}
-}
+func newDefaultHTTPClient() *http.Client { _ = "STUB: not implemented"; return nil }
+
+// Extremely unlikely, but fall back to a plain transport so we
+// at least honor the custom trust store.
 
 // buildTLSConfigFromEnv returns a *tls.Config populated with an expanded
 // RootCAs pool if SSL_CERT_FILE or SSL_CERT_DIR is set; otherwise returns
 // nil to signal "use Go's default behavior".
-func buildTLSConfigFromEnv() *tls.Config {
-	certFile := os.Getenv("SSL_CERT_FILE")
-	certDir := os.Getenv("SSL_CERT_DIR")
-	if certFile == "" && certDir == "" {
-		return nil
-	}
-
-	pool, err := x509.SystemCertPool()
-	if err != nil || pool == nil {
-		pool = x509.NewCertPool()
-	}
-
-	if certFile != "" {
-		if pem, err := os.ReadFile(certFile); err == nil {
-			if !pool.AppendCertsFromPEM(pem) {
-				log.Debugf("e2b: SSL_CERT_FILE=%q contained no valid PEM certificates", certFile)
-			}
-		} else {
-			log.Debugf("e2b: failed to read SSL_CERT_FILE=%q: %v", certFile, err)
-		}
-	}
-
-	if certDir != "" {
-		entries, err := os.ReadDir(certDir)
-		if err != nil {
-			log.Debugf("e2b: failed to read SSL_CERT_DIR=%q: %v", certDir, err)
-		} else {
-			for _, e := range entries {
-				if e.IsDir() {
-					continue
-				}
-				name := e.Name()
-				lower := strings.ToLower(name)
-				if !strings.HasSuffix(lower, ".pem") && !strings.HasSuffix(lower, ".crt") {
-					continue
-				}
-				p := filepath.Join(certDir, name)
-				pem, err := os.ReadFile(p)
-				if err != nil {
-					log.Debugf("e2b: failed to read cert %q: %v", p, err)
-					continue
-				}
-				if !pool.AppendCertsFromPEM(pem) {
-					log.Debugf("e2b: cert file %q contained no valid PEM certificates", p)
-				}
-			}
-		}
-	}
-
-	return &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
-}
+func buildTLSConfigFromEnv() *tls.Config { _ = "STUB: not implemented"; return nil }
 
 // APIBase returns the base URL for the E2B management API.
-func (c *ConnectionConfig) APIBase() string {
-	if c.APIURL != "" {
-		return strings.TrimRight(c.APIURL, "/")
-	}
-	scheme := "https"
-	if c.Debug {
-		scheme = "http"
-	}
-	return fmt.Sprintf("%s://api.%s", scheme, c.Domain)
-}
+func (c *ConnectionConfig) APIBase() string { _ = "STUB: not implemented"; return "" }
 
 // do is a low level helper that performs an HTTP request against the E2B API
 // and decodes the JSON response into `out` (if non-nil). It returns a typed
 // error on non-2xx responses.
 func (c *ConnectionConfig) do(ctx context.Context, method, path string, body any, out any) error {
-	var reader io.Reader
-	if body != nil {
-		b, err := json.Marshal(body)
-		if err != nil {
-			return fmt.Errorf("marshal request body: %w", err)
-		}
-		reader = bytes.NewReader(b)
-	}
-
-	u := c.APIBase() + path
-	req, err := http.NewRequestWithContext(ctx, method, u, reader)
-	if err != nil {
-		return err
-	}
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	req.Header.Set("Accept", "application/json")
-	if c.APIKey != "" {
-		req.Header.Set("X-API-Key", c.APIKey)
-	}
-	if c.AccessToken != "" {
-		req.Header.Set("X-Access-Token", c.AccessToken)
-	}
-	for k, v := range c.Headers {
-		req.Header.Set(k, v)
-	}
-
-	client := c.HTTPClient
-	if client.Timeout == 0 && c.RequestTimeout > 0 {
-		client = &http.Client{
-			Timeout:   c.RequestTimeout,
-			Transport: client.Transport,
-		}
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		var netErr interface{ Timeout() bool }
-		if errors.As(err, &netErr) && netErr.Timeout() {
-			return formatRequestTimeoutError()
-		}
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 400 {
-		body, _ := io.ReadAll(resp.Body)
-		return mapHTTPError(resp.StatusCode, string(body))
-	}
-	if out == nil {
-		return nil
-	}
-	return json.NewDecoder(resp.Body).Decode(out)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mapHTTPError translates an HTTP status code into the proper SDK error type.
-func mapHTTPError(status int, body string) error {
-	msg := strings.TrimSpace(body)
-	switch status {
-	case http.StatusNotFound:
-		return &NotFoundError{Message: msg}
-	case http.StatusUnauthorized, http.StatusForbidden:
-		return &AuthenticationError{Message: msg}
-	case http.StatusTooManyRequests:
-		return &RateLimitError{Message: msg}
-	case http.StatusBadGateway, http.StatusGatewayTimeout:
-		return &TimeoutError{Message: msg + ": This error is likely due to sandbox timeout. You can modify the sandbox timeout by passing 'Timeout' when starting the sandbox or by calling 'SetTimeout' on the sandbox with the desired timeout."}
-	default:
-		return &SandboxError{StatusCode: status, Message: msg}
-	}
-}
+func mapHTTPError(status int, body string) error { _ = "STUB: not implemented"; return nil }

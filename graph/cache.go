@@ -10,10 +10,6 @@
 package graph
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -48,25 +44,7 @@ type CachePolicy struct {
 
 // DefaultCachePolicy returns a best-effort default policy using canonical JSON
 // to produce a stable hash of the sanitized input.
-func DefaultCachePolicy() *CachePolicy {
-	return &CachePolicy{
-		KeyFunc: func(input any) ([]byte, error) {
-			canon, err := toCanonicalValue(input)
-			if err != nil {
-				return nil, err
-			}
-			b, err := json.Marshal(canon)
-			if err != nil {
-				return nil, err
-			}
-			sum := sha256.Sum256(b)
-			out := make([]byte, hex.EncodedLen(len(sum)))
-			hex.Encode(out, sum[:])
-			return out, nil
-		},
-		TTL: 0,
-	}
-}
+func DefaultCachePolicy() *CachePolicy { _ = "STUB: not implemented"; return nil }
 
 // InMemoryCache is a simple TTL cache backed by a nested map.
 // It is intended for single-process use and testing.
@@ -81,61 +59,29 @@ type cacheEntry struct {
 }
 
 // NewInMemoryCache creates a new in-memory cache instance.
-func NewInMemoryCache() *InMemoryCache {
-	return &InMemoryCache{data: make(map[string]map[string]cacheEntry)}
-}
+func NewInMemoryCache() *InMemoryCache { _ = "STUB: not implemented"; return nil }
 
 // Get implements Cache.
 func (c *InMemoryCache) Get(ns, key string) (any, bool) {
-	now := time.Now()
-	c.mu.RLock()
-	m := c.data[ns]
-	var ent cacheEntry
-	var ok bool
-	if m != nil {
-		ent, ok = m[key]
-	}
-	c.mu.RUnlock()
-	if !ok {
-		return nil, false
-	}
-	if !ent.exp.IsZero() && now.After(ent.exp) {
-		// lazy expire
-		c.mu.Lock()
-		if mm := c.data[ns]; mm != nil {
-			delete(mm, key)
-		}
-		c.mu.Unlock()
-		return nil, false
-	}
-	// Return a deep copy to avoid shared references.
-	return deepCopyAny(ent.v), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
+
+// lazy expire
+
+// Return a deep copy to avoid shared references.
 
 // Set implements Cache.
 func (c *InMemoryCache) Set(ns, key string, val any, ttl time.Duration) {
-	var exp time.Time
-	if ttl > 0 {
-		exp = time.Now().Add(ttl)
-	}
-	c.mu.Lock()
-	if _, ok := c.data[ns]; !ok {
-		c.data[ns] = make(map[string]cacheEntry)
-	}
-	// Store a deep copy to isolate cache storage from caller mutations.
-	c.data[ns][key] = cacheEntry{v: deepCopyAny(val), exp: exp}
-	c.mu.Unlock()
+	_ = "STUB: not implemented"
+	return
 }
 
+// Store a deep copy to isolate cache storage from caller mutations.
+
 // Clear implements Cache.
-func (c *InMemoryCache) Clear(ns string) {
-	c.mu.Lock()
-	delete(c.data, ns)
-	c.mu.Unlock()
-}
+func (c *InMemoryCache) Clear(ns string) { _ = "STUB: not implemented"; return }
 
 // buildCacheNamespace builds a per-node namespace for cache entries.
 // We scope by node ID only to align with the executor's node semantics.
-func buildCacheNamespace(nodeID string) string {
-	return fmt.Sprintf("%s:%s", CacheNamespacePrefix, nodeID)
-}
+func buildCacheNamespace(nodeID string) string { _ = "STUB: not implemented"; return "" }

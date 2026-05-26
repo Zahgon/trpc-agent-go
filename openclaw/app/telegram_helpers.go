@@ -11,10 +11,6 @@
 package app
 
 import (
-	"errors"
-	"strings"
-
-	tgch "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/channel/telegram"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/pairing"
 	tgapi "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/telegram"
 )
@@ -42,55 +38,23 @@ type telegramChannelConfig struct {
 }
 
 func resolveTelegramChannelSpecs(specs []pluginSpec) []pluginSpec {
-	out := make([]pluginSpec, 0, len(specs))
-	for _, spec := range specs {
-		typeName := strings.ToLower(strings.TrimSpace(spec.Type))
-		if typeName == telegramChannelType {
-			out = append(out, spec)
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func pairingStorePath(stateDir string, me tgapi.User) (string, error) {
-	bot := tgch.BotInfo{
-		ID:       me.ID,
-		Username: strings.TrimSpace(me.Username),
-	}
-	return tgch.PairingStorePath(stateDir, bot)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func telegramClientNetOptions(
 	cfg telegramChannelConfig,
 ) (tgapi.ClientNetOptions, error) {
-	httpTimeout, err := parseDuration(cfg.HTTPTimeout)
-	if err != nil {
-		return tgapi.ClientNetOptions{}, err
-	}
-
-	maxRetries := defaultTelegramMaxRetries
-	if cfg.MaxRetries != nil {
-		maxRetries = *cfg.MaxRetries
-	}
-	return tgapi.ClientNetOptions{
-		ProxyURL:   cfg.Proxy,
-		Timeout:    httpTimeout,
-		MaxRetries: maxRetries,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(tgapi.ClientNetOptions), nil
 }
 
 func pairingStoreOptions(rawPairingTTL string) ([]pairing.Option, error) {
-	ttlRaw := strings.TrimSpace(rawPairingTTL)
-	if ttlRaw == "" {
-		return nil, nil
-	}
-
-	ttl, err := parseDuration(ttlRaw)
-	if err != nil {
-		return nil, err
-	}
-	if ttl <= 0 {
-		return nil, errors.New("pairing: non-positive ttl")
-	}
-	return []pairing.Option{pairing.WithTTL(ttl)}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

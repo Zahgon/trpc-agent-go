@@ -12,10 +12,6 @@ package model
 
 import (
 	"context"
-	"fmt"
-	"runtime/debug"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 const (
@@ -116,105 +112,44 @@ type CallbacksOption func(*Callbacks)
 
 // WithContinueOnError sets whether to continue executing callbacks when an error occurs.
 func WithContinueOnError(continueOnError bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnError = continueOnError
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // WithContinueOnResponse sets whether to continue executing callbacks when a CustomResponse is returned.
 func WithContinueOnResponse(continueOnResponse bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnResponse = continueOnResponse
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // NewCallbacks creates a new Callbacks instance for model.
-func NewCallbacks(opts ...CallbacksOption) *Callbacks {
-	c := &Callbacks{}
-	for _, opt := range opts {
-		opt(c)
-	}
-	return c
-}
+func NewCallbacks(opts ...CallbacksOption) *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // Clone returns an independent copy of c, including callback lists
 // and execution options.
-func (c *Callbacks) Clone() *Callbacks {
-	if c == nil {
-		return nil
-	}
-	out := &Callbacks{
-		BeforeModel:        append([]BeforeModelCallbackStructured(nil), c.BeforeModel...),
-		AfterModel:         append([]AfterModelCallbackStructured(nil), c.AfterModel...),
-		continueOnError:    c.continueOnError,
-		continueOnResponse: c.continueOnResponse,
-	}
-	return out
-}
+func (c *Callbacks) Clone() *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // RegisterBeforeModel registers a before model callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterBeforeModel(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case BeforeModelCallbackStructured:
-		c.BeforeModel = append(c.BeforeModel, callback)
-	case BeforeModelCallback:
-		wrapped := func(ctx context.Context, args *BeforeModelArgs) (*BeforeModelResult, error) {
-			// Call old signature
-			resp, err := callback(ctx, args.Request)
-			if err != nil {
-				return nil, err
-			}
-			if resp != nil {
-				return &BeforeModelResult{CustomResponse: resp}, nil
-			}
-			return &BeforeModelResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.BeforeModel = append(c.BeforeModel, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterBeforeModel(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // RegisterAfterModel registers an after model callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterAfterModel(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case AfterModelCallbackStructured:
-		c.AfterModel = append(c.AfterModel, callback)
-	case AfterModelCallback:
-		wrapped := func(ctx context.Context, args *AfterModelArgs) (*AfterModelResult, error) {
-			// Call old signature
-			resp, err := callback(ctx, args.Request, args.Response, args.Error)
-			if err != nil {
-				return nil, err
-			}
-			if resp != nil {
-				return &AfterModelResult{CustomResponse: resp}, nil
-			}
-			return &AfterModelResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.AfterModel = append(c.AfterModel, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterAfterModel(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // handleCallbackError processes callback error and returns whether to continue.
 func (c *Callbacks) handleCallbackError(err error, firstErr *error) (shouldStop bool) {
-	if err == nil {
-		return false
-	}
-	if !c.continueOnError {
-		return true
-	}
-	if *firstErr == nil {
-		*firstErr = err
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -225,20 +160,7 @@ func (c *Callbacks) processBeforeModelResult(
 	ctx *context.Context,
 	lastResult **BeforeModelResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		*ctx = result.Context
-	}
-	if result.CustomResponse != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -247,19 +169,8 @@ func (c *Callbacks) finalizeBeforeModelResult(
 	lastResult *BeforeModelResult,
 	firstErr error,
 ) (*BeforeModelResult, error) {
-	if lastResult != nil && lastResult.CustomResponse != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult != nil && lastResult.Context == nil && lastResult.CustomResponse == nil {
-		return nil, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func recoverModelCallbackPanic(
@@ -267,20 +178,8 @@ func recoverModelCallbackPanic(
 	stage string,
 	errp *error,
 ) {
-	recovered := recover()
-	if recovered == nil {
-		return
-	}
-
-	stack := debug.Stack()
-	log.ErrorfContext(
-		ctx,
-		callbackPanicLogFmt,
-		stage,
-		recovered,
-		string(stack),
-	)
-	*errp = fmt.Errorf(callbackPanicErrFmt, stage, recovered)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *Callbacks) runBeforeModelCallback(
@@ -288,33 +187,16 @@ func (c *Callbacks) runBeforeModelCallback(
 	cb BeforeModelCallbackStructured,
 	args *BeforeModelArgs,
 ) (result *BeforeModelResult, err error) {
-	defer recoverModelCallbackPanic(ctx, beforeModelCallbackPanic, &err)
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunBeforeModel runs all before model callbacks in order.
 // This method uses the new structured callback interface.
 // If a callback returns a non-nil Context in the result, it will be used for subsequent callbacks.
 func (c *Callbacks) RunBeforeModel(ctx context.Context, args *BeforeModelArgs) (*BeforeModelResult, error) {
-	var lastResult *BeforeModelResult
-	var firstErr error
-
-	for _, cb := range c.BeforeModel {
-		result, err := c.runBeforeModelCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return nil, err
-		}
-
-		if c.processBeforeModelResult(result, &ctx, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeBeforeModelResult(lastResult, firstErr)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // processAfterModelResult processes after model callback result and updates context.
@@ -324,20 +206,7 @@ func (c *Callbacks) processAfterModelResult(
 	ctx *context.Context,
 	lastResult **AfterModelResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		*ctx = result.Context
-	}
-	if result.CustomResponse != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -346,19 +215,8 @@ func (c *Callbacks) finalizeAfterModelResult(
 	lastResult *AfterModelResult,
 	firstErr error,
 ) (*AfterModelResult, error) {
-	if lastResult != nil && lastResult.CustomResponse != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult != nil && lastResult.Context == nil && lastResult.CustomResponse == nil {
-		return nil, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Callbacks) runAfterModelCallback(
@@ -366,31 +224,14 @@ func (c *Callbacks) runAfterModelCallback(
 	cb AfterModelCallbackStructured,
 	args *AfterModelArgs,
 ) (result *AfterModelResult, err error) {
-	defer recoverModelCallbackPanic(ctx, afterModelCallbackPanic, &err)
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunAfterModel runs all after model callbacks in order.
 // This method uses the new structured callback interface.
 // If a callback returns a non-nil Context in the result, it will be used for subsequent callbacks.
 func (c *Callbacks) RunAfterModel(ctx context.Context, args *AfterModelArgs) (*AfterModelResult, error) {
-	var lastResult *AfterModelResult
-	var firstErr error
-
-	for _, cb := range c.AfterModel {
-		result, err := c.runAfterModelCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return nil, err
-		}
-
-		if c.processAfterModelResult(result, &ctx, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeAfterModelResult(lastResult, firstErr)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

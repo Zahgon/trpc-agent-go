@@ -22,23 +22,17 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"reflect"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	openaimodel "trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 )
@@ -159,124 +153,31 @@ func main() {
 	}
 }
 
-func defaultModelName() string {
-	if v := strings.TrimSpace(os.Getenv(envModelName)); v != "" {
-		return v
-	}
-	if v := strings.TrimSpace(os.Getenv(envOpenAIModel)); v != "" {
-		return v
-	}
-	return defaultModel
-}
+func defaultModelName() string { _ = "STUB: not implemented"; return "" }
 
 func buildGraph(modelName string, lines int) (*graph.Graph, error) {
-	schema := graph.MessagesStateSchema().
-		AddField(stateKeyParsedLines, graph.StateField{
-			Type:    reflect.TypeOf([]string{}),
-			Reducer: graph.StringSliceReducer,
-			Default: func() any { return []string{} },
-		})
-	sg := graph.NewStateGraph(schema)
-
-	llm := openaimodel.New(modelName)
-
-	sg.AddNode(nodeSetup, setupNode)
-	sg.AddLLMNode(
-		nodeLLM,
-		llm,
-		scriptInstruction(lines),
-		nil,
-		graph.WithStreamOutput(streamNameLLM),
-	)
-	sg.AddNode(nodeConsume, consumeNode)
-	sg.AddNode(nodeFinish, finishNode)
-
-	sg.SetEntryPoint(nodeSetup)
-	sg.SetFinishPoint(nodeFinish)
-
-	sg.AddEdge(nodeSetup, nodeLLM)
-	sg.AddEdge(nodeSetup, nodeConsume)
-	sg.AddJoinEdge([]string{nodeLLM, nodeConsume}, nodeFinish)
-
-	return sg.Compile()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func scriptInstruction(lines int) string {
-	const tmpl = `Return ONLY the script.
-
-Rules:
-- Exactly %d lines.
-- One utterance per line.
-- No numbering or bullets.
-- No markdown.`
-	return fmt.Sprintf(tmpl, lines)
-}
+func scriptInstruction(lines int) string { _ = "STUB: not implemented"; return "" }
 
 func setupNode(ctx context.Context, _ graph.State) (any, error) {
-	if inv, ok := agent.InvocationFromContext(ctx); !ok || inv == nil {
-		return nil, errors.New("missing invocation in context")
-	}
-	return graph.State{}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func consumeNode(ctx context.Context, state graph.State) (any, error) {
-	r, err := graph.OpenStreamReader(ctx, streamNameLLM)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-
-	emitter := graph.GetEventEmitterWithContext(ctx, state)
-
-	var lines []string
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		lines = append(lines, line)
-		_ = emitter.EmitText(line)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-	return graph.State{stateKeyParsedLines: lines}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func finishNode(_ context.Context, state graph.State) (any, error) {
-	lines, ok := graph.GetStateValue[[]string](state, stateKeyParsedLines)
-	if !ok {
-		return graph.State{
-			graph.StateKeyLastResponse: "parsed 0 lines",
-		}, nil
-	}
-	return graph.State{
-		graph.StateKeyLastResponse: fmt.Sprintf(
-			"parsed %d lines",
-			len(lines),
-		),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func parseNodeCustomText(e *event.Event) (string, bool) {
-	if e == nil || e.StateDelta == nil {
-		return "", false
-	}
-	b, ok := e.StateDelta[graph.MetadataKeyNodeCustom]
-	if !ok || len(b) == 0 {
-		return "", false
-	}
-	var md graph.NodeCustomEventMetadata
-	if err := json.Unmarshal(b, &md); err != nil {
-		return "", false
-	}
-	if md.Category != graph.NodeCustomEventCategoryText {
-		return "", false
-	}
-	msg := strings.TrimSpace(md.Message)
-	if msg == "" {
-		return "", false
-	}
-	return msg, true
+	_ = "STUB: not implemented"
+	return "", false
 }

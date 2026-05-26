@@ -44,28 +44,8 @@ import (
 //     returns nil for empty input, so this helper does not need to
 //     special-case "no extensions configured".
 func applyExtensionContributions(options *Options, contrib *extension.Contributions) {
-	if contrib == nil || options == nil {
-		return
-	}
-	agentCallbacks := contrib.AgentCallbacks()
-	if hasAgentContent(agentCallbacks) {
-		options.AgentCallbacks = mergeAgentCallbacks(
-			options.AgentCallbacks, agentCallbacks,
-		)
-	}
-	modelCallbacks := contrib.ModelCallbacks()
-	if hasModelContent(modelCallbacks) {
-		options.ModelCallbacks = mergeModelCallbacks(
-			options.ModelCallbacks, modelCallbacks,
-		)
-	}
-	toolCallbacks := contrib.ToolCallbacks()
-	if hasToolContent(toolCallbacks) {
-		options.ToolCallbacks = mergeToolCallbacks(
-			options.ToolCallbacks, toolCallbacks,
-		)
-	}
-	options.extensionContributedTools = contrib.Tools()
+	_ = "STUB: not implemented"
+	return
 }
 
 // appendExtensionTools surfaces tools that agent-scoped extensions
@@ -97,28 +77,8 @@ func applyExtensionContributions(options *Options, contrib *extension.Contributi
 // collected by each surface builder (user tools first, then
 // framework, then extensions).
 func appendExtensionTools(allTools []tool.Tool, options *Options) []tool.Tool {
-	if options == nil || len(options.extensionContributedTools) == 0 {
-		return allTools
-	}
-	taken := make(map[string]struct{}, len(allTools)+len(options.extensionContributedTools))
-	for _, t := range allTools {
-		if t == nil || t.Declaration() == nil {
-			continue
-		}
-		taken[t.Declaration().Name] = struct{}{}
-	}
-	for _, t := range options.extensionContributedTools {
-		if t == nil || t.Declaration() == nil {
-			continue
-		}
-		name := t.Declaration().Name
-		if _, dup := taken[name]; dup {
-			continue
-		}
-		taken[name] = struct{}{}
-		allTools = append(allTools, t)
-	}
-	return allTools
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mergeAgentCallbacks merges b on top of a, returning a fresh
@@ -134,41 +94,15 @@ func appendExtensionTools(allTools []tool.Tool, options *Options) []tool.Tool {
 // WithContinueOnError / WithContinueOnResponse without mutating the
 // caller-owned callback object.
 func mergeAgentCallbacks(a, b *agent.Callbacks) *agent.Callbacks {
-	bn := hasAgentContent(b)
-	if !bn {
-		return a
-	}
-	if a == nil {
-		return b
-	}
-	out := a.Clone()
-	for _, cb := range b.BeforeAgent {
-		out.RegisterBeforeAgent(cb)
-	}
-	for _, cb := range b.AfterAgent {
-		out.RegisterAfterAgent(cb)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mergeModelCallbacks mirrors mergeAgentCallbacks for model hooks.
 // See its docstring for shared semantics.
 func mergeModelCallbacks(a, b *model.Callbacks) *model.Callbacks {
-	bn := hasModelContent(b)
-	if !bn {
-		return a
-	}
-	if a == nil {
-		return b
-	}
-	out := a.Clone()
-	for _, cb := range b.BeforeModel {
-		out.RegisterBeforeModel(cb)
-	}
-	for _, cb := range b.AfterModel {
-		out.RegisterAfterModel(cb)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mergeToolCallbacks mirrors mergeAgentCallbacks for tool hooks
@@ -179,36 +113,12 @@ func mergeModelCallbacks(a, b *model.Callbacks) *model.Callbacks {
 // of the framework treats ToolResultMessages as a single pluggable
 // converter rather than a chain.
 func mergeToolCallbacks(a, b *tool.Callbacks) *tool.Callbacks {
-	bn := hasToolContent(b)
-	if !bn {
-		return a
-	}
-	if a == nil {
-		return b
-	}
-	out := a.Clone()
-	for _, cb := range b.BeforeTool {
-		out.RegisterBeforeTool(cb)
-	}
-	for _, cb := range b.AfterTool {
-		out.RegisterAfterTool(cb)
-	}
-	if b.ToolResultMessages != nil {
-		out.ToolResultMessages = b.ToolResultMessages
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func hasAgentContent(c *agent.Callbacks) bool {
-	return c != nil && (len(c.BeforeAgent) > 0 || len(c.AfterAgent) > 0)
-}
+func hasAgentContent(c *agent.Callbacks) bool { _ = "STUB: not implemented"; return false }
 
-func hasModelContent(c *model.Callbacks) bool {
-	return c != nil && (len(c.BeforeModel) > 0 || len(c.AfterModel) > 0)
-}
+func hasModelContent(c *model.Callbacks) bool { _ = "STUB: not implemented"; return false }
 
-func hasToolContent(c *tool.Callbacks) bool {
-	return c != nil &&
-		(len(c.BeforeTool) > 0 || len(c.AfterTool) > 0 ||
-			c.ToolResultMessages != nil)
-}
+func hasToolContent(c *tool.Callbacks) bool { _ = "STUB: not implemented"; return false }

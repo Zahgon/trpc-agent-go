@@ -10,7 +10,6 @@
 package mem0
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -43,19 +42,7 @@ type createMemoryEvent struct {
 type createMemoryEvents []createMemoryEvent
 
 func (e *createMemoryEvents) UnmarshalJSON(data []byte) error {
-	var direct []createMemoryEvent
-	if err := json.Unmarshal(data, &direct); err == nil {
-		*e = direct
-		return nil
-	}
-
-	var wrapped struct {
-		Results []createMemoryEvent `json:"results"`
-	}
-	if err := json.Unmarshal(data, &wrapped); err != nil {
-		return err
-	}
-	*e = wrapped.Results
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -83,18 +70,7 @@ type listMemoriesResponse struct {
 }
 
 func (r *listMemoriesResponse) UnmarshalJSON(data []byte) error {
-	var direct []memoryRecord
-	if err := json.Unmarshal(data, &direct); err == nil {
-		r.Results = direct
-		return nil
-	}
-
-	type rawListMemoriesResponse listMemoriesResponse
-	var wrapped rawListMemoriesResponse
-	if err := json.Unmarshal(data, &wrapped); err != nil {
-		return err
-	}
-	*r = listMemoriesResponse(wrapped)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -119,21 +95,7 @@ type searchMemoryRecord struct {
 	AppID     string         `json:"app_id"`
 }
 
-func (r *searchV2Response) UnmarshalJSON(data []byte) error {
-	var direct []searchMemoryRecord
-	if err := json.Unmarshal(data, &direct); err == nil {
-		r.Memories = direct
-		return nil
-	}
-
-	type rawSearchV2Response searchV2Response
-	var wrapped rawSearchV2Response
-	if err := json.Unmarshal(data, &wrapped); err != nil {
-		return err
-	}
-	*r = searchV2Response(wrapped)
-	return nil
-}
+func (r *searchV2Response) UnmarshalJSON(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 type parsedTimes struct {
 	CreatedAt time.Time

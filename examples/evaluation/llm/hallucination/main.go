@@ -12,7 +12,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation"
@@ -73,26 +72,6 @@ func main() {
 }
 
 func printSummary(result *evaluation.EvaluationResult, outDir string) {
-	fmt.Println("✅ Hallucination evaluation completed with local storage")
-	fmt.Printf("App: %s\n", result.AppName)
-	fmt.Printf("Eval Set: %s\n", result.EvalSetID)
-	fmt.Printf("Overall Status: %s\n", result.OverallStatus)
-	runs := 0
-	if len(result.EvalCases) > 0 {
-		runs = len(result.EvalCases[0].EvalCaseResults)
-	}
-	fmt.Printf("Runs: %d\n", runs)
-	for _, caseResult := range result.EvalCases {
-		fmt.Printf("Case %s -> %s\n", caseResult.EvalCaseID, caseResult.OverallStatus)
-		for _, metricResult := range caseResult.MetricResults {
-			fmt.Printf("  Metric %s: score %.2f (threshold %.2f) => %s\n",
-				metricResult.MetricName,
-				metricResult.Score,
-				metricResult.Threshold,
-				metricResult.EvalStatus,
-			)
-		}
-		fmt.Println()
-	}
-	fmt.Printf("Results saved under: %s\n", outDir)
+	_ = "STUB: not implemented"
+	return
 }

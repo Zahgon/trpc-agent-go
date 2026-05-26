@@ -24,67 +24,54 @@ type options struct {
 type Option func(*options)
 
 // newOptions creates a new options instance.
-func newOptions(opt ...Option) options {
-	opts := options{}
-	for _, o := range opt {
-		o(&opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) options { _ = "STUB: not implemented"; return *new(options) }
 
 // WithGraphNodeLifecycleActivityEnabled controls whether the translator emits
 // ACTIVITY_DELTA events with activityType "graph.node.lifecycle".
 func WithGraphNodeLifecycleActivityEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.graphNodeLifecycleActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphNodeInterruptActivityEnabled controls whether the translator emits
 // ACTIVITY_DELTA events with activityType "graph.node.interrupt".
 func WithGraphNodeInterruptActivityEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.graphNodeInterruptActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphNodeInterruptActivityTopLevelOnly controls whether the translator only emits
 // graph interrupt activity events for the top-level invocation.
 func WithGraphNodeInterruptActivityTopLevelOnly(enabled bool) Option {
-	return func(o *options) {
-		o.graphNodeInterruptActivityTopLevelOnly = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithReasoningContentEnabled controls whether the translator emits REASONING_* events.
 func WithReasoningContentEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.reasoningContentEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEventSourceMetadataEnabled controls whether the translator attaches
 // source metadata from the original trpc-agent-go event to each translated
 // AG-UI event via the AG-UI event's rawEvent field.
 func WithEventSourceMetadataEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.eventSourceMetadataEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolCallDeltaStreamingEnabled controls whether the translator emits
 // streamed tool call events from chat completion tool-call deltas.
 func WithToolCallDeltaStreamingEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.toolCallDeltaStreamingEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithStreamingToolResultActivityEnabled controls whether the translator rewrites
 // partial tool-result chunks into activity events and leaves only the final
 // tool result on the tool-result path.
 func WithStreamingToolResultActivityEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.streamingToolResultActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

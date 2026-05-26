@@ -10,8 +10,6 @@
 // Package kuhn implements the Kuhn algorithm for maximum cardinality matching in an unweighted bipartite graph.
 package kuhn
 
-import "errors"
-
 // unMatched marks an unmatched vertex index in match arrays.
 const unMatched = -1
 
@@ -26,83 +24,19 @@ type Kuhn struct {
 }
 
 // New creates a Kuhn matcher for a bipartite graph with the given sizes.
-func New(leftSize int, rightSize int) *Kuhn {
-	k := &Kuhn{
-		leftSize:   leftSize,
-		rightSize:  rightSize,
-		leftAdj:    make([][]int, leftSize),
-		matchRight: make([]int, rightSize),
-		visitMark:  make([]int, leftSize),
-		visitStamp: 1,
-	}
-	for right := range k.matchRight {
-		k.matchRight[right] = unMatched
-	}
-	return k
-}
+func New(leftSize int, rightSize int) *Kuhn { _ = "STUB: not implemented"; return nil }
 
 // AddEdge adds an edge from a left vertex to a right vertex.
-func (k *Kuhn) AddEdge(left int, right int) {
-	k.leftAdj[left] = append(k.leftAdj[left], right)
-}
+func (k *Kuhn) AddEdge(left int, right int) { _ = "STUB: not implemented"; return }
 
 // FullLeftMatch checks whether every left vertex can be matched to a distinct right vertex.
 // If a full left matching exists, it returns (nil, nil). Otherwise it returns (unmatchedLeft, error),
 // where unmatchedLeft contains the left vertex indices that are unmatched in the computed maximum matching.
-func (k *Kuhn) FullLeftMatch() ([]int, error) {
-	if k.leftSize == 0 {
-		return nil, nil
-	}
-	if k.rightSize == 0 {
-		return k.collectUnmatchedLeft(), errors.New("cannot match all left vertices")
-	}
-	matchedCount := 0
-	for left := 0; left < k.leftSize; left++ {
-		k.visitStamp++
-		if k.findAugmentingPath(left) {
-			matchedCount++
-		}
-	}
-	if matchedCount == k.leftSize {
-		return nil, nil
-	}
-	return k.collectUnmatchedLeft(), errors.New("cannot match all left vertices")
-}
+func (k *Kuhn) FullLeftMatch() ([]int, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // findAugmentingPath attempts to find an augmenting path starting from the given left vertex.
 // It returns true if it can increase the matching (or rewire it) to match this left vertex.
-func (k *Kuhn) findAugmentingPath(left int) bool {
-	if k.visitMark[left] == k.visitStamp {
-		return false
-	}
-	k.visitMark[left] = k.visitStamp
-	for _, right := range k.leftAdj[left] {
-		previousLeft := k.matchRight[right]
-		if previousLeft == unMatched || k.findAugmentingPath(previousLeft) {
-			k.matchRight[right] = left
-			return true
-		}
-	}
-	return false
-}
+func (k *Kuhn) findAugmentingPath(left int) bool { _ = "STUB: not implemented"; return false }
 
 // collectUnmatchedLeft returns the list of left vertices that are unmatched in the current matching.
-func (k *Kuhn) collectUnmatchedLeft() []int {
-	matchLeft := make([]int, k.leftSize)
-	for left := range matchLeft {
-		matchLeft[left] = unMatched
-	}
-	for right := range k.matchRight {
-		left := k.matchRight[right]
-		if left != unMatched {
-			matchLeft[left] = right
-		}
-	}
-	unmatched := make([]int, 0)
-	for left := range matchLeft {
-		if matchLeft[left] == unMatched {
-			unmatched = append(unmatched, left)
-		}
-	}
-	return unmatched
-}
+func (k *Kuhn) collectUnmatchedLeft() []int { _ = "STUB: not implemented"; return nil }

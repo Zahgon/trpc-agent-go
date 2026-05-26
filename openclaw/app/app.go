@@ -18,41 +18,21 @@ package app
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"flag"
-	"fmt"
-	"hash/crc32"
-	"net"
 	"net/http"
-	"net/url"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/claudecode"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	localexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/conversation"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/admin"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/channel"
-	ocbrowser "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/browser"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/conversationscope"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/conversationtool"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/cron"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/debugrecorder"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/deps"
@@ -65,7 +45,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/subagentrun"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/uploads"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/runtimeprofile"
 	openclawsubagent "trpc.group/trpc-go/trpc-agent-go/openclaw/subagent"
 )
 
@@ -400,49 +379,14 @@ const (
 // Main runs the OpenClaw-like CLI and returns an exit code.
 //
 // args should not include the program name.
-func Main(args []string) int {
-	return MainWithOptions(args)
-}
+func Main(args []string) int { _ = "STUB: not implemented"; return 0 }
 
 // MainWithOptions runs the OpenClaw-like CLI with runtime options and returns
 // an exit code.
 //
 // args should not include the program name.
 func MainWithOptions(args []string, options ...RuntimeOption) int {
-	if len(args) > 0 {
-		switch args[0] {
-		case subcmdPairing:
-			return runPairing(args[1:])
-		case subcmdDoctor:
-			return runDoctor(args[1:])
-		case subcmdInspect:
-			return runInspect(args[1:])
-		case subcmdBootstrap:
-			return runBootstrap(args[1:])
-		}
-	}
-
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGTERM,
-	)
-	defer stop()
-
-	if err := RunWithOptions(ctx, args, options...); err != nil {
-		var exitErr *exitError
-		if errors.As(err, &exitErr) {
-			if errors.Is(exitErr.Err, flag.ErrHelp) {
-				return 0
-			}
-			if shouldLogExitError(exitErr.Err) {
-				log.Errorf("%v", exitErr.Err)
-			}
-			return exitErr.ExitCode()
-		}
-		log.Errorf("%v", err)
-		return 1
-	}
+	_ = "STUB: not implemented"
 	return 0
 }
 
@@ -452,7 +396,8 @@ func RunWithOptions(
 	args []string,
 	options ...RuntimeOption,
 ) error {
-	return run(ctx, args, options...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type exitError struct {
@@ -469,45 +414,18 @@ func applyOpenClawToolDefaults(
 	agentType string,
 	opts *runOptions,
 ) {
-	if opts == nil || opts.enableOpenClawToolsExplicit {
-		return
-	}
-	if agentType == agentTypeLLM {
-		opts.EnableOpenClawTools = true
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (e *exitError) Error() string {
-	if e == nil || e.Err == nil {
-		return ""
-	}
-	return e.Err.Error()
-}
+func (e *exitError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // ExitCode returns the suggested process exit code for this error.
-func (e *exitError) ExitCode() int {
-	if e == nil {
-		return 1
-	}
-	if e.Code == 0 {
-		return 1
-	}
-	return e.Code
-}
+func (e *exitError) ExitCode() int { _ = "STUB: not implemented"; return 0 }
 
-func shouldLogExitError(err error) bool {
-	return err != nil && !errors.Is(err, flag.ErrHelp)
-}
+func shouldLogExitError(err error) bool { _ = "STUB: not implemented"; return false }
 
-func logStartupLines(lines []startupLogLine) {
-	for _, line := range lines {
-		if line.warn {
-			log.Warn(line.text)
-			continue
-		}
-		log.Info(line.text)
-	}
-}
+func logStartupLines(lines []startupLogLine) { _ = "STUB: not implemented"; return }
 
 func runtimeStartupLines(
 	opts runOptions,
@@ -515,131 +433,38 @@ func runtimeStartupLines(
 	channels []channel.Channel,
 	needsModel bool,
 ) []startupLogLine {
-	return []startupLogLine{
-		{text: fmt.Sprintf("App name: %s", strings.TrimSpace(opts.AppName))},
-		{text: configStartupSummary(opts.ConfigPath)},
-		{text: fmt.Sprintf(
-			"State dir: %s",
-			startupPathSummary(stateDir),
-		)},
-		{text: fmt.Sprintf(
-			"Channels: %s",
-			channelStartupSummary(channels),
-		)},
-		{text: fmt.Sprintf(
-			"Model: %s",
-			modelStartupSummary(opts, needsModel),
-		)},
-		{text: fmt.Sprintf(
-			"Storage: session=%s memory=%s",
-			strings.TrimSpace(opts.SessionBackend),
-			resolveMemoryBackendType(opts.MemoryBackend),
-		)},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func configStartupSummary(configPath string) string {
-	path := strings.TrimSpace(configPath)
-	if path == "" {
-		return "Config: built-in defaults and CLI flags"
-	}
-	return fmt.Sprintf("Config: %s", startupPathSummary(path))
-}
+func configStartupSummary(configPath string) string { _ = "STUB: not implemented"; return "" }
 
-func startupPathSummary(path string) string {
-	trimmed := strings.TrimSpace(path)
-	if trimmed == "" {
-		return ""
-	}
-	absPath, err := filepath.Abs(trimmed)
-	if err != nil {
-		return trimmed
-	}
-	return absPath
-}
+func startupPathSummary(path string) string { _ = "STUB: not implemented"; return "" }
 
-func channelStartupSummary(channels []channel.Channel) string {
-	ids := channelIDs(channels)
-	if len(ids) == 0 {
-		return "none"
-	}
-	return strings.Join(ids, ", ")
-}
+func channelStartupSummary(channels []channel.Channel) string { _ = "STUB: not implemented"; return "" }
 
 func modelStartupSummary(
 	opts runOptions,
 	needsModel bool,
 ) string {
-	if !needsModel {
-		return "disabled"
-	}
-	mode := strings.ToLower(strings.TrimSpace(opts.ModelMode))
-	if mode == "" {
-		mode = modeOpenAI
-	}
-	if mode != modeOpenAI {
-		return mode
-	}
-	modelName := strings.TrimSpace(opts.OpenAIModel)
-	if modelName == "" {
-		return mode
-	}
-	return fmt.Sprintf("%s/%s", mode, modelName)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func gatewayStartupLines(
 	httpAddr string,
 	gwSrv *gateway.Server,
 ) []startupLogLine {
-	return []startupLogLine{
-		{text: fmt.Sprintf("Gateway listening on %s", httpAddr)},
-		{text: fmt.Sprintf("Health:   GET  %s", gwSrv.HealthPath())},
-		{text: fmt.Sprintf("Messages: POST %s", gwSrv.MessagesPath())},
-		{text: fmt.Sprintf(
-			"Stream:   POST %s",
-			gwSrv.MessagesStreamPath(),
-		)},
-		{text: fmt.Sprintf(
-			"Status:   GET  %s?request_id=...",
-			gwSrv.StatusPath(),
-		)},
-		{text: fmt.Sprintf("Cancel:   POST %s", gwSrv.CancelPath())},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func adminStartupLines(
 	preferredAddr string,
 	binding *adminBinding,
 ) []startupLogLine {
-	if binding == nil {
-		return nil
-	}
-
-	lines := make([]startupLogLine, 0, 3)
-	if binding.relocated {
-		lines = append(lines, startupLogLine{
-			warn: true,
-			text: fmt.Sprintf(
-				"Admin UI preferred address %s was busy; using %s "+
-					"instead",
-				preferredAddr,
-				binding.addr,
-			),
-		})
-	}
-
-	lines = append(lines,
-		startupLogLine{
-			text: fmt.Sprintf(
-				"Admin UI listening on %s",
-				binding.addr,
-			),
-		},
-		startupLogLine{
-			text: fmt.Sprintf("Admin UI: %s", binding.url),
-		},
-	)
-	return lines
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Runtime wires OpenClaw components without owning the HTTP listener.
@@ -701,42 +526,22 @@ func newRuntimePromptController(
 	instruction string,
 	systemPrompt string,
 ) *RuntimePromptController {
-	if agt == nil {
-		return nil
-	}
-	if _, ok := agt.(*llmagent.LLMAgent); !ok {
-		return nil
-	}
-	return &RuntimePromptController{
-		agent: agt,
-		snapshot: PromptSnapshot{
-			Instruction:  instruction,
-			SystemPrompt: systemPrompt,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PromptController exposes runtime prompt updates without changing
 // Runtime's exported struct layout.
 func (r *Runtime) PromptController() *RuntimePromptController {
-	if r == nil {
-		return nil
-	}
-	return r.prompts
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *Runtime) AppName() string {
-	if r == nil {
-		return ""
-	}
-	return strings.TrimSpace(r.appName)
-}
+func (r *Runtime) AppName() string { _ = "STUB: not implemented"; return "" }
 
 func (r *Runtime) SessionService() session.Service {
-	if r == nil {
-		return nil
-	}
-	return r.session
+	_ = "STUB: not implemented"
+	return *new(session.Service)
 }
 
 // SubagentService is the OpenClaw subagent control-plane service exposed by
@@ -754,117 +559,48 @@ type SubagentService interface {
 }
 
 func (r *Runtime) SubagentService() SubagentService {
-	if r == nil {
-		return nil
-	}
-	return r.subagent
+	_ = "STUB: not implemented"
+	return *new(SubagentService)
 }
 
 func (r *Runtime) ConfigureAdmin(
 	configure func(*admin.Config),
 ) {
-	if r == nil || r.adminCfg == nil || configure == nil {
-		return
-	}
-	cfg := *r.adminCfg
-	configure(&cfg)
-	r.applyAdminConfig(cfg)
+	_ = "STUB: not implemented"
+	return
 }
 
 // AddAdminOptions appends runtime-scoped admin options without changing
 // Runtime's exported struct layout.
-func (r *Runtime) AddAdminOptions(opts ...admin.Option) {
-	if r == nil || len(opts) == 0 {
-		return
-	}
+func (r *Runtime) AddAdminOptions(opts ...admin.Option) { _ = "STUB: not implemented"; return }
 
-	filtered := make([]admin.Option, 0, len(opts))
-	filtered = append(filtered, runtimeAdminOptions(r)...)
-	for _, opt := range opts {
-		if opt != nil {
-			filtered = append(filtered, opt)
-		}
-	}
-	if len(filtered) == 0 {
-		return
-	}
-
-	setRuntimeAdminOptions(r, filtered)
-	if r.adminCfg == nil {
-		return
-	}
-	r.applyAdminConfig(*r.adminCfg)
-}
-
-func (r *Runtime) applyAdminConfig(cfg admin.Config) {
-	if r == nil {
-		return
-	}
-	r.adminCfg = &cfg
-	r.Admin.Handler = admin.New(cfg, runtimeAdminOptions(r)...).Handler()
-	r.Admin.Addr = strings.TrimSpace(cfg.AdminAddr)
-	r.Admin.URL = strings.TrimSpace(cfg.AdminURL)
-}
+func (r *Runtime) applyAdminConfig(cfg admin.Config) { _ = "STUB: not implemented"; return }
 
 func (c *RuntimePromptController) Snapshot() PromptSnapshot {
-	if c == nil {
-		return PromptSnapshot{}
-	}
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.snapshot
+	_ = "STUB: not implemented"
+	return *new(PromptSnapshot)
 }
 
 func (c *RuntimePromptController) SetInstruction(
 	instruction string,
 ) {
-	if c == nil {
-		return
-	}
-	llm, ok := c.agent.(*llmagent.LLMAgent)
-	if !ok {
-		return
-	}
-	llm.SetInstruction(instruction)
-	c.mu.Lock()
-	c.snapshot.Instruction = instruction
-	c.mu.Unlock()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *RuntimePromptController) SetSystemPrompt(
 	systemPrompt string,
 ) {
-	if c == nil {
-		return
-	}
-	llm, ok := c.agent.(*llmagent.LLMAgent)
-	if !ok {
-		return
-	}
-	llm.SetGlobalInstruction(systemPrompt)
-	c.mu.Lock()
-	c.snapshot.SystemPrompt = systemPrompt
-	c.mu.Unlock()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *RuntimePromptController) SetPrompts(
 	instruction string,
 	systemPrompt string,
 ) {
-	if c == nil {
-		return
-	}
-	llm, ok := c.agent.(*llmagent.LLMAgent)
-	if !ok {
-		return
-	}
-	llm.SetPrompts(instruction, systemPrompt)
-	c.mu.Lock()
-	c.snapshot = PromptSnapshot{
-		Instruction:  instruction,
-		SystemPrompt: systemPrompt,
-	}
-	c.mu.Unlock()
+	_ = "STUB: not implemented"
+	return
 }
 
 // NewRuntime constructs an OpenClaw runtime based on CLI args / config file,
@@ -873,7 +609,8 @@ func NewRuntime(
 	ctx context.Context,
 	args []string,
 ) (*Runtime, error) {
-	return NewRuntimeWithOptions(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewRuntimeWithOptions constructs an embedded OpenClaw runtime with options.
@@ -882,1200 +619,67 @@ func NewRuntimeWithOptions(
 	args []string,
 	options ...RuntimeOption,
 ) (rt *Runtime, err error) {
-	rt = &Runtime{}
-	startedAt := time.Now()
-	runtimeOpts := buildRuntimeOptions(options)
-	cleanup := rt
-	defer func() {
-		if err != nil {
-			_ = cleanup.Close()
-		}
-	}()
-
-	opts, err := parseRunOptions(args)
-	if err != nil {
-		return nil, err
-	}
-
-	agentType, err := normalizeAgentType(opts.AgentType)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent config failed: %w", err),
-		}
-	}
-	applyOpenClawToolDefaults(agentType, &opts)
-	if err := validateAgentRunOptions(agentType, opts); err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent config failed: %w", err),
-		}
-	}
-
-	mentionPatterns := splitCSV(opts.Mention)
-
-	resolvedStateDir, err := resolveStateDir(opts.StateDir)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("resolve state dir failed: %w", err),
-		}
-	}
-	opts.StateDir = resolvedStateDir
-
-	ctx, debugRec, err := maybeEnableDebugRecorder(ctx, opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("debug recorder config failed: %w", err),
-		}
-	}
-	langfuseRT, err := maybeEnableLangfuse(ctx, opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("langfuse config failed: %w", err),
-		}
-	}
-	langfuseStatus := admin.LangfuseStatus{}
-	if langfuseRT != nil {
-		langfuseStatus = langfuseRT.adminStatus
-		rt.telemetryShutdown = langfuseRT.shutdown
-	}
-
-	needsModel := agentType == agentTypeLLM ||
-		opts.SessionSummaryEnabled ||
-		opts.MemoryAutoEnabled
-
-	var mdl model.Model
-	if needsModel {
-		mdl, err = modelFromOptions(opts)
-		if err != nil {
-			return nil, &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create model failed: %w", err),
-			}
-		}
-	}
-
-	instanceID := runtimeInstanceID(
-		agentType,
-		opts,
-		needsModel,
-		resolvedStateDir,
-	)
-	log.Infof("Instance: %s", instanceID)
-	rt.appName = opts.AppName
-
-	sessionSvc, err := newSessionService(mdl, opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create session service failed: %w", err),
-		}
-	}
-	rt.sessionSvc = sessionSvc
-
-	memSvc, err := newMemoryService(mdl, opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create memory service failed: %w", err),
-		}
-	}
-	rt.memorySvc = memSvc
-
-	stores, err := newRuntimeStores(resolvedStateDir)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create runtime stores failed: %w", err),
-		}
-	}
-
-	prompts, err := resolveAgentPrompts(opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent prompt config failed: %w", err),
-		}
-	}
-
-	fileMemoryStore := fileMemoryStoreForBackend(
-		opts.MemoryBackend,
-		stores.memoryFiles,
-	)
-	openClawTools := buildOpenClawTools(
-		opts.EnableOpenClawTools,
-		resolvedStateDir,
-		stores.uploads,
-		fileMemoryStore,
-	)
-	extraTools := memoryServiceTools(memSvc)
-	extraTools = append(extraTools, openClawTools.tools...)
-
-	var (
-		toolSets    []tool.ToolSet
-		ag          agent.Agent
-		skillsRepo  *ocskills.Repository
-		skillsWatch *ocskills.WatchService
-	)
-	if agentType == agentTypeClaudeCode {
-		ag, err = newClaudeCodeAgent(opts)
-	} else {
-		toolSets, err = toolSetsFromProviders(
-			mdl,
-			opts.AppName,
-			resolvedStateDir,
-			opts.ToolSets,
-		)
-		if err != nil {
-			return nil, &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create toolsets failed: %w", err),
-			}
-		}
-		agentCfg := agentConfig{
-			AppName:                 opts.AppName,
-			AddSessionSummary:       opts.AddSessionSummary,
-			EnableContextCompaction: opts.EnableContextCompaction,
-			ContextCompactionOversizedToolResultMaxTokens: opts.
-				ContextCompactionOversizedToolResultMaxTokens,
-			MaxHistoryRuns:   opts.MaxHistoryRuns,
-			PreloadMemory:    opts.PreloadMemory,
-			GenerationConfig: opts.GenerationConfig,
-			Instruction:      prompts.Instruction,
-			SystemPrompt:     prompts.SystemPrompt,
-
-			SkillsRoot:      opts.SkillsRoot,
-			SkillsExtraDirs: splitCSV(opts.SkillsExtraDir),
-			SkillsDebug:     opts.SkillsDebug,
-			SkillsAllowBundled: splitCSV(
-				opts.SkillsAllowBundled,
-			),
-			SkillConfigs:        opts.SkillConfigs,
-			SkillConfigKeys:     resolveSkillConfigKeys(opts),
-			SkillsWatch:         opts.SkillsWatch,
-			SkillsWatchBundled:  opts.SkillsWatchBundled,
-			SkillsWatchDebounce: opts.SkillsWatchDebounce,
-			SkillsToolProfile:   opts.SkillsToolProfile,
-			SkillsLoadMode:      opts.SkillsLoadMode,
-			SkillsMaxLoaded:     opts.SkillsMaxLoaded,
-			SkillsToolResults:   opts.SkillsToolResults,
-			SkillsSkipFallback:  opts.SkillsSkipFallback,
-			SkillsToolingGuide:  opts.SkillsToolingGuide,
-			KnowledgesConfig:    opts.KnowledgesConfig,
-			StateDir:            resolvedStateDir,
-			MemoryFileStore:     fileMemoryStore,
-
-			EnableLocalExec:      opts.EnableLocalExec,
-			EnableOpenClawTools:  opts.EnableOpenClawTools,
-			OpenClawToolingGuide: opts.OpenClawToolingGuide,
-			EnableParallelTools:  opts.EnableParallelTools,
-
-			ToolProviders: opts.ToolProviders,
-			ToolSets:      opts.ToolSets,
-
-			RefreshToolSetsOnRun: opts.RefreshToolSetsOnRun,
-		}
-		ag, skillsRepo, err = newAgent(
-			mdl,
-			agentCfg,
-			extraTools,
-			toolSets,
-		)
-		if err == nil {
-			cwd, _ := os.Getwd()
-			skillsWatch = newSkillsWatchService(
-				cwd,
-				agentCfg,
-				skillsRepo,
-			)
-		}
-	}
-	if err != nil {
-		closeToolSets(toolSets)
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create agent failed: %w", err),
-		}
-	}
-	rt.prompts = newRuntimePromptController(
-		ag,
-		prompts.Instruction,
-		prompts.SystemPrompt,
-	)
-	rt.toolSets = toolSets
-	rt.skillsWatch = skillsWatch
-
-	bridgedSessionSvc := conversationscope.WrapSessionService(sessionSvc)
-	rt.session = bridgedSessionSvc
-	runnerOpts := []runner.Option{
-		runner.WithSessionService(bridgedSessionSvc),
-		runner.WithPlugins(conversation.Plugin{}),
-		runner.WithAwaitUserReplyRouting(true),
-	}
-	runnerOpts = appendMemoryServiceRunnerOption(runnerOpts, memSvc)
-	rlCfg, err := ralphLoopConfigFromRunOptions(opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent ralph loop config failed: %w", err),
-		}
-	}
-	if rlCfg != nil {
-		runnerOpts = append(
-			runnerOpts,
-			runner.WithRalphLoop(*rlCfg),
-		)
-	}
-
-	r := runner.NewRunner(opts.AppName, ag, runnerOpts...)
-	rt.runner = r
-
-	runtimeProfileResolver, runtimeProfileCatalog, runtimeProfileRequired :=
-		runtimeProfileResolverFromOptions(
-			opts.RuntimeProfiles,
-			runtimeOpts,
-		)
-
-	gwOpts := makeGatewayOptions(
-		splitCSV(opts.AllowUsers),
-		opts.RequireMention,
-		mentionPatterns,
-	)
-	gwOpts = append(gwOpts, gateway.WithAppName(opts.AppName))
-	gwOpts = append(gwOpts, gateway.WithUploadStore(stores.uploads))
-	gwOpts = append(gwOpts, gateway.WithPersonaStore(stores.personas))
-	if fileMemoryStore != nil {
-		gwOpts = append(
-			gwOpts,
-			gateway.WithMemoryFileStore(fileMemoryStore),
-		)
-	}
-	if debugRec != nil {
-		gwOpts = append(gwOpts, gateway.WithDebugRecorder(debugRec))
-	}
-	gwOpts = appendRuntimeProfileGatewayOption(
-		gwOpts,
-		runtimeProfileResolver,
-		runtimeProfileRequired,
-	)
-	if langfuseRT != nil && langfuseRT.runOptionResolver != nil {
-		gwOpts = append(
-			gwOpts,
-			gateway.WithRunOptionResolver(
-				langfuseRT.runOptionResolver,
-			),
-		)
-	}
-	gwOpts = append(
-		gwOpts,
-		gateway.WithRunOptionResolver(
-			buildDeliveryRunOptionResolver(),
-		),
-		gateway.WithRunOptionResolver(
-			buildConversationRunOptionResolver(
-				opts.AppName,
-				bridgedSessionSvc,
-				conversation.HistoryOptions{
-					AddSessionSummary: opts.AddSessionSummary,
-					MaxHistoryRuns:    opts.MaxHistoryRuns,
-				},
-			),
-		),
-	)
-	gwSrv, err := gateway.New(r, gwOpts...)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create gateway failed: %w", err),
-		}
-	}
-	rt.Gateway = Gateway{
-		Handler:      gwSrv.Handler(),
-		HealthPath:   gwSrv.HealthPath(),
-		MessagesPath: gwSrv.MessagesPath(),
-		StatusPath:   gwSrv.StatusPath(),
-		CancelPath:   gwSrv.CancelPath(),
-	}
-	rt.A2A, err = newA2ASurface(ag, r, opts)
-	if err != nil {
-		return nil, &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create a2a failed: %w", err),
-		}
-	}
-
-	debugDir := filepath.Join(resolvedStateDir, defaultDebugRecorderDir)
-	if debugRec != nil {
-		debugDir = debugRec.Dir()
-	}
-	gw := newInProcGatewayClient(
-		gwSrv,
-		opts.AppName,
-		sessionSvc,
-		memSvc,
-		debugDir,
-		stores.uploads,
-	)
-	gw.SetPersonaStore(stores.personas)
-	gw.SetMemoryFileStore(fileMemoryStore)
-	gw.SetRuntimeProfileAppNames(runtimeProfileAppNames(opts.RuntimeProfiles))
-	gw.SetRuntimeProfileCatalog(runtimeProfileCatalog)
-
-	if len(opts.Channels) > 0 {
-		extra, err := channelsFromRegistry(
-			ctx,
-			gw,
-			opts.AppName,
-			resolvedStateDir,
-			splitCSV(opts.AllowUsers),
-			opts.Channels,
-		)
-		if err != nil {
-			return nil, &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create channels failed: %w", err),
-			}
-		}
-		rt.Channels = append(rt.Channels, extra...)
-	}
-
-	var (
-		cronSvc     *cron.Service
-		cronRunner  runner.Runner
-		subagentSvc *subagentrun.Service
-	)
-	if openClawTools.router != nil {
-		for _, ch := range rt.Channels {
-			openClawTools.router.Register(ch)
-		}
-		cronRunner = newCronRunner(
-			opts.AppName,
-			ag,
-			memSvc,
-			rlCfg,
-		)
-		cronOpts := runtimeProfileCronOptions(runtimeProfileResolver)
-		if debugRec != nil {
-			cronOpts = append(
-				cronOpts,
-				cron.WithDebugRecorder(debugRec),
-			)
-		}
-		cronSvc, err = cron.NewService(
-			resolvedStateDir,
-			cronRunner,
-			openClawTools.router,
-			cronOpts...,
-		)
-		if err != nil {
-			if cronRunner != nil {
-				_ = cronRunner.Close()
-			}
-			return nil, &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create cron service failed: %w", err),
-			}
-		}
-		openClawTools.cronTool.SetService(cronSvc)
-		gw.SetCronService(cronSvc)
-		cronSvc.Start(ctx)
-		rt.cronSvc = cronSvc
-		rt.cronRunner = cronRunner
-
-		subagentSvc, err = subagentrun.NewService(
-			resolvedStateDir,
-			r,
-			openClawTools.router,
-		)
-		if err != nil {
-			return nil, &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create subagent service failed: %w", err),
-			}
-		}
-		openClawTools.subagentTools.SetService(subagentSvc)
-		subagentSvc.Start(ctx)
-		rt.subagent = subagentSvc
-		rt.subagentSvc = subagentSvc
-	}
-
-	if opts.AdminEnabled {
-		adminURL := listenURL(opts.AdminAddr)
-		adminCfg := buildAdminConfig(
-			opts,
-			agentType,
-			instanceID,
-			langfuseStatus,
-			resolvedStateDir,
-			debugDir,
-			startedAt,
-			rt.Channels,
-			admin.Routes{
-				HealthPath:   gwSrv.HealthPath(),
-				MessagesPath: gwSrv.MessagesPath(),
-				StatusPath:   gwSrv.StatusPath(),
-				CancelPath:   gwSrv.CancelPath(),
-			},
-			cronSvc,
-			openClawTools.execMgr,
-			rt.prompts,
-			nil,
-			opts.AdminAddr,
-			adminURL,
-			skillsRepo,
-			skillsWatch,
-			fileMemoryStore,
-			rt.SessionService(),
-		)
-		setRuntimeAdminOptions(rt, buildAdminOptions(opts))
-		rt.applyAdminConfig(adminCfg)
-	}
-
-	return rt, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Close releases owned resources (session/memory services, toolsets, runner).
-func (r *Runtime) Close() error {
-	if r == nil {
-		return nil
-	}
-
-	var errs []error
-	if r.cronSvc != nil {
-		_ = r.cronSvc.Close()
-	}
-	if r.cronRunner != nil {
-		_ = r.cronRunner.Close()
-	}
-	if r.subagentSvc != nil {
-		_ = r.subagentSvc.Close()
-	}
-	if r.skillsWatch != nil {
-		if err := r.skillsWatch.Close(); err != nil {
-			errs = append(errs, err)
-		}
-	}
-	closeToolSets(r.toolSets)
-	closeMemoryService(r.memorySvc)
-	closeSessionService(r.sessionSvc)
-
-	if r.runner != nil {
-		if err := r.runner.Close(); err != nil {
-			errs = append(errs, err)
-		}
-	}
-	if err := shutdownTelemetry(r.telemetryShutdown); err != nil {
-		errs = append(errs, err)
-	}
-	clearRuntimeAdminOptions(r)
-	return errors.Join(errs...)
-}
+func (r *Runtime) Close() error { _ = "STUB: not implemented"; return nil }
 
 func run(
 	ctx context.Context,
 	args []string,
 	options ...RuntimeOption,
 ) error {
-	startedAt := time.Now()
-	runtimeOpts := buildRuntimeOptions(options)
-	opts, err := parseRunOptions(args)
-	if err != nil {
-		return err
-	}
-
-	agentType, err := normalizeAgentType(opts.AgentType)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent config failed: %w", err),
-		}
-	}
-	applyOpenClawToolDefaults(agentType, &opts)
-	if err := validateAgentRunOptions(agentType, opts); err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent config failed: %w", err),
-		}
-	}
-
-	mentionPatterns := splitCSV(opts.Mention)
-
-	resolvedStateDir, err := resolveStateDir(opts.StateDir)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("resolve state dir failed: %w", err),
-		}
-	}
-	opts.StateDir = resolvedStateDir
-
-	ctx, debugRec, err := maybeEnableDebugRecorder(ctx, opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("debug recorder config failed: %w", err),
-		}
-	}
-	debugDir := filepath.Join(resolvedStateDir, defaultDebugRecorderDir)
-	if debugRec != nil {
-		debugDir = debugRec.Dir()
-	}
-
-	browserServerSup, err := maybeStartBrowserServerSupervisor(
-		ctx,
-		opts.ToolProviders,
-		debugDir,
-	)
-	if err != nil {
-		log.Warnf("browser server auto-start failed: %v", err)
-	}
-	langfuseRT, err := maybeEnableLangfuse(ctx, opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("langfuse config failed: %w", err),
-		}
-	}
-	langfuseStatus := admin.LangfuseStatus{}
-	var langfuseShutdown func(context.Context) error
-	if langfuseRT != nil {
-		langfuseStatus = langfuseRT.adminStatus
-		langfuseShutdown = langfuseRT.shutdown
-	}
-	defer func() {
-		if langfuseShutdown == nil {
-			return
-		}
-		if err := shutdownTelemetry(langfuseShutdown); err != nil {
-			log.Warnf("shutdown langfuse failed: %v", err)
-		}
-	}()
-
-	needsModel := agentType == agentTypeLLM ||
-		opts.SessionSummaryEnabled ||
-		opts.MemoryAutoEnabled
-
-	var mdl model.Model
-	if needsModel {
-		mdl, err = modelFromOptions(opts)
-		if err != nil {
-			return &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create model failed: %w", err),
-			}
-		}
-	}
-
-	instanceID := runtimeInstanceID(
-		agentType,
-		opts,
-		needsModel,
-		resolvedStateDir,
-	)
-	log.Infof("Instance: %s", instanceID)
-
-	sessionSvc, err := newSessionService(mdl, opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create session service failed: %w", err),
-		}
-	}
-	defer closeSessionService(sessionSvc)
-
-	memSvc, err := newMemoryService(mdl, opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create memory service failed: %w", err),
-		}
-	}
-	defer closeMemoryService(memSvc)
-
-	stores, err := newRuntimeStores(resolvedStateDir)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create runtime stores failed: %w", err),
-		}
-	}
-
-	prompts, err := resolveAgentPrompts(opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent prompt config failed: %w", err),
-		}
-	}
-
-	fileMemoryStore := fileMemoryStoreForBackend(
-		opts.MemoryBackend,
-		stores.memoryFiles,
-	)
-	openClawTools := buildOpenClawTools(
-		opts.EnableOpenClawTools,
-		resolvedStateDir,
-		stores.uploads,
-		fileMemoryStore,
-	)
-	extraTools := memoryServiceTools(memSvc)
-	extraTools = append(extraTools, openClawTools.tools...)
-
-	var (
-		toolSets    []tool.ToolSet
-		ag          agent.Agent
-		skillsRepo  *ocskills.Repository
-		skillsWatch *ocskills.WatchService
-	)
-	defer func() {
-		closeToolSets(toolSets)
-	}()
-	defer func() {
-		if skillsWatch == nil {
-			return
-		}
-		if err := skillsWatch.Close(); err != nil {
-			log.Warnf("close skills watch failed: %v", err)
-		}
-	}()
-	if agentType == agentTypeClaudeCode {
-		ag, err = newClaudeCodeAgent(opts)
-	} else {
-		toolSets, err = toolSetsFromProviders(
-			mdl,
-			opts.AppName,
-			resolvedStateDir,
-			opts.ToolSets,
-		)
-		if err != nil {
-			return &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create toolsets failed: %w", err),
-			}
-		}
-		agentCfg := agentConfig{
-			AppName:                 opts.AppName,
-			AddSessionSummary:       opts.AddSessionSummary,
-			EnableContextCompaction: opts.EnableContextCompaction,
-			ContextCompactionOversizedToolResultMaxTokens: opts.
-				ContextCompactionOversizedToolResultMaxTokens,
-			MaxHistoryRuns:   opts.MaxHistoryRuns,
-			PreloadMemory:    opts.PreloadMemory,
-			GenerationConfig: opts.GenerationConfig,
-			Instruction:      prompts.Instruction,
-			SystemPrompt:     prompts.SystemPrompt,
-
-			SkillsRoot:      opts.SkillsRoot,
-			SkillsExtraDirs: splitCSV(opts.SkillsExtraDir),
-			SkillsDebug:     opts.SkillsDebug,
-			SkillsAllowBundled: splitCSV(
-				opts.SkillsAllowBundled,
-			),
-			SkillConfigs:        opts.SkillConfigs,
-			SkillConfigKeys:     resolveSkillConfigKeys(opts),
-			SkillsWatch:         opts.SkillsWatch,
-			SkillsWatchBundled:  opts.SkillsWatchBundled,
-			SkillsWatchDebounce: opts.SkillsWatchDebounce,
-			SkillsToolProfile:   opts.SkillsToolProfile,
-			SkillsLoadMode:      opts.SkillsLoadMode,
-			SkillsMaxLoaded:     opts.SkillsMaxLoaded,
-			SkillsToolResults:   opts.SkillsToolResults,
-			SkillsSkipFallback:  opts.SkillsSkipFallback,
-			SkillsToolingGuide:  opts.SkillsToolingGuide,
-			KnowledgesConfig:    opts.KnowledgesConfig,
-			StateDir:            resolvedStateDir,
-			MemoryFileStore:     fileMemoryStore,
-
-			EnableLocalExec:     opts.EnableLocalExec,
-			EnableOpenClawTools: opts.EnableOpenClawTools,
-			EnableParallelTools: opts.EnableParallelTools,
-
-			ToolProviders: opts.ToolProviders,
-			ToolSets:      opts.ToolSets,
-
-			RefreshToolSetsOnRun: opts.RefreshToolSetsOnRun,
-		}
-		ag, skillsRepo, err = newAgent(
-			mdl,
-			agentCfg,
-			extraTools,
-			toolSets,
-		)
-		if err == nil {
-			cwd, _ := os.Getwd()
-			skillsWatch = newSkillsWatchService(
-				cwd,
-				agentCfg,
-				skillsRepo,
-			)
-		}
-	}
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create agent failed: %w", err),
-		}
-	}
-	promptController := newRuntimePromptController(
-		ag,
-		prompts.Instruction,
-		prompts.SystemPrompt,
-	)
-
-	bridgedSessionSvc := conversationscope.WrapSessionService(sessionSvc)
-	runnerOpts := []runner.Option{
-		runner.WithSessionService(bridgedSessionSvc),
-		runner.WithPlugins(conversation.Plugin{}),
-		runner.WithAwaitUserReplyRouting(true),
-	}
-	runnerOpts = appendMemoryServiceRunnerOption(runnerOpts, memSvc)
-	rlCfg, err := ralphLoopConfigFromRunOptions(opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("agent ralph loop config failed: %w", err),
-		}
-	}
-	if rlCfg != nil {
-		runnerOpts = append(
-			runnerOpts,
-			runner.WithRalphLoop(*rlCfg),
-		)
-	}
-	r := runner.NewRunner(opts.AppName, ag, runnerOpts...)
-
-	runtimeProfileResolver, runtimeProfileCatalog, runtimeProfileRequired :=
-		runtimeProfileResolverFromOptions(
-			opts.RuntimeProfiles,
-			runtimeOpts,
-		)
-
-	gwOpts := makeGatewayOptions(
-		splitCSV(opts.AllowUsers),
-		opts.RequireMention,
-		mentionPatterns,
-	)
-	gwOpts = append(gwOpts, gateway.WithAppName(opts.AppName))
-	gwOpts = append(gwOpts, gateway.WithUploadStore(stores.uploads))
-	gwOpts = append(gwOpts, gateway.WithPersonaStore(stores.personas))
-	if fileMemoryStore != nil {
-		gwOpts = append(
-			gwOpts,
-			gateway.WithMemoryFileStore(fileMemoryStore),
-		)
-	}
-	if debugRec != nil {
-		gwOpts = append(gwOpts, gateway.WithDebugRecorder(debugRec))
-	}
-	gwOpts = appendRuntimeProfileGatewayOption(
-		gwOpts,
-		runtimeProfileResolver,
-		runtimeProfileRequired,
-	)
-	if langfuseRT != nil && langfuseRT.runOptionResolver != nil {
-		gwOpts = append(
-			gwOpts,
-			gateway.WithRunOptionResolver(
-				langfuseRT.runOptionResolver,
-			),
-		)
-	}
-	gwOpts = append(
-		gwOpts,
-		gateway.WithRunOptionResolver(
-			buildDeliveryRunOptionResolver(),
-		),
-		gateway.WithRunOptionResolver(
-			buildConversationRunOptionResolver(
-				opts.AppName,
-				bridgedSessionSvc,
-				conversation.HistoryOptions{
-					AddSessionSummary: opts.AddSessionSummary,
-					MaxHistoryRuns:    opts.MaxHistoryRuns,
-				},
-			),
-		),
-	)
-	gwSrv, err := gateway.New(r, gwOpts...)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create gateway failed: %w", err),
-		}
-	}
-
-	gw := newInProcGatewayClient(
-		gwSrv,
-		opts.AppName,
-		sessionSvc,
-		memSvc,
-		debugDir,
-		stores.uploads,
-	)
-	gw.SetPersonaStore(stores.personas)
-	gw.SetMemoryFileStore(fileMemoryStore)
-	gw.SetRuntimeProfileAppNames(runtimeProfileAppNames(opts.RuntimeProfiles))
-	gw.SetRuntimeProfileCatalog(runtimeProfileCatalog)
-
-	a2aSurface, err := newA2ASurface(ag, r, opts)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("create a2a failed: %w", err),
-		}
-	}
-
-	httpHandler, err := buildRuntimeHTTPHandler(
-		gwSrv.Handler(),
-		a2aSurface,
-	)
-	if err != nil {
-		return &exitError{
-			Code: 1,
-			Err:  fmt.Errorf("build runtime handler failed: %w", err),
-		}
-	}
-
-	runCtx, cancelRun := context.WithCancel(ctx)
-	defer cancelRun()
-
-	httpSrv := &http.Server{
-		Addr:              opts.HTTPAddr,
-		Handler:           httpHandler,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-	var (
-		adminSrv     *http.Server
-		adminBinding *adminBinding
-	)
-
-	var channels []channel.Channel
-	if len(opts.Channels) > 0 {
-		extra, err := channelsFromRegistry(
-			ctx,
-			gw,
-			opts.AppName,
-			resolvedStateDir,
-			splitCSV(opts.AllowUsers),
-			opts.Channels,
-		)
-		if err != nil {
-			return &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create channels failed: %w", err),
-			}
-		}
-		channels = append(channels, extra...)
-	}
-
-	var (
-		cronSvc     *cron.Service
-		cronRunner  runner.Runner
-		subagentSvc *subagentrun.Service
-	)
-	var cleanupSubagent func()
-	defer func() {
-		if cleanupSubagent != nil {
-			cleanupSubagent()
-		}
-	}()
-	if openClawTools.router != nil {
-		for _, ch := range channels {
-			openClawTools.router.Register(ch)
-		}
-		cronRunner = newCronRunner(
-			opts.AppName,
-			ag,
-			memSvc,
-			rlCfg,
-		)
-		cronOpts := runtimeProfileCronOptions(runtimeProfileResolver)
-		if debugRec != nil {
-			cronOpts = append(
-				cronOpts,
-				cron.WithDebugRecorder(debugRec),
-			)
-		}
-		cronSvc, err = cron.NewService(
-			resolvedStateDir,
-			cronRunner,
-			openClawTools.router,
-			cronOpts...,
-		)
-		if err != nil {
-			if cronRunner != nil {
-				_ = cronRunner.Close()
-			}
-			return &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create cron service failed: %w", err),
-			}
-		}
-		openClawTools.cronTool.SetService(cronSvc)
-		gw.SetCronService(cronSvc)
-		cronSvc.Start(runCtx)
-
-		subagentSvc, err = subagentrun.NewService(
-			resolvedStateDir,
-			r,
-			openClawTools.router,
-		)
-		if err != nil {
-			if cronSvc != nil {
-				_ = cronSvc.Close()
-			}
-			if cronRunner != nil {
-				_ = cronRunner.Close()
-			}
-			return &exitError{
-				Code: 1,
-				Err:  fmt.Errorf("create subagent service failed: %w", err),
-			}
-		}
-		openClawTools.subagentTools.SetService(subagentSvc)
-		subagentSvc.Start(runCtx)
-		cleanupSubagent = func() {
-			openClawTools.subagentTools.SetService(nil)
-			if subagentSvc != nil {
-				_ = subagentSvc.Close()
-				subagentSvc = nil
-			}
-		}
-	}
-
-	if opts.AdminEnabled {
-		adminBinding, err = openAdminBinding(
-			opts.AdminAddr,
-			opts.AdminAutoPort,
-		)
-		if err != nil {
-			return &exitError{
-				Code: 1,
-				Err:  err,
-			}
-		}
-		adminSvc := admin.New(
-			buildAdminConfig(
-				opts,
-				agentType,
-				instanceID,
-				langfuseStatus,
-				resolvedStateDir,
-				debugDir,
-				startedAt,
-				channels,
-				admin.Routes{
-					HealthPath:   gwSrv.HealthPath(),
-					MessagesPath: gwSrv.MessagesPath(),
-					StatusPath:   gwSrv.StatusPath(),
-					CancelPath:   gwSrv.CancelPath(),
-				},
-				cronSvc,
-				openClawTools.execMgr,
-				promptController,
-				browserServerSup,
-				adminBinding.addr,
-				adminBinding.url,
-				skillsRepo,
-				skillsWatch,
-				fileMemoryStore,
-				bridgedSessionSvc,
-			),
-			buildAdminOptions(opts)...,
-		)
-		adminSrv = &http.Server{
-			Handler:           adminSvc.Handler(),
-			ReadHeaderTimeout: 5 * time.Second,
-		}
-	}
-
-	workerCount := 1 + len(channels)
-	if adminSrv != nil {
-		workerCount++
-	}
-	errCh := make(chan error, workerCount)
-
-	logStartupLines(runtimeStartupLines(
-		opts,
-		resolvedStateDir,
-		channels,
-		needsModel,
-	))
-	logStartupLines(browserServerSup.startupLines())
-	logStartupLines(gatewayStartupLines(httpSrv.Addr, gwSrv))
-	logStartupLines(a2aStartupLines(a2aSurface))
-	logStartupLines(toolDepsStartupLines(openClawTools.deps))
-	go func() {
-		//nolint:gosec
-		errCh <- httpSrv.ListenAndServe()
-	}()
-
-	if adminSrv != nil {
-		logStartupLines(adminStartupLines(opts.AdminAddr, adminBinding))
-		go func() {
-			//nolint:gosec
-			errCh <- adminSrv.Serve(adminBinding.listener)
-		}()
-	}
-
-	for _, ch := range channels {
-		ch := ch
-		go func() {
-			errCh <- ch.Run(runCtx)
-		}()
-	}
-
-	received := 0
-	select {
-	case <-ctx.Done():
-	case err := <-errCh:
-		received++
-		if err != nil && err != http.ErrServerClosed {
-			log.Errorf("server error: %v", err)
-		}
-	}
-
-	cancelRun()
-
-	shutdownCtx, cancel := context.WithTimeout(
-		context.Background(),
-		5*time.Second,
-	)
-	defer cancel()
-
-	_ = httpSrv.Shutdown(shutdownCtx)
-	if adminSrv != nil {
-		_ = adminSrv.Shutdown(shutdownCtx)
-	}
-	if cronSvc != nil {
-		_ = cronSvc.Close()
-	}
-	if subagentSvc != nil {
-		openClawTools.subagentTools.SetService(nil)
-		cleanupSubagent = nil
-		_ = subagentSvc.Close()
-		subagentSvc = nil
-	}
-	if cronRunner != nil {
-		_ = cronRunner.Close()
-	}
-	if browserServerSup != nil {
-		if err := browserServerSup.Close(); err != nil {
-			log.Warnf("close browser server failed: %v", err)
-		}
-	}
-	_ = r.Close()
-	if err := shutdownTelemetryWithContext(
-		shutdownCtx,
-		langfuseShutdown,
-	); err != nil {
-		log.Warnf("shutdown langfuse failed: %v", err)
-	}
-	langfuseShutdown = nil
-
-	for received < workerCount {
-		select {
-		case err := <-errCh:
-			received++
-			if err != nil && err != http.ErrServerClosed {
-				log.Errorf("server error: %v", err)
-			}
-		case <-shutdownCtx.Done():
-			return nil
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+//nolint:gosec
+
+//nolint:gosec
 
 type closeFunc interface {
 	Close() error
 }
 
-func closeSessionService(svc closeFunc) {
-	if svc == nil {
-		return
-	}
-	if err := svc.Close(); err != nil {
-		log.Warnf("close session service failed: %v", err)
-	}
-}
+func closeSessionService(svc closeFunc) { _ = "STUB: not implemented"; return }
 
-func closeMemoryService(svc closeFunc) {
-	if svc == nil {
-		return
-	}
-	if err := svc.Close(); err != nil {
-		log.Warnf("close memory service failed: %v", err)
-	}
-}
+func closeMemoryService(svc closeFunc) { _ = "STUB: not implemented"; return }
 
-func memoryServiceTools(svc memory.Service) []tool.Tool {
-	if svc == nil {
-		return nil
-	}
-	return append([]tool.Tool(nil), svc.Tools()...)
-}
+func memoryServiceTools(svc memory.Service) []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 func fileMemoryStoreForBackend(
 	backend string,
 	store *memoryfile.Store,
 ) *memoryfile.Store {
-	if resolveMemoryBackendType(backend) != memoryBackendFile {
-		return nil
-	}
-	return store
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func appendMemoryServiceRunnerOption(
 	opts []runner.Option,
 	svc memory.Service,
 ) []runner.Option {
-	if svc == nil {
-		return opts
-	}
-	return append(opts, runner.WithMemoryService(svc))
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func closeToolSets(sets []tool.ToolSet) {
-	for _, ts := range sets {
-		if ts == nil {
-			continue
-		}
-		if err := ts.Close(); err != nil {
-			log.Warnf("close toolset %q failed: %v", ts.Name(), err)
-		}
-	}
-}
+func closeToolSets(sets []tool.ToolSet) { _ = "STUB: not implemented"; return }
 
 func shutdownTelemetry(
 	shutdown func(context.Context) error,
 ) error {
-	if shutdown == nil {
-		return nil
-	}
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		5*time.Second,
-	)
-	defer cancel()
-	return shutdownTelemetryWithContext(ctx, shutdown)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shutdownTelemetryWithContext(
 	ctx context.Context,
 	shutdown func(context.Context) error,
 ) error {
-	if shutdown == nil {
-		return nil
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return shutdown(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newCronRunner(
@@ -2084,16 +688,8 @@ func newCronRunner(
 	memSvc memory.Service,
 	rlCfg *runner.RalphLoopConfig,
 ) runner.Runner {
-	opts := []runner.Option{
-		runner.WithSessionService(
-			sessioninmemory.NewSessionService(),
-		),
-	}
-	opts = appendMemoryServiceRunnerOption(opts, memSvc)
-	if rlCfg != nil {
-		opts = append(opts, runner.WithRalphLoop(*rlCfg))
-	}
-	return runner.NewRunner(appName, ag, opts...)
+	_ = "STUB: not implemented"
+	return *new(runner.Runner)
 }
 
 func runtimeInstanceID(
@@ -2102,304 +698,54 @@ func runtimeInstanceID(
 	needsModel bool,
 	stateDir string,
 ) string {
-	if agentType == agentTypeLLM {
-		return configFingerprint(
-			opts.ModelMode,
-			opts.OpenAIModel,
-			stateDir,
-		)
-	}
-
-	parts := []string{
-		agentType,
-		strings.TrimSpace(opts.ClaudeBin),
-		strings.TrimSpace(opts.ClaudeOutputFormat),
-		stateDir,
-	}
-	if needsModel {
-		parts = append(parts, opts.ModelMode, opts.OpenAIModel)
-	}
-	return configFingerprint(parts...)
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func channelIDs(channels []channel.Channel) []string {
-	if len(channels) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(channels))
-	for _, ch := range channels {
-		if ch == nil {
-			continue
-		}
-		if id := strings.TrimSpace(ch.ID()); id != "" {
-			out = append(out, id)
-		}
-	}
-	return out
-}
+func channelIDs(channels []channel.Channel) []string { _ = "STUB: not implemented"; return nil }
 
-func listenURL(addr string) string {
-	host, port, err := net.SplitHostPort(strings.TrimSpace(addr))
-	if err != nil {
-		trimmed := strings.TrimSpace(addr)
-		if trimmed == "" {
-			return ""
-		}
-		return "http://" + trimmed
-	}
-	if host == "" || host == "0.0.0.0" || host == "::" {
-		host = "127.0.0.1"
-	}
-	return "http://" + net.JoinHostPort(host, port)
-}
+func listenURL(addr string) string { _ = "STUB: not implemented"; return "" }
 
-func defaultOpenAIModelName() string {
-	modelName := strings.TrimSpace(os.Getenv(openAIModelEnvName))
-	if modelName != "" {
-		return modelName
-	}
-	return defaultOpenAIModel
-}
+func defaultOpenAIModelName() string { _ = "STUB: not implemented"; return "" }
 
 func makeGatewayOptions(
 	users []string,
 	requireMention bool,
 	mentionPatterns []string,
 ) []gateway.Option {
-	opts := make([]gateway.Option, 0, 4)
-	if len(users) > 0 {
-		opts = append(opts, gateway.WithAllowUsers(users...))
-	}
-	if requireMention {
-		opts = append(opts, gateway.WithRequireMentionInThreads(true))
-	}
-	if len(mentionPatterns) > 0 {
-		opts = append(opts, gateway.WithMentionPatterns(mentionPatterns...))
-	}
-	return opts
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func normalizeAgentType(raw string) (string, error) {
-	v := strings.ToLower(strings.TrimSpace(raw))
-	if v == "" {
-		return agentTypeLLM, nil
-	}
-	switch v {
-	case agentTypeLLM:
-		return agentTypeLLM, nil
-	case agentTypeClaudeCode, "claudecode":
-		return agentTypeClaudeCode, nil
-	default:
-		return "", fmt.Errorf("unsupported agent type: %s", raw)
-	}
-}
+func normalizeAgentType(raw string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func validateAgentRunOptions(agentType string, opts runOptions) error {
-	if opts.RalphLoopEnabled && agentType != agentTypeLLM {
-		return errors.New(
-			"claude-code agent does not support ralph loop",
-		)
-	}
-	if opts.RalphLoopEnabled {
-		if _, err := ralphLoopConfigFromRunOptions(opts); err != nil {
-			return err
-		}
-	}
-
-	if agentType == agentTypeLLM {
-		return nil
-	}
-	if agentType != agentTypeClaudeCode {
-		return fmt.Errorf("unsupported agent type: %s", agentType)
-	}
-
-	if opts.AddSessionSummary {
-		return errors.New(
-			"claude-code agent does not support add-session-summary",
-		)
-	}
-	if opts.MaxHistoryRuns != 0 {
-		return errors.New(
-			"claude-code agent does not support max-history-runs",
-		)
-	}
-	if opts.PreloadMemory != 0 {
-		return errors.New(
-			"claude-code agent does not support preload-memory",
-		)
-	}
-	if strings.TrimSpace(opts.AgentInstruction) != "" ||
-		strings.TrimSpace(opts.AgentInstructionFiles) != "" ||
-		strings.TrimSpace(opts.AgentInstructionDir) != "" {
-		return errors.New(errClaudeCodeAgentNoPrompts)
-	}
-	if strings.TrimSpace(opts.AgentSystemPrompt) != "" ||
-		strings.TrimSpace(opts.AgentSystemPromptFiles) != "" ||
-		strings.TrimSpace(opts.AgentSystemPromptDir) != "" {
-		return errors.New(errClaudeCodeAgentNoPrompts)
-	}
-	if opts.EnableLocalExec {
-		return errors.New(
-			"claude-code agent does not support enable-local-exec",
-		)
-	}
-	if opts.EnableOpenClawTools {
-		return errors.New(
-			"claude-code agent does not support enable-openclaw-tools",
-		)
-	}
-	if opts.EnableParallelTools {
-		return errors.New(
-			"claude-code agent does not support enable-parallel-tools",
-		)
-	}
-	if len(opts.ToolProviders) > 0 {
-		return errors.New(
-			"claude-code agent does not support tools.providers",
-		)
-	}
-	if len(opts.ToolSets) > 0 {
-		return errors.New(
-			"claude-code agent does not support tools.toolsets",
-		)
-	}
-	if len(opts.KnowledgesConfig) > 0 {
-		return errors.New(
-			"claude-code agent does not support knowledges",
-		)
-	}
-	if opts.RefreshToolSetsOnRun {
-		return errors.New(
-			"claude-code agent does not support refresh-toolsets-on-run",
-		)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ralphLoopConfigFromRunOptions(
 	opts runOptions,
 ) (*runner.RalphLoopConfig, error) {
-	if !opts.RalphLoopEnabled {
-		return nil, nil
-	}
-
-	promise := strings.TrimSpace(opts.RalphLoopCompletionPromise)
-	verifyCmd := strings.TrimSpace(opts.RalphLoopVerifyCommand)
-	if promise == "" && verifyCmd == "" {
-		return nil, errors.New(
-			"agent.ralph_loop requires completion_promise or verify.command",
-		)
-	}
-
-	if opts.RalphLoopMaxIterations < 0 {
-		return nil, errors.New(
-			"agent.ralph_loop.max_iterations must be >= 0",
-		)
-	}
-	if opts.RalphLoopVerifyTimeout < 0 {
-		return nil, errors.New(
-			"agent.ralph_loop.verify.timeout must be >= 0",
-		)
-	}
-
-	env, err := parseKVOverrides(splitCSV(opts.RalphLoopVerifyEnv))
-	if err != nil {
-		return nil, fmt.Errorf(
-			"agent.ralph_loop.verify.env: %w",
-			err,
-		)
-	}
-
-	cfg := &runner.RalphLoopConfig{
-		MaxIterations:     opts.RalphLoopMaxIterations,
-		CompletionPromise: promise,
-		PromiseTagOpen: strings.TrimSpace(
-			opts.RalphLoopPromiseTagOpen,
-		),
-		PromiseTagClose: strings.TrimSpace(
-			opts.RalphLoopPromiseTagClose,
-		),
-		VerifyCommand: verifyCmd,
-		VerifyWorkDir: strings.TrimSpace(opts.RalphLoopVerifyWorkDir),
-		VerifyTimeout: opts.RalphLoopVerifyTimeout,
-		VerifyEnv:     env,
-	}
-	return cfg, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func parseKVOverrides(items []string) (map[string]string, error) {
-	if len(items) == 0 {
-		return nil, nil
-	}
-
-	out := make(map[string]string, len(items))
-	for _, item := range items {
-		key, val, ok := strings.Cut(item, "=")
-		if !ok {
-			return nil, fmt.Errorf("invalid override: %q", item)
-		}
-		key = strings.TrimSpace(key)
-		if key == "" {
-			return nil, fmt.Errorf("empty key in override: %q", item)
-		}
-		out[key] = val
-	}
-
-	if len(out) == 0 {
-		return nil, nil
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func parseClaudeOutputFormat(
 	raw string,
 ) (claudecode.OutputFormat, error) {
-	v := strings.ToLower(strings.TrimSpace(raw))
-	if v == "" {
-		return "", errors.New("claude output format is empty")
-	}
-	format := claudecode.OutputFormat(v)
-	switch format {
-	case claudecode.OutputFormatJSON,
-		claudecode.OutputFormatStreamJSON:
-		return format, nil
-	default:
-		return "", fmt.Errorf(
-			"unsupported claude output format: %s",
-			raw,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(claudecode.OutputFormat), nil
 }
 
 func newClaudeCodeAgent(opts runOptions) (agent.Agent, error) {
-	claudeOpts := make([]claudecode.Option, 0, 6)
-	claudeOpts = append(claudeOpts, claudecode.WithName(defaultAgentName))
-
-	if v := strings.TrimSpace(opts.ClaudeBin); v != "" {
-		claudeOpts = append(claudeOpts, claudecode.WithBin(v))
-	}
-
-	if v := strings.TrimSpace(opts.ClaudeOutputFormat); v != "" {
-		format, err := parseClaudeOutputFormat(v)
-		if err != nil {
-			return nil, err
-		}
-		claudeOpts = append(
-			claudeOpts,
-			claudecode.WithOutputFormat(format),
-		)
-	}
-
-	if args := splitCSV(opts.ClaudeExtraArgs); len(args) > 0 {
-		claudeOpts = append(claudeOpts, claudecode.WithExtraArgs(args...))
-	}
-	if env := splitCSV(opts.ClaudeEnv); len(env) > 0 {
-		claudeOpts = append(claudeOpts, claudecode.WithEnv(env...))
-	}
-	if v := strings.TrimSpace(opts.ClaudeWorkDir); v != "" {
-		claudeOpts = append(claudeOpts, claudecode.WithWorkDir(v))
-	}
-	return claudecode.New(claudeOpts...)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil
 }
 
 func newAgent(
@@ -2408,169 +754,15 @@ func newAgent(
 	extraTools []tool.Tool,
 	toolSets []tool.ToolSet,
 ) (agent.Agent, *ocskills.Repository, error) {
-	instruction := strings.TrimSpace(cfg.Instruction)
-	if instruction == "" {
-		instruction = defaultAgentInstruction
-	}
-	if cfg.EnableOpenClawTools {
-		guidance := buildOpenClawToolingGuidance(cfg)
-		if strings.TrimSpace(guidance) != "" {
-			instruction = strings.TrimSpace(
-				instruction + "\n\n" + guidance,
-			)
-		}
-	}
-	knowledgeTools, err := buildKnowledgeTools(
-		cfg.KnowledgesConfig,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	cwd, _ := os.Getwd()
-	roots := resolveSkillRoots(cwd, cfg)
-	bundledRoot := resolveBundledSkillsRoot(cwd, cfg.StateDir)
-	repo, err := ocskills.NewRepository(
-		roots,
-		ocskills.WithDebug(cfg.SkillsDebug),
-		ocskills.WithConfigKeys(cfg.SkillConfigKeys),
-		ocskills.WithBundledSkillsRoot(bundledRoot),
-		ocskills.WithAllowBundled(cfg.SkillsAllowBundled),
-		ocskills.WithSkillConfigs(cfg.SkillConfigs),
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	tools := append([]tool.Tool(nil), extraTools...)
-	if knowledgeTools != nil && len(knowledgeTools.tools) > 0 {
-		tools = append(tools, knowledgeTools.tools...)
-	}
-	tools = append(tools, ocskills.NewListTool(repo))
-	if len(cfg.ToolProviders) > 0 {
-		extra, err := toolsFromProviders(
-			mdl,
-			cfg.AppName,
-			cfg.StateDir,
-			cfg.ToolProviders,
-		)
-		if err != nil {
-			return nil, nil, err
-		}
-		tools = append(tools, extra...)
-	}
-	if hasToolNamed(tools, ocbrowser.ToolName) {
-		instruction = strings.TrimSpace(
-			instruction + "\n\n" + browserToolingGuidance,
-		)
-	}
-
-	genConfig := model.GenerationConfig{Stream: true}
-	if cfg.GenerationConfig != nil {
-		genConfig = *cfg.GenerationConfig
-	}
-
-	opts := []llmagent.Option{
-		llmagent.WithModel(mdl),
-		llmagent.WithInstruction(instruction),
-		llmagent.WithGlobalInstruction(strings.TrimSpace(cfg.SystemPrompt)),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithAddSessionSummary(cfg.AddSessionSummary),
-		llmagent.WithEnableContextCompaction(cfg.EnableContextCompaction),
-		llmagent.WithContextCompactionOversizedToolResultMaxTokens(
-			cfg.ContextCompactionOversizedToolResultMaxTokens,
-		),
-		llmagent.WithMaxHistoryRuns(cfg.MaxHistoryRuns),
-		llmagent.WithPreloadMemory(cfg.PreloadMemory),
-		llmagent.WithEventMessageProjector(
-			conversation.ProjectEventMessage,
-		),
-		llmagent.WithEnableParallelTools(cfg.EnableParallelTools),
-		llmagent.WithPostToolPrompt(openClawPostToolPrompt),
-		llmagent.WithSkillFilter(
-			runtimeprofile.SkillVisibilityFilterForRepository(repo),
-		),
-	}
-	opts = append(opts, llmagent.WithSkills(repo))
-	opts = append(
-		opts,
-		llmagent.WithSkillToolProfile(
-			llmagent.SkillToolProfile(cfg.SkillsToolProfile),
-		),
-		llmagent.WithSkillsFilePathHints(true),
-		llmagent.WithSkillsDirectoryHints(true),
-		llmagent.WithSkillLoadMode(cfg.SkillsLoadMode),
-		llmagent.WithSkillsLoadedContentInToolResults(
-			cfg.SkillsToolResults,
-		),
-		llmagent.WithSkillLoadToolDescription(
-			openClawSkillLoadToolDescription,
-		),
-		llmagent.WithWorkspaceExecSurfaceEnabled(false),
-		llmagent.WithSkipSkillsFallbackOnSessionSummary(
-			cfg.SkillsSkipFallback,
-		),
-		llmagent.WithSkillsProtocolGuidance(
-			buildOpenClawSkillsGuidance(cfg),
-		),
-	)
-	if cfg.SkillsMaxLoaded > 0 {
-		opts = append(
-			opts,
-			llmagent.WithMaxLoadedSkills(cfg.SkillsMaxLoaded),
-		)
-	}
-	if len(tools) > 0 {
-		opts = append(opts, llmagent.WithTools(tools))
-	}
-	if len(toolSets) > 0 {
-		opts = append(opts, llmagent.WithToolSets(toolSets))
-	}
-	if cfg.RefreshToolSetsOnRun {
-		opts = append(opts, llmagent.WithRefreshToolSetsOnRun(true))
-	}
-	if cfg.EnableLocalExec {
-		exec := localexec.New()
-		opts = append(opts, llmagent.WithCodeExecutor(exec))
-	}
-
-	callbacks := tool.NewCallbacks()
-	registerMemoryFileToolCallback(
-		callbacks,
-		cfg.MemoryFileStore,
-		cfg.StateDir,
-	)
-	callbacks.RegisterToolResultMessages(openClawToolResultMessages)
-	opts = append(opts, llmagent.WithToolCallbacks(callbacks))
-
-	return llmagent.New(defaultAgentName, opts...), repo, nil
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil, nil
 }
 
-func buildOpenClawToolingGuidance(cfg agentConfig) string {
-	if cfg.OpenClawToolingGuide != nil {
-		return strings.TrimSpace(*cfg.OpenClawToolingGuide)
-	}
-	return strings.TrimSpace(openClawToolingGuidance)
-}
+func buildOpenClawToolingGuidance(cfg agentConfig) string { _ = "STUB: not implemented"; return "" }
 
-func buildOpenClawSkillsGuidance(cfg agentConfig) string {
-	if cfg.SkillsToolingGuide != nil {
-		return strings.TrimSpace(*cfg.SkillsToolingGuide)
-	}
-	return strings.TrimSpace(openClawSkillsGuidance)
-}
+func buildOpenClawSkillsGuidance(cfg agentConfig) string { _ = "STUB: not implemented"; return "" }
 
-func hasToolNamed(tools []tool.Tool, name string) bool {
-	for i := range tools {
-		decl := tools[i].Declaration()
-		if decl == nil {
-			continue
-		}
-		if decl.Name == name {
-			return true
-		}
-	}
-	return false
-}
+func hasToolNamed(tools []tool.Tool, name string) bool { _ = "STUB: not implemented"; return false }
 
 func toolsFromProviders(
 	mdl model.Model,
@@ -2578,46 +770,8 @@ func toolsFromProviders(
 	stateDir string,
 	specs []pluginSpec,
 ) ([]tool.Tool, error) {
-	deps := registry.ToolProviderDeps{
-		Model:    mdl,
-		StateDir: stateDir,
-		AppName:  appName,
-	}
-
-	out := make([]tool.Tool, 0, len(specs))
-	for i := range specs {
-		spec := specs[i]
-		typeName := strings.ToLower(strings.TrimSpace(spec.Type))
-		if typeName == "" {
-			return nil, fmt.Errorf(
-				"tools.providers[%d].type is empty",
-				i,
-			)
-		}
-
-		f, ok := registry.LookupToolProvider(typeName)
-		if !ok {
-			return nil, fmt.Errorf(
-				"unsupported tool provider: %s",
-				typeName,
-			)
-		}
-
-		tools, err := f(deps, registry.PluginSpec{
-			Type:   typeName,
-			Name:   strings.TrimSpace(spec.Name),
-			Config: spec.Config,
-		})
-		if err != nil {
-			return nil, fmt.Errorf(
-				"tool provider %s failed: %w",
-				typeName,
-				err,
-			)
-		}
-		out = append(out, tools...)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func toolSetsFromProviders(
@@ -2626,50 +780,8 @@ func toolSetsFromProviders(
 	stateDir string,
 	specs []pluginSpec,
 ) ([]tool.ToolSet, error) {
-	if len(specs) == 0 {
-		return nil, nil
-	}
-
-	deps := registry.ToolSetProviderDeps{
-		Model:    mdl,
-		StateDir: stateDir,
-		AppName:  appName,
-	}
-
-	out := make([]tool.ToolSet, 0, len(specs))
-	for i := range specs {
-		spec := specs[i]
-		typeName := strings.ToLower(strings.TrimSpace(spec.Type))
-		if typeName == "" {
-			return nil, fmt.Errorf(
-				"tools.toolsets[%d].type is empty",
-				i,
-			)
-		}
-
-		f, ok := registry.LookupToolSetProvider(typeName)
-		if !ok {
-			return nil, fmt.Errorf(
-				"unsupported toolset provider: %s",
-				typeName,
-			)
-		}
-
-		ts, err := f(deps, registry.PluginSpec{
-			Type:   typeName,
-			Name:   strings.TrimSpace(spec.Name),
-			Config: spec.Config,
-		})
-		if err != nil {
-			return nil, fmt.Errorf(
-				"toolset provider %s failed: %w",
-				typeName,
-				err,
-			)
-		}
-		out = append(out, ts)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func channelsFromRegistry(
@@ -2680,48 +792,8 @@ func channelsFromRegistry(
 	allowUsers []string,
 	specs []pluginSpec,
 ) ([]channel.Channel, error) {
-	deps := registry.ChannelDeps{
-		Ctx:        ctx,
-		Gateway:    gw,
-		StateDir:   stateDir,
-		AppName:    appName,
-		AllowUsers: allowUsers,
-	}
-
-	out := make([]channel.Channel, 0, len(specs))
-	for i := range specs {
-		spec := specs[i]
-		typeName := strings.ToLower(strings.TrimSpace(spec.Type))
-		if typeName == "" {
-			return nil, fmt.Errorf(
-				"channels[%d].type is empty",
-				i,
-			)
-		}
-
-		f, ok := registry.LookupChannel(typeName)
-		if !ok {
-			return nil, fmt.Errorf(
-				"unsupported channel type: %s",
-				typeName,
-			)
-		}
-
-		ch, err := f(deps, registry.PluginSpec{
-			Type:   typeName,
-			Name:   strings.TrimSpace(spec.Name),
-			Config: spec.Config,
-		})
-		if err != nil {
-			return nil, fmt.Errorf(
-				"channel %s failed: %w",
-				typeName,
-				err,
-			)
-		}
-		out = append(out, ch)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type agentConfig struct {
@@ -2786,43 +858,8 @@ type runtimeStores struct {
 }
 
 func newRuntimeStores(stateDir string) (runtimeStores, error) {
-	uploadStore, err := uploads.NewStore(stateDir)
-	if err != nil {
-		return runtimeStores{}, fmt.Errorf("create upload store: %w", err)
-	}
-
-	personaPath, err := persona.DefaultStorePath(stateDir)
-	if err != nil {
-		return runtimeStores{}, fmt.Errorf(
-			"create persona store path: %w",
-			err,
-		)
-	}
-	personaStore, err := persona.NewStore(personaPath)
-	if err != nil {
-		return runtimeStores{}, fmt.Errorf("create persona store: %w", err)
-	}
-
-	memoryRoot, err := memoryfile.DefaultRoot(stateDir)
-	if err != nil {
-		return runtimeStores{}, fmt.Errorf(
-			"create memory root: %w",
-			err,
-		)
-	}
-	memoryStore, err := memoryfile.NewStore(memoryRoot)
-	if err != nil {
-		return runtimeStores{}, fmt.Errorf(
-			"create memory store: %w",
-			err,
-		)
-	}
-
-	return runtimeStores{
-		uploads:     uploadStore,
-		personas:    personaStore,
-		memoryFiles: memoryStore,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(runtimeStores), nil
 }
 
 func buildOpenClawTools(
@@ -2831,206 +868,42 @@ func buildOpenClawTools(
 	uploadStore *uploads.Store,
 	memoryFileStore *memoryfile.Store,
 ) openClawToolsBundle {
-	if !enabled {
-		return openClawToolsBundle{}
-	}
-
-	mgr := octool.NewManager(
-		octool.WithBaseEnv(deps.ToolEnv(stateDir)),
-		octool.WithCommandPolicy(
-			octool.NewChatCommandSafetyPolicy(),
-		),
-		octool.WithOutputRedactor(
-			octool.NewChatCommandOutputRedactor(),
-		),
-	)
-	router := outbound.NewRouter()
-	cronTool := cron.NewTool(nil)
-	subagentTools := subagentrun.NewTools(nil)
-	var depsReport *deps.Report
-	if sources, err := deps.SourcesForProfiles(deps.DefaultProfiles()); err ==
-		nil {
-		report, err := deps.InspectStartup(stateDir, sources)
-		if err == nil {
-			depsReport = &report
-		}
-	}
-
-	execTool := octool.NewExecCommandTool(mgr, uploadStore)
-	if memoryFileStore != nil {
-		execTool = octool.NewExecCommandToolWithMemoryFileStore(
-			mgr,
-			uploadStore,
-			memoryFileStore,
-		)
-	}
-	tools := []tool.Tool{
-		conversationtool.NewTool(),
-		octool.NewReadDocumentTool(uploadStore),
-		octool.NewReadSpreadsheetTool(uploadStore),
-		execTool,
-		octool.NewWriteStdinTool(mgr),
-		octool.NewKillSessionTool(mgr),
-		outbound.NewTool(router),
-		cronTool,
-	}
-	tools = append(tools, subagentTools.All()...)
-	return openClawToolsBundle{
-		tools:         tools,
-		execMgr:       mgr,
-		router:        router,
-		cronTool:      cronTool,
-		subagentTools: subagentTools,
-		deps:          depsReport,
-	}
+	_ = "STUB: not implemented"
+	return *new(openClawToolsBundle)
 }
 
-func resolveSkillRoots(cwd string, cfg agentConfig) []string {
-	workspaceSkills := resolveWorkspaceSkillsRoot(cwd, cfg.SkillsRoot)
-	projectAgentsSkills := filepath.Join(
-		cwd,
-		defaultAgentsDir,
-		defaultSkillsDir,
-	)
-	home, _ := os.UserHomeDir()
-	personalAgentsSkills := filepath.Join(
-		home,
-		defaultAgentsDir,
-		defaultSkillsDir,
-	)
-	managedSkills := filepath.Join(cfg.StateDir, defaultSkillsDir)
-	bundledSkills := resolveBundledSkillsRoot(cwd, cfg.StateDir)
-
-	roots := make([]string, 0, 6+len(cfg.SkillsExtraDirs))
-	roots = append(roots, workspaceSkills)
-	roots = append(roots, projectAgentsSkills)
-	roots = append(roots, personalAgentsSkills)
-	roots = append(roots, managedSkills)
-	if bundledSkills != workspaceSkills &&
-		bundledSkills != managedSkills {
-		roots = append(roots, bundledSkills)
-	}
-	roots = append(roots, cfg.SkillsExtraDirs...)
-	return roots
-}
+func resolveSkillRoots(cwd string, cfg agentConfig) []string { _ = "STUB: not implemented"; return nil }
 
 func newSkillsWatchService(
 	cwd string,
 	cfg agentConfig,
 	repo *ocskills.Repository,
 ) *ocskills.WatchService {
-	if repo == nil {
-		return nil
-	}
-
-	return ocskills.NewWatchService(
-		repo,
-		resolveSkillRoots(cwd, cfg),
-		ocskills.WatchConfig{
-			Enabled:      cfg.SkillsWatch,
-			Debounce:     cfg.SkillsWatchDebounce,
-			WatchBundled: cfg.SkillsWatchBundled,
-			BundledRoot: resolveBundledSkillsRoot(
-				cwd,
-				cfg.StateDir,
-			),
-		},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func resolveWorkspaceSkillsRoot(cwd, raw string) string {
-	root := strings.TrimSpace(raw)
-	if root != "" {
-		return root
-	}
+func resolveWorkspaceSkillsRoot(cwd, raw string) string { _ = "STUB: not implemented"; return "" }
 
-	cwdSkills := filepath.Join(cwd, defaultSkillsDir)
-	if dirExists(cwdSkills) {
-		return cwdSkills
-	}
-	return cwdSkills
-}
+func dirExists(path string) bool { _ = "STUB: not implemented"; return false }
 
-func dirExists(path string) bool {
-	st, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return st.IsDir()
-}
+func resolveBundledSkillsRoot(cwd, stateDir string) string { _ = "STUB: not implemented"; return "" }
 
-func resolveBundledSkillsRoot(cwd, stateDir string) string {
-	installedBundled := filepath.Join(
-		stateDir,
-		defaultBundledSkillsDir,
-	)
-	if dirExists(installedBundled) {
-		return installedBundled
-	}
-
-	repoBundled := filepath.Join(cwd, appName, defaultSkillsDir)
-	if dirExists(repoBundled) {
-		return repoBundled
-	}
-	if strings.TrimSpace(stateDir) != "" {
-		return installedBundled
-	}
-	return repoBundled
-}
-
-func resolveStateDir(raw string) (string, error) {
-	s := strings.TrimSpace(raw)
-	if s != "" {
-		return s, nil
-	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, ".trpc-agent-go-github", appName), nil
-}
+func resolveStateDir(raw string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func maybeEnableDebugRecorder(
 	ctx context.Context,
 	opts runOptions,
 ) (context.Context, *debugrecorder.Recorder, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if !opts.DebugRecorderEnabled {
-		return ctx, nil, nil
-	}
-
-	dir := strings.TrimSpace(opts.DebugRecorderDir)
-	if dir == "" {
-		dir = filepath.Join(opts.StateDir, defaultDebugRecorderDir)
-	}
-	mode, err := debugrecorder.ParseMode(opts.DebugRecorderMode)
-	if err != nil {
-		return ctx, nil, err
-	}
-	rec, err := debugrecorder.New(dir, mode)
-	if err != nil {
-		return ctx, nil, err
-	}
-
-	log.Infof(
-		"Debug recorder enabled: dir = %s mode = %s",
-		rec.Dir(),
-		rec.Mode(),
-	)
-
-	return debugrecorder.WithRecorder(ctx, rec), rec, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
-func configFingerprint(parts ...string) string {
-	joined := strings.Join(parts, "\n")
-	sum := crc32.ChecksumIEEE([]byte(joined))
-	return fmt.Sprintf("%08x", sum)
-}
+func configFingerprint(parts ...string) string { _ = "STUB: not implemented"; return "" }
 
 func newMockModel(_ registry.ModelSpec) (model.Model, error) {
-	return &echoModel{name: "mock-echo"}, nil
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 func recordDebugOpenAIChatRequestJSON(
@@ -3038,198 +911,49 @@ func recordDebugOpenAIChatRequestJSON(
 	raw []byte,
 	marshalErr error,
 ) {
-	if debugrecorder.TraceFromContext(ctx) == nil {
-		return
-	}
-
-	err := marshalErr
-	if err == nil && len(raw) > 0 {
-		var payload any
-		err = json.Unmarshal(raw, &payload)
-		if err == nil {
-			err = debugrecorder.RecordModelRequest(
-				ctx,
-				debugrecorder.ProviderOpenAIChatCompletions,
-				payload,
-			)
-		}
-	}
-	if err != nil {
-		log.Warnf(
-			"debug recorder failed to capture chat request: %v",
-			err,
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func newOpenAIModel(spec registry.ModelSpec) (model.Model, error) {
-	name := strings.TrimSpace(spec.Name)
-	if name == "" {
-		return nil, errors.New("openai model name is empty")
-	}
-
-	baseURL := strings.TrimSpace(spec.BaseURL)
-	variant, err := parseOpenAIVariant(spec.OpenAIVariant, baseURL)
-	if err != nil {
-		return nil, err
-	}
-
-	opts := []openai.Option{
-		openai.WithVariant(variant),
-		openai.WithOmitFileContentParts(true),
-	}
-	if spec.DebugRecorderEnabled {
-		opts = append(
-			opts,
-			openai.WithChatRequestJSONCallback(
-				recordDebugOpenAIChatRequestJSON,
-			),
-		)
-	}
-	if baseURL != "" {
-		opts = append(opts, openai.WithBaseURL(baseURL))
-	}
-	return openai.New(name, opts...), nil
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 func modelFromOptions(opts runOptions) (model.Model, error) {
-	mode := strings.ToLower(strings.TrimSpace(opts.ModelMode))
-	if mode == "" {
-		mode = modeOpenAI
-	}
-
-	f, ok := registry.LookupModel(mode)
-	if !ok {
-		return nil, fmt.Errorf("unsupported mode: %s", mode)
-	}
-
-	baseURL := strings.TrimSpace(opts.OpenAIBaseURL)
-	if baseURL == "" {
-		baseURL = strings.TrimSpace(os.Getenv(openAIBaseURLEnvName))
-	}
-
-	spec := registry.ModelSpec{
-		Type:                 mode,
-		Name:                 opts.OpenAIModel,
-		BaseURL:              baseURL,
-		OpenAIVariant:        opts.OpenAIVariant,
-		DebugRecorderEnabled: opts.DebugRecorderEnabled,
-		Config:               opts.ModelConfig,
-	}
-	return f(spec)
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 func parseOpenAIVariant(
 	raw string,
 	baseURL string,
 ) (openai.Variant, error) {
-	v := strings.ToLower(strings.TrimSpace(raw))
-	if v == "" || v == openAIVariantAuto {
-		return inferOpenAIVariant(baseURL), nil
-	}
-
-	variant := openai.Variant(v)
-	switch variant {
-	case openai.VariantOpenAI,
-		openai.VariantDeepSeek,
-		openai.VariantHunyuan,
-		openai.VariantQwen:
-		return variant, nil
-	default:
-		return "", fmt.Errorf("unsupported openai variant: %s", raw)
-	}
+	_ = "STUB: not implemented"
+	return *new(openai.Variant), nil
 }
 
 func inferOpenAIVariant(baseURL string) openai.Variant {
-	host, ok := openAIBaseURLHost(baseURL)
-	if !ok {
-		return openai.VariantOpenAI
-	}
-	switch {
-	case strings.EqualFold(host, deepSeekAPIHost):
-		return openai.VariantDeepSeek
-	case strings.EqualFold(host, qwenAPIHost):
-		return openai.VariantQwen
-	case strings.EqualFold(host, hunyuanAPIHost):
-		return openai.VariantHunyuan
-	default:
-		return openai.VariantOpenAI
-	}
+	_ = "STUB: not implemented"
+	return *new(openai.Variant)
 }
 
-func openAIBaseURLHost(raw string) (string, bool) {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return "", false
-	}
-	parsed, err := url.Parse(trimmed)
-	if err != nil {
-		return "", false
-	}
-	host := strings.TrimSpace(parsed.Hostname())
-	if host == "" {
-		return "", false
-	}
-	return host, true
-}
+func openAIBaseURLHost(raw string) (string, bool) { _ = "STUB: not implemented"; return "", false }
 
-func splitCSV(input string) []string {
-	if strings.TrimSpace(input) == "" {
-		return nil
-	}
-	parts := strings.Split(input, csvDelimiter)
-	out := make([]string, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			continue
-		}
-		out = append(out, part)
-	}
-	return out
-}
+func splitCSV(input string) []string { _ = "STUB: not implemented"; return nil }
 
 type echoModel struct {
 	name string
 }
 
-func (m *echoModel) Info() model.Info {
-	return model.Info{Name: m.name}
-}
+func (m *echoModel) Info() model.Info { _ = "STUB: not implemented"; return *new(model.Info) }
 
 func (m *echoModel) GenerateContent(
 	ctx context.Context,
 	req *model.Request,
 ) (<-chan *model.Response, error) {
-	if ctx == nil {
-		return nil, fmt.Errorf("nil context")
-	}
-
-	ch := make(chan *model.Response, 1)
-	text := lastUserText(req)
-	reply := fmt.Sprintf("Echo: %s", text)
-	ch <- &model.Response{
-		Object: model.ObjectTypeChatCompletion,
-		Model:  m.name,
-		Choices: []model.Choice{
-			{Message: model.NewAssistantMessage(reply)},
-		},
-		Done: true,
-	}
-	close(ch)
-	return ch, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func lastUserText(req *model.Request) string {
-	if req == nil {
-		return ""
-	}
-	for i := len(req.Messages) - 1; i >= 0; i-- {
-		msg := req.Messages[i]
-		if msg.Role != model.RoleUser {
-			continue
-		}
-		return msg.Content
-	}
-	return ""
-}
+func lastUserText(req *model.Request) string { _ = "STUB: not implemented"; return "" }

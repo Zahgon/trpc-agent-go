@@ -16,37 +16,27 @@ type graphCompletionCaptureKey struct{}
 // WithGraphCompletionCapture keeps terminal graph completion events available
 // to internal graph consumers even when caller-visible forwarding is disabled.
 func WithGraphCompletionCapture(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return context.WithValue(ctx, graphCompletionCaptureKey{}, true)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // WithoutGraphCompletionCapture clears any inherited capture flag for the
 // current visible stream while preserving the rest of the context.
 func WithoutGraphCompletionCapture(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return context.WithValue(ctx, graphCompletionCaptureKey{}, false)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // ShouldCaptureGraphCompletion reports whether the current context keeps
 // terminal graph completion events available for internal consumers.
 func ShouldCaptureGraphCompletion(ctx context.Context) bool {
-	if ctx == nil {
-		return false
-	}
-	capture, ok := ctx.Value(graphCompletionCaptureKey{}).(bool)
-	return ok && capture
+	_ = "STUB: not implemented"
+	return false
 }
 
 func graphCompletionCaptureValue(ctx context.Context) (bool, bool) {
-	if ctx == nil {
-		return false, false
-	}
-	capture, ok := ctx.Value(graphCompletionCaptureKey{}).(bool)
-	return capture, ok
+	_ = "STUB: not implemented"
+	return false, false
 }
 
 // PreserveGraphCompletionCapture copies the graph completion capture setting
@@ -55,14 +45,6 @@ func PreserveGraphCompletionCapture(
 	base context.Context,
 	next context.Context,
 ) context.Context {
-	if next == nil {
-		next = context.Background()
-	}
-	if _, ok := graphCompletionCaptureValue(next); ok {
-		return next
-	}
-	if capture, ok := graphCompletionCaptureValue(base); ok {
-		return context.WithValue(next, graphCompletionCaptureKey{}, capture)
-	}
-	return next
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

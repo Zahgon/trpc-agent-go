@@ -14,10 +14,8 @@ import (
 	"fmt"
 	"log"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/a2aagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 )
@@ -87,23 +85,8 @@ func main() {
 }
 
 func testQuery(ctx context.Context, agentRunner runner.Runner, userID, sessionID, query string) {
-	fmt.Printf("Query: %s\n\n", query)
-
-	events, err := agentRunner.Run(
-		ctx,
-		userID,
-		sessionID,
-		model.NewUserMessage(query),
-		agent.WithRuntimeState(map[string]any{"test": "value"}),
-	)
-	if err != nil {
-		log.Printf("Error: %v", err)
-		return
-	}
-
-	if err := processResponse(events); err != nil {
-		log.Printf("Error processing response: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // processResponse prints tool activity in real time but only renders the final
@@ -111,106 +94,26 @@ func testQuery(ctx context.Context, agentRunner runner.Runner, userID, sessionID
 // contain clean cumulative content, but the final event often duplicates content
 // or prepends the user question. To work around this, we only capture content from
 // non-final events and display it when the final event arrives.
-func processResponse(events <-chan *event.Event) error {
-	var lastValidContent string
+func processResponse(events <-chan *event.Event) error { _ = "STUB: not implemented"; return nil }
 
-	for evt := range events {
-		if evt.Error != nil {
-			return fmt.Errorf("event error: %s", evt.Error.Message)
-		}
+// Handle tool calls
 
-		// Handle tool calls
-		if handleToolCalls(evt) {
-			continue
-		}
+// Handle tool responses
 
-		// Handle tool responses
-		if handleToolResponses(evt) {
-			continue
-		}
+// Capture assistant content from intermediate (non-final) events only.
+// ADK's final event often contains duplicated or malformed content.
 
-		// Capture assistant content from intermediate (non-final) events only.
-		// ADK's final event often contains duplicated or malformed content.
-		if !evt.IsFinalResponse() {
-			if content := captureFinalContent(evt); content != "" {
-				lastValidContent = content
-			}
-		}
+// Print content when we receive the final response event
 
-		// Print content when we receive the final response event
-		if evt.IsFinalResponse() {
-			if lastValidContent != "" {
-				fmt.Println("🤖 Assistant:")
-				fmt.Println(lastValidContent)
-			}
-			break
-		}
-	}
+func handleToolCalls(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-	return nil
-}
-
-func handleToolCalls(evt *event.Event) bool {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return false
-	}
-
-	choice := evt.Response.Choices[0]
-	if len(choice.Message.ToolCalls) > 0 {
-		fmt.Println("\n🔧 Tool calls initiated:")
-		for _, toolCall := range choice.Message.ToolCalls {
-			fmt.Printf("   • %s (ID: %s)\n", toolCall.Function.Name, toolCall.ID)
-			if len(toolCall.Function.Arguments) > 0 {
-				fmt.Printf("     Args: %s\n", string(toolCall.Function.Arguments))
-			}
-		}
-		fmt.Println("\n🔄 Executing tools...")
-		return true
-	}
-	return false
-}
-
-func handleToolResponses(evt *event.Event) bool {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return false
-	}
-
-	hasToolResponse := false
-	for _, choice := range evt.Response.Choices {
-		if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-			content := choice.Message.Content
-			if content == "" {
-				content = choice.Delta.Content
-			}
-			if content != "" {
-				fmt.Printf("✅ Tool response (ID: %s): %s\n", choice.Message.ToolID, content)
-			}
-			hasToolResponse = true
-		}
-	}
-	return hasToolResponse
-}
+func handleToolResponses(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 // captureFinalContent extracts assistant text from either the full message
 // (non-streaming) or the delta payload (streaming). ADK's A2A bridge always
 // emits the complete content in the final chunk, so whichever field is
 // populated here represents the authoritative assistant answer.
 // Only capture content from assistant role messages, skip tool/user messages.
-func captureFinalContent(evt *event.Event) string {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return ""
-	}
+func captureFinalContent(evt *event.Event) string { _ = "STUB: not implemented"; return "" }
 
-	choice := evt.Response.Choices[0]
-
-	// Only capture assistant messages, skip tool responses
-	if choice.Message.Role != model.RoleAssistant && choice.Message.Role != "" {
-		return ""
-	}
-
-	content := choice.Message.Content
-	if content == "" {
-		content = choice.Delta.Content
-	}
-	return content
-}
+// Only capture assistant messages, skip tool responses

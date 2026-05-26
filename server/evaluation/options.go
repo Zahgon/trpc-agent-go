@@ -44,103 +44,58 @@ type options struct {
 	routeRegistrars   []RouteRegistrar
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		basePath:    defaultBasePath,
-		setsPath:    defaultSetsPath,
-		metricsPath: defaultMetricsPath,
-		runsPath:    defaultRunsPath,
-		resultsPath: defaultResultsPath,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithAppName sets the app name used by the evaluation server.
-func WithAppName(name string) Option {
-	return func(opts *options) {
-		opts.appName = name
-	}
-}
+func WithAppName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBasePath sets the base path used by the evaluation server.
-func WithBasePath(path string) Option {
-	return func(opts *options) {
-		opts.basePath = path
-	}
-}
+func WithBasePath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSetsPath sets the sets collection path relative to BasePath.
-func WithSetsPath(path string) Option {
-	return func(opts *options) {
-		opts.setsPath = path
-	}
-}
+func WithSetsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetricsPath sets the metrics collection path relative to BasePath.
-func WithMetricsPath(path string) Option {
-	return func(opts *options) {
-		opts.metricsPath = path
-	}
-}
+func WithMetricsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunsPath sets the runs collection path relative to BasePath.
-func WithRunsPath(path string) Option {
-	return func(opts *options) {
-		opts.runsPath = path
-	}
-}
+func WithRunsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithResultsPath sets the results collection path relative to BasePath.
-func WithResultsPath(path string) Option {
-	return func(opts *options) {
-		opts.resultsPath = path
-	}
-}
+func WithResultsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the maximum execution time for an online evaluation run.
-func WithTimeout(timeout time.Duration) Option {
-	return func(opts *options) {
-		opts.timeout = timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentEvaluator sets the agent evaluator used by the evaluation server.
 func WithAgentEvaluator(agentEvaluator coreevaluation.AgentEvaluator) Option {
-	return func(opts *options) {
-		opts.agentEvaluator = agentEvaluator
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalSetManager sets the eval set manager used by the evaluation server.
 // When omitted, set routes are not registered.
 func WithEvalSetManager(manager evalset.Manager) Option {
-	return func(opts *options) {
-		opts.evalSetManager = manager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMetricManager sets the metric manager used by the evaluation server.
 // When omitted, metric routes are not registered.
 func WithMetricManager(manager metric.Manager) Option {
-	return func(opts *options) {
-		opts.metricManager = manager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalResultManager sets the eval result manager used by the evaluation server.
 // When omitted, result routes are not registered.
 func WithEvalResultManager(manager evalresult.Manager) Option {
-	return func(opts *options) {
-		opts.evalResultManager = manager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRouteRegistrar appends a custom route registrar to the evaluation server.
 func WithRouteRegistrar(registrar RouteRegistrar) Option {
-	return func(opts *options) {
-		opts.routeRegistrars = append(opts.routeRegistrars, registrar)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

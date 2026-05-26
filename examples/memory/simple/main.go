@@ -65,22 +65,15 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 
 	util "trpc.group/trpc-go/trpc-agent-go/examples/memory"
 )
@@ -146,219 +139,39 @@ type memoryChat struct {
 	sessionID      string
 }
 
-func (c *memoryChat) run() error {
-	ctx := context.Background()
+func (c *memoryChat) run() error { _ = "STUB: not implemented"; return nil }
 
-	if err := c.setup(ctx); err != nil {
-		return fmt.Errorf("setup failed: %w", err)
-	}
+func (c *memoryChat) setup(_ context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	defer c.memoryService.Close()
-	defer c.runner.Close()
-
-	return c.startChat(ctx)
-}
-
-func (c *memoryChat) setup(_ context.Context) error {
-	memoryType := util.MemoryType(c.memServiceName)
-
-	memoryService, err := util.NewMemoryServiceByType(memoryType, util.MemoryServiceConfig{
-		SoftDelete: *softDelete,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create memory service: %w", err)
-	}
-	c.memoryService = memoryService
-
-	c.userID = "user"
-	c.sessionID = fmt.Sprintf("memory-session-%d", time.Now().Unix())
-
-	genConfig := model.GenerationConfig{
-		MaxTokens: util.IntPtr(2000),
-		Stream:    c.streaming,
-	}
-
-	appName := "memory-chat"
-	agentName := "memory-assistant"
-
-	modelInstance := openai.New(c.modelName)
-
-	llmAgent := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A helpful AI assistant with memory capabilities. "+
-			"I can remember important information about you and recall it when needed."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools(memoryService.Tools()),
-	)
-
-	c.runner = runner.NewRunner(
-		appName,
-		llmAgent,
-		runner.WithSessionService(sessioninmemory.NewSessionService()),
-		runner.WithMemoryService(memoryService),
-	)
-
-	fmt.Printf("✅ Memory chat ready! Session: %s\n\n", c.sessionID)
-
-	return nil
-}
-
-func (c *memoryChat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
-
-	fmt.Println("💡 Special commands:")
-	fmt.Println("   /memory   - Show user memories")
-	fmt.Println("   /new      - Start a new session")
-	fmt.Println("   /exit     - End the conversation")
-	fmt.Println()
-
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
-
-		switch strings.ToLower(userInput) {
-		case "/exit":
-			fmt.Println("👋 Goodbye!")
-			return nil
-		case "/memory":
-			userInput = "show what you remember about me"
-		case "/new":
-			c.startNewSession()
-			continue
-		}
-
-		if err := c.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println()
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-
-	return nil
-}
+func (c *memoryChat) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func (c *memoryChat) processMessage(ctx context.Context, userMessage string) error {
-	message := model.NewUserMessage(userMessage)
-
-	eventChan, err := c.runner.Run(ctx, c.userID, c.sessionID, message)
-	if err != nil {
-		return fmt.Errorf("failed to run agent: %w", err)
-	}
-
-	return c.processResponse(eventChan)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *memoryChat) processResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("🤖 Assistant: ")
-
-	var (
-		fullContent       string
-		toolCallsDetected bool
-		assistantStarted  bool
-		finalSeen         bool
-	)
-
-	for event := range eventChan {
-		if event.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", event.Error.Message)
-			continue
-		}
-
-		if finalSeen {
-			continue
-		}
-
-		if c.hasToolCalls(event) {
-			toolCallsDetected = true
-			c.handleToolCalls(event, assistantStarted)
-			assistantStarted = true
-			continue
-		}
-
-		if c.hasToolResponses(event) {
-			c.handleToolResponses(event)
-			continue
-		}
-
-		if content := c.extractContent(event); content != "" {
-			if !assistantStarted {
-				if toolCallsDetected {
-					fmt.Printf("\n🤖 Assistant: ")
-				}
-				assistantStarted = true
-			}
-			fmt.Print(content)
-			fullContent += content
-		}
-
-		if event.IsFinalResponse() {
-			fmt.Printf("\n")
-			finalSeen = true
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *memoryChat) hasToolCalls(event *event.Event) bool {
-	return len(event.Response.Choices) > 0 && len(event.Response.Choices[0].Message.ToolCalls) > 0
-}
+func (c *memoryChat) hasToolCalls(event *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 func (c *memoryChat) hasToolResponses(event *event.Event) bool {
-	if event.Response == nil || len(event.Response.Choices) == 0 {
-		return false
-	}
-	for _, choice := range event.Response.Choices {
-		if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (c *memoryChat) handleToolCalls(event *event.Event, assistantStarted bool) {
-	if assistantStarted {
-		fmt.Printf("\n")
-	}
-	fmt.Printf("🔧 Memory tool calls initiated:\n")
-	fmt.Printf("%s", util.FormatToolCalls(event.Response.Choices[0].Message.ToolCalls))
-	fmt.Printf("\n🔄 Executing memory tools...\n")
+	_ = "STUB: not implemented"
+	return
 }
 
-func (c *memoryChat) handleToolResponses(event *event.Event) {
-	fmt.Printf("%s", util.FormatToolResponses(event.Response.Choices))
-}
+func (c *memoryChat) handleToolResponses(event *event.Event) { _ = "STUB: not implemented"; return }
 
 func (c *memoryChat) extractContent(event *event.Event) string {
-	if len(event.Response.Choices) == 0 {
-		return ""
-	}
-
-	choice := event.Response.Choices[0]
-	if c.streaming {
-		return choice.Delta.Content
-	}
-	return choice.Message.Content
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func (c *memoryChat) startNewSession() {
-	oldSessionID := c.sessionID
-	c.sessionID = fmt.Sprintf("memory-session-%d", time.Now().Unix())
-	fmt.Printf("🆕 Started new memory session!\n")
-	fmt.Printf("   Previous: %s\n", oldSessionID)
-	fmt.Printf("   Current:  %s\n", c.sessionID)
-	fmt.Printf("   (Conversation history has been reset, memories are preserved)\n")
-	fmt.Println()
-}
+func (c *memoryChat) startNewSession() { _ = "STUB: not implemented"; return }

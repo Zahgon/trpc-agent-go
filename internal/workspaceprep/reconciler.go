@@ -11,14 +11,8 @@ package workspaceprep
 
 import (
 	"context"
-	"fmt"
-	"reflect"
-	"sort"
-	"strings"
 	"sync"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	"trpc.group/trpc-go/trpc-agent-go/internal/skillstage"
 )
@@ -35,12 +29,7 @@ type defaultReconciler struct {
 
 // NewReconciler returns the default Reconciler used by workspace_exec
 // and other workspace-aware tools.
-func NewReconciler() Reconciler {
-	return &defaultReconciler{
-		locker: newKeyedLocker(),
-		stager: skillstage.New(),
-	}
-}
+func NewReconciler() Reconciler { _ = "STUB: not implemented"; return *new(Reconciler) }
 
 // Reconcile implements Reconciler.
 func (r *defaultReconciler) Reconcile(
@@ -49,84 +38,8 @@ func (r *defaultReconciler) Reconcile(
 	ws codeexecutor.Workspace,
 	reqs []Requirement,
 ) ([]string, error) {
-	if len(reqs) == 0 {
-		return nil, nil
-	}
-	if eng == nil {
-		return nil, fmt.Errorf("workspaceprep: engine is required")
-	}
-
-	reqs = dedupeRequirements(reqs)
-	sortRequirements(reqs)
-
-	unlock := r.locker.lock(ws.Path)
-	defer unlock()
-
-	md, err := r.stager.LoadWorkspaceMetadata(ctx, eng, ws)
-	if err != nil {
-		return nil, fmt.Errorf("workspaceprep: load metadata: %w", err)
-	}
-	if md.Prepared == nil {
-		md.Prepared = map[string]codeexecutor.PreparedRecord{}
-	}
-	baseMD := cloneReconcileMetadata(md)
-
-	rctx := ApplyContext{
-		Engine:    eng,
-		Workspace: ws,
-		Metadata:  &md,
-	}
-	if inv, ok := agent.InvocationFromContext(ctx); ok {
-		rctx.Invocation = inv
-	}
-
-	var warnings []string
-	changed := false
-	var changedKeys []string
-	for _, req := range reqs {
-		applied, warn, err := r.runOne(ctx, rctx, req)
-		if warn != "" {
-			warnings = append(warnings, warn)
-		}
-		if err != nil {
-			if !req.Required() {
-				warnings = append(warnings, fmt.Sprintf(
-					"optional requirement %q failed: %v",
-					req.Key(), err,
-				))
-				continue
-			}
-			if changed {
-				if saveErr := r.saveReconcileMetadata(
-					ctx, eng, ws, baseMD, md, changedKeys,
-				); saveErr != nil {
-					return warnings, fmt.Errorf(
-						"workspaceprep: save metadata after "+
-							"partial apply: %w",
-						saveErr,
-					)
-				}
-			}
-			return warnings, fmt.Errorf(
-				"workspaceprep: required requirement %q failed: %w",
-				req.Key(), err,
-			)
-		}
-		if applied {
-			changed = true
-			changedKeys = append(changedKeys, req.Key())
-		}
-	}
-	if changed {
-		if err := r.saveReconcileMetadata(
-			ctx, eng, ws, baseMD, md, changedKeys,
-		); err != nil {
-			warnings = append(warnings, fmt.Sprintf(
-				"save metadata: %v", err,
-			))
-		}
-	}
-	return warnings, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *defaultReconciler) saveReconcileMetadata(
@@ -137,23 +50,8 @@ func (r *defaultReconciler) saveReconcileMetadata(
 	md codeexecutor.WorkspaceMetadata,
 	changedKeys []string,
 ) error {
-	return codeexecutor.WithWorkspaceMetadataLock(
-		ctx,
-		ws.Path,
-		func(ctx context.Context) error {
-			latest, err := r.stager.LoadWorkspaceMetadata(ctx, eng, ws)
-			if err != nil {
-				return err
-			}
-			merged := mergeReconcileMetadata(
-				latest,
-				base,
-				md,
-				changedKeys,
-			)
-			return r.stager.SaveWorkspaceMetadata(ctx, eng, ws, merged)
-		},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func mergeReconcileMetadata(
@@ -162,23 +60,8 @@ func mergeReconcileMetadata(
 	updated codeexecutor.WorkspaceMetadata,
 	changedKeys []string,
 ) codeexecutor.WorkspaceMetadata {
-	merged := latest
-	mergeDirectMetadataChanges(&merged, base, updated)
-	prepared := make(
-		map[string]codeexecutor.PreparedRecord,
-		len(merged.Prepared)+len(changedKeys),
-	)
-	for key, rec := range merged.Prepared {
-		prepared[key] = rec
-	}
-	for _, key := range changedKeys {
-		rec, ok := updated.Prepared[key]
-		if ok {
-			prepared[key] = rec
-		}
-	}
-	merged.Prepared = prepared
-	return merged
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.WorkspaceMetadata)
 }
 
 func mergeDirectMetadataChanges(
@@ -186,55 +69,15 @@ func mergeDirectMetadataChanges(
 	base codeexecutor.WorkspaceMetadata,
 	updated codeexecutor.WorkspaceMetadata,
 ) {
-	if updated.Version != base.Version {
-		merged.Version = updated.Version
-	}
-	if !updated.CreatedAt.Equal(base.CreatedAt) {
-		merged.CreatedAt = updated.CreatedAt
-	}
-	if !updated.UpdatedAt.Equal(base.UpdatedAt) {
-		merged.UpdatedAt = updated.UpdatedAt
-	}
-	if !updated.LastAccess.Equal(base.LastAccess) {
-		merged.LastAccess = updated.LastAccess
-	}
-	if !reflect.DeepEqual(updated.Skills, base.Skills) {
-		merged.Skills = updated.Skills
-	}
-	if !reflect.DeepEqual(updated.Inputs, base.Inputs) {
-		merged.Inputs = updated.Inputs
-	}
-	if !reflect.DeepEqual(updated.Outputs, base.Outputs) {
-		merged.Outputs = updated.Outputs
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func cloneReconcileMetadata(
 	md codeexecutor.WorkspaceMetadata,
 ) codeexecutor.WorkspaceMetadata {
-	out := md
-	if md.Skills != nil {
-		out.Skills = make(map[string]codeexecutor.SkillMeta, len(md.Skills))
-		for key, rec := range md.Skills {
-			out.Skills[key] = rec
-		}
-	}
-	if md.Inputs != nil {
-		out.Inputs = append([]codeexecutor.InputRecord(nil), md.Inputs...)
-	}
-	if md.Outputs != nil {
-		out.Outputs = append([]codeexecutor.OutputRecord(nil), md.Outputs...)
-	}
-	if md.Prepared != nil {
-		out.Prepared = make(
-			map[string]codeexecutor.PreparedRecord,
-			len(md.Prepared),
-		)
-		for key, rec := range md.Prepared {
-			out.Prepared[key] = rec
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.WorkspaceMetadata)
 }
 
 // runOne applies a single requirement. It returns whether work was
@@ -245,32 +88,8 @@ func (r *defaultReconciler) runOne(
 	rctx ApplyContext,
 	req Requirement,
 ) (bool, string, error) {
-	key := req.Key()
-	expected, err := req.Fingerprint(ctx, rctx)
-	if err != nil {
-		return false, "", fmt.Errorf("fingerprint: %w", err)
-	}
-	prev, hasPrev := rctx.Metadata.Prepared[key]
-	if hasPrev && prev.Fingerprint == expected {
-		ok, err := req.SentinelExists(ctx, rctx)
-		if err != nil {
-			return false, "", fmt.Errorf("sentinel: %w", err)
-		}
-		if ok {
-			return false, "", nil
-		}
-	}
-	if err := req.Apply(ctx, rctx); err != nil {
-		return false, "", err
-	}
-	rctx.Metadata.Prepared[key] = codeexecutor.PreparedRecord{
-		Key:         key,
-		Kind:        string(req.Kind()),
-		Fingerprint: expected,
-		Target:      req.Target(),
-		PreparedAt:  time.Now(),
-	}
-	return true, "", nil
+	_ = "STUB: not implemented"
+	return false, "", nil
 }
 
 // sortRequirements orders requirements by Phase and, within a phase,
@@ -278,35 +97,13 @@ func (r *defaultReconciler) runOne(
 // insertion order for equal keys). Callers should pass the slice in
 // the order Providers were registered so that behavior is
 // deterministic.
-func sortRequirements(reqs []Requirement) {
-	sort.SliceStable(reqs, func(i, j int) bool {
-		return reqs[i].Phase() < reqs[j].Phase()
-	})
-}
+func sortRequirements(reqs []Requirement) { _ = "STUB: not implemented"; return }
 
 // dedupeRequirements removes duplicate requirements by Key while
 // preserving the first occurrence. This lets multiple Providers
 // contribute overlapping requirements without forcing them to
 // coordinate; the reconciler simply honors the first one it saw.
-func dedupeRequirements(in []Requirement) []Requirement {
-	out := make([]Requirement, 0, len(in))
-	seen := make(map[string]struct{}, len(in))
-	for _, r := range in {
-		if r == nil {
-			continue
-		}
-		key := strings.TrimSpace(r.Key())
-		if key == "" {
-			continue
-		}
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = struct{}{}
-		out = append(out, r)
-	}
-	return out
-}
+func dedupeRequirements(in []Requirement) []Requirement { _ = "STUB: not implemented"; return nil }
 
 // keyedLocker is a small process-local keyed mutex used to serialize
 // reconciles for the same workspace. A sync.Map-backed implementation
@@ -323,37 +120,16 @@ type keyedLock struct {
 	refs int
 }
 
-func newKeyedLocker() *keyedLocker {
-	return &keyedLocker{locks: make(map[string]*keyedLock)}
-}
+func newKeyedLocker() *keyedLocker { _ = "STUB: not implemented"; return nil }
 
 // lock acquires the mutex for the given key and returns an unlock
 // function. The lock is reference-counted so parallel callers for
 // different keys never contend on the outer mutex for longer than
 // needed.
 func (k *keyedLocker) lock(key string) func() {
-	if key == "" {
-		// Fall back to a shared lock for empty keys so callers still
-		// get serialization even when ws.Path is unexpectedly empty.
-		key = "__empty__"
-	}
-	k.mu.Lock()
-	kl, ok := k.locks[key]
-	if !ok {
-		kl = &keyedLock{}
-		k.locks[key] = kl
-	}
-	kl.refs++
-	k.mu.Unlock()
+	_ = "STUB: not implemented"
 
-	kl.mu.Lock()
-	return func() {
-		kl.mu.Unlock()
-		k.mu.Lock()
-		kl.refs--
-		if kl.refs == 0 {
-			delete(k.locks, key)
-		}
-		k.mu.Unlock()
-	}
+	// Fall back to a shared lock for empty keys so callers still
+	// get serialization even when ws.Path is unexpectedly empty.
+	return nil
 }

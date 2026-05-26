@@ -10,21 +10,8 @@ package model
 
 import (
 	"context"
-	"runtime/debug"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // RecoverCallbackPanic converts provider callback panics into logged errors so
 // user-defined hooks cannot crash the framework's streaming goroutines.
-func RecoverCallbackPanic(ctx context.Context, stage string) {
-	if recovered := recover(); recovered != nil {
-		log.ErrorfContext(
-			ctx,
-			"%s panic: %v\n%s",
-			stage,
-			recovered,
-			string(debug.Stack()),
-		)
-	}
-}
+func RecoverCallbackPanic(ctx context.Context, stage string) { _ = "STUB: not implemented"; return }

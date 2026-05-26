@@ -12,16 +12,10 @@ package dify
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"io"
-	"strings"
-	"time"
 
 	"github.com/cloudernative/dify-sdk-go"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -63,74 +57,37 @@ type DifyAgent struct {
 }
 
 // New creates a new DifyAgent.
-func New(opts ...Option) (*DifyAgent, error) {
-	difyAgent := &DifyAgent{
-		eventConverter:    &defaultDifyEventConverter{},
-		requestConverter:  &defaultEventDifyConverter{},
-		workflowConverter: &defaultWorkflowRequestConverter{},
-		streamingBufSize:  defaultStreamingChannelSize,
-		mode:              ModeChatflow, // Default to chatflow mode
-	}
+func New(opts ...Option) (*DifyAgent, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	for _, opt := range opts {
-		opt(difyAgent)
-	}
+// Default to chatflow mode
 
-	// Validate that required fields are set
-	if difyAgent.name == "" {
-		return nil, fmt.Errorf("agent name is required")
-	}
+// Validate that required fields are set
 
-	// Validate mode
-	if difyAgent.mode != ModeChatflow && difyAgent.mode != ModeWorkflow {
-		return nil, fmt.Errorf("invalid mode: %s, must be either 'chatflow' or 'workflow'", difyAgent.mode)
-	}
-
-	return difyAgent, nil
-}
+// Validate mode
 
 // sendErrorEvent sends an error event to the event channel
 func (r *DifyAgent) sendErrorEvent(ctx context.Context, eventChan chan<- *event.Event,
 	invocation *agent.Invocation, errorMessage string) {
-	agent.EmitEvent(ctx, invocation, eventChan, event.New(
-		invocation.InvocationID,
-		r.name,
-		event.WithResponse(&model.Response{
-			Error: &model.ResponseError{
-				Message: errorMessage,
-			},
-		}),
-	))
+	_ = "STUB: not implemented"
+	return
 }
 
 // Run implements the Agent interface
 func (r *DifyAgent) Run(ctx context.Context, invocation *agent.Invocation) (<-chan *event.Event, error) {
-	cli, err := r.getDifyClient(invocation)
-	if err != nil {
-		return nil, err
-	}
-	r.difyClient = cli
-
-	useStreaming := r.shouldUseStreaming(invocation)
-	if useStreaming {
-		return r.runStreaming(ctx, invocation)
-	}
-	return r.runNonStreaming(ctx, invocation)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // shouldUseStreaming determines whether to use streaming protocol
 func (r *DifyAgent) shouldUseStreaming(invocation *agent.Invocation) bool {
+	_ = "STUB: not implemented"
 	// Per-run override.
-	if invocation != nil && invocation.RunOptions.Stream != nil {
-		return *invocation.RunOptions.Stream
-	}
-	// If explicitly set via option, use that value
-	if r.enableStreaming != nil {
-		return *r.enableStreaming
-	}
-	// Default to non-streaming if capabilities are not specified
 	return false
 }
+
+// If explicitly set via option, use that value
+
+// Default to non-streaming if capabilities are not specified
 
 // buildDifyRequest constructs Dify request from invocation
 func (r *DifyAgent) buildDifyRequest(
@@ -139,29 +96,11 @@ func (r *DifyAgent) buildDifyRequest(
 	isStream bool,
 ) (*dify.ChatMessageRequest,
 	error) {
-	if r.requestConverter == nil {
-		return nil, fmt.Errorf("request converter not set")
-	}
-
-	req, err := r.requestConverter.ConvertToDifyRequest(ctx, invocation, isStream)
-	if err != nil {
-		return nil, err
-	}
-	if req.Inputs == nil {
-		req.Inputs = map[string]any{}
-	}
-
-	// Transfer additional state keys
-	if len(r.transferStateKey) > 0 {
-		for _, key := range r.transferStateKey {
-			if value, ok := invocation.RunOptions.RuntimeState[key]; ok {
-				req.Inputs[key] = value
-			}
-		}
-	}
-
-	return req, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Transfer additional state keys
 
 // processStreamEvent processes a single stream event and returns the content to aggregate
 func (r *DifyAgent) processStreamEvent(
@@ -169,47 +108,21 @@ func (r *DifyAgent) processStreamEvent(
 	streamEvent dify.ChatMessageStreamChannelResponse,
 	invocation *agent.Invocation,
 ) (*event.Event, string, error) {
-	evt := r.eventConverter.ConvertStreamingToEvent(streamEvent, r.name, invocation)
-
-	// Handle nil event (e.g., when Answer is empty)
-	if evt == nil {
-		return nil, "", nil
-	}
-
-	// Aggregate content from delta
-	var content string
-	if evt.Response != nil && len(evt.Response.Choices) > 0 {
-		if r.streamingRespHandler != nil {
-			var err error
-			content, err = r.streamingRespHandler(evt.Response)
-			if err != nil {
-				return nil, "", fmt.Errorf("streaming resp handler failed: %v", err)
-			}
-		} else if evt.Response.Choices[0].Delta.Content != "" {
-			content = evt.Response.Choices[0].Delta.Content
-		}
-	}
-
-	return evt, content, nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
+
+// Handle nil event (e.g., when Answer is empty)
+
+// Aggregate content from delta
 
 // buildStreamingRequest builds and sends streaming request to Dify chatflow
 func (r *DifyAgent) buildStreamingRequest(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan dify.ChatMessageStreamChannelResponse, error) {
-	req, err := r.buildDifyRequest(ctx, invocation, true)
-	if err != nil {
-		return nil, fmt.Errorf("failed to construct Dify request: %v", err)
-	}
-	req.AutoGenerateName = r.autoGenConversationName
-
-	streamChan, err := r.difyClient.API().ChatMessagesStream(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("dify chatflow streaming request failed to %s: %v", r.baseUrl, err)
-	}
-
-	return streamChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // buildWorkflowStreamingRequest builds and sends streaming request to Dify workflow
@@ -218,93 +131,20 @@ func (r *DifyAgent) buildWorkflowStreamingRequest(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) error {
-	if r.workflowConverter == nil {
-		return fmt.Errorf("workflow converter not set")
-	}
-
-	req, err := r.workflowConverter.ConvertToWorkflowRequest(ctx, invocation)
-	if err != nil {
-		return fmt.Errorf("failed to construct workflow request: %v", err)
-	}
-
-	// Transfer additional state keys
-	if len(r.transferStateKey) > 0 {
-		for _, key := range r.transferStateKey {
-			if value, ok := invocation.RunOptions.RuntimeState[key]; ok {
-				req.Inputs[key] = value
-			}
-		}
-	}
-
-	req.ResponseMode = "streaming"
-
-	var aggregatedContentBuilder strings.Builder
-	var workflowRunID string
-
-	err = r.difyClient.API().RunStreamWorkflow(ctx, req, func(resp dify.StreamingResponse) {
-		if err := agent.CheckContextCancelled(ctx); err != nil {
-			return
-		}
-
-		// Track workflow_run_id from streaming response for tracing correlation with Dify logs
-		if resp.WorkflowRunID != "" {
-			workflowRunID = resp.WorkflowRunID
-		}
-
-		// Convert workflow streaming response to event
-		// Extract text from outputs
-		var content string
-		if resp.Data.Outputs != nil {
-			// Try to get answer from common output fields
-			if val, ok := resp.Data.Outputs["answer"]; ok {
-				if strVal, ok := val.(string); ok {
-					content = strVal
-				}
-			} else if val, ok := resp.Data.Outputs["text"]; ok {
-				if strVal, ok := val.(string); ok {
-					content = strVal
-				}
-			}
-		}
-
-		if content != "" {
-			aggregatedContentBuilder.WriteString(content)
-
-			message := model.Message{
-				Role:    model.RoleAssistant,
-				Content: content,
-			}
-
-			evt := event.New(
-				invocation.InvocationID,
-				r.name,
-				event.WithResponse(&model.Response{
-					ID:        workflowRunID,
-					Object:    model.ObjectTypeChatCompletionChunk,
-					Choices:   []model.Choice{{Delta: message}},
-					Timestamp: time.Now(),
-					Created:   time.Now().Unix(),
-					IsPartial: true,
-					Done:      false,
-				}),
-				event.WithObject(model.ObjectTypeChatCompletionChunk),
-			)
-			agent.EmitEvent(ctx, invocation, eventChan, evt)
-		}
-	})
-
-	if err != nil {
-		return fmt.Errorf("workflow streaming request failed to %s: %v", r.baseUrl, err)
-	}
-
-	// Send final aggregated event with Dify-assigned workflow_run_id for proper tracing
-	finalID := workflowRunID
-	if finalID == "" {
-		finalID = invocation.InvocationID
-	}
-	r.sendFinalStreamingEvent(ctx, eventChan, invocation, aggregatedContentBuilder.String(), finalID)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Transfer additional state keys
+
+// Track workflow_run_id from streaming response for tracing correlation with Dify logs
+
+// Convert workflow streaming response to event
+// Extract text from outputs
+
+// Try to get answer from common output fields
+
+// Send final aggregated event with Dify-assigned workflow_run_id for proper tracing
 
 // sendFinalStreamingEvent sends the final aggregated event for streaming
 func (r *DifyAgent) sendFinalStreamingEvent(
@@ -314,164 +154,47 @@ func (r *DifyAgent) sendFinalStreamingEvent(
 	aggregatedContent string,
 	messageID string,
 ) {
-	agent.EmitEvent(ctx, invocation, eventChan, event.New(
-		invocation.InvocationID,
-		r.name,
-		event.WithResponse(&model.Response{
-			ID:        messageID,
-			Object:    model.ObjectTypeChatCompletion,
-			Done:      true,
-			IsPartial: false,
-			Timestamp: time.Now(),
-			Created:   time.Now().Unix(),
-			Choices: []model.Choice{{
-				Message: model.Message{
-					Role:    model.RoleAssistant,
-					Content: aggregatedContent,
-				},
-			}},
-		}),
-	))
+	_ = "STUB: not implemented"
+	return
 }
 
 // runStreaming handles streaming communication
 func (r *DifyAgent) runStreaming(ctx context.Context, invocation *agent.Invocation) (<-chan *event.Event, error) {
-	if r.eventConverter == nil {
-		return nil, fmt.Errorf("event converter not set")
-	}
-	eventChan := make(chan *event.Event, r.streamingBufSize)
-
-	go func() {
-		defer close(eventChan)
-
-		// Handle workflow and chatflow differently due to different SDK APIs
-		if r.mode == ModeWorkflow {
-			// Workflow uses callback-based streaming
-			err := r.buildWorkflowStreamingRequest(ctx, invocation, eventChan)
-			if err != nil {
-				r.sendErrorEvent(ctx, eventChan, invocation, err.Error())
-			}
-			return
-		}
-
-		// Chatflow uses channel-based streaming
-		streamChan, err := r.buildStreamingRequest(ctx, invocation)
-		if err != nil {
-			r.sendErrorEvent(ctx, eventChan, invocation, err.Error())
-			return
-		}
-
-		var aggregatedContentBuilder strings.Builder
-		var lastMessageID string
-		for streamEvent := range streamChan {
-			if err := agent.CheckContextCancelled(ctx); err != nil {
-				return
-			}
-
-			// Dify SDK emits Err with io.EOF on normal stream close; ignore it.
-			// Only surface real streaming failures (e.g., token limit exceeded, server errors).
-			if streamEvent.Err != nil && !errors.Is(streamEvent.Err, io.EOF) {
-				r.sendErrorEvent(ctx, eventChan, invocation, streamEvent.Err.Error())
-				return
-			}
-
-			evt, content, err := r.processStreamEvent(ctx, streamEvent, invocation)
-			if err != nil {
-				r.sendErrorEvent(ctx, eventChan, invocation, err.Error())
-				return
-			}
-
-			// Skip nil events (empty responses)
-			if evt == nil {
-				continue
-			}
-
-			// Record the streaming event's MessageID to keep the final event consistent
-			if evt.Response != nil && evt.Response.ID != "" {
-				lastMessageID = evt.Response.ID
-			}
-
-			if content != "" {
-				aggregatedContentBuilder.WriteString(content)
-			}
-
-			agent.EmitEvent(ctx, invocation, eventChan, evt)
-		}
-
-		r.sendFinalStreamingEvent(ctx, eventChan, invocation, aggregatedContentBuilder.String(), lastMessageID)
-	}()
-	return eventChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Handle workflow and chatflow differently due to different SDK APIs
+
+// Workflow uses callback-based streaming
+
+// Chatflow uses channel-based streaming
+
+// Dify SDK emits Err with io.EOF on normal stream close; ignore it.
+// Only surface real streaming failures (e.g., token limit exceeded, server errors).
+
+// Skip nil events (empty responses)
+
+// Record the streaming event's MessageID to keep the final event consistent
 
 // executeNonStreamingRequest executes a non-streaming Dify request
 func (r *DifyAgent) executeNonStreamingRequest(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (*dify.ChatMessageResponse, error) {
+	_ = "STUB: not implemented"
 	// Handle workflow mode
-	if r.mode == ModeWorkflow {
-		if r.workflowConverter == nil {
-			return nil, fmt.Errorf("workflow converter not set")
-		}
-
-		req, err := r.workflowConverter.ConvertToWorkflowRequest(ctx, invocation)
-		if err != nil {
-			return nil, fmt.Errorf("failed to construct workflow request: %v", err)
-		}
-
-		// Transfer additional state keys
-		if len(r.transferStateKey) > 0 {
-			for _, key := range r.transferStateKey {
-				if value, ok := invocation.RunOptions.RuntimeState[key]; ok {
-					req.Inputs[key] = value
-				}
-			}
-		}
-
-		workflowResp, err := r.difyClient.API().RunWorkflow(ctx, req)
-		if err != nil {
-			return nil, fmt.Errorf("dify workflow request failed to %s: %v", r.baseUrl, err)
-		}
-
-		// Convert WorkflowResponse to ChatMessageResponse
-		// Extract answer from workflow outputs
-		answer := ""
-		if workflowResp.Data.Outputs != nil {
-			// Try to get answer from common output fields
-			if val, ok := workflowResp.Data.Outputs["answer"]; ok {
-				if strVal, ok := val.(string); ok {
-					answer = strVal
-				}
-			} else if val, ok := workflowResp.Data.Outputs["text"]; ok {
-				if strVal, ok := val.(string); ok {
-					answer = strVal
-				}
-			} else if val, ok := workflowResp.Data.Outputs["result"]; ok {
-				if strVal, ok := val.(string); ok {
-					answer = strVal
-				}
-			}
-		}
-
-		return &dify.ChatMessageResponse{
-			Answer: answer,
-			ID:     workflowResp.WorkflowRunID,
-		}, nil
-	}
-
-	// Handle chatflow mode
-	req, err := r.buildDifyRequest(ctx, invocation, false)
-	if err != nil {
-		return nil, fmt.Errorf("failed to construct Dify request: %v", err)
-	}
-
-	result, err := r.difyClient.API().ChatMessages(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("dify chatflow request failed to %s: %v", r.baseUrl, err)
-	}
-
-	return result, nil
+	return nil, nil
 }
+
+// Transfer additional state keys
+
+// Convert WorkflowResponse to ChatMessageResponse
+// Extract answer from workflow outputs
+
+// Try to get answer from common output fields
+
+// Handle chatflow mode
 
 // convertAndEmitNonStreamingEvent converts result to event and emits it
 func (r *DifyAgent) convertAndEmitNonStreamingEvent(
@@ -480,53 +203,39 @@ func (r *DifyAgent) convertAndEmitNonStreamingEvent(
 	invocation *agent.Invocation,
 	result *dify.ChatMessageResponse,
 ) {
-	evt := r.eventConverter.ConvertToEvent(result, r.name, invocation)
-	evt.Object = model.ObjectTypeChatCompletion
-	agent.EmitEvent(ctx, invocation, eventChan, evt)
+	_ = "STUB: not implemented"
+	return
 }
 
 // runNonStreaming handles non-streaming A2A communication
 func (r *DifyAgent) runNonStreaming(ctx context.Context, invocation *agent.Invocation) (<-chan *event.Event, error) {
-	eventChan := make(chan *event.Event, defaultNonStreamingChannelSize)
-	go func() {
-		defer close(eventChan)
-
-		result, err := r.executeNonStreamingRequest(ctx, invocation)
-		if err != nil {
-			r.sendErrorEvent(ctx, eventChan, invocation, err.Error())
-			return
-		}
-
-		r.convertAndEmitNonStreamingEvent(ctx, eventChan, invocation, result)
-	}()
-	return eventChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Tools implements the Agent interface
 func (r *DifyAgent) Tools() []tool.Tool {
+	_ = "STUB: not implemented"
 	// Remote A2A agents don't expose tools directly
 	// Tools are handled by the remote agent
-	return []tool.Tool{}
+	return nil
 }
 
 // Info implements the Agent interface
-func (r *DifyAgent) Info() agent.Info {
-	return agent.Info{
-		Name:        r.name,
-		Description: r.description,
-	}
-}
+func (r *DifyAgent) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
 
 // SubAgents implements the Agent interface
 func (r *DifyAgent) SubAgents() []agent.Agent {
+	_ = "STUB: not implemented"
 	// Remote A2A agents don't have sub-agents in the local context
-	return []agent.Agent{}
+	return nil
 }
 
 // FindSubAgent implements the Agent interface
 func (r *DifyAgent) FindSubAgent(name string) agent.Agent {
+	_ = "STUB: not implemented"
 	// Remote A2A agents don't have sub-agents in the local context
-	return nil
+	return *new(agent.Agent)
 }
 
 // getDifyClient returns a Dify client instance, preferring the custom getDifyClientFunc if set,
@@ -534,13 +243,6 @@ func (r *DifyAgent) FindSubAgent(name string) agent.Agent {
 func (r *DifyAgent) getDifyClient(
 	invocation *agent.Invocation,
 ) (*dify.Client, error) {
-	if r.getDifyClientFunc != nil {
-		return r.getDifyClientFunc(invocation)
-	}
-	baseUrl := r.baseUrl
-	return dify.NewClientWithConfig(&dify.ClientConfig{
-		Host:             baseUrl,
-		DefaultAPISecret: r.apiSecret,
-		Timeout:          time.Hour,
-	}), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

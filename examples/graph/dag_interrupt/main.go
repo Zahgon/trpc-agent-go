@@ -12,7 +12,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -145,158 +144,31 @@ func main() {
 }
 
 func parseEngine(raw string) (graph.ExecutionEngine, error) {
-	engine := strings.ToLower(strings.TrimSpace(raw))
-	switch engine {
-	case engineBSP:
-		return graph.ExecutionEngineBSP, nil
-	case engineDAG:
-		return graph.ExecutionEngineDAG, nil
-	default:
-		return "", fmt.Errorf("unknown engine %q", raw)
-	}
+	_ = "STUB: not implemented"
+	return *new(graph.ExecutionEngine), nil
 }
 
-func buildGraph() *graph.Graph {
-	schema := graph.NewStateSchema()
-	sg := graph.NewStateGraph(schema)
-
-	sg.AddNode(
-		nodeEntry,
-		func(context.Context, graph.State) (any, error) {
-			return nil, nil
-		},
-	)
-	sg.AddNode(
-		nodeAsk,
-		func(ctx context.Context, state graph.State) (any, error) {
-			v, err := graph.Interrupt(
-				ctx,
-				state,
-				interruptKey,
-				interruptPrompt,
-			)
-			if err != nil {
-				return nil, err
-			}
-			return graph.State{stateKeyAnswer: v}, nil
-		},
-	)
-	sg.AddNode(
-		nodeAfter,
-		func(context.Context, graph.State) (any, error) {
-			return nil, nil
-		},
-	)
-
-	sg.SetEntryPoint(nodeEntry)
-	sg.AddEdge(nodeEntry, nodeAsk)
-	sg.AddEdge(nodeAsk, nodeAfter)
-
-	g, err := sg.Compile()
-	if err != nil {
-		panic(err)
-	}
-	return g
-}
+func buildGraph() *graph.Graph { _ = "STUB: not implemented"; return nil }
 
 func waitForInterrupt(
 	evts <-chan *event.Event,
 	timeout time.Duration,
 ) (interruptMeta, error) {
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-
-	var meta interruptMeta
-	for {
-		select {
-		case e, ok := <-evts:
-			if !ok {
-				return interruptMeta{}, fmt.Errorf("missing interrupt event")
-			}
-			m, ok := interruptMetaFromEvent(e)
-			if !ok {
-				continue
-			}
-			meta = m
-			if meta.CheckpointID == "" || meta.LineageID == "" {
-				continue
-			}
-			return meta, nil
-		case <-timer.C:
-			return interruptMeta{}, fmt.Errorf("timeout waiting for interrupt")
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(interruptMeta), nil
 }
 
 func waitForCompletion(
 	evts <-chan *event.Event,
 	timeout time.Duration,
 ) (map[string]any, error) {
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-
-	for {
-		select {
-		case e, ok := <-evts:
-			if !ok {
-				return nil, fmt.Errorf("missing completion event")
-			}
-			if e == nil || e.Response == nil || !e.Response.Done {
-				continue
-			}
-			return parseStateDelta(e.StateDelta), nil
-		case <-timer.C:
-			return nil, fmt.Errorf("timeout waiting for completion")
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func interruptMetaFromEvent(e *event.Event) (interruptMeta, bool) {
-	if e == nil || e.Object != graph.ObjectTypeGraphPregelStep {
-		return interruptMeta{}, false
-	}
-	if e.StateDelta == nil {
-		return interruptMeta{}, false
-	}
-
-	raw := e.StateDelta[graph.MetadataKeyPregel]
-	if len(raw) == 0 {
-		return interruptMeta{}, false
-	}
-
-	var meta graph.PregelStepMetadata
-	if err := json.Unmarshal(raw, &meta); err != nil {
-		return interruptMeta{}, false
-	}
-	if meta.InterruptValue == nil {
-		return interruptMeta{}, false
-	}
-
-	return interruptMeta{
-		NodeID:       meta.NodeID,
-		InterruptKey: meta.InterruptKey,
-		LineageID:    meta.LineageID,
-		CheckpointID: meta.CheckpointID,
-	}, true
+	_ = "STUB: not implemented"
+	return *new(interruptMeta), false
 }
 
-func parseStateDelta(raw map[string][]byte) map[string]any {
-	out := make(map[string]any)
-	if raw == nil {
-		return out
-	}
-	for key, value := range raw {
-		if key == "" || len(value) == 0 {
-			continue
-		}
-		if key[0] == '_' {
-			continue
-		}
-		var v any
-		if err := json.Unmarshal(value, &v); err != nil {
-			continue
-		}
-		out[key] = v
-	}
-	return out
-}
+func parseStateDelta(raw map[string][]byte) map[string]any { _ = "STUB: not implemented"; return nil }

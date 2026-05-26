@@ -24,12 +24,7 @@
 package registry
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"fmt"
-	"sort"
-	"strings"
 	"sync"
 
 	"gopkg.in/yaml.v3"
@@ -219,98 +214,38 @@ var (
 
 // RegisterChannel registers a channel factory under typeName.
 func RegisterChannel(typeName string, f ChannelFactory) error {
-	name, err := validateType("channel", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf("registry: channel factory is nil: %s", name)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := channelFactories[name]; ok {
-		return fmt.Errorf("registry: channel already registered: %s", name)
-	}
-	channelFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // LookupChannel returns a channel factory by typeName.
 func LookupChannel(typeName string) (ChannelFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := channelFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(ChannelFactory), false
 }
 
 // RegisterSessionBackend registers a session backend factory under typeName.
 func RegisterSessionBackend(typeName string, f SessionBackendFactory) error {
-	name, err := validateType("session backend", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf(
-			"registry: session backend factory is nil: %s",
-			name,
-		)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := sessionFactories[name]; ok {
-		return fmt.Errorf(
-			"registry: session backend already registered: %s",
-			name,
-		)
-	}
-	sessionFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // LookupSessionBackend returns a session backend factory by typeName.
 func LookupSessionBackend(typeName string) (SessionBackendFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := sessionFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(SessionBackendFactory), false
 }
 
 // RegisterMemoryBackend registers a memory backend factory under typeName.
 func RegisterMemoryBackend(typeName string, f MemoryBackendFactory) error {
-	name, err := validateType("memory backend", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf(
-			"registry: memory backend factory is nil: %s",
-			name,
-		)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := memoryFactories[name]; ok {
-		return fmt.Errorf(
-			"registry: memory backend already registered: %s",
-			name,
-		)
-	}
-	memoryFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // LookupMemoryBackend returns a memory backend factory by typeName.
 func LookupMemoryBackend(typeName string) (MemoryBackendFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := memoryFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(MemoryBackendFactory), false
 }
 
 // RegisterKnowledgeProvider registers a knowledge provider factory under
@@ -319,26 +254,7 @@ func RegisterKnowledgeProvider(
 	typeName string,
 	f KnowledgeProviderFactory,
 ) error {
-	name, err := validateType("knowledge provider", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf(
-			"registry: knowledge provider factory is nil: %s",
-			name,
-		)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := knowledgeFactories[name]; ok {
-		return fmt.Errorf(
-			"registry: knowledge provider already registered: %s",
-			name,
-		)
-	}
-	knowledgeFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -346,45 +262,20 @@ func RegisterKnowledgeProvider(
 func LookupKnowledgeProvider(
 	typeName string,
 ) (KnowledgeProviderFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := knowledgeFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(KnowledgeProviderFactory), false
 }
 
 // RegisterToolProvider registers a tool provider factory under typeName.
 func RegisterToolProvider(typeName string, f ToolProviderFactory) error {
-	name, err := validateType("tool provider", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf(
-			"registry: tool provider factory is nil: %s",
-			name,
-		)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := toolFactories[name]; ok {
-		return fmt.Errorf(
-			"registry: tool provider already registered: %s",
-			name,
-		)
-	}
-	toolFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // LookupToolProvider returns a tool provider factory by typeName.
 func LookupToolProvider(typeName string) (ToolProviderFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := toolFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(ToolProviderFactory), false
 }
 
 // RegisterToolSetProvider registers a tool set factory under typeName.
@@ -392,23 +283,7 @@ func RegisterToolSetProvider(
 	typeName string,
 	f ToolSetProviderFactory,
 ) error {
-	name, err := validateType("toolset provider", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf("registry: toolset factory is nil: %s", name)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := toolSetFactories[name]; ok {
-		return fmt.Errorf(
-			"registry: toolset provider already registered: %s",
-			name,
-		)
-	}
-	toolSetFactories[name] = f
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -416,114 +291,30 @@ func RegisterToolSetProvider(
 func LookupToolSetProvider(
 	typeName string,
 ) (ToolSetProviderFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := toolSetFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(ToolSetProviderFactory), false
 }
 
 // RegisterModel registers a model factory under typeName.
-func RegisterModel(typeName string, f ModelFactory) error {
-	name, err := validateType("model", typeName)
-	if err != nil {
-		return err
-	}
-	if f == nil {
-		return fmt.Errorf("registry: model factory is nil: %s", name)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if _, ok := modelFactories[name]; ok {
-		return fmt.Errorf("registry: model already registered: %s", name)
-	}
-	modelFactories[name] = f
-	return nil
-}
+func RegisterModel(typeName string, f ModelFactory) error { _ = "STUB: not implemented"; return nil }
 
 // LookupModel returns a model factory by typeName.
 func LookupModel(typeName string) (ModelFactory, bool) {
-	mu.RLock()
-	defer mu.RUnlock()
-	name := normalizeType(typeName)
-	f, ok := modelFactories[name]
-	return f, ok
+	_ = "STUB: not implemented"
+	return *new(ModelFactory), false
 }
 
-func normalizeType(typeName string) string {
-	return strings.ToLower(strings.TrimSpace(typeName))
-}
+func normalizeType(typeName string) string { _ = "STUB: not implemented"; return "" }
 
 func validateType(kind string, typeName string) (string, error) {
-	name := normalizeType(typeName)
-	if name == "" {
-		return "", fmt.Errorf("registry: %s type name is empty", kind)
-	}
-	return name, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // Types returns a sorted list of registered types for a registry kind.
-func Types(kind string) []string {
-	mu.RLock()
-	defer mu.RUnlock()
+func Types(kind string) []string { _ = "STUB: not implemented"; return nil }
 
-	var keys []string
-	switch normalizeType(kind) {
-	case "channel":
-		keys = mapKeys(channelFactories)
-	case "session backend":
-		keys = mapKeys(sessionFactories)
-	case "memory backend":
-		keys = mapKeys(memoryFactories)
-	case "knowledge provider":
-		keys = mapKeys(knowledgeFactories)
-	case "tool provider":
-		keys = mapKeys(toolFactories)
-	case "toolset provider":
-		keys = mapKeys(toolSetFactories)
-	case "model":
-		keys = mapKeys(modelFactories)
-	default:
-		return nil
-	}
-	sort.Strings(keys)
-	return keys
-}
-
-func mapKeys[T any](m map[string]T) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
-}
+func mapKeys[T any](m map[string]T) []string { _ = "STUB: not implemented"; return nil }
 
 // DecodeStrict decodes cfg into out and rejects unknown YAML fields.
-func DecodeStrict(cfg *yaml.Node, out any) error {
-	if out == nil {
-		return errors.New("registry: nil decode target")
-	}
-	if cfg == nil || cfg.Kind == 0 {
-		return nil
-	}
-
-	data, err := yaml.Marshal(cfg)
-	if err != nil {
-		return fmt.Errorf("registry: marshal config: %w", err)
-	}
-
-	dec := yaml.NewDecoder(bytes.NewReader(data))
-	dec.KnownFields(true)
-	if err := dec.Decode(out); err != nil {
-		return err
-	}
-
-	var extra any
-	if err := dec.Decode(&extra); err == nil && extra != nil {
-		return errors.New(
-			"registry: multiple YAML documents are not supported",
-		)
-	}
-	return nil
-}
+func DecodeStrict(cfg *yaml.Node, out any) error { _ = "STUB: not implemented"; return nil }

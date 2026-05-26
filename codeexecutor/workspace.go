@@ -12,8 +12,6 @@ package codeexecutor
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 )
 
@@ -174,18 +172,26 @@ type stdEngine struct {
 	c Capabilities
 }
 
-func (e *stdEngine) Manager() WorkspaceManager { return e.m }
-func (e *stdEngine) FS() WorkspaceFS           { return e.f }
-func (e *stdEngine) Runner() ProgramRunner     { return e.r }
-func (e *stdEngine) Describe() Capabilities    { return e.c }
+func (e *stdEngine) Manager() WorkspaceManager {
+	_ = "STUB: not implemented"
+	return *new(WorkspaceManager)
+}
+func (e *stdEngine) FS() WorkspaceFS       { _ = "STUB: not implemented"; return *new(WorkspaceFS) }
+func (e *stdEngine) Runner() ProgramRunner { _ = "STUB: not implemented"; return *new(ProgramRunner) }
+func (e *stdEngine) Describe() Capabilities {
+	_ = "STUB: not implemented"
 
-// NewEngine constructs a simple Engine from its components.
+	// NewEngine constructs a simple Engine from its components.
+	return *new(Capabilities)
+}
+
 func NewEngine(
 	m WorkspaceManager,
 	f WorkspaceFS,
 	r ProgramRunner,
 ) Engine {
-	return &stdEngine{m: m, f: f, r: r}
+	_ = "STUB: not implemented"
+	return *new(Engine)
 }
 
 // Default file modes and common subdirectories.
@@ -219,18 +225,8 @@ func BuildBlockSpec(
 	idx int,
 	b CodeBlock,
 ) (file string, mode uint32, cmd string, args []string, err error) {
-	lang := strings.ToLower(strings.TrimSpace(b.Language))
-	switch lang {
-	case "python", "py", "python3":
-		return fmt.Sprintf("code_%d.py", idx), DefaultScriptFileMode,
-			"python3", nil, nil
-	case "bash", "sh":
-		return fmt.Sprintf("code_%d.sh", idx), DefaultExecFileMode,
-			"bash", nil, nil
-	default:
-		return "", 0, "", nil,
-			fmt.Errorf("unsupported language: %s", b.Language)
-	}
+	_ = "STUB: not implemented"
+	return "", 0, "", nil, nil
 }
 
 // NormalizeGlobs rewrites glob patterns that use well-known
@@ -245,72 +241,13 @@ func BuildBlockSpec(
 //	$WORKSPACE_DIR/out  -> out
 //
 // Unknown variables and patterns without a prefix are returned as-is.
-func NormalizeGlobs(patterns []string) []string {
-	if len(patterns) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(patterns))
-	for _, p := range patterns {
-		s := strings.TrimSpace(p)
-		if s == "" {
-			continue
-		}
-		s = normalizeGlobPrefix(
-			s, normalizeGlobsWorkspace, normalizeGlobsWorkspaceDir,
-		)
-		s = normalizeGlobPrefix(s, normalizeGlobsSkills, DirSkills)
-		s = normalizeGlobPrefix(s, normalizeGlobsWork, DirWork)
-		s = normalizeGlobPrefix(s, normalizeGlobsOut, DirOut)
-		out = append(out, s)
-	}
-	return out
-}
+func NormalizeGlobs(patterns []string) []string { _ = "STUB: not implemented"; return nil }
 
 func normalizeGlobPrefix(s string, name string, dir string) string {
-	if strings.HasPrefix(s, normalizeGlobsVarLBrace+name+
-		normalizeGlobsVarRBrace) {
-		return normalizeGlobTail(
-			s[len(normalizeGlobsVarLBrace+name+
-				normalizeGlobsVarRBrace):],
-			dir,
-		)
-	}
-	if strings.HasPrefix(s, normalizeGlobsVarPrefix+name) {
-		return normalizeGlobTail(
-			s[len(normalizeGlobsVarPrefix+name):],
-			dir,
-		)
-	}
-	return s
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func normalizeGlobTail(tail string, dir string) string {
-	if tail == "" {
-		if dir == normalizeGlobsWorkspaceDir {
-			return normalizeGlobsWorkspaceDir
-		}
-		return dir
-	}
-	r := trimGlobSeparator(tail)
-	if dir == normalizeGlobsWorkspaceDir {
-		if r == "" {
-			return normalizeGlobsWorkspaceDir
-		}
-		return r
-	}
-	if r == "" {
-		return dir
-	}
-	return dir + normalizeGlobsSlash + r
-}
+func normalizeGlobTail(tail string, dir string) string { _ = "STUB: not implemented"; return "" }
 
-func trimGlobSeparator(s string) string {
-	if s == "" {
-		return s
-	}
-	if strings.HasPrefix(s, normalizeGlobsSlash) ||
-		strings.HasPrefix(s, normalizeGlobsBackslash) {
-		return s[1:]
-	}
-	return s
-}
+func trimGlobSeparator(s string) string { _ = "STUB: not implemented"; return "" }

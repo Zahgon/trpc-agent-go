@@ -10,13 +10,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -35,59 +32,13 @@ func buildGraphAgent(
 	service *flakyWeatherService,
 	retryPolicy *tool.RetryPolicy,
 ) (*graphagent.GraphAgent, error) {
-	weatherTool := function.NewFunctionTool(
-		service.getWeather,
-		function.WithName(toolName),
-		function.WithDescription("Fetch the weather for a location."),
-	)
-	tools := map[string]tool.Tool{
-		toolName: weatherTool,
-	}
-	sg := graph.NewStateGraph(graph.MessagesStateSchema())
-	sg.AddLLMNode(
-		nodeAssistant,
-		openai.New(
-			modelName,
-			openai.WithBaseURL(baseURL),
-			openai.WithAPIKey(apiKey),
-		),
-		llmInstruction,
-		tools,
-	)
-	if retryPolicy == nil {
-		sg.AddToolsNode(nodeTools, tools)
-	} else {
-		sg.AddToolsNode(
-			nodeTools,
-			tools,
-			graph.WithToolCallRetryPolicy(retryPolicy),
-		)
-	}
-	sg.AddNode(nodeFinish, finishNode)
-	compiled, err := sg.
-		AddToolsConditionalEdges(nodeAssistant, nodeTools, nodeFinish).
-		AddEdge(nodeTools, nodeAssistant).
-		SetEntryPoint(nodeAssistant).
-		SetFinishPoint(nodeFinish).
-		Compile()
-	if err != nil {
-		return nil, err
-	}
-	return graphagent.New(
-		"tool-call-retry-demo",
-		compiled,
-		graphagent.WithInitialState(graph.State{}),
-		graphagent.WithDescription("Demonstrates single tool-call retry on a graph tools node."),
-	)
-}
-
-func finishNode(_ context.Context, _ graph.State) (any, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func buildUserPrompt(location string) string {
-	return fmt.Sprintf(
-		"Please check the weather for %s. You must call the get_weather tool before answering.",
-		location,
-	)
+func finishNode(_ context.Context, _ graph.State) (any, error) {
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+func buildUserPrompt(location string) string { _ = "STUB: not implemented"; return "" }

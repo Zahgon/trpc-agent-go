@@ -23,16 +23,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
-	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source/file"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/transform"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore/inmemory"
 
 	_ "trpc.group/trpc-go/trpc-agent-go/knowledge/document/reader/text"
 )
@@ -69,53 +61,15 @@ func main() {
 }
 
 func runDemo(ctx context.Context, demoName string, transformers ...transform.Transformer) {
+	_ = "STUB: not implemented"
 	// Create source with transformers
-	opts := []file.Option{file.WithName(demoName)}
-	if len(transformers) > 0 {
-		opts = append(opts, file.WithTransformers(transformers...))
-	}
-
-	src := file.New(
-		[]string{util.ExampleDataPath("file/content_transform.md")},
-		opts...,
-	)
-
-	// Create knowledge base
-	kb := knowledge.New(
-		knowledge.WithVectorStore(inmemory.New()),
-		knowledge.WithEmbedder(openai.New()),
-		knowledge.WithSources([]source.Source{src}),
-	)
-
-	if err := kb.Load(ctx); err != nil {
-		log.Printf("Failed to load %s: %v", demoName, err)
-		return
-	}
-
-	// Show document info
-	docInfos, err := kb.ShowDocumentInfo(ctx)
-	if err != nil {
-		log.Printf("Failed to get document info: %v", err)
-		return
-	}
-
-	fmt.Printf("   Source: %s\n", demoName)
-	fmt.Printf("   Total chunks: %d\n", len(docInfos))
-
-	// Search to get all chunks content
-	result, err := kb.Search(ctx, &knowledge.SearchRequest{
-		Query:      "",
-		MaxResults: len(docInfos),
-		SearchMode: vectorstore.SearchModeFilter,
-	})
-	if err != nil {
-		log.Printf("Failed to search %s: %v", demoName, err)
-		return
-	}
-
-	// Show all chunks
-	for i, res := range result.Documents {
-		content := res.Document.Content
-		fmt.Printf("   Chunk %d: %q\n", i+1, content)
-	}
+	return
 }
+
+// Create knowledge base
+
+// Show document info
+
+// Search to get all chunks content
+
+// Show all chunks

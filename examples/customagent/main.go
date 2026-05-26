@@ -14,17 +14,14 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
@@ -75,93 +72,19 @@ type interactiveChat struct {
 	sessionID string
 }
 
-func (c *interactiveChat) start(ctx context.Context) error {
-	fmt.Printf("✅ Chat ready! Session: %s\n", c.sessionID)
-	fmt.Println()
-	fmt.Println("💡 Commands: /history, /new, /exit")
-	fmt.Println()
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
-		switch strings.ToLower(userInput) {
-		case "/exit":
-			fmt.Println("👋 Bye!")
-			return nil
-		case "/new":
-			c.startNewSession()
-			continue
-		case "/history":
-			userInput = "show our conversation history"
-		}
-
-		if err := c.handle(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-		fmt.Println()
-	}
-	return scanner.Err()
-}
+func (c *interactiveChat) start(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func (c *interactiveChat) handle(ctx context.Context, text string) error {
-	fmt.Print("🤖 Assistant: ")
-	ch, err := c.runner.Run(ctx, c.userID, c.sessionID, model.NewUserMessage(text))
-	if err != nil {
-		return err
-	}
-	finished := false
-	for evt := range ch {
-		if evt.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", evt.Error.Message)
-			continue
-		}
-		if !finished {
-			printContent(evt)
-		}
-		if evt.Done && !isToolLike(evt) {
-			finished = true
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *interactiveChat) startNewSession() {
-	old := c.sessionID
-	c.sessionID = fmt.Sprintf("custom-session-%d", time.Now().Unix())
-	fmt.Printf("🆕 New session started.\n   Previous: %s\n   Current:  %s\n\n", old, c.sessionID)
-}
+func (c *interactiveChat) startNewSession() { _ = "STUB: not implemented"; return }
 
-func printContent(evt *event.Event) {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return
-	}
-	c := evt.Response.Choices[0]
-	// Default streaming: print only delta to avoid duplicating final content.
-	if c.Delta.Content != "" {
-		fmt.Print(c.Delta.Content)
-	}
-}
+func printContent(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-func isToolLike(evt *event.Event) bool {
-	if evt.Response == nil {
-		return false
-	}
-	// Minimal check: tool calls or tool role messages.
-	if len(evt.Response.Choices) > 0 {
-		ch := evt.Response.Choices[0]
-		if len(ch.Message.ToolCalls) > 0 {
-			return true
-		}
-		if ch.Message.Role == model.RoleTool {
-			return true
-		}
-	}
-	return false
-}
+// Default streaming: print only delta to avoid duplicating final content.
+
+func isToolLike(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
+
+// Minimal check: tool calls or tool role messages.

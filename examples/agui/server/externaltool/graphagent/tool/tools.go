@@ -12,17 +12,7 @@ package tool
 import agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
 
 // NewInternalTools returns the tools executed by the graph.
-func NewInternalTools() map[string]agenttool.Tool {
-	return map[string]agenttool.Tool{
-		InternalLookupName:  newInternalLookupTool(),
-		InternalProfileName: newInternalProfileTool(),
-	}
-}
+func NewInternalTools() map[string]agenttool.Tool { _ = "STUB: not implemented"; return nil }
 
 // NewExternalTools returns the tool declarations executed by the caller.
-func NewExternalTools() map[string]agenttool.Tool {
-	return map[string]agenttool.Tool{
-		ExternalSearchName:   newExternalSearchTool(),
-		ExternalApprovalName: newExternalApprovalTool(),
-	}
-}
+func NewExternalTools() map[string]agenttool.Tool { _ = "STUB: not implemented"; return nil }

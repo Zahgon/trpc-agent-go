@@ -38,13 +38,7 @@ var (
 // defaultSeedHistory returns a pre-constructed multi-turn conversation between
 // user and assistant. We only pass this full history on the first turn of a
 // session (and after reset). After that, we just send the latest user input.
-func defaultSeedHistory() []model.Message {
-	return []model.Message{
-		model.NewSystemMessage("You are a helpful math assistant."),
-		model.NewUserMessage("Hi, can you help with calculations?"),
-		model.NewAssistantMessage("Sure. I can add, subtract, multiply, divide, and compute power. When needed, I will call the calculate tool."),
-	}
-}
+func defaultSeedHistory() []model.Message { _ = "STUB: not implemented"; return nil }
 
 func main() {
 	flag.Parse()
@@ -200,25 +194,6 @@ type calcOutput struct {
 
 // calcFn is the calculator function.
 func calcFn(ctx context.Context, in calcInput) (calcOutput, error) {
-	switch strings.ToLower(strings.TrimSpace(in.Operation)) {
-	case "add":
-		return calcOutput{Result: in.A + in.B}, nil
-	case "subtract":
-		return calcOutput{Result: in.A - in.B}, nil
-	case "multiply":
-		return calcOutput{Result: in.A * in.B}, nil
-	case "divide":
-		if in.B == 0 {
-			return calcOutput{Error: "division by zero"}, nil
-		}
-		return calcOutput{Result: in.A / in.B}, nil
-	case "power":
-		res := 1.0
-		for i := 0; i < int(in.B); i++ {
-			res *= in.A
-		}
-		return calcOutput{Result: res}, nil
-	default:
-		return calcOutput{Error: "unknown operation"}, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(calcOutput), nil
 }

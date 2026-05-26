@@ -79,37 +79,8 @@ type Observer = taskrun.Observer
 // ObserverFunc adapts a function into an Observer.
 type ObserverFunc = taskrun.ObserverFunc
 
-func cloneRun(r Run) Run {
-	out := r
-	if r.StartedAt != nil {
-		startedAt := *r.StartedAt
-		out.StartedAt = &startedAt
-	}
-	if r.FinishedAt != nil {
-		finishedAt := *r.FinishedAt
-		out.FinishedAt = &finishedAt
-	}
-	if r.Metadata != nil {
-		out.Metadata = make(map[string]string, len(r.Metadata))
-		for key, value := range r.Metadata {
-			out.Metadata[key] = value
-		}
-	}
-	return out
-}
+func cloneRun(r Run) Run { _ = "STUB: not implemented"; return *new(Run) }
 
-func cloneRuns(runs []Run) []Run {
-	out := make([]Run, 0, len(runs))
-	for _, run := range runs {
-		if run.ID == "" {
-			continue
-		}
-		out = append(out, cloneRun(run))
-	}
-	return out
-}
+func cloneRuns(runs []Run) []Run { _ = "STUB: not implemented"; return nil }
 
-func cloneTime(value time.Time) *time.Time {
-	copied := value
-	return &copied
-}
+func cloneTime(value time.Time) *time.Time { _ = "STUB: not implemented"; return nil }

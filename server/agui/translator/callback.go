@@ -37,48 +37,30 @@ type Callbacks struct {
 }
 
 // NewCallbacks creates a new Callbacks instance for translation hooks.
-func NewCallbacks() *Callbacks {
-	return &Callbacks{}
-}
+func NewCallbacks() *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // RegisterBeforeTranslate registers a callback executed before translation.
 func (c *Callbacks) RegisterBeforeTranslate(cb BeforeTranslateCallback) *Callbacks {
-	c.BeforeTranslate = append(c.BeforeTranslate, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterTranslate registers a callback executed after translation.
 func (c *Callbacks) RegisterAfterTranslate(cb AfterTranslateCallback) *Callbacks {
-	c.AfterTranslate = append(c.AfterTranslate, cb)
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunBeforeTranslate runs all before-translate callbacks in order.
 // Returns (customEvent, err). If any callback returns a non-nil custom event, translation uses it.
 func (c *Callbacks) RunBeforeTranslate(ctx context.Context, event *event.Event) (*event.Event, error) {
-	for _, cb := range c.BeforeTranslate {
-		customEvent, err := cb(ctx, event)
-		if err != nil {
-			return nil, err
-		}
-		if customEvent != nil {
-			return customEvent, nil
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 // RunAfterTranslate runs all after-translate callbacks in order.
 // Returns (customEvent, err). If any callback returns a non-nil custom event, it will be emitted.
 func (c *Callbacks) RunAfterTranslate(ctx context.Context, event aguievents.Event) (aguievents.Event, error) {
-	for _, cb := range c.AfterTranslate {
-		customEvent, err := cb(ctx, event)
-		if err != nil {
-			return nil, err
-		}
-		if customEvent != nil {
-			return customEvent, nil
-		}
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(aguievents.Event), nil
 }

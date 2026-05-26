@@ -28,34 +28,18 @@ type Reranker struct {
 type Option func(*Reranker)
 
 // WithK sets the number of top results to return.
-func WithK(k int) Option {
-	return func(r *Reranker) {
-		if k <= 0 {
-			k = defaultTopK
-		}
-		r.k = k
-	}
-}
+func WithK(k int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // New creates a new top-K reranker with options.
-func New(opts ...Option) *Reranker {
-	r := &Reranker{
-		k: defaultTopK, // Default to return all results.
-	}
+func New(opts ...Option) *Reranker { _ = "STUB: not implemented"; return nil }
 
-	// Apply options.
-	for _, opt := range opts {
-		opt(r)
-	}
+// Default to return all results.
 
-	return r
-}
+// Apply options.
 
 // Rerank implements the Reranker interface by returning top K results in original order.
 func (r *Reranker) Rerank(ctx context.Context, query *reranker.Query, results []*reranker.Result) ([]*reranker.Result, error) {
+	_ = "STUB: not implemented"
 	// Return top K results, or all if fewer than K available.
-	if r.k <= 0 || len(results) <= r.k {
-		return results, nil
-	}
-	return results[:r.k], nil
+	return nil, nil
 }

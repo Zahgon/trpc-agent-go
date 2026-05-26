@@ -11,9 +11,6 @@
 package llm
 
 import (
-	"encoding/json"
-	"os"
-
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
@@ -108,43 +105,15 @@ const (
 
 // MarshalJSON omits APIKey from JSON output while still allowing JSON input to populate it.
 func (j JudgeModelOptions) MarshalJSON() ([]byte, error) {
-	type judgeModelOptionsAlias JudgeModelOptions
-	alias := judgeModelOptionsAlias(j)
-	alias.APIKey = ""
-	return json.Marshal(alias)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UnmarshalJSON expands environment variables for ProviderName, ModelName, Variant, BaseURL and APIKey.
-func (j *JudgeModelOptions) UnmarshalJSON(data []byte) error {
-	type judgeModelOptionsAlias JudgeModelOptions
-	var alias judgeModelOptionsAlias
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-	alias.ProviderName = os.ExpandEnv(alias.ProviderName)
-	alias.ModelName = os.ExpandEnv(alias.ModelName)
-	alias.Variant = os.ExpandEnv(alias.Variant)
-	alias.BaseURL = os.ExpandEnv(alias.BaseURL)
-	alias.APIKey = os.ExpandEnv(alias.APIKey)
-	*j = JudgeModelOptions(alias)
-	return nil
-}
+func (j *JudgeModelOptions) UnmarshalJSON(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 // New builds an LlmCriterion with judge model settings.
 func New(providerName, modelName string, opt ...Option) *LLMCriterion {
-	opts := newOptions(opt...)
-	numSamples := opts.numSamples
-	return &LLMCriterion{
-		Rubrics: opts.rubrics,
-		JudgeModel: &JudgeModelOptions{
-			ProviderName: providerName,
-			ModelName:    modelName,
-			Variant:      opts.variant,
-			BaseURL:      opts.baseURL,
-			APIKey:       opts.apiKey,
-			ExtraFields:  opts.extraFields,
-			NumSamples:   &numSamples,
-			Generation:   opts.generation,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

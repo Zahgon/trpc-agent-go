@@ -180,134 +180,38 @@ type Response struct {
 }
 
 // Clone creates a deep copy of the response.
-func (rsp *Response) Clone() *Response {
-	if rsp == nil {
-		return nil
-	}
-	clone := *rsp
-	clone.Choices = make([]Choice, len(rsp.Choices))
-	copy(clone.Choices, rsp.Choices)
-	if rsp.Usage != nil {
-		clone.Usage = &Usage{
-			PromptTokens:            rsp.Usage.PromptTokens,
-			CompletionTokens:        rsp.Usage.CompletionTokens,
-			TotalTokens:             rsp.Usage.TotalTokens,
-			PromptTokensDetails:     rsp.Usage.PromptTokensDetails,
-			CompletionTokensDetails: rsp.Usage.CompletionTokensDetails,
-		}
-		// Deep copy TimingInfo if present
-		if rsp.Usage.TimingInfo != nil {
-			clone.Usage.TimingInfo = &TimingInfo{
-				FirstTokenDuration: rsp.Usage.TimingInfo.FirstTokenDuration,
-				ReasoningDuration:  rsp.Usage.TimingInfo.ReasoningDuration,
-			}
-		}
-	}
-	// Deep copy Error if present.
-	if rsp.Error != nil {
-		clone.Error = &ResponseError{
-			Message: rsp.Error.Message,
-			Type:    rsp.Error.Type,
-			Param:   rsp.Error.Param,
-			Code:    rsp.Error.Code,
-		}
-	}
-	// Deep copy SystemFingerprint if present.
-	if rsp.SystemFingerprint != nil {
-		fp := *rsp.SystemFingerprint
-		clone.SystemFingerprint = &fp
-	}
-	return &clone
-}
+func (rsp *Response) Clone() *Response { _ = "STUB: not implemented"; return nil }
+
+// Deep copy TimingInfo if present
+
+// Deep copy Error if present.
+
+// Deep copy SystemFingerprint if present.
 
 // IsValidContent checks if the response has valid content for message generation.
-func (rsp *Response) IsValidContent() bool {
-	if rsp == nil {
-		return false
-	}
+func (rsp *Response) IsValidContent() bool { _ = "STUB: not implemented"; return false }
 
-	if rsp.IsToolCallResponse() || rsp.IsToolResultResponse() {
-		return true
-	}
-	// Check if event has choices with meaningful payload.
-	for _, choice := range rsp.Choices {
-		if HasPayload(choice.Message) || HasPayload(choice.Delta) {
-			return true
-		}
-	}
-	return false
-}
+// Check if event has choices with meaningful payload.
 
 // IsUserMessage checks if the response is a user message.
-func (rsp *Response) IsUserMessage() bool {
-	if rsp == nil || len(rsp.Choices) == 0 {
-		return false
-	}
-	for _, choice := range rsp.Choices {
-		if choice.Message.Role == RoleUser || choice.Delta.Role == RoleUser {
-			return true
-		}
-	}
-	return false
-}
+func (rsp *Response) IsUserMessage() bool { _ = "STUB: not implemented"; return false }
 
 // IsToolResultResponse  checks if the response is a tool call result response.
-func (rsp *Response) IsToolResultResponse() bool {
-	return rsp != nil && len(rsp.Choices) > 0 && (rsp.Choices[0].Message.ToolID != "" || rsp.Choices[0].Delta.ToolID != "")
-}
+func (rsp *Response) IsToolResultResponse() bool { _ = "STUB: not implemented"; return false }
 
 // IsToolCallResponse checks if the response is related to tool calls.
-func (rsp *Response) IsToolCallResponse() bool {
-	return rsp != nil && len(rsp.Choices) > 0 && (len(rsp.Choices[0].Message.ToolCalls) > 0 || len(rsp.Choices[0].Delta.ToolCalls) > 0)
-}
+func (rsp *Response) IsToolCallResponse() bool { _ = "STUB: not implemented"; return false }
 
 // GetToolCallIDs gets the IDs of tool calls from the response.
-func (rsp *Response) GetToolCallIDs() []string {
-	ids := make([]string, 0)
-	if rsp == nil || len(rsp.Choices) <= 0 {
-		return ids
-	}
-	for _, choice := range rsp.Choices {
-		for _, toolCall := range choice.Message.ToolCalls {
-			ids = append(ids, toolCall.ID)
-		}
-		for _, toolCall := range choice.Delta.ToolCalls {
-			ids = append(ids, toolCall.ID)
-		}
-	}
-	return ids
-}
+func (rsp *Response) GetToolCallIDs() []string { _ = "STUB: not implemented"; return nil }
 
 // GetToolResultIDs gets the IDs of tool results from the response.
-func (rsp *Response) GetToolResultIDs() []string {
-	ids := make([]string, 0)
-	if rsp == nil || len(rsp.Choices) <= 0 {
-		return ids
-	}
-	for _, choice := range rsp.Choices {
-		if choice.Message.ToolID != "" {
-			ids = append(ids, choice.Message.ToolID)
-		}
-		if choice.Delta.ToolID != "" {
-			ids = append(ids, choice.Delta.ToolID)
-		}
-	}
-	return ids
-}
+func (rsp *Response) GetToolResultIDs() []string { _ = "STUB: not implemented"; return nil }
 
 // IsFinalResponse checks if the Response is a final response.
-func (rsp *Response) IsFinalResponse() bool {
-	if rsp == nil {
-		return true
-	}
+func (rsp *Response) IsFinalResponse() bool { _ = "STUB: not implemented"; return false }
 
-	if rsp.IsPartial || rsp.IsToolCallResponse() {
-		return false
-	}
-
-	// Consider response final if it's marked as done and has content or error.
-	return rsp.Done && (len(rsp.Choices) > 0 || rsp.Error != nil)
-}
+// Consider response final if it's marked as done and has content or error.
 
 // ResponseError represents an error response from the API.
 type ResponseError struct {
@@ -325,9 +229,4 @@ type ResponseError struct {
 }
 
 // Error implements the error interface.
-func (e *ResponseError) Error() string {
-	if e == nil {
-		return ""
-	}
-	return e.Message
-}
+func (e *ResponseError) Error() string { _ = "STUB: not implemented"; return "" }

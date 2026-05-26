@@ -12,32 +12,19 @@ package main
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
-	graphcheckpoint "trpc.group/trpc-go/trpc-agent-go/graph/checkpoint/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
 func newGraphAgent(g *graph.Graph) (*graphagent.GraphAgent, error) {
-	return graphagent.New(
-		agentName,
-		g,
-		graphagent.WithDescription("AG-UI server demo for external tool execution."),
-		graphagent.WithInitialState(graph.State{}),
-		graphagent.WithCheckpointSaver(graphcheckpoint.NewSaver()),
-	)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func newGenerationConfig() model.GenerationConfig {
-	return model.GenerationConfig{
-		MaxTokens:   intPtr(512),
-		Temperature: floatPtr(0.2),
-		Stream:      *isStream,
-	}
+	_ = "STUB: not implemented"
+	return *new(model.GenerationConfig)
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

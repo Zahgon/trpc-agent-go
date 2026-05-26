@@ -23,40 +23,23 @@ import (
 // fully self-contained.
 type stopAgent struct{}
 
-func newStopAgent() agent.Agent {
-	return &stopAgent{}
-}
+func newStopAgent() agent.Agent { _ = "STUB: not implemented"; return *new(agent.Agent) }
 
-func (a *stopAgent) Info() agent.Info {
-	return agent.Info{
-		Name:        agentName,
-		Description: "emits a single stop_agent_error event for demo purposes",
-	}
-}
+func (a *stopAgent) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
 
-func (a *stopAgent) Tools() []tool.Tool {
-	return nil
-}
+func (a *stopAgent) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
-func (a *stopAgent) SubAgents() []agent.Agent {
-	return nil
-}
+func (a *stopAgent) SubAgents() []agent.Agent { _ = "STUB: not implemented"; return nil }
 
 func (a *stopAgent) FindSubAgent(string) agent.Agent {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 func (a *stopAgent) Run(
 	_ context.Context,
 	inv *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	ch := make(chan *event.Event, 1)
-	ch <- event.NewErrorEvent(
-		inv.InvocationID,
-		agentName,
-		agent.ErrorTypeStopAgentError,
-		"max iterations reached",
-	)
-	close(ch)
-	return ch, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

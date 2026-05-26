@@ -16,12 +16,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/a2aagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 )
@@ -93,147 +91,43 @@ func main() {
 }
 
 func testQuery(ctx context.Context, agentRunner runner.Runner, userID, sessionID, query string) {
-	fmt.Printf("Query: %s\n\n", query)
-
-	events, err := agentRunner.Run(
-		ctx,
-		userID,
-		sessionID,
-		model.NewUserMessage(query),
-	)
-	if err != nil {
-		log.Printf("Error: %v", err)
-		return
-	}
-
-	if err := processCodeExecutionResponse(events); err != nil {
-		log.Printf("Error processing response: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // processCodeExecutionResponse processes events and displays code execution information.
 func processCodeExecutionResponse(events <-chan *event.Event) error {
-	var lastValidContent string
-
-	for evt := range events {
-		if evt.Error != nil {
-			return fmt.Errorf("event error: %s", evt.Error.Message)
-		}
-
-		// Handle code execution events (ObjectType == codeexecution && Tag == code)
-		if handleCodeExecution(evt) {
-			continue
-		}
-
-		// Handle code execution result events (ObjectType == codeexecution && Tag == code_execution_result)
-		if handleCodeExecutionResult(evt) {
-			continue
-		}
-
-		// Capture assistant content from intermediate (non-final) events only
-		if !evt.IsFinalResponse() {
-			if content := captureFinalContent(evt); content != "" {
-				lastValidContent = content
-			}
-		}
-
-		// Print content when we receive the final response event
-		if evt.IsFinalResponse() {
-			if lastValidContent != "" {
-				fmt.Println("Assistant:")
-				fmt.Println(lastValidContent)
-			}
-			break
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Handle code execution events (ObjectType == codeexecution && Tag == code)
+
+// Handle code execution result events (ObjectType == codeexecution && Tag == code_execution_result)
+
+// Capture assistant content from intermediate (non-final) events only
+
+// Print content when we receive the final response event
+
 // handleCodeExecution processes code execution events.
 // Checks: ObjectType == postprocessing.code_execution && Tag contains "code"
-func handleCodeExecution(evt *event.Event) bool {
-	if evt.Response == nil {
-		return false
-	}
+func handleCodeExecution(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-	// Check ObjectType first, then Tag for code
-	if evt.Response.Object == model.ObjectTypePostprocessingCodeExecution &&
-		evt.ContainsTag(event.CodeExecutionTag) {
-		if len(evt.Response.Choices) > 0 {
-			choice := evt.Response.Choices[0]
-			// Use Delta for streaming response, Message for non-streaming
-			content := strings.TrimSpace(choice.Delta.Content)
-			if content == "" {
-				content = strings.TrimSpace(choice.Message.Content)
-			}
-			if content == "" {
-				return true
-			}
+// Check ObjectType first, then Tag for code
 
-			fmt.Println("\n[Code Execution]")
-			fmt.Println("---------------------------------------------")
-			fmt.Println(content)
-			fmt.Println("---------------------------------------------")
-			fmt.Println()
-		}
-		return true
-	}
-	return false
-}
+// Use Delta for streaming response, Message for non-streaming
 
 // handleCodeExecutionResult processes code execution result events.
 // Checks: ObjectType == postprocessing.code_execution && Tag contains "code_execution_result"
-func handleCodeExecutionResult(evt *event.Event) bool {
-	if evt.Response == nil {
-		return false
-	}
+func handleCodeExecutionResult(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-	// Check ObjectType first, then Tag for result
-	if evt.Response.Object == model.ObjectTypePostprocessingCodeExecution &&
-		evt.ContainsTag(event.CodeExecutionResultTag) {
-		if len(evt.Response.Choices) > 0 {
-			choice := evt.Response.Choices[0]
-			// Use Delta for streaming response, Message for non-streaming
-			content := strings.TrimSpace(choice.Delta.Content)
-			if content == "" {
-				content = strings.TrimSpace(choice.Message.Content)
-			}
-			if content == "" {
-				return false
-			}
+// Check ObjectType first, then Tag for result
 
-			fmt.Println("[Code Execution Result]")
-			fmt.Println(content)
-			fmt.Println("---------------------------------------------")
-			fmt.Println()
-		}
-		return true
-	}
-	return false
-}
+// Use Delta for streaming response, Message for non-streaming
 
 // captureFinalContent extracts assistant text from message or delta.
-func captureFinalContent(evt *event.Event) string {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return ""
-	}
+func captureFinalContent(evt *event.Event) string { _ = "STUB: not implemented"; return "" }
 
-	choice := evt.Response.Choices[0]
+// Only capture assistant messages, skip tool responses and code execution
 
-	// Only capture assistant messages, skip tool responses and code execution
-	if choice.Message.Role != model.RoleAssistant && choice.Message.Role != "" {
-		return ""
-	}
-
-	// Skip code execution events (both code and result have the same ObjectType)
-	if evt.Response.Object == model.ObjectTypePostprocessingCodeExecution {
-		return ""
-	}
-
-	content := choice.Message.Content
-	if content == "" {
-		content = choice.Delta.Content
-	}
-	return content
-}
+// Skip code execution events (both code and result have the same ObjectType)

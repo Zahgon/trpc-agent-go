@@ -10,7 +10,6 @@
 package provider
 
 import (
-	"maps"
 	"net/http"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -95,174 +94,55 @@ type Callbacks struct {
 }
 
 // WithAPIKey records the API key for the provider.
-func WithAPIKey(key string) Option {
-	return func(o *Options) {
-		o.APIKey = key
-	}
-}
+func WithAPIKey(key string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseURL records the base URL for the provider.
-func WithBaseURL(url string) Option {
-	return func(o *Options) {
-		o.BaseURL = url
-	}
-}
+func WithBaseURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVariant records the OpenAI-compatible variant.
-func WithVariant(variant string) Option {
-	return func(o *Options) {
-		o.Variant = variant
-	}
-}
+func WithVariant(variant string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClientName records the logical HTTP client name.
-func WithHTTPClientName(name string) Option {
-	return func(o *Options) {
-		o.HTTPClientName = name
-	}
-}
+func WithHTTPClientName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClientTransport configures the HTTP transport for the provider.
 func WithHTTPClientTransport(transport http.RoundTripper) Option {
-	return func(o *Options) {
-		o.HTTPClientTransport = transport
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHeaders appends static HTTP headers for supported providers.
-func WithHeaders(headers map[string]string) Option {
-	return func(o *Options) {
-		if o.Headers == nil {
-			o.Headers = make(map[string]string)
-		}
-		for k, v := range headers {
-			o.Headers[k] = v
-		}
-	}
-}
+func WithHeaders(headers map[string]string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCallbacks registers provider specific callbacks.
-func WithCallbacks(cb Callbacks) Option {
-	return func(o *Options) {
-		if o.Callbacks == nil {
-			o.Callbacks = &Callbacks{}
-		}
-		if cb.OpenAIChatRequest != nil {
-			o.Callbacks.OpenAIChatRequest = cb.OpenAIChatRequest
-		}
-		if cb.OpenAIChatResponse != nil {
-			o.Callbacks.OpenAIChatResponse = cb.OpenAIChatResponse
-		}
-		if cb.OpenAIChatChunk != nil {
-			o.Callbacks.OpenAIChatChunk = cb.OpenAIChatChunk
-		}
-		if cb.OpenAIStreamComplete != nil {
-			o.Callbacks.OpenAIStreamComplete = cb.OpenAIStreamComplete
-		}
-		if cb.AnthropicChatRequest != nil {
-			o.Callbacks.AnthropicChatRequest = cb.AnthropicChatRequest
-		}
-		if cb.AnthropicChatResponse != nil {
-			o.Callbacks.AnthropicChatResponse = cb.AnthropicChatResponse
-		}
-		if cb.AnthropicChatChunk != nil {
-			o.Callbacks.AnthropicChatChunk = cb.AnthropicChatChunk
-		}
-		if cb.AnthropicStreamComplete != nil {
-			o.Callbacks.AnthropicStreamComplete = cb.AnthropicStreamComplete
-		}
-		if cb.GeminiChatRequest != nil {
-			o.Callbacks.GeminiChatRequest = cb.GeminiChatRequest
-		}
-		if cb.GeminiChatResponse != nil {
-			o.Callbacks.GeminiChatResponse = cb.GeminiChatResponse
-		}
-		if cb.GeminiChatChunk != nil {
-			o.Callbacks.GeminiChatChunk = cb.GeminiChatChunk
-		}
-		if cb.GeminiStreamComplete != nil {
-			o.Callbacks.GeminiStreamComplete = cb.GeminiStreamComplete
-		}
-		if cb.OllamaChatRequest != nil {
-			o.Callbacks.OllamaChatRequest = cb.OllamaChatRequest
-		}
-		if cb.OllamaChatResponse != nil {
-			o.Callbacks.OllamaChatResponse = cb.OllamaChatResponse
-		}
-		if cb.OllamaStreamComplete != nil {
-			o.Callbacks.OllamaStreamComplete = cb.OllamaStreamComplete
-		}
-		if cb.OllamaChatChunk != nil {
-			o.Callbacks.OllamaChatChunk = cb.OllamaChatChunk
-		}
-		if cb.HunyuanChatRequest != nil {
-			o.Callbacks.HunyuanChatRequest = cb.HunyuanChatRequest
-		}
-		if cb.HunyuanChatResponse != nil {
-			o.Callbacks.HunyuanChatResponse = cb.HunyuanChatResponse
-		}
-		if cb.HunyuanChatChunk != nil {
-			o.Callbacks.HunyuanChatChunk = cb.HunyuanChatChunk
-		}
-		if cb.HunyuanStreamComplete != nil {
-			o.Callbacks.HunyuanStreamComplete = cb.HunyuanStreamComplete
-		}
-	}
-}
+func WithCallbacks(cb Callbacks) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize overrides the response channel buffer size for supported providers.
-func WithChannelBufferSize(size int) Option {
-	return func(o *Options) {
-		o.ChannelBufferSize = &size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraFields stores provider-specific extra fields for request payload customization.
-func WithExtraFields(fields map[string]any) Option {
-	return func(o *Options) {
-		if o.ExtraFields == nil {
-			o.ExtraFields = make(map[string]any)
-		}
-		maps.Copy(o.ExtraFields, fields)
-	}
-}
+func WithExtraFields(fields map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableTokenTailoring toggles automatic token tailoring for supported providers.
-func WithEnableTokenTailoring(enabled bool) Option {
-	return func(o *Options) {
-		o.EnableTokenTailoring = &enabled
-	}
-}
+func WithEnableTokenTailoring(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxInputTokens sets the maximum input tokens when token tailoring is enabled.
-func WithMaxInputTokens(limit int) Option {
-	return func(o *Options) {
-		o.MaxInputTokens = &limit
-	}
-}
+func WithMaxInputTokens(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for the
 // constructed model instance.
-func WithContextWindow(tokens int) Option {
-	return func(o *Options) {
-		if tokens > 0 {
-			o.ContextWindow = &tokens
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenCounter supplies a custom token counter for token tailoring.
 func WithTokenCounter(counter model.TokenCounter) Option {
-	return func(o *Options) {
-		o.TokenCounter = counter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTailoringStrategy supplies a custom token tailoring strategy.
 func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
-	return func(o *Options) {
-		o.TailoringStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTokenTailoringConfig sets custom token tailoring budget parameters for all providers.
@@ -279,42 +159,27 @@ func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
 // Note: It is recommended to use the default values unless you have specific
 // requirements.
 func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
-	return func(o *Options) {
-		o.TokenTailoringConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOpenAIOption appends raw OpenAI options.
-func WithOpenAIOption(opt ...openai.Option) Option {
-	return func(o *Options) {
-		o.OpenAIOption = append(o.OpenAIOption, opt...)
-	}
-}
+func WithOpenAIOption(opt ...openai.Option) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAnthropicOption appends raw Anthropic options.
 func WithAnthropicOption(opt ...anthropic.Option) Option {
-	return func(o *Options) {
-		o.AnthropicOption = append(o.AnthropicOption, opt...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGeminiOption appends raw Gemini options.
-func WithGeminiOption(opt ...gemini.Option) Option {
-	return func(o *Options) {
-		o.GeminiOption = append(o.GeminiOption, opt...)
-	}
-}
+func WithGeminiOption(opt ...gemini.Option) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOllamaOption appends raw Ollama options.
-func WithOllamaOption(opt ...ollama.Option) Option {
-	return func(o *Options) {
-		o.OllamaOption = append(o.OllamaOption, opt...)
-	}
-}
+func WithOllamaOption(opt ...ollama.Option) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHunyuanOption appends raw Hunyuan options.
 func WithHunyuanOption(opt ...hunyuan.Option) Option {
-	return func(o *Options) {
-		o.HunyuanOption = append(o.HunyuanOption, opt...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

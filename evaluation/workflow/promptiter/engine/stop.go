@@ -32,21 +32,6 @@ func (e *engine) stop(
 	roundsWithoutAcceptance int,
 	effectiveScore float64,
 ) *StopDecision {
-	decision := &StopDecision{}
-	switch {
-	case round >= maxRounds:
-		decision.ShouldStop = true
-		decision.Reason = "max rounds reached"
-	case policy.MaxRoundsWithoutAcceptance > 0 &&
-		roundsWithoutAcceptance >= policy.MaxRoundsWithoutAcceptance:
-		decision.ShouldStop = true
-		decision.Reason = "max rounds without acceptance reached"
-	case policy.TargetScore != nil && effectiveScore >= *policy.TargetScore:
-		decision.ShouldStop = true
-		decision.Reason = "target score reached"
-	default:
-		decision.ShouldStop = false
-		decision.Reason = "continue optimization"
-	}
-	return decision
+	_ = "STUB: not implemented"
+	return nil
 }

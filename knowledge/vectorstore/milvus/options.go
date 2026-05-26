@@ -103,145 +103,69 @@ var defaultOptions = options{
 }
 
 // WithCollectionName sets the collection name.
-func WithCollectionName(name string) Option {
-	return func(o *options) {
-		o.collectionName = name
-	}
-}
+func WithCollectionName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDimension sets the vector dimension.
-func WithDimension(dim int) Option {
-	return func(o *options) {
-		o.dimension = dim
-	}
-}
+func WithDimension(dim int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAddress sets the Milvus server address.
-func WithAddress(address string) Option {
-	return func(o *options) {
-		o.address = address
-	}
-}
+func WithAddress(address string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUsername sets the username for authentication.
-func WithUsername(username string) Option {
-	return func(o *options) {
-		o.username = username
-	}
-}
+func WithUsername(username string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) Option {
-	return func(o *options) {
-		o.password = password
-	}
-}
+func WithPassword(password string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDBName sets the database name.
-func WithDBName(dbName string) Option {
-	return func(o *options) {
-		o.dbName = dbName
-	}
-}
+func WithDBName(dbName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAPIKey sets the API key for authentication.
-func WithAPIKey(apiKey string) Option {
-	return func(o *options) {
-		o.apiKey = apiKey
-	}
-}
+func WithAPIKey(apiKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDialOptions sets the gRPC dial options.
 func WithDialOptions(opts ...grpc.DialOption) Option {
-	return func(o *options) {
-		o.dialOpts = opts
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMaxResults sets the maximum number of search results.
-func WithMaxResults(max int) Option {
-	return func(o *options) {
-		o.maxResults = max
-	}
-}
+func WithMaxResults(max int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHNSWParams sets HNSW index parameters.
-func WithHNSWParams(m, efConstruction int) Option {
-	return func(o *options) {
-		o.enableHNSW = true
-		o.hnswM = m
-		o.hnswEfConstruction = efConstruction
-	}
-}
+func WithHNSWParams(m, efConstruction int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetricType sets the metric type for vector similarity search.
 // Supported types: entity.IP (inner product), entity.L2 (Euclidean distance), entity.COSINE.
 // Default is entity.IP which returns higher scores for more similar vectors.
 func WithMetricType(metricType entity.MetricType) Option {
-	return func(o *options) {
-		o.metricType = metricType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithIDField sets the ID field name.
-func WithIDField(field string) Option {
-	return func(o *options) {
-		o.idField = field
-	}
-}
+func WithIDField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNameField sets the name field name.
-func WithNameField(field string) Option {
-	return func(o *options) {
-		o.nameField = field
-	}
-}
+func WithNameField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentField sets the content field name.
-func WithContentField(field string) Option {
-	return func(o *options) {
-		o.contentField = field
-	}
-}
+func WithContentField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVectorField sets the vector field name.
-func WithVectorField(field string) Option {
-	return func(o *options) {
-		o.vectorField = field
-	}
-}
+func WithVectorField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataField sets the metadata field name.
-func WithMetadataField(field string) Option {
-	return func(o *options) {
-		o.metadataField = field
-	}
-}
+func WithMetadataField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCreatedAtField sets the createdAt field name.
-func WithCreatedAtField(field string) Option {
-	return func(o *options) {
-		o.createdAtField = field
-	}
-}
+func WithCreatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUpdatedAtField sets the updatedAt field name.
-func WithUpdatedAtField(field string) Option {
-	return func(o *options) {
-		o.updatedAtField = field
-	}
-}
+func WithUpdatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReranker sets the reranker.
-func WithReranker(reranker client.Reranker) Option {
-	return func(o *options) {
-		o.reranker = reranker
-	}
-}
+func WithReranker(reranker client.Reranker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDocBuilder sets the doc builder.
-func WithDocBuilder(builder DocBuilderFunc) Option {
-	return func(o *options) {
-		o.docBuilder = builder
-	}
-}
+func WithDocBuilder(builder DocBuilderFunc) Option { _ = "STUB: not implemented"; return *new(Option) }

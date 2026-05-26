@@ -10,11 +10,6 @@
 package failover
 
 import (
-	"errors"
-	"fmt"
-	"strings"
-	"time"
-
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -28,39 +23,15 @@ type failureRecord struct {
 	errType   string
 }
 
-func newFailureError(failures []failureRecord) error {
-	return &failureError{failures: append([]failureRecord(nil), failures...)}
-}
+func newFailureError(failures []failureRecord) error { _ = "STUB: not implemented"; return nil }
 
-func (e *failureError) Error() string {
-	return buildFailureMessage(e.failures)
-}
+func (e *failureError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func buildFailureMessage(failures []failureRecord) string {
-	parts := make([]string, 0, len(failures))
-	for _, failure := range failures {
-		if failure.candidate == "" {
-			parts = append(parts, failure.message)
-			continue
-		}
-		parts = append(
-			parts,
-			fmt.Sprintf(
-				"candidate model %q failed before the first non-error chunk: %s",
-				failure.candidate,
-				failure.message,
-			),
-		)
-	}
-	return strings.Join(parts, "; ")
-}
+func buildFailureMessage(failures []failureRecord) string { _ = "STUB: not implemented"; return "" }
 
 func failuresFromError(err error, fallback []failureRecord) []failureRecord {
-	var wrapped *failureError
-	if errors.As(err, &wrapped) && wrapped != nil {
-		return append([]failureRecord(nil), wrapped.failures...)
-	}
-	return appendFailure(fallback, "", err.Error(), "")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func appendFailure(
@@ -69,31 +40,13 @@ func appendFailure(
 	message string,
 	errType string,
 ) []failureRecord {
-	next := append([]failureRecord(nil), failures...)
-	next = append(next, failureRecord{
-		candidate: candidateName,
-		message:   message,
-		errType:   errType,
-	})
-	return next
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildFailureResponse(failures []failureRecord) *model.Response {
-	return &model.Response{
-		Error: &model.ResponseError{
-			Message: buildFailureMessage(failures),
-			Type:    failureResponseType(failures),
-		},
-		Timestamp: time.Now(),
-		Done:      true,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func failureResponseType(failures []failureRecord) string {
-	for i := len(failures) - 1; i >= 0; i-- {
-		if failures[i].errType != "" {
-			return failures[i].errType
-		}
-	}
-	return model.ErrorTypeAPIError
-}
+func failureResponseType(failures []failureRecord) string { _ = "STUB: not implemented"; return "" }

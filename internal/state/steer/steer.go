@@ -31,99 +31,31 @@ type Queue struct {
 
 // NewQueue creates an empty queue.
 func NewQueue() *Queue {
-	return &Queue{}
+	_ = "STUB: not implemented"
+
+	// Enqueue appends one message unless the queue has been closed.
+	return nil
 }
 
-// Enqueue appends one message unless the queue has been closed.
-func (q *Queue) Enqueue(message model.Message) bool {
-	if q == nil {
-		return false
-	}
-
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if q.closed {
-		return false
-	}
-	q.messages = append(q.messages, message)
-	return true
-}
+func (q *Queue) Enqueue(message model.Message) bool { _ = "STUB: not implemented"; return false }
 
 // Drain returns all queued messages in FIFO order.
-func (q *Queue) Drain() []model.Message {
-	if q == nil {
-		return nil
-	}
-
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if len(q.messages) == 0 {
-		return nil
-	}
-	drained := append([]model.Message(nil), q.messages...)
-	q.messages = nil
-	return drained
-}
+func (q *Queue) Drain() []model.Message { _ = "STUB: not implemented"; return nil }
 
 // Close rejects future enqueues.
-func (q *Queue) Close() {
-	if q == nil {
-		return
-	}
-
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	q.closed = true
-}
+func (q *Queue) Close() { _ = "STUB: not implemented"; return }
 
 // Attach binds a queue to the invocation.
-func Attach(inv *agent.Invocation, queue *Queue) {
-	if inv == nil || queue == nil {
-		return
-	}
-	inv.SetState(StateKeyQueuedUserMessages, queue)
-}
+func Attach(inv *agent.Invocation, queue *Queue) { _ = "STUB: not implemented"; return }
 
 // IsAttached reports whether a queue is attached to the invocation.
-func IsAttached(inv *agent.Invocation) bool {
-	queue, ok := agent.GetStateValue[*Queue](
-		inv,
-		StateKeyQueuedUserMessages,
-	)
-	return ok && queue != nil
-}
+func IsAttached(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // Drain removes and returns queued messages from the invocation.
-func Drain(inv *agent.Invocation) []model.Message {
-	queue, ok := agent.GetStateValue[*Queue](
-		inv,
-		StateKeyQueuedUserMessages,
-	)
-	if !ok || queue == nil {
-		return nil
-	}
-	return queue.Drain()
-}
+func Drain(inv *agent.Invocation) []model.Message { _ = "STUB: not implemented"; return nil }
 
 // Close rejects future enqueues for the invocation queue.
-func Close(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	queue, ok := agent.GetStateValue[*Queue](
-		inv,
-		StateKeyQueuedUserMessages,
-	)
-	if ok && queue != nil {
-		queue.Close()
-	}
-}
+func Close(inv *agent.Invocation) { _ = "STUB: not implemented"; return }
 
 // Clear closes the queue and removes it from the invocation.
-func Clear(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	Close(inv)
-	inv.DeleteState(StateKeyQueuedUserMessages)
-}
+func Clear(inv *agent.Invocation) { _ = "STUB: not implemented"; return }

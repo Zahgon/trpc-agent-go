@@ -24,25 +24,21 @@ const syntheticCompletionExtensionKey = "trpc_agent.transfer.synthetic_completio
 
 // ContextWithTransferMessage returns a context carrying the raw transfer message.
 func ContextWithTransferMessage(ctx context.Context, message string) context.Context {
-	return context.WithValue(ctx, transferMessageContextKey{}, message)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // TransferMessageFromContext returns the raw transfer message carried by ctx.
 func TransferMessageFromContext(ctx context.Context) (string, bool) {
-	message, ok := ctx.Value(transferMessageContextKey{}).(string)
-	return message, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // MarkSyntheticCompletionEvent marks a completion event synthesized by transfer.
-func MarkSyntheticCompletionEvent(evt *event.Event) {
-	_ = event.SetExtension(evt, syntheticCompletionExtensionKey, true)
-}
+func MarkSyntheticCompletionEvent(evt *event.Event) { _ = "STUB: not implemented"; return }
 
 // IsSyntheticCompletionEvent reports whether transfer synthesized the event.
-func IsSyntheticCompletionEvent(evt *event.Event) bool {
-	synthetic, ok, err := event.GetExtension[bool](evt, syntheticCompletionExtensionKey)
-	return err == nil && ok && synthetic
-}
+func IsSyntheticCompletionEvent(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 // InvocationCustomizer customizes a transfer target invocation before it runs.
 type InvocationCustomizer interface {

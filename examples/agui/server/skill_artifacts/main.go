@@ -14,13 +14,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	artifactinmemory "trpc.group/trpc-go/trpc-agent-go/artifact/inmemory"
@@ -127,95 +123,23 @@ func main() {
 // This keeps the example runnable without external model credentials.
 type scriptedModel struct{}
 
-func (m *scriptedModel) Info() model.Info { return model.Info{Name: "scripted-skill-artifacts"} }
+func (m *scriptedModel) Info() model.Info { _ = "STUB: not implemented"; return *new(model.Info) }
 
 func (m *scriptedModel) GenerateContent(
 	ctx context.Context,
 	req *model.Request,
 ) (<-chan *model.Response, error) {
-	if req == nil {
-		return nil, fmt.Errorf("request is nil")
-	}
-	out := make(chan *model.Response, 1)
-	go func() {
-		defer close(out)
-		// After tool execution, llmagent will call the model again with a tool
-		// message in the request. Detect that and finish.
-		if hasToolResult(req.Messages) {
-			out <- &model.Response{
-				ID:      "rsp-final",
-				Object:  model.ObjectTypeChatCompletion,
-				Created: time.Now().Unix(),
-				Model:   m.Info().Name,
-				Done:    true,
-				Choices: []model.Choice{{
-					Index: 0,
-					Message: model.Message{
-						Role:    model.RoleAssistant,
-						Content: "Done. Watch for the `tool.artifacts` custom event to get `artifact://...@ver` refs.",
-					},
-				}},
-			}
-			return
-		}
-
-		args, err := json.Marshal(map[string]any{
-			"skill":               demoSkill,
-			"command":             "mkdir -p out; echo 'hello from agui skill artifacts' > out/hello.txt",
-			"output_files":        []string{"out/**"},
-			"save_as_artifacts":   true,
-			"omit_inline_content": true,
-		})
-		if err != nil {
-			out <- &model.Response{
-				ID:      "rsp-error",
-				Object:  model.ObjectTypeError,
-				Created: time.Now().Unix(),
-				Model:   m.Info().Name,
-				Done:    true,
-				Error: &model.ResponseError{
-					Message: err.Error(),
-					Type:    model.ErrorTypeFlowError,
-				},
-			}
-			return
-		}
-
-		out <- &model.Response{
-			ID:      "rsp-toolcall",
-			Object:  model.ObjectTypeChatCompletion,
-			Created: time.Now().Unix(),
-			Model:   m.Info().Name,
-			Done:    true,
-			Choices: []model.Choice{{
-				Index: 0,
-				Message: model.Message{
-					Role: model.RoleAssistant,
-					ToolCalls: []model.ToolCall{{
-						ID:   demoToolCall,
-						Type: "function",
-						Function: model.FunctionDefinitionParam{
-							Name:      "skill_run",
-							Arguments: args,
-						},
-					}},
-				},
-			}},
-		}
-	}()
-	_ = ctx // ctx cancellation is handled by llmagent/runner.
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func hasToolResult(messages []model.Message) bool {
-	for _, msg := range messages {
-		if msg.Role == model.RoleTool && strings.TrimSpace(msg.ToolID) != "" {
-			return true
-		}
-	}
-	return false
-}
+// After tool execution, llmagent will call the model again with a tool
+// message in the request. Detect that and finish.
 
-func intPtr(i int) *int { return &i }
+// ctx cancellation is handled by llmagent/runner.
 
-func floatPtr(f float64) *float64 { return &f }
+func hasToolResult(messages []model.Message) bool { _ = "STUB: not implemented"; return false }
+
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
+
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

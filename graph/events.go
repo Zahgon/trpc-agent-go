@@ -11,7 +11,6 @@
 package graph
 
 import (
-	"encoding/json"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
@@ -109,11 +108,13 @@ const (
 
 // String returns the string representation of the node type.
 func (nt NodeType) String() string {
-	return string(nt)
+	_ = "STUB: not implemented"
+
+	// NodeEventEmitter identifies which graph component emitted a node lifecycle
+	// event. This is auxiliary routing metadata for downstream translators.
+	return ""
 }
 
-// NodeEventEmitter identifies which graph component emitted a node lifecycle
-// event. This is auxiliary routing metadata for downstream translators.
 type NodeEventEmitter string
 
 // Node lifecycle emitter constants.
@@ -134,10 +135,12 @@ const (
 
 // String returns the string representation of the execution phase.
 func (ep ExecutionPhase) String() string {
-	return string(ep)
+	_ = "STUB: not implemented"
+
+	// ToolExecutionPhase represents the phase of tool execution.
+	return ""
 }
 
-// ToolExecutionPhase represents the phase of tool execution.
 type ToolExecutionPhase string
 
 // Tool execution phase constants.
@@ -149,10 +152,12 @@ const (
 
 // String returns the string representation of the tool execution phase.
 func (tep ToolExecutionPhase) String() string {
-	return string(tep)
+	_ = "STUB: not implemented"
+
+	// ModelExecutionPhase represents the phase of model execution.
+	return ""
 }
 
-// ModelExecutionPhase represents the phase of model execution.
 type ModelExecutionPhase string
 
 // Model execution phase constants.
@@ -164,10 +169,12 @@ const (
 
 // String returns the string representation of the model execution phase.
 func (mep ModelExecutionPhase) String() string {
-	return string(mep)
+	_ = "STUB: not implemented"
+
+	// PregelPhase represents the phase of Pregel execution.
+	return ""
 }
 
-// PregelPhase represents the phase of Pregel execution.
 type PregelPhase string
 
 // Pregel phase constants.
@@ -181,10 +188,12 @@ const (
 
 // String returns the string representation of the Pregel phase.
 func (pp PregelPhase) String() string {
-	return string(pp)
+	_ = "STUB: not implemented"
+
+	// NodeExecutionMetadata contains metadata about node execution.
+	return ""
 }
 
-// NodeExecutionMetadata contains metadata about node execution.
 type NodeExecutionMetadata struct {
 	// NodeID is the unique identifier of the node.
 	NodeID string `json:"nodeId"`
@@ -385,10 +394,12 @@ const (
 
 // String returns the string representation of the node custom event category.
 func (c NodeCustomEventCategory) String() string {
-	return string(c)
+	_ = "STUB: not implemented"
+
+	// NodeCustomEventMetadata contains metadata about node custom events.
+	return ""
 }
 
-// NodeCustomEventMetadata contains metadata about node custom events.
 type NodeCustomEventMetadata struct {
 	// EventType is the user-defined event type.
 	EventType string `json:"eventType"`
@@ -415,148 +426,96 @@ type EventOption func(*event.Event)
 
 // WithNodeMetadata adds node execution metadata to the event.
 func WithNodeMetadata(metadata NodeExecutionMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyNode] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // NodeEventEmitterFromStateDelta extracts the node lifecycle emitter marker
 // from an event state delta when one is present.
 func NodeEventEmitterFromStateDelta(stateDelta map[string][]byte) NodeEventEmitter {
-	if len(stateDelta) == 0 {
-		return ""
-	}
-	raw, ok := stateDelta[MetadataKeyNodeEmitter]
-	if !ok || len(raw) == 0 {
-		return ""
-	}
-	var emitter NodeEventEmitter
-	if err := json.Unmarshal(raw, &emitter); err != nil {
-		return ""
-	}
-	return emitter
+	_ = "STUB: not implemented"
+	return *new(NodeEventEmitter)
 }
 
 // SetNodeEventEmitterInStateDelta stores a node lifecycle emitter marker in
 // state delta metadata. Empty emitters are ignored.
 func SetNodeEventEmitterInStateDelta(stateDelta map[string][]byte, emitter NodeEventEmitter) {
-	if len(stateDelta) == 0 || emitter == "" {
-		return
-	}
-	raw, err := json.Marshal(emitter)
-	if err != nil {
-		return
-	}
-	stateDelta[MetadataKeyNodeEmitter] = raw
+	_ = "STUB: not implemented"
+	return
 }
 
 // WithToolMetadata adds tool execution metadata to the event.
 func WithToolMetadata(metadata ToolExecutionMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyTool] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // WithModelMetadata adds model execution metadata to the event.
 func WithModelMetadata(metadata ModelExecutionMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyModel] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // WithPregelMetadata adds Pregel step metadata to the event.
 func WithPregelMetadata(metadata PregelStepMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyPregel] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // WithChannelMetadata adds channel update metadata to the event.
 func WithChannelMetadata(metadata ChannelUpdateMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyChannel] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // WithStateMetadata adds state update metadata to the event.
 func WithStateMetadata(metadata StateUpdateMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyState] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // WithNodeCustomMetadata adds node custom event metadata to the event.
 func WithNodeCustomMetadata(metadata NodeCustomEventMetadata) EventOption {
-	return func(e *event.Event) {
-		// Store metadata in StateDelta as JSON.
-		if e.StateDelta == nil {
-			e.StateDelta = make(map[string][]byte)
-		}
-		// Marshal metadata to JSON.
-		if jsonData, err := json.Marshal(metadata); err == nil {
-			e.StateDelta[MetadataKeyNodeCustom] = jsonData
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(EventOption)
 }
+
+// Store metadata in StateDelta as JSON.
+
+// Marshal metadata to JSON.
 
 // NewGraphEvent creates a new graph-related event.
 func NewGraphEvent(invocationID, author, objectType string, opts ...EventOption) *event.Event {
-	e := event.New(invocationID, author, event.WithObject(objectType))
-	for _, opt := range opts {
-		opt(e)
-	}
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // formatNodeAuthor returns nodeID if non-empty; otherwise returns fallback.
-func formatNodeAuthor(nodeID, fallbackAuthor string) string {
-	if nodeID != "" {
-		return nodeID
-	}
-	return fallbackAuthor
-}
+func formatNodeAuthor(nodeID, fallbackAuthor string) string { _ = "STUB: not implemented"; return "" }
 
 // NodeEventOptions contains options for creating node events.
 type NodeEventOptions struct {
@@ -608,9 +567,8 @@ type ToolEventOption func(*ToolEventOptions)
 
 // WithToolEventNodeID sets the node ID for tool events.
 func WithToolEventNodeID(nodeID string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.NodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // ModelEventOptions contains options for creating model events.
@@ -633,287 +591,243 @@ type ModelEventOption func(*ModelEventOptions)
 
 // WithNodeEventInvocationID sets the invocation ID for node events.
 func WithNodeEventInvocationID(invocationID string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventNodeID sets the node ID for node events.
 func WithNodeEventNodeID(nodeID string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.NodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventNodeType sets the node type for node events.
 func WithNodeEventNodeType(nodeType NodeType) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.NodeType = nodeType
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventEmitter sets the lifecycle emitter/source for node events.
 func WithNodeEventEmitter(emitter NodeEventEmitter) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.Emitter = emitter
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventStepNumber sets the step number for node events.
 func WithNodeEventStepNumber(stepNumber int) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.StepNumber = stepNumber
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventStartTime sets the start time for node events.
 func WithNodeEventStartTime(startTime time.Time) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.StartTime = startTime
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventEndTime sets the end time for node events.
 func WithNodeEventEndTime(endTime time.Time) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.EndTime = endTime
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventInputKeys sets the input keys for node events.
 func WithNodeEventInputKeys(inputKeys []string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.InputKeys = inputKeys
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventOutputKeys sets the output keys for node events.
 func WithNodeEventOutputKeys(outputKeys []string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.OutputKeys = outputKeys
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventToolCalls sets the tool calls for node events.
 func WithNodeEventToolCalls(toolCalls []model.ToolCall) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.ToolCalls = toolCalls
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventModelName sets the model name for node events.
 func WithNodeEventModelName(modelName string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.ModelName = modelName
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventModelInput sets the model input for node events.
 func WithNodeEventModelInput(modelInput string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.ModelInput = modelInput
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventError sets the error message for node events.
 func WithNodeEventError(errMsg string) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.Error = errMsg
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventResponseError sets ResponseError for node events.
 func WithNodeEventResponseError(err *model.ResponseError) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.ResponseError = err
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventAttempt sets the current attempt number (1-based).
 func WithNodeEventAttempt(attempt int) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.Attempt = attempt
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventMaxAttempts sets the maximum attempts.
 func WithNodeEventMaxAttempts(maxAttempts int) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.MaxAttempts = maxAttempts
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventNextDelay sets the planned next delay before retry.
 func WithNodeEventNextDelay(delay time.Duration) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.NextDelay = delay
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithNodeEventRetrying indicates whether a retry will be performed.
 func WithNodeEventRetrying(retrying bool) NodeEventOption {
-	return func(opts *NodeEventOptions) {
-		opts.Retrying = retrying
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeEventOption)
 }
 
 // WithToolEventInvocationID sets the invocation ID for tool events.
 func WithToolEventInvocationID(invocationID string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventToolName sets the tool name for tool events.
 func WithToolEventToolName(toolName string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.ToolName = toolName
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventToolID sets the tool ID for tool events.
 func WithToolEventToolID(toolID string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.ToolID = toolID
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventResponseID sets the parent response ID for tool events.
 func WithToolEventResponseID(responseID string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.ResponseID = responseID
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventPhase sets the phase for tool events.
 func WithToolEventPhase(phase ToolExecutionPhase) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.Phase = phase
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventStartTime sets the start time for tool events.
 func WithToolEventStartTime(startTime time.Time) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.StartTime = startTime
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventEndTime sets the end time for tool events.
 func WithToolEventEndTime(endTime time.Time) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.EndTime = endTime
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventInput sets the input for tool events.
 func WithToolEventInput(input string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.Input = input
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventOutput sets the output for tool events.
 func WithToolEventOutput(output string) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.Output = output
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventError sets the error for tool events.
 func WithToolEventError(err error) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		if err != nil {
-			opts.Error = err
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithToolEventIncludeResponse controls whether the resulting event should
 // embed a tool.response payload in addition to metadata.
 func WithToolEventIncludeResponse(include bool) ToolEventOption {
-	return func(opts *ToolEventOptions) {
-		opts.IncludeResponse = include
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolEventOption)
 }
 
 // WithModelEventResponseID sets the response ID for model events.
 func WithModelEventResponseID(responseID string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.ResponseID = responseID
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventInvocationID sets the invocation ID for model events.
 func WithModelEventInvocationID(invocationID string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventModelName sets the model name for model events.
 func WithModelEventModelName(modelName string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.ModelName = modelName
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventNodeID sets the node ID for model events.
 func WithModelEventNodeID(nodeID string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.NodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventPhase sets the phase for model events.
 func WithModelEventPhase(phase ModelExecutionPhase) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.Phase = phase
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventStartTime sets the start time for model events.
 func WithModelEventStartTime(startTime time.Time) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.StartTime = startTime
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventEndTime sets the end time for model events.
 func WithModelEventEndTime(endTime time.Time) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.EndTime = endTime
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventInput sets the input for model events.
 func WithModelEventInput(input string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.Input = input
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventOutput sets the output for model events.
 func WithModelEventOutput(output string) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.Output = output
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventError sets the error for model events.
 func WithModelEventError(err error) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		if err != nil {
-			opts.Error = err
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // WithModelEventStepNumber sets the step number for model events.
 func WithModelEventStepNumber(stepNumber int) ModelEventOption {
-	return func(opts *ModelEventOptions) {
-		opts.StepNumber = stepNumber
-	}
+	_ = "STUB: not implemented"
+	return *new(ModelEventOption)
 }
 
 // PregelEventOptions contains options for creating Pregel events.
@@ -941,115 +855,99 @@ type PregelEventOption func(*PregelEventOptions)
 
 // WithPregelEventInvocationID sets the invocation ID for Pregel events.
 func WithPregelEventInvocationID(invocationID string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventStepNumber sets the step number for Pregel events.
 func WithPregelEventStepNumber(stepNumber int) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.StepNumber = stepNumber
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventPhase sets the phase for Pregel events.
 func WithPregelEventPhase(phase PregelPhase) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.Phase = phase
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventTaskCount sets the task count for Pregel events.
 func WithPregelEventTaskCount(taskCount int) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.TaskCount = taskCount
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventUpdatedChannels sets the updated channels for Pregel events.
 func WithPregelEventUpdatedChannels(updatedChannels []string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.UpdatedChannels = updatedChannels
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventActiveNodes sets the active nodes for Pregel events.
 func WithPregelEventActiveNodes(activeNodes []string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.ActiveNodes = activeNodes
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventStartTime sets the start time for Pregel events.
 func WithPregelEventStartTime(startTime time.Time) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.StartTime = startTime
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventEndTime sets the end time for Pregel events.
 func WithPregelEventEndTime(endTime time.Time) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.EndTime = endTime
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventError sets the error message for Pregel events.
 func WithPregelEventError(errMsg string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.Error = errMsg
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventResponseError sets the structured ResponseError for Pregel
 // events.
 func WithPregelEventResponseError(err *model.ResponseError) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.ResponseError = err
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventNodeID sets the node ID for Pregel events.
 func WithPregelEventNodeID(nodeID string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.NodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventInterruptKey sets the interrupt key for Pregel events.
 func WithPregelEventInterruptKey(key string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.InterruptKey = key
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventInterruptValue sets the interrupt value for Pregel events.
 func WithPregelEventInterruptValue(value any) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.InterruptValue = value
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventLineageID sets the lineage ID for Pregel events.
 func WithPregelEventLineageID(lineageID string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.LineageID = lineageID
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventCheckpointID sets the checkpoint ID for Pregel events.
 func WithPregelEventCheckpointID(checkpointID string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.CheckpointID = checkpointID
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // WithPregelEventCheckpointNS sets the checkpoint namespace for Pregel events.
 func WithPregelEventCheckpointNS(checkpointNS string) PregelEventOption {
-	return func(opts *PregelEventOptions) {
-		opts.CheckpointNS = checkpointNS
-	}
+	_ = "STUB: not implemented"
+	return *new(PregelEventOption)
 }
 
 // ChannelEventOptions contains options for creating channel events.
@@ -1067,44 +965,38 @@ type ChannelEventOption func(*ChannelEventOptions)
 
 // WithChannelEventInvocationID sets the invocation ID for channel events.
 func WithChannelEventInvocationID(invocationID string) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // WithChannelEventChannelName sets the channel name for channel events.
 func WithChannelEventChannelName(channelName string) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.ChannelName = channelName
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // WithChannelEventChannelType sets the channel type for channel events.
 func WithChannelEventChannelType(channelType channel.Behavior) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.ChannelType = channelType
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // WithChannelEventValueCount sets the value count for channel events.
 func WithChannelEventValueCount(valueCount int) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.ValueCount = valueCount
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // WithChannelEventAvailable sets the availability for channel events.
 func WithChannelEventAvailable(available bool) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.Available = available
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // WithChannelEventTriggeredNodes sets the triggered nodes for channel events.
 func WithChannelEventTriggeredNodes(triggeredNodes []string) ChannelEventOption {
-	return func(opts *ChannelEventOptions) {
-		opts.TriggeredNodes = triggeredNodes
-	}
+	_ = "STUB: not implemented"
+	return *new(ChannelEventOption)
 }
 
 // StateEventOptions contains options for creating state events.
@@ -1120,30 +1012,26 @@ type StateEventOption func(*StateEventOptions)
 
 // WithStateEventInvocationID sets the invocation ID for state events.
 func WithStateEventInvocationID(invocationID string) StateEventOption {
-	return func(opts *StateEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(StateEventOption)
 }
 
 // WithStateEventUpdatedKeys sets the updated keys for state events.
 func WithStateEventUpdatedKeys(updatedKeys []string) StateEventOption {
-	return func(opts *StateEventOptions) {
-		opts.UpdatedKeys = updatedKeys
-	}
+	_ = "STUB: not implemented"
+	return *new(StateEventOption)
 }
 
 // WithStateEventRemovedKeys sets the removed keys for state events.
 func WithStateEventRemovedKeys(removedKeys []string) StateEventOption {
-	return func(opts *StateEventOptions) {
-		opts.RemovedKeys = removedKeys
-	}
+	_ = "STUB: not implemented"
+	return *new(StateEventOption)
 }
 
 // WithStateEventStateSize sets the state size for state events.
 func WithStateEventStateSize(stateSize int) StateEventOption {
-	return func(opts *StateEventOptions) {
-		opts.StateSize = stateSize
-	}
+	_ = "STUB: not implemented"
+	return *new(StateEventOption)
 }
 
 // CompletionEventOptions contains options for creating completion events.
@@ -1161,540 +1049,172 @@ type CompletionEventOption func(*CompletionEventOptions)
 
 // WithCompletionEventInvocationID sets the invocation ID for completion events.
 func WithCompletionEventInvocationID(invocationID string) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // WithCompletionEventFinalState sets the final state for completion events.
 func WithCompletionEventFinalState(finalState State) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.FinalState = finalState
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // WithCompletionEventFinalResponseID sets the terminal response ID for
 // completion events when one is available.
 func WithCompletionEventFinalResponseID(responseID string) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.FinalResponseID = responseID
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // WithCompletionEventTotalSteps sets the total steps for completion events.
 func WithCompletionEventTotalSteps(totalSteps int) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.TotalSteps = totalSteps
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // WithCompletionEventTotalDuration sets the total duration for completion events.
 func WithCompletionEventTotalDuration(totalDuration time.Duration) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.TotalDuration = totalDuration
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // WithCompletionEventSnapshotOnly marks completion output as terminal
 // snapshot content that should not be replayed as conversational history.
 func WithCompletionEventSnapshotOnly(snapshotOnly bool) CompletionEventOption {
-	return func(opts *CompletionEventOptions) {
-		opts.SnapshotOnly = snapshotOnly
-	}
+	_ = "STUB: not implemented"
+	return *new(CompletionEventOption)
 }
 
 // NewNodeStartEvent creates a new node start event.
-func NewNodeStartEvent(opts ...NodeEventOption) *event.Event {
-	options := &NodeEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := NodeExecutionMetadata{
-		NodeID:      options.NodeID,
-		NodeType:    options.NodeType,
-		Phase:       ExecutionPhaseStart,
-		StartTime:   options.StartTime,
-		InputKeys:   options.InputKeys,
-		ModelName:   options.ModelName,
-		ModelInput:  options.ModelInput,
-		StepNumber:  options.StepNumber,
-		Attempt:     options.Attempt,
-		MaxAttempts: options.MaxAttempts,
-	}
-	evt := NewGraphEvent(options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeStart,
-		WithNodeMetadata(metadata))
-	SetNodeEventEmitterInStateDelta(evt.StateDelta, options.Emitter)
-	return evt
-}
+func NewNodeStartEvent(opts ...NodeEventOption) *event.Event { _ = "STUB: not implemented"; return nil }
 
 // NewNodeCompleteEvent creates a new node completion event.
 func NewNodeCompleteEvent(opts ...NodeEventOption) *event.Event {
-	options := &NodeEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := NodeExecutionMetadata{
-		NodeID:      options.NodeID,
-		NodeType:    options.NodeType,
-		Phase:       ExecutionPhaseComplete,
-		StartTime:   options.StartTime,
-		EndTime:     options.EndTime,
-		Duration:    options.EndTime.Sub(options.StartTime),
-		OutputKeys:  options.OutputKeys,
-		ToolCalls:   options.ToolCalls,
-		ModelName:   options.ModelName,
-		StepNumber:  options.StepNumber,
-		Attempt:     options.Attempt,
-		MaxAttempts: options.MaxAttempts,
-	}
-	evt := NewGraphEvent(options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeComplete,
-		WithNodeMetadata(metadata))
-	SetNodeEventEmitterInStateDelta(evt.StateDelta, options.Emitter)
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNodeErrorEvent creates a new node error event.
-func NewNodeErrorEvent(opts ...NodeEventOption) *event.Event {
-	options := &NodeEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := NodeExecutionMetadata{
-		NodeID:      options.NodeID,
-		NodeType:    options.NodeType,
-		Phase:       ExecutionPhaseError,
-		StartTime:   options.StartTime,
-		EndTime:     options.EndTime,
-		Duration:    options.EndTime.Sub(options.StartTime),
-		Error:       options.Error,
-		StepNumber:  options.StepNumber,
-		Attempt:     options.Attempt,
-		MaxAttempts: options.MaxAttempts,
-		NextDelay:   options.NextDelay,
-		Retrying:    options.Retrying,
-	}
-	graphEvent := NewGraphEvent(options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeError,
-		WithNodeMetadata(metadata))
-	SetNodeEventEmitterInStateDelta(graphEvent.StateDelta, options.Emitter)
-
-	respErr := options.ResponseError
-	if respErr == nil && options.Error != "" {
-		respErr = &model.ResponseError{
-			Type:    model.ErrorTypeFlowError,
-			Message: options.Error,
-		}
-	}
-	if respErr != nil {
-		if options.ResponseError != nil &&
-			(respErr.Message == "" || respErr.Type == "") {
-			clone := *respErr
-			respErr = &clone
-		}
-		if respErr.Message == "" {
-			respErr.Message = options.Error
-		}
-		if respErr.Type == "" {
-			respErr.Type = model.ErrorTypeFlowError
-		}
-		graphEvent.Response.Error = respErr
-	}
-	return graphEvent
-}
+func NewNodeErrorEvent(opts ...NodeEventOption) *event.Event { _ = "STUB: not implemented"; return nil }
 
 // NewToolExecutionEvent creates a new tool execution event.
 func NewToolExecutionEvent(opts ...ToolEventOption) *event.Event {
-	options := &ToolEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	var errorMsg string
-	if options.Error != nil {
-		errorMsg = options.Error.Error()
-	}
-
-	metadata := ToolExecutionMetadata{
-		ToolName:     options.ToolName,
-		ToolID:       options.ToolID,
-		ResponseID:   options.ResponseID,
-		Phase:        options.Phase,
-		StartTime:    options.StartTime,
-		EndTime:      options.EndTime,
-		Duration:     options.EndTime.Sub(options.StartTime),
-		Input:        options.Input,
-		Output:       options.Output,
-		Error:        errorMsg,
-		InvocationID: options.InvocationID,
-	}
-	evt := NewGraphEvent(options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeExecution,
-		WithToolMetadata(metadata))
-
-	if options.IncludeResponse {
-		toolMessage := model.NewToolMessage(options.ToolID, options.ToolName, options.Output)
-		resp := &model.Response{
-			Object:    model.ObjectTypeToolResponse,
-			Created:   options.EndTime.Unix(),
-			Choices:   []model.Choice{{Index: 0, Message: toolMessage}},
-			Timestamp: options.EndTime,
-			Done:      true,
-		}
-		if options.Error != nil {
-			resp.Error = &model.ResponseError{
-				Type:    model.ErrorTypeFlowError,
-				Message: options.Error.Error(),
-			}
-		}
-		if resp.Timestamp.IsZero() {
-			resp.Timestamp = time.Now()
-			resp.Created = resp.Timestamp.Unix()
-		}
-		evt.Response = resp
-		evt.Object = resp.Object
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewModelExecutionEvent creates a new model execution event.
 func NewModelExecutionEvent(opts ...ModelEventOption) *event.Event {
-	options := &ModelEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	var errorMsg string
-	if options.Error != nil {
-		errorMsg = options.Error.Error()
-	}
-
-	metadata := ModelExecutionMetadata{
-		ModelName:    options.ModelName,
-		NodeID:       options.NodeID,
-		ResponseID:   options.ResponseID,
-		Phase:        options.Phase,
-		StartTime:    options.StartTime,
-		EndTime:      options.EndTime,
-		Duration:     options.EndTime.Sub(options.StartTime),
-		Input:        options.Input,
-		Output:       options.Output,
-		Error:        errorMsg,
-		InvocationID: options.InvocationID,
-		StepNumber:   options.StepNumber,
-	}
-	return NewGraphEvent(options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeExecution,
-		WithModelMetadata(metadata))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewPregelStepEvent creates a new Pregel step event.
 func NewPregelStepEvent(opts ...PregelEventOption) *event.Event {
-	options := &PregelEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := PregelStepMetadata{
-		StepNumber:      options.StepNumber,
-		Phase:           options.Phase,
-		TaskCount:       options.TaskCount,
-		UpdatedChannels: options.UpdatedChannels,
-		ActiveNodes:     options.ActiveNodes,
-		StartTime:       options.StartTime,
-		EndTime:         options.EndTime,
-		Duration:        options.EndTime.Sub(options.StartTime),
-	}
-	return NewGraphEvent(options.InvocationID, AuthorGraphPregel, ObjectTypeGraphPregelStep,
-		WithPregelMetadata(metadata))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewPregelErrorEvent creates a new Pregel error event.
 func NewPregelErrorEvent(opts ...PregelEventOption) *event.Event {
-	options := &PregelEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := PregelStepMetadata{
-		StepNumber: options.StepNumber,
-		Phase:      options.Phase,
-		StartTime:  options.StartTime,
-		EndTime:    options.EndTime,
-		Duration:   options.EndTime.Sub(options.StartTime),
-		Error:      options.Error,
-	}
-	// Build base graph event with metadata.
-	ge := NewGraphEvent(options.InvocationID, AuthorGraphPregel, ObjectTypeGraphPregelStep,
-		WithPregelMetadata(metadata))
-	// Mirror error to Event.Error for easier consumption by clients that
-	// only check event.Error, while keeping object as graph.pregel.step
-	// for compatibility with existing consumers.
-	respErr := options.ResponseError
-	if respErr == nil && options.Error != "" {
-		respErr = &model.ResponseError{
-			Type:    model.ErrorTypeFlowError,
-			Message: options.Error,
-		}
-	}
-	if respErr != nil {
-		if options.ResponseError != nil &&
-			(respErr.Message == "" || respErr.Type == "") {
-			clone := *respErr
-			respErr = &clone
-		}
-		if respErr.Message == "" {
-			respErr.Message = options.Error
-		}
-		if respErr.Type == "" {
-			respErr.Type = model.ErrorTypeFlowError
-		}
-		ge.Response.Error = respErr
-	}
-	return ge
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Build base graph event with metadata.
+
+// Mirror error to Event.Error for easier consumption by clients that
+// only check event.Error, while keeping object as graph.pregel.step
+// for compatibility with existing consumers.
 
 // NewPregelInterruptEvent creates a new Pregel interrupt event.
 func NewPregelInterruptEvent(opts ...PregelEventOption) *event.Event {
-	options := &PregelEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := PregelStepMetadata{
-		StepNumber:     options.StepNumber,
-		Phase:          options.Phase,
-		StartTime:      options.StartTime,
-		EndTime:        options.EndTime,
-		Duration:       options.EndTime.Sub(options.StartTime),
-		NodeID:         options.NodeID,
-		InterruptKey:   options.InterruptKey,
-		InterruptValue: options.InterruptValue,
-		LineageID:      options.LineageID,
-		CheckpointID:   options.CheckpointID,
-		CheckpointNS:   options.CheckpointNS,
-	}
-	return NewGraphEvent(options.InvocationID, AuthorGraphPregel, ObjectTypeGraphPregelStep,
-		WithPregelMetadata(metadata))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewChannelUpdateEvent creates a new channel update event.
 func NewChannelUpdateEvent(opts ...ChannelEventOption) *event.Event {
-	options := &ChannelEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := ChannelUpdateMetadata{
-		ChannelName:    options.ChannelName,
-		ChannelType:    options.ChannelType,
-		ValueCount:     options.ValueCount,
-		Available:      options.Available,
-		TriggeredNodes: options.TriggeredNodes,
-	}
-	return NewGraphEvent(options.InvocationID, AuthorGraphPregel, ObjectTypeGraphChannelUpdate,
-		WithChannelMetadata(metadata))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewStateUpdateEvent creates a new state update event.
 func NewStateUpdateEvent(opts ...StateEventOption) *event.Event {
-	options := &StateEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := StateUpdateMetadata{
-		UpdatedKeys: options.UpdatedKeys,
-		RemovedKeys: options.RemovedKeys,
-		StateSize:   options.StateSize,
-	}
-	return NewGraphEvent(options.InvocationID, AuthorGraphExecutor, ObjectTypeGraphStateUpdate,
-		WithStateMetadata(metadata))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewGraphCompletionEvent creates a new graph completion event.
 func NewGraphCompletionEvent(opts ...CompletionEventOption) *event.Event {
-	options := &CompletionEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	// Extract final response from state if available
-	finalResponse := extractFinalResponse(options.FinalState)
-
-	e := NewGraphEvent(options.InvocationID, AuthorGraphExecutor, ObjectTypeGraphExecution)
-	e.Response.Done = true
-	// Always initialize StateDelta to a non-nil map to ensure consumers can rely on it.
-	ensureStateDelta(e)
-	if finalResponse != "" {
-		e.Response.Choices = buildFinalChoices(finalResponse)
-	}
-
-	// Also include a serialized snapshot of the final state itself so downstream
-	// consumers (including tests) can reconstruct state without additional logic.
-	finalStateKeys := serializeFinalState(e, options.FinalState)
-	// Add completion metadata to StateDelta after serializing the final state so
-	// FinalStateKeys reflects the keys that were actually written.
-	addCompletionMetadata(e, options, finalStateKeys)
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Extract final response from state if available
+
+// Always initialize StateDelta to a non-nil map to ensure consumers can rely on it.
+
+// Also include a serialized snapshot of the final state itself so downstream
+// consumers (including tests) can reconstruct state without additional logic.
+
+// Add completion metadata to StateDelta after serializing the final state so
+// FinalStateKeys reflects the keys that were actually written.
 
 // ensureStateDelta initializes StateDelta if nil.
-func ensureStateDelta(e *event.Event) {
-	if e.StateDelta == nil {
-		e.StateDelta = make(map[string][]byte)
-	}
-}
+func ensureStateDelta(e *event.Event) { _ = "STUB: not implemented"; return }
 
 // extractFinalResponse fetches the last response text from state.
-func extractFinalResponse(state State) string {
-	if v, ok := state[StateKeyLastResponse].(string); ok {
-		return v
-	}
-	return ""
-}
+func extractFinalResponse(state State) string { _ = "STUB: not implemented"; return "" }
 
 // buildFinalChoices constructs the terminal assistant message choice.
-func buildFinalChoices(text string) []model.Choice {
-	return []model.Choice{{
-		Index: 0,
-		Message: model.Message{
-			Role:    model.RoleAssistant,
-			Content: text,
-		},
-	}}
-}
+func buildFinalChoices(text string) []model.Choice { _ = "STUB: not implemented"; return nil }
 
 // addCompletionMetadata attaches completion metadata to StateDelta.
 func addCompletionMetadata(e *event.Event, options *CompletionEventOptions, finalStateKeys int) {
-	completionMetadata := CompletionMetadata{
-		TotalSteps:      options.TotalSteps,
-		TotalDuration:   options.TotalDuration,
-		FinalStateKeys:  finalStateKeys,
-		FinalResponseID: options.FinalResponseID,
-		SnapshotOnly:    options.SnapshotOnly,
-	}
-	if jsonData, err := json.Marshal(completionMetadata); err == nil {
-		e.StateDelta[MetadataKeyCompletion] = jsonData
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // FinalResponseIDFromStateDelta returns the stable terminal response identity
 // carried by a graph completion snapshot when one is available.
 func FinalResponseIDFromStateDelta(stateDelta map[string][]byte) string {
-	if stateDelta == nil {
-		return ""
-	}
-	raw, ok := stateDelta[StateKeyLastResponseID]
-	if ok && len(raw) > 0 {
-		var responseID string
-		if err := json.Unmarshal(raw, &responseID); err == nil {
-			if responseID != "" {
-				return responseID
-			}
-		}
-	}
-	metadataRaw, ok := stateDelta[MetadataKeyCompletion]
-	if !ok || len(metadataRaw) == 0 {
-		return ""
-	}
-	var metadata CompletionMetadata
-	if err := json.Unmarshal(metadataRaw, &metadata); err != nil {
-		return ""
-	}
-	return metadata.FinalResponseID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // CompletionSnapshotOnlyFromStateDelta reports whether a completion snapshot
 // should be excluded from conversational history replay.
 func CompletionSnapshotOnlyFromStateDelta(stateDelta map[string][]byte) bool {
-	if stateDelta == nil {
-		return false
-	}
-	metadataRaw, ok := stateDelta[MetadataKeyCompletion]
-	if !ok || len(metadataRaw) == 0 {
-		return false
-	}
-	var metadata CompletionMetadata
-	if err := json.Unmarshal(metadataRaw, &metadata); err != nil {
-		return false
-	}
-	return metadata.SnapshotOnly
+	_ = "STUB: not implemented"
+	return false
 }
 
 // SetCompletionSnapshotOnlyInStateDelta updates completion metadata to mark the
 // snapshot as replay-ineligible conversational history.
 func SetCompletionSnapshotOnlyInStateDelta(stateDelta map[string][]byte, snapshotOnly bool) {
-	if stateDelta == nil {
-		return
-	}
-	metadata := CompletionMetadata{}
-	if raw, ok := stateDelta[MetadataKeyCompletion]; ok && len(raw) > 0 {
-		_ = json.Unmarshal(raw, &metadata)
-	}
-	metadata.SnapshotOnly = snapshotOnly
-	if jsonData, err := json.Marshal(metadata); err == nil {
-		stateDelta[MetadataKeyCompletion] = jsonData
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // serializeFinalState writes serializable final state keys into StateDelta and
 // returns the number of keys that were actually written.
-func serializeFinalState(e *event.Event, state State) int {
-	if state == nil {
-		return 0
-	}
-	count := 0
-	for key, value := range state {
-		// Skip internal/ephemeral keys that are not JSON-serializable or can race
-		// due to concurrent updates (e.g., execution context and callbacks).
-		if isInternalStateKey(key) {
-			continue
-		}
+func serializeFinalState(e *event.Event, state State) int { _ = "STUB: not implemented"; return 0 }
 
-		// Marshal a deep-copied snapshot to avoid racing on shared references.
-		snapshot := deepCopyAny(value)
+// Skip internal/ephemeral keys that are not JSON-serializable or can race
+// due to concurrent updates (e.g., execution context and callbacks).
 
-		// Special case: when users put JSON bytes into graph state (e.g.,
-		// json.Marshal output), encoding/json would base64 it if we marshal the
-		// []byte again. If it's already valid JSON, keep it as-is so downstream
-		// consumers can json.Unmarshal it directly.
-		if raw, ok := snapshot.([]byte); ok && json.Valid(raw) {
-			e.StateDelta[key] = raw
-			count++
-			continue
-		}
+// Marshal a deep-copied snapshot to avoid racing on shared references.
 
-		if jsonData, err := json.Marshal(snapshot); err == nil {
-			e.StateDelta[key] = jsonData
-			count++
-		}
-	}
-	return count
-}
+// Special case: when users put JSON bytes into graph state (e.g.,
+// json.Marshal output), encoding/json would base64 it if we marshal the
+// []byte again. If it's already valid JSON, keep it as-is so downstream
+// consumers can json.Unmarshal it directly.
 
 // extractStateKeys extracts all keys from a state map.
-func extractStateKeys(state State) []string {
-	keys := make([]string, 0, len(state))
-	// Create a copy of the state to avoid concurrent access issues
-	stateCopy := make(State, len(state))
-	for k, v := range state {
-		stateCopy[k] = v
-	}
-	for k := range stateCopy {
-		keys = append(keys, k)
-	}
-	return keys
-}
+func extractStateKeys(state State) []string { _ = "STUB: not implemented"; return nil }
+
+// Create a copy of the state to avoid concurrent access issues
 
 // CheckpointEventOptions contains options for creating checkpoint events.
 type CheckpointEventOptions struct {
@@ -1714,149 +1234,74 @@ type CheckpointEventOption func(*CheckpointEventOptions)
 
 // WithCheckpointEventInvocationID sets the invocation ID.
 func WithCheckpointEventInvocationID(invocationID string) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventCheckpointID sets the checkpoint ID.
 func WithCheckpointEventCheckpointID(checkpointID string) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.CheckpointID = checkpointID
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventSource sets the checkpoint source.
 func WithCheckpointEventSource(source string) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.Source = source
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventStep sets the step number.
 func WithCheckpointEventStep(step int) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.Step = step
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventDuration sets the duration.
 func WithCheckpointEventDuration(duration time.Duration) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.Duration = duration
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventBytes sets the bytes written.
 func WithCheckpointEventBytes(bytes int64) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.Bytes = bytes
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventWritesCount sets the writes count.
 func WithCheckpointEventWritesCount(count int) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.WritesCount = count
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventResumeReplay sets the resume replay flag.
 func WithCheckpointEventResumeReplay(replay bool) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.ResumeReplay = replay
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // WithCheckpointEventInterruptValue sets the interrupt value.
 func WithCheckpointEventInterruptValue(value any) CheckpointEventOption {
-	return func(opts *CheckpointEventOptions) {
-		opts.InterruptValue = value
-	}
+	_ = "STUB: not implemented"
+	return *new(CheckpointEventOption)
 }
 
 // NewCheckpointCreatedEvent creates a new checkpoint created event.
 func NewCheckpointCreatedEvent(opts ...CheckpointEventOption) *event.Event {
-	options := &CheckpointEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := map[string]any{
-		CfgKeyCheckpointID:  options.CheckpointID,
-		EventKeySource:      options.Source,
-		EventKeyStep:        options.Step,
-		EventKeyDuration:    options.Duration,
-		EventKeyBytes:       options.Bytes,
-		EventKeyWritesCount: options.WritesCount,
-	}
-
-	e := NewGraphEvent(options.InvocationID, AuthorGraphExecutor, ObjectTypeGraphCheckpointCreated)
-	if e.StateDelta == nil {
-		e.StateDelta = make(map[string][]byte)
-	}
-	if jsonData, err := json.Marshal(metadata); err == nil {
-		e.StateDelta[MetadataKeyCheckpoint] = jsonData
-	}
-
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewCheckpointCommittedEvent creates a new checkpoint committed event.
 func NewCheckpointCommittedEvent(opts ...CheckpointEventOption) *event.Event {
-	options := &CheckpointEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := map[string]any{
-		CfgKeyCheckpointID:  options.CheckpointID,
-		EventKeySource:      options.Source,
-		EventKeyStep:        options.Step,
-		EventKeyDuration:    options.Duration,
-		EventKeyBytes:       options.Bytes,
-		EventKeyWritesCount: options.WritesCount,
-	}
-
-	e := NewGraphEvent(options.InvocationID, AuthorGraphExecutor, ObjectTypeGraphCheckpointCommitted)
-	if e.StateDelta == nil {
-		e.StateDelta = make(map[string][]byte)
-	}
-	if jsonData, err := json.Marshal(metadata); err == nil {
-		e.StateDelta[MetadataKeyCheckpoint] = jsonData
-	}
-
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewCheckpointInterruptEvent creates a new checkpoint interrupt event.
 func NewCheckpointInterruptEvent(opts ...CheckpointEventOption) *event.Event {
-	options := &CheckpointEventOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := map[string]any{
-		CfgKeyCheckpointID:  options.CheckpointID,
-		EventKeySource:      options.Source,
-		EventKeyStep:        options.Step,
-		EventKeyDuration:    options.Duration,
-		EventKeyBytes:       options.Bytes,
-		EventKeyWritesCount: options.WritesCount,
-	}
-
-	e := NewGraphEvent(options.InvocationID,
-		AuthorGraphExecutor,
-		ObjectTypeGraphCheckpointInterrupt,
-	)
-	if e.StateDelta == nil {
-		e.StateDelta = make(map[string][]byte)
-	}
-	if jsonData, err := json.Marshal(metadata); err == nil {
-		e.StateDelta[MetadataKeyCheckpoint] = jsonData
-	}
-
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NodeCustomEventOptions contains options for creating node custom events.
@@ -1877,184 +1322,81 @@ type NodeCustomEventOption func(*NodeCustomEventOptions)
 
 // WithNodeCustomEventInvocationID sets the invocation ID for node custom events.
 func WithNodeCustomEventInvocationID(invocationID string) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.InvocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventNodeID sets the node ID for node custom events.
 func WithNodeCustomEventNodeID(nodeID string) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.NodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventEventType sets the event type for node custom events.
 func WithNodeCustomEventEventType(eventType string) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.EventType = eventType
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventCategory sets the category for node custom events.
 func WithNodeCustomEventCategory(category NodeCustomEventCategory) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.Category = category
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventStepNumber sets the step number for node custom events.
 func WithNodeCustomEventStepNumber(stepNumber int) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.StepNumber = stepNumber
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventPayload sets the payload for node custom events.
 func WithNodeCustomEventPayload(payload any) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.Payload = payload
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventProgress sets the progress for node custom events.
 func WithNodeCustomEventProgress(progress float64) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.Progress = progress
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventMessage sets the message for node custom events.
 func WithNodeCustomEventMessage(message string) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.Message = message
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // WithNodeCustomEventBranch sets the branch for node custom events.
 func WithNodeCustomEventBranch(branch string) NodeCustomEventOption {
-	return func(opts *NodeCustomEventOptions) {
-		opts.Branch = branch
-	}
+	_ = "STUB: not implemented"
+	return *new(NodeCustomEventOption)
 }
 
 // NewNodeCustomEvent creates a new node custom event.
 // This function is used for creating general custom events emitted by NodeFunc.
 func NewNodeCustomEvent(opts ...NodeCustomEventOption) *event.Event {
-	options := &NodeCustomEventOptions{
-		Category: NodeCustomEventCategoryCustom,
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	metadata := NodeCustomEventMetadata{
-		EventType:    options.EventType,
-		Category:     options.Category,
-		NodeID:       options.NodeID,
-		InvocationID: options.InvocationID,
-		StepNumber:   options.StepNumber,
-		Timestamp:    time.Now(),
-		Payload:      options.Payload,
-		Progress:     options.Progress,
-		Message:      options.Message,
-	}
-
-	evt := NewGraphEvent(
-		options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if options.Branch != "" {
-		evt.Branch = options.Branch
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNodeProgressEvent creates a new progress event for node execution.
 // Progress should be a value between 0 and 100.
 func NewNodeProgressEvent(opts ...NodeCustomEventOption) *event.Event {
-	options := &NodeCustomEventOptions{
-		EventType: "progress",
-		Category:  NodeCustomEventCategoryProgress,
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	// Ensure category and event type are set for progress events
-	options.Category = NodeCustomEventCategoryProgress
-	if options.EventType == "" {
-		options.EventType = "progress"
-	}
-
-	// Clamp progress to 0-100
-	if options.Progress < 0 {
-		options.Progress = 0
-	}
-	if options.Progress > 100 {
-		options.Progress = 100
-	}
-
-	metadata := NodeCustomEventMetadata{
-		EventType:    options.EventType,
-		Category:     options.Category,
-		NodeID:       options.NodeID,
-		InvocationID: options.InvocationID,
-		StepNumber:   options.StepNumber,
-		Timestamp:    time.Now(),
-		Progress:     options.Progress,
-		Message:      options.Message,
-	}
-
-	evt := NewGraphEvent(
-		options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if options.Branch != "" {
-		evt.Branch = options.Branch
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Ensure category and event type are set for progress events
+
+// Clamp progress to 0-100
 
 // NewNodeTextEvent creates a new streaming text event for node execution.
 // This is useful for streaming intermediate text output from a node.
 func NewNodeTextEvent(opts ...NodeCustomEventOption) *event.Event {
-	options := &NodeCustomEventOptions{
-		EventType: "text",
-		Category:  NodeCustomEventCategoryText,
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	// Ensure category and event type are set for text events
-	options.Category = NodeCustomEventCategoryText
-	if options.EventType == "" {
-		options.EventType = "text"
-	}
-
-	metadata := NodeCustomEventMetadata{
-		EventType:    options.EventType,
-		Category:     options.Category,
-		NodeID:       options.NodeID,
-		InvocationID: options.InvocationID,
-		StepNumber:   options.StepNumber,
-		Timestamp:    time.Now(),
-		Message:      options.Message,
-	}
-
-	evt := NewGraphEvent(
-		options.InvocationID,
-		formatNodeAuthor(options.NodeID, AuthorGraphNode),
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if options.Branch != "" {
-		evt.Branch = options.Branch
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Ensure category and event type are set for text events

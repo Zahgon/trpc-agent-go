@@ -12,12 +12,8 @@
 package tool
 
 import (
-	"fmt"
 	"reflect"
-	"strconv"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -25,21 +21,12 @@ const defsRefPrefix = "#/$defs/"
 
 // GenerateJSONSchema generates a basic JSON schema from a reflect.Type.
 func GenerateJSONSchema(t reflect.Type) *tool.Schema {
+	_ = "STUB: not implemented"
 	// Use a context to track visited types and handle recursion
-	ctx := &schemaContext{
-		visited: make(map[reflect.Type]string),
-		defs:    make(map[string]*tool.Schema),
-	}
-
-	schema := generateJSONSchema(t, ctx, true)
-
-	// Add $defs to the root schema if we have any definitions
-	if len(ctx.defs) > 0 {
-		schema.Defs = ctx.defs
-	}
-
-	return schema
+	return nil
 }
+
+// Add $defs to the root schema if we have any definitions
 
 // schemaContext tracks the state during schema generation to handle recursion
 type schemaContext struct {
@@ -47,112 +34,41 @@ type schemaContext struct {
 	defs    map[string]*tool.Schema // Stores reusable schema definitions
 }
 
-func schemaRef(defName string) *tool.Schema {
-	return &tool.Schema{Ref: defsRefPrefix + defName}
-}
+func schemaRef(defName string) *tool.Schema { _ = "STUB: not implemented"; return nil }
 
 func cloneProperties(props map[string]*tool.Schema) map[string]*tool.Schema {
-	if len(props) == 0 {
-		return nil
-	}
-	out := make(map[string]*tool.Schema, len(props))
-	for k, v := range props {
-		out[k] = v
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func cloneRequired(required []string) []string {
-	if len(required) == 0 {
-		return nil
-	}
-	out := make([]string, len(required))
-	copy(out, required)
-	return out
-}
+func cloneRequired(required []string) []string { _ = "STUB: not implemented"; return nil }
 
 // generateJSONSchema generates a JSON schema with recursion handling
 func generateJSONSchema(t reflect.Type, ctx *schemaContext, isRoot bool) *tool.Schema {
+	_ = "STUB: not implemented"
 	// Handle different kinds of types.
-	switch t.Kind() {
-	case reflect.Struct:
-		return handleStructType(t, ctx, isRoot)
-
-	case reflect.Ptr:
-		// For function tool parameters, we typically use value types
-		// So we can just return the element type schema.
-		return generateFieldSchema(t.Elem(), ctx, isRoot)
-
-	default:
-		return generateFieldSchema(t, ctx, isRoot)
-	}
+	return nil
 }
+
+// For function tool parameters, we typically use value types
+// So we can just return the element type schema.
 
 // hasRecursiveFields checks if a struct type has fields that reference itself
-func hasRecursiveFields(t reflect.Type) bool {
-	return checkRecursion(t, t, make(map[reflect.Type]bool))
-}
+func hasRecursiveFields(t reflect.Type) bool { _ = "STUB: not implemented"; return false }
 
 // checkRecursion recursively checks if targetType appears in the fields of currentType
 func checkRecursion(targetType, currentType reflect.Type, visited map[reflect.Type]bool) bool {
-	if visited[currentType] {
-		return false
-	}
-	visited[currentType] = true
-
-	switch currentType.Kind() {
-	case reflect.Struct:
-		for i := 0; i < currentType.NumField(); i++ {
-			field := currentType.Field(i)
-			if !field.IsExported() {
-				continue
-			}
-
-			fieldType := field.Type
-			// Check through pointers, slices, and arrays
-			for fieldType.Kind() == reflect.Ptr || fieldType.Kind() == reflect.Slice || fieldType.Kind() == reflect.Array {
-				fieldType = fieldType.Elem()
-			}
-
-			if fieldType == targetType {
-				return true
-			}
-
-			if fieldType.Kind() == reflect.Struct && checkRecursion(targetType, fieldType, visited) {
-				return true
-			}
-		}
-	case reflect.Slice, reflect.Array:
-		elemType := currentType.Elem()
-		for elemType.Kind() == reflect.Ptr {
-			elemType = elemType.Elem()
-		}
-		if elemType == targetType {
-			return true
-		}
-		if elemType.Kind() == reflect.Struct && checkRecursion(targetType, elemType, visited) {
-			return true
-		}
-	case reflect.Ptr:
-		elemType := currentType.Elem()
-		if elemType == targetType {
-			return true
-		}
-		if elemType.Kind() == reflect.Struct && checkRecursion(targetType, elemType, visited) {
-			return true
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return false
 }
 
+// Check through pointers, slices, and arrays
+
 // generateDefName creates a unique definition name for a type
 func generateDefName(t reflect.Type) string {
+	_ = "STUB: not implemented"
 	// Use the type name if available, otherwise use a generic name
-	if t.Name() != "" {
-		return strings.ToLower(t.Name())
-	}
-	return "anonymousStruct"
+	return ""
 }
 
 // applyFieldTags parses all supported struct tags and applies them to the schema.
@@ -167,23 +83,13 @@ func generateDefName(t reflect.Type) string {
 //
 // Returns true if the field is explicitly marked required via jsonschema:"required".
 func applyFieldTags(fieldType reflect.Type, tag reflect.StructTag, schema *tool.Schema) (bool, error) {
-	isRequired, err := parseJSONSchemaTag(fieldType, tag, schema)
-	if err != nil {
-		return false, err
-	}
-
-	// If jsonschema tag already set the description, we're done.
-	if schema.Description != "" {
-		return isRequired, nil
-	}
-
-	// Fallback: description:"..."
-	if desc := strings.TrimSpace(tag.Get("description")); desc != "" {
-		schema.Description = desc
-	}
-
-	return isRequired, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
+
+// If jsonschema tag already set the description, we're done.
+
+// Fallback: description:"..."
 
 // parseJSONSchemaTag parses the jsonschema struct tag and applies settings to the schema.
 //
@@ -192,164 +98,57 @@ func applyFieldTags(fieldType reflect.Type, tag reflect.StructTag, schema *tool.
 //   - enum=xxx  (repeatable; type-aware conversion)
 //   - required  (standalone flag)
 func parseJSONSchemaTag(fieldType reflect.Type, tag reflect.StructTag, schema *tool.Schema) (bool, error) {
-	jsonSchemaTag := tag.Get("jsonschema")
-	if len(jsonSchemaTag) == 0 {
-		return false, nil
-	}
-
-	isRequiredByTag := false
-	for _, tagItem := range strings.Split(jsonSchemaTag, ",") {
-		tagItem = strings.TrimSpace(tagItem)
-		if tagItem == "" {
-			continue
-		}
-		kv := strings.SplitN(tagItem, "=", 2)
-		if len(kv) == 2 {
-			if err := applyKVTag(fieldType, strings.TrimSpace(kv[0]), strings.TrimSpace(kv[1]), schema); err != nil {
-				return false, err
-			}
-		} else if strings.TrimSpace(kv[0]) == "required" {
-			isRequiredByTag = true
-		}
-	}
-
-	return isRequiredByTag, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // applyKVTag applies a single key=value pair from the jsonschema tag.
 func applyKVTag(fieldType reflect.Type, key, value string, schema *tool.Schema) error {
-	switch key {
-	case "description":
-		schema.Description = value
-	case "enum":
-		return appendEnumValue(fieldType, value, schema)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // appendEnumValue parses and appends a typed enum value to the schema.
 func appendEnumValue(fieldType reflect.Type, value string, schema *tool.Schema) error {
-	if schema.Enum == nil {
-		schema.Enum = make([]any, 0)
-	}
-	switch fieldType.Kind() {
-	case reflect.String:
-		schema.Enum = append(schema.Enum, value)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		v, err := strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			return fmt.Errorf("parse enum value %v to int64 failed: %w", value, err)
-		}
-		schema.Enum = append(schema.Enum, v)
-	case reflect.Float32, reflect.Float64:
-		v, err := strconv.ParseFloat(value, 64)
-		if err != nil {
-			return fmt.Errorf("parse enum value %v to float64 failed: %w", value, err)
-		}
-		schema.Enum = append(schema.Enum, v)
-	case reflect.Bool:
-		v, err := strconv.ParseBool(value)
-		if err != nil {
-			return fmt.Errorf("parse enum value %v to bool failed: %w", value, err)
-		}
-		schema.Enum = append(schema.Enum, v)
-	default:
-		return fmt.Errorf("enum tag unsupported for field type: %v", fieldType)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // generateFieldSchema generates schema for a specific field type with recursion handling.
 func generateFieldSchema(t reflect.Type, ctx *schemaContext, isRoot bool) *tool.Schema {
+	_ = "STUB: not implemented"
 	// Delegate to smaller focused helpers to reduce cyclomatic complexity.
-	switch t.Kind() {
-	case reflect.String, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64, reflect.Bool:
-		return handlePrimitiveType(t)
-	case reflect.Slice, reflect.Array:
-		return handleArrayOrSlice(t, ctx)
-	case reflect.Map:
-		return handleMapType(t, ctx, isRoot)
-	case reflect.Ptr:
-		return handlePointerType(t, ctx, isRoot)
-	case reflect.Struct:
-		return handleStructType(t, ctx, isRoot)
-	default:
-		return &tool.Schema{Type: "object"}
-	}
+	return nil
 }
 
 // handlePrimitiveType returns a simple schema for primitive kinds.
-func handlePrimitiveType(t reflect.Type) *tool.Schema {
-	switch t.Kind() {
-	case reflect.String:
-		return &tool.Schema{Type: "string"}
-	case reflect.Bool:
-		return &tool.Schema{Type: "boolean"}
-	case reflect.Float32, reflect.Float64:
-		return &tool.Schema{Type: "number"}
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return &tool.Schema{Type: "integer"}
-	default:
-		return &tool.Schema{Type: "object"}
-	}
-}
+func handlePrimitiveType(t reflect.Type) *tool.Schema { _ = "STUB: not implemented"; return nil }
 
 // handleArrayOrSlice builds schema for arrays and slices.
 func handleArrayOrSlice(t reflect.Type, ctx *schemaContext) *tool.Schema {
+	_ = "STUB: not implemented"
 	// For struct element types we might prefer references; generateFieldSchema will
 	// handle nested struct recursion correctly.
-	return &tool.Schema{
-		Type:  "array",
-		Items: generateFieldSchema(t.Elem(), ctx, false),
-	}
+	return nil
 }
 
 // handleMapType builds schema for map types using additionalProperties.
 func handleMapType(t reflect.Type, ctx *schemaContext, isRoot bool) *tool.Schema {
-	valueSchema := generateFieldSchema(t.Elem(), ctx, false)
-
-	schema := &tool.Schema{
-		Type:                 "object",
-		AdditionalProperties: valueSchema,
-	}
-
-	if isRoot && len(ctx.defs) > 0 {
-		schema.Defs = ctx.defs
-	}
-
-	return schema
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // handlePointerType returns the element type schema for pointer types.
 func handlePointerType(t reflect.Type, ctx *schemaContext, isRoot bool) *tool.Schema {
-	return generateFieldSchema(t.Elem(), ctx, isRoot)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func jsonFieldMeta(
 	field reflect.StructField,
 ) (fieldName string, omitEmpty bool, ok bool) {
-	if !field.IsExported() {
-		return "", false, false
-	}
-
-	tag := field.Tag.Get("json")
-	if tag == "-" {
-		return "", false, false
-	}
-
-	if tag == "" {
-		return field.Name, false, true
-	}
-
-	commaIdx := strings.Index(tag, ",")
-	if commaIdx == -1 {
-		return tag, false, true
-	}
-	return tag[:commaIdx], strings.Contains(tag[commaIdx:], "omitempty"), true
+	_ = "STUB: not implemented"
+	return "", false, false
 }
 
 func appendRequiredField(
@@ -359,80 +158,17 @@ func appendRequiredField(
 	fieldName string,
 	isOmitEmpty bool,
 ) []string {
-	if fieldSchema.Ref == "" {
-		isRequiredByTag, err := applyFieldTags(
-			field.Type, field.Tag, fieldSchema,
-		)
-		if err != nil {
-			log.Errorf("applyFieldTags error for field %s: %v", fieldName, err)
-		}
-
-		if (field.Type.Kind() != reflect.Ptr && !isOmitEmpty) ||
-			isRequiredByTag {
-			return append(required, fieldName)
-		}
-	} else if field.Type.Kind() != reflect.Ptr && !isOmitEmpty {
-		return append(required, fieldName)
-	}
-	return required
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildStructSchema(t reflect.Type, ctx *schemaContext) *tool.Schema {
-	schema := &tool.Schema{
-		Type:       "object",
-		Properties: make(map[string]*tool.Schema),
-	}
-
-	required := make([]string, 0)
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldName, isOmitEmpty, ok := jsonFieldMeta(field)
-		if !ok {
-			continue
-		}
-
-		fieldSchema := generateFieldSchema(field.Type, ctx, false)
-		schema.Properties[fieldName] = fieldSchema
-
-		required = appendRequiredField(
-			required, field, fieldSchema, fieldName, isOmitEmpty,
-		)
-	}
-
-	if len(required) > 0 {
-		schema.Required = required
-	}
-	return schema
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // handleStructType handles inline and named struct schemas with recursion tracking.
 func handleStructType(t reflect.Type, ctx *schemaContext, isRoot bool) *tool.Schema {
-	if defName, exists := ctx.visited[t]; exists {
-		return schemaRef(defName)
-	}
-
-	hasRecursion := hasRecursiveFields(t)
-	if !hasRecursion {
-		return buildStructSchema(t, ctx)
-	}
-
-	defName := generateDefName(t)
-	ctx.visited[t] = defName
-	nestedSchema := buildStructSchema(t, ctx)
-	defSchema := &tool.Schema{
-		Type:       nestedSchema.Type,
-		Properties: cloneProperties(nestedSchema.Properties),
-		Required:   cloneRequired(nestedSchema.Required),
-	}
-	ctx.defs[defName] = defSchema
-	if isRoot {
-		return &tool.Schema{
-			Type:       nestedSchema.Type,
-			Properties: cloneProperties(nestedSchema.Properties),
-			Required:   cloneRequired(nestedSchema.Required),
-		}
-	}
-
-	return schemaRef(defName)
+	_ = "STUB: not implemented"
+	return nil
 }

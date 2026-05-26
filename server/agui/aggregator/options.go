@@ -22,19 +22,9 @@ type options struct {
 }
 
 // newOptions creates a new options instance.
-func newOptions(opt ...Option) *options {
-	opts := &options{enabled: defaultEnabled}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithEnabled toggles aggregation.
 // When true (default), adjacent text content events are merged before persistence.
 // When false, events pass through without merging.
-func WithEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.enabled = enabled
-	}
-}
+func WithEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }

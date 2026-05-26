@@ -19,30 +19,13 @@ type Options struct {
 }
 
 // NewOptions constructs Options with the default values.
-func NewOptions(opts ...Option) *Options {
-	options := &Options{
-		BaseDir: defaultBaseDir,
-		Locator: &locator{},
-	}
-	for _, o := range opts {
-		o(options)
-	}
-	return options
-}
+func NewOptions(opts ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Option is a functional option for configuring the eval set manager.
 type Option func(*Options)
 
 // WithBaseDir sets the root directory for storing eval set JSON files.
-func WithBaseDir(dir string) Option {
-	return func(o *Options) {
-		o.BaseDir = dir
-	}
-}
+func WithBaseDir(dir string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLocator sets the locator.
-func WithLocator(p Locator) Option {
-	return func(o *Options) {
-		o.Locator = p
-	}
-}
+func WithLocator(p Locator) Option { _ = "STUB: not implemented"; return *new(Option) }

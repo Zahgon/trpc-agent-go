@@ -20,30 +20,13 @@ type Options struct {
 }
 
 // NewOptions creates a Options with the default values.
-func NewOptions(opts ...Option) *Options {
-	options := &Options{
-		BaseDir: defaultBaseDir,
-		Locator: &locator{},
-	}
-	for _, o := range opts {
-		o(options)
-	}
-	return options
-}
+func NewOptions(opts ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Option defines a function type for configuring the metric manager.
 type Option func(*Options)
 
 // WithBaseDir sets the base directory.
-func WithBaseDir(dir string) Option {
-	return func(o *Options) {
-		o.BaseDir = dir
-	}
-}
+func WithBaseDir(dir string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLocator sets the locator.
-func WithLocator(l Locator) Option {
-	return func(o *Options) {
-		o.Locator = l
-	}
-}
+func WithLocator(l Locator) Option { _ = "STUB: not implemented"; return *new(Option) }

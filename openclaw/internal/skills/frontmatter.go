@@ -12,10 +12,6 @@ package skills
 
 import (
 	"errors"
-	"os"
-	"strings"
-
-	"gopkg.in/yaml.v3"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/deps"
 )
@@ -52,103 +48,24 @@ type openClawRequires = deps.Requirement
 type openClawInstallEntry = deps.InstallAction
 
 func parseFrontMatterFile(path string) (parsedFrontMatter, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return parsedFrontMatter{}, err
-	}
-	return parseFrontMatter(string(b))
+	_ = "STUB: not implemented"
+	return *new(parsedFrontMatter), nil
 }
 
 func parseFrontMatter(content string) (parsedFrontMatter, error) {
-	text := strings.ReplaceAll(content, "\r\n", "\n")
-	if !strings.HasPrefix(text, "---\n") {
-		return parsedFrontMatter{}, errNoFrontMatter
-	}
-
-	idx := strings.Index(text[4:], "\n---\n")
-	if idx < 0 {
-		return parsedFrontMatter{}, errNoFrontMatter
-	}
-
-	raw := text[4 : 4+idx]
-	m := map[string]any{}
-	if err := yaml.Unmarshal([]byte(raw), &m); err != nil {
-		return parsedFrontMatter{}, err
-	}
-
-	out := parsedFrontMatter{
-		Name:        strings.TrimSpace(asString(m["name"])),
-		Description: strings.TrimSpace(asString(m["description"])),
-		Metadata:    normalizeMetadata(m["metadata"]),
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return *new(parsedFrontMatter), nil
 }
 
 func parseOpenClawMetadata(
 	fm parsedFrontMatter,
 ) (openClawMetadata, bool, error) {
-	if len(fm.Metadata) == 0 {
-		return openClawMetadata{}, false, nil
-	}
-	raw, ok := fm.Metadata[openClawMetadataKey]
-	if !ok {
-		return openClawMetadata{}, false, nil
-	}
-
-	b, err := yaml.Marshal(raw)
-	if err != nil {
-		return openClawMetadata{}, false, err
-	}
-	var meta openClawMetadata
-	if err := yaml.Unmarshal(b, &meta); err != nil {
-		return openClawMetadata{}, false, err
-	}
-	return meta, true, nil
+	_ = "STUB: not implemented"
+	return *new(openClawMetadata), false, nil
 }
 
-func asString(v any) string {
-	s, ok := v.(string)
-	if !ok {
-		return ""
-	}
-	return s
-}
+func asString(v any) string { _ = "STUB: not implemented"; return "" }
 
-func normalizeStringAnyMap(v any) map[string]any {
-	switch typed := v.(type) {
-	case map[string]any:
-		return typed
-	case map[any]any:
-		out := make(map[string]any, len(typed))
-		for k, val := range typed {
-			ks, ok := k.(string)
-			if !ok {
-				continue
-			}
-			out[ks] = val
-		}
-		return out
-	default:
-		return nil
-	}
-}
+func normalizeStringAnyMap(v any) map[string]any { _ = "STUB: not implemented"; return nil }
 
-func normalizeMetadata(v any) map[string]any {
-	out := normalizeStringAnyMap(v)
-	if len(out) > 0 {
-		return out
-	}
-	text, ok := v.(string)
-	if !ok {
-		return nil
-	}
-	text = strings.TrimSpace(text)
-	if text == "" {
-		return nil
-	}
-	m := map[string]any{}
-	if err := yaml.Unmarshal([]byte(text), &m); err != nil {
-		return nil
-	}
-	return normalizeStringAnyMap(m)
-}
+func normalizeMetadata(v any) map[string]any { _ = "STUB: not implemented"; return nil }

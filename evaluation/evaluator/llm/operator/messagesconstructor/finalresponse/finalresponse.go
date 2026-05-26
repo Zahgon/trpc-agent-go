@@ -11,14 +11,11 @@
 package finalresponse
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"text/template"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor/internal/content"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -96,35 +93,15 @@ type finalResponseMessagesConstructor struct {
 
 // New returns a messages constructor for final responses.
 func New() messagesconstructor.MessagesConstructor {
-	return &finalResponseMessagesConstructor{}
+	_ = "STUB: not implemented"
+	return *new(messagesconstructor.MessagesConstructor)
 }
 
 // ConstructMessages builds judge prompts from actual and expected responses.
 func (e *finalResponseMessagesConstructor) ConstructMessages(ctx context.Context, actuals, expecteds []*evalset.Invocation,
 	_ *metric.EvalMetric) ([]model.Message, error) {
-	if len(actuals) == 0 {
-		return nil, fmt.Errorf("actuals is empty")
-	}
-	if len(expecteds) == 0 {
-		return nil, fmt.Errorf("expecteds is empty")
-	}
-	actual := actuals[len(actuals)-1]
-	expected := expecteds[len(expecteds)-1]
-	data := finalResponsePromptData{
-		UserPrompt:       content.ExtractTextFromContent(actual.UserContent),
-		ActualResponse:   content.ExtractTextFromContent(actual.FinalResponse),
-		ExpectedResponse: content.ExtractTextFromContent(expected.FinalResponse),
-	}
-	var buf bytes.Buffer
-	if err := finalResponsePromptTemplate.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("execute final response prompt template: %w", err)
-	}
-	return []model.Message{
-		{
-			Role:    model.RoleUser,
-			Content: buf.String(),
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // finalResponsePromptData feeds values into the judge prompt template.

@@ -28,7 +28,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
@@ -167,9 +166,4 @@ func main() {
 	fmt.Println("\n✅ Done!")
 }
 
-func getEnvOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
+func getEnvOrDefault(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }

@@ -11,7 +11,6 @@
 package reader
 
 import (
-	"strings"
 	"sync"
 )
 
@@ -31,99 +30,40 @@ var globalRegistry = &Registry{
 
 // RegisterReader registers a reader builder for specific file extensions.
 // Extensions should include the dot prefix (e.g., ".pdf", ".txt").
-func RegisterReader(extensions []string, builder Builder) {
-	globalRegistry.mu.Lock()
-	defer globalRegistry.mu.Unlock()
+func RegisterReader(extensions []string, builder Builder) { _ = "STUB: not implemented"; return }
 
-	for _, ext := range extensions {
-		// Normalize extension to lowercase.
-		normalizedExt := strings.ToLower(ext)
-		globalRegistry.readers[normalizedExt] = builder
-	}
-}
+// Normalize extension to lowercase.
 
 // GetReader returns a new reader instance for the given file extension with options.
 // The extension should include the dot prefix (e.g., ".pdf").
 // Returns nil and false if no reader is registered for the extension.
 func GetReader(extension string, opts ...Option) (Reader, bool) {
-	globalRegistry.mu.RLock()
-	defer globalRegistry.mu.RUnlock()
-
-	normalizedExt := strings.ToLower(extension)
-	builder, exists := globalRegistry.readers[normalizedExt]
-	if !exists {
-		return nil, false
-	}
-
-	// Create a new instance with options
-	return builder(opts...), true
+	_ = "STUB: not implemented"
+	return *new(Reader), false
 }
+
+// Create a new instance with options
 
 // GetAllReaders returns all registered readers as a map of file type to reader.
 // The returned map uses simplified type names (e.g., "text", "pdf") as keys.
 // Each call creates new reader instances with the provided options.
-func GetAllReaders(opts ...Option) map[string]Reader {
-	globalRegistry.mu.RLock()
-	defer globalRegistry.mu.RUnlock()
+func GetAllReaders(opts ...Option) map[string]Reader { _ = "STUB: not implemented"; return nil }
 
-	result := make(map[string]Reader)
-	processedTypes := make(map[string]bool)
+// Skip if we've already processed this type.
 
-	for ext, builder := range globalRegistry.readers {
-		typeName := extensionToType(ext)
-
-		// Skip if we've already processed this type.
-		if processedTypes[typeName] {
-			continue
-		}
-		processedTypes[typeName] = true
-
-		// Create a new instance with options
-		result[typeName] = builder(opts...)
-	}
-	return result
-}
+// Create a new instance with options
 
 // extensionToType converts a file extension to a simplified type name.
 func extensionToType(ext string) string {
+	_ = "STUB: not implemented"
 	// Remove the dot prefix if present.
-	ext = strings.TrimPrefix(ext, ".")
-
-	// Map common extensions to type names.
-	switch ext {
-	case "txt", "text":
-		return "text"
-	case "md", "markdown":
-		return "markdown"
-	case "json":
-		return "json"
-	case "csv":
-		return "csv"
-	case "pdf":
-		return "pdf"
-	case "docx", "doc":
-		return "docx"
-	default:
-		return ext
-	}
+	return ""
 }
+
+// Map common extensions to type names.
 
 // GetRegisteredExtensions returns all registered file extensions.
-func GetRegisteredExtensions() []string {
-	globalRegistry.mu.RLock()
-	defer globalRegistry.mu.RUnlock()
-
-	extensions := make([]string, 0, len(globalRegistry.readers))
-	for ext := range globalRegistry.readers {
-		extensions = append(extensions, ext)
-	}
-	return extensions
-}
+func GetRegisteredExtensions() []string { _ = "STUB: not implemented"; return nil }
 
 // ClearRegistry clears all registered readers (mainly for testing).
-func ClearRegistry() {
-	globalRegistry.mu.Lock()
-	defer globalRegistry.mu.Unlock()
-
-	globalRegistry.readers = make(map[string]Builder)
-}
+func ClearRegistry() { _ = "STUB: not implemented"; return }

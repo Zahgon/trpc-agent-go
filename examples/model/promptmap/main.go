@@ -15,7 +15,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
@@ -113,41 +112,8 @@ func runOnce(
 	msg model.Message,
 	opts ...agent.RunOption,
 ) error {
-	ch, err := r.Run(ctx, userID, sessionID, msg, opts...)
-	if err != nil {
-		return err
-	}
-	return printResponse(ch)
-}
-
-func printResponse(eventChan <-chan *event.Event) error {
-	var out strings.Builder
-	for ev := range eventChan {
-		if ev.Error != nil {
-			return fmt.Errorf("model error: %s", ev.Error.Message)
-		}
-		if len(ev.Choices) == 0 {
-			if ev.Done {
-				break
-			}
-			continue
-		}
-
-		ch := ev.Choices[0]
-		if ch.Delta.Content != "" {
-			out.WriteString(ch.Delta.Content)
-		}
-		if ch.Message.Content != "" {
-			out.WriteString(ch.Message.Content)
-		}
-		if ev.Done {
-			break
-		}
-	}
-
-	resp := strings.TrimSpace(out.String())
-	if resp != "" {
-		fmt.Printf("Assistant: %s\n", resp)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+func printResponse(eventChan <-chan *event.Event) error { _ = "STUB: not implemented"; return nil }

@@ -11,8 +11,6 @@ package team
 
 import (
 	"context"
-	"net/url"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -85,59 +83,24 @@ type swarmHandoffPolicy struct {
 
 // DefaultSwarmConfig returns conservative defaults that prevent unbounded
 // transfer loops while keeping behavior predictable.
-func DefaultSwarmConfig() SwarmConfig {
-	return SwarmConfig{
-		MaxHandoffs:                20,
-		RepetitiveHandoffWindow:    8,
-		RepetitiveHandoffMinUnique: 3,
-	}
-}
+func DefaultSwarmConfig() SwarmConfig { _ = "STUB: not implemented"; return *new(SwarmConfig) }
 
-func defaultSwarmSessionID(args swarmSessionIDArgs) string {
-	if strings.TrimSpace(args.ToAgentName) != "" &&
-		strings.TrimSpace(args.ToAgentName) == strings.TrimSpace(args.EntryAgentName) {
-		return strings.TrimSpace(args.ParentSessionID)
-	}
-	parts := []string{
-		encodeSwarmSessionIDPart(args.ParentSessionID),
-		encodeSwarmSessionIDPart(args.TeamName),
-		encodeSwarmSessionIDPart(args.ToAgentName),
-	}
-	out := make([]string, 0, len(parts))
-	for _, part := range parts {
-		if part != "" {
-			out = append(out, part)
-		}
-	}
-	return strings.Join(out, "/")
-}
+func defaultSwarmSessionID(args swarmSessionIDArgs) string { _ = "STUB: not implemented"; return "" }
 
-func encodeSwarmSessionIDPart(part string) string {
-	return url.PathEscape(strings.TrimSpace(part))
-}
+func encodeSwarmSessionIDPart(part string) string { _ = "STUB: not implemented"; return "" }
 
 func (p swarmHandoffPolicy) normalizedSessionScope() swarmSessionScope {
-	if p.sessionScope == swarmSessionScopeDefault {
-		return swarmSessionScopeShared
-	}
-	return p.sessionScope
+	_ = "STUB: not implemented"
+	return *new(swarmSessionScope)
 }
 
 func (p swarmHandoffPolicy) normalizedTurnRouting() swarmTurnRouting {
-	if p.turnRouting == swarmTurnRoutingDefault {
-		return swarmTurnRoutingEntry
-	}
-	return p.turnRouting
+	_ = "STUB: not implemented"
+	return *new(swarmTurnRouting)
 }
 
-func (p swarmHandoffPolicy) usesIsolatedSession() bool {
-	return p.normalizedSessionScope() != swarmSessionScopeShared
-}
+func (p swarmHandoffPolicy) usesIsolatedSession() bool { _ = "STUB: not implemented"; return false }
 
-func (p swarmHandoffPolicy) targetTakesOver() bool {
-	return p.normalizedTurnRouting() == swarmTurnRoutingTargetTakesOver
-}
+func (p swarmHandoffPolicy) targetTakesOver() bool { _ = "STUB: not implemented"; return false }
 
-func (p swarmHandoffPolicy) needsRootState() bool {
-	return p.usesIsolatedSession() || p.targetTakesOver()
-}
+func (p swarmHandoffPolicy) needsRootState() bool { _ = "STUB: not implemented"; return false }

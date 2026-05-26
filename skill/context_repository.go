@@ -11,7 +11,6 @@ package skill
 
 import (
 	"context"
-	"fmt"
 )
 
 // VisibilityFilter decides whether a skill summary is visible for the current
@@ -45,39 +44,20 @@ func NewFilteredRepository(
 	base Repository,
 	filter VisibilityFilter,
 ) ContextRepository {
-	if base == nil {
-		return nil
-	}
-	return &filteredRepository{
-		base:   base,
-		filter: filter,
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextRepository)
 }
 
 // IsContextAwareRepository reports whether repo supports context-aware access.
-func IsContextAwareRepository(repo Repository) bool {
-	if repo == nil {
-		return false
-	}
-	if fr, ok := repo.(*filteredRepository); ok && fr.filter == nil {
-		return IsContextAwareRepository(fr.base)
-	}
-	_, ok := repo.(ContextRepository)
-	return ok
-}
+func IsContextAwareRepository(repo Repository) bool { _ = "STUB: not implemented"; return false }
 
 // SummariesForContext resolves skill summaries for the given context.
 func SummariesForContext(
 	ctx context.Context,
 	repo Repository,
 ) []Summary {
-	if repo == nil {
-		return nil
-	}
-	if cr, ok := repo.(ContextRepository); ok {
-		return cr.SummariesForContext(ctx)
-	}
-	return repo.Summaries()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetForContext resolves a skill for the given context.
@@ -86,13 +66,8 @@ func GetForContext(
 	repo Repository,
 	name string,
 ) (*Skill, error) {
-	if repo == nil {
-		return nil, skillNotFoundError(name)
-	}
-	if cr, ok := repo.(ContextRepository); ok {
-		return cr.GetForContext(ctx, name)
-	}
-	return repo.Get(name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PathForContext resolves a skill path for the given context.
@@ -101,93 +76,54 @@ func PathForContext(
 	repo Repository,
 	name string,
 ) (string, error) {
-	if repo == nil {
-		return "", skillNotFoundError(name)
-	}
-	if cr, ok := repo.(ContextRepository); ok {
-		return cr.PathForContext(ctx, name)
-	}
-	return repo.Path(name)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func (r *filteredRepository) Summaries() []Summary {
-	if r == nil || r.base == nil {
-		return nil
-	}
-	return r.base.Summaries()
-}
+func (r *filteredRepository) Summaries() []Summary { _ = "STUB: not implemented"; return nil }
 
 func (r *filteredRepository) Get(name string) (*Skill, error) {
-	if r == nil || r.base == nil {
-		return nil, skillNotFoundError(name)
-	}
-	return r.base.Get(name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *filteredRepository) Path(name string) (string, error) {
-	if r == nil || r.base == nil {
-		return "", skillNotFoundError(name)
-	}
-	return r.base.Path(name)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // Roots exposes the underlying repository roots when available.
-func (r *filteredRepository) Roots() []string {
-	if r == nil || r.base == nil {
-		return nil
-	}
-	rooted, ok := r.base.(RootedRepository)
-	if !ok || rooted == nil {
-		return nil
-	}
-	return rooted.Roots()
-}
+func (r *filteredRepository) Roots() []string { _ = "STUB: not implemented"; return nil }
 
 func (r *filteredRepository) SummariesForContext(
 	ctx context.Context,
 ) []Summary {
-	if r == nil || r.base == nil {
-		return nil
-	}
-	return filterSummaries(
-		ctx,
-		SummariesForContext(ctx, r.base),
-		r.filter,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *filteredRepository) GetForContext(
 	ctx context.Context,
 	name string,
 ) (*Skill, error) {
-	if !skillVisibleByName(name, r.SummariesForContext(ctx)) {
-		return nil, skillNotFoundError(name)
-	}
-	return GetForContext(ctx, r.base, name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *filteredRepository) PathForContext(
 	ctx context.Context,
 	name string,
 ) (string, error) {
-	if !skillVisibleByName(name, r.SummariesForContext(ctx)) {
-		return "", skillNotFoundError(name)
-	}
-	return PathForContext(ctx, r.base, name)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (r *filteredRepository) SkillRunEnv(
 	ctx context.Context,
 	skillName string,
 ) (map[string]string, error) {
-	if !skillVisibleByName(skillName, r.SummariesForContext(ctx)) {
-		return nil, skillNotFoundError(skillName)
-	}
-	p, ok := r.base.(skillRunEnvProvider)
-	if !ok || p == nil {
-		return nil, nil
-	}
-	return p.SkillRunEnv(ctx, skillName)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func filterSummaries(
@@ -195,32 +131,13 @@ func filterSummaries(
 	summaries []Summary,
 	filter VisibilityFilter,
 ) []Summary {
-	if len(summaries) == 0 {
-		return nil
-	}
-	if filter == nil {
-		out := make([]Summary, len(summaries))
-		copy(out, summaries)
-		return out
-	}
-	out := make([]Summary, 0, len(summaries))
-	for _, summary := range summaries {
-		if filter(ctx, summary) {
-			out = append(out, summary)
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func skillVisibleByName(name string, summaries []Summary) bool {
-	for _, summary := range summaries {
-		if summary.Name == name {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func skillNotFoundError(name string) error {
-	return fmt.Errorf("skill %q not found", name)
-}
+func skillNotFoundError(name string) error { _ = "STUB: not implemented"; return nil }

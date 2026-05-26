@@ -10,8 +10,6 @@
 // Package a2a provides internal utilities for A2A (Agent-to-Agent) protocol.
 package a2a
 
-import "net/url"
-
 // NormalizeURL ensures the URL has a scheme.
 // If the input already has a scheme (e.g., http://, https://, custom://), it returns it as-is.
 // Otherwise, it prepends "http://"
@@ -22,16 +20,10 @@ import "net/url"
 //   - "localhost:8080" → "http://localhost:8080"
 //   - "http://example.com" → "http://example.com" (no change)
 //   - "grpc://service:9090" → "grpc://service:9090" (no change)
-func NormalizeURL(urlOrHost string) string {
-	if urlOrHost == "" {
-		return ""
-	}
-	// Parse the URL to check if it has a valid scheme
-	u, err := url.Parse(urlOrHost)
-	if err == nil && u.Scheme != "" && u.Host != "" {
-		// Has both scheme and host (e.g., http://example.com, custom://service)
-		return urlOrHost
-	}
-	// No valid scheme, add http:// prefix
-	return "http://" + urlOrHost
-}
+func NormalizeURL(urlOrHost string) string { _ = "STUB: not implemented"; return "" }
+
+// Parse the URL to check if it has a valid scheme
+
+// Has both scheme and host (e.g., http://example.com, custom://service)
+
+// No valid scheme, add http:// prefix

@@ -10,12 +10,6 @@
 // knowledge vector store.
 package sqlitevec
 
-import (
-	"fmt"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
-)
-
 const (
 	defaultDriverName        = "sqlite3"
 	defaultDSN               = ":memory:"
@@ -52,64 +46,22 @@ type Option func(*options)
 //   - ":memory:" for an in-memory database
 //   - "file:/tmp/knowledge.db?_busy_timeout=5000" for a local file
 //   - "file::memory:?cache=shared" for a shared in-memory database
-func WithDSN(dsn string) Option {
-	return func(o *options) {
-		if dsn != "" {
-			o.dsn = dsn
-		}
-	}
-}
+func WithDSN(dsn string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDriverName sets the SQL driver name used with WithDSN.
-func WithDriverName(driverName string) Option {
-	return func(o *options) {
-		if driverName != "" {
-			o.driverName = driverName
-		}
-	}
-}
+func WithDriverName(driverName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTableName sets the vec0 table name.
-func WithTableName(tableName string) Option {
-	return func(o *options) {
-		if err := sqldb.ValidateTableName(tableName); err != nil {
-			panic(fmt.Sprintf("invalid table name: %v", err))
-		}
-		o.tableName = tableName
-	}
-}
+func WithTableName(tableName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataTableName sets the metadata index table name.
-func WithMetadataTableName(tableName string) Option {
-	return func(o *options) {
-		if err := sqldb.ValidateTableName(tableName); err != nil {
-			panic(fmt.Sprintf("invalid metadata table name: %v", err))
-		}
-		o.metadataTableName = tableName
-	}
-}
+func WithMetadataTableName(tableName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIndexDimension sets the embedding dimension.
-func WithIndexDimension(dimension int) Option {
-	return func(o *options) {
-		if dimension > 0 {
-			o.indexDimension = dimension
-		}
-	}
-}
+func WithIndexDimension(dimension int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxResults sets the default search result limit.
-func WithMaxResults(maxResults int) Option {
-	return func(o *options) {
-		if maxResults > 0 {
-			o.maxResults = maxResults
-		}
-	}
-}
+func WithMaxResults(maxResults int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipDBInit skips schema initialization.
-func WithSkipDBInit(skip bool) Option {
-	return func(o *options) {
-		o.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) Option { _ = "STUB: not implemented"; return *new(Option) }

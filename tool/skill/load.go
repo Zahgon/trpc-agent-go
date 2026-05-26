@@ -13,11 +13,8 @@ package skill
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/skill"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -54,33 +51,20 @@ type LoadToolOption func(*loadToolOptions)
 func WithLoadToolDescription(
 	description string,
 ) LoadToolOption {
-	return func(o *loadToolOptions) {
-		o.description = description
-	}
+	_ = "STUB: not implemented"
+	return *new(LoadToolOption)
 }
 
 // NewLoadTool creates a new LoadTool.
-func NewLoadTool(repo skill.Repository) *LoadTool {
-	return NewLoadToolWithOptions(repo)
-}
+func NewLoadTool(repo skill.Repository) *LoadTool { _ = "STUB: not implemented"; return nil }
 
 // NewLoadToolWithOptions creates a new LoadTool with optional overrides.
 func NewLoadToolWithOptions(
 	repo skill.Repository,
 	opts ...LoadToolOption,
 ) *LoadTool {
-	options := loadToolOptions{
-		description: defaultLoadToolDescription,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&options)
-		}
-	}
-	return &LoadTool{
-		repo:        repo,
-		description: options.description,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // loadInput is the schema for skill_load.
@@ -91,60 +75,20 @@ type loadInput struct {
 }
 
 // Declaration implements tool.Tool.
-func (t *LoadTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:        "skill_load",
-		Description: t.description,
-		InputSchema: &tool.Schema{
-			Type:        "object",
-			Description: "Load skill input",
-			Required:    []string{"skill"},
-			Properties: map[string]*tool.Schema{
-				"skill": skillNameSchema(
-					t.repo, "Skill name to load",
-				),
-				"docs": {
-					Type: "array",
-					Items: &tool.Schema{
-						Type: "string",
-					},
-					Description: "Optional doc names to include (prefer few)",
-				},
-				"include_all_docs": {
-					Type:        "boolean",
-					Description: "Include all docs if true (use sparingly)",
-				},
-			},
-		},
-		OutputSchema: &tool.Schema{
-			Type:        "string",
-			Description: "Status message",
-		},
-	}
-}
+func (t *LoadTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // Call validates and returns a message for user feedback.
 func (t *LoadTool) Call(ctx context.Context, args []byte) (any, error) {
-	var in loadInput
-	if err := json.Unmarshal(args, &in); err != nil {
-		return nil, fmt.Errorf("invalid args: %w", err)
-	}
-	if in.Skill == "" {
-		return nil, fmt.Errorf("skill is required")
-	}
-	if t.repo != nil {
-		// validate existence
-		if _, err := skill.GetForContext(ctx, t.repo, in.Skill); err != nil {
-			return nil, fmt.Errorf("unknown skill: %s", in.Skill)
-		}
-	}
-	return fmt.Sprintf("loaded: %s", in.Skill), nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// validate existence
 
 // StateDelta builds delta keys to mark loaded skill and doc selection.
 func (t *LoadTool) StateDelta(_ string, args []byte, _ []byte) map[string][]byte {
-	delta, _ := t.stateDelta("", args)
-	return delta
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StateDeltaForInvocation writes agent-scoped state for the invocation.
@@ -154,51 +98,21 @@ func (t *LoadTool) StateDeltaForInvocation(
 	args []byte,
 	resultJSON []byte,
 ) map[string][]byte {
-	_ = toolCallID
-	_ = resultJSON
-
-	var agentName string
-	if inv != nil {
-		agentName = inv.AgentName
-	}
-	delta, skillName := t.stateDelta(agentName, args)
-	return appendLoadedOrderStateDelta(
-		inv,
-		agentName,
-		delta,
-		skillName,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *LoadTool) stateDelta(
 	agentName string,
 	args []byte,
 ) (map[string][]byte, string) {
-	var in loadInput
-	if err := json.Unmarshal(args, &in); err != nil {
-		log.Warnf("skill_load state parse failed: %v", err)
-		return nil, ""
-	}
-	if in.Skill == "" {
-		return nil, ""
-	}
-	delta := make(map[string][]byte)
-	// Mark as loaded.
-	k := skill.LoadedKey(agentName, in.Skill)
-	delta[k] = []byte("1")
-	// Docs selection
-	if in.IncludeAllDocs {
-		dk := skill.DocsKey(agentName, in.Skill)
-		delta[dk] = []byte("*")
-	} else if len(in.Docs) > 0 {
-		dk := skill.DocsKey(agentName, in.Skill)
-		b, err := json.Marshal(in.Docs)
-		if err == nil {
-			delta[dk] = b
-		}
-	}
-	return delta, in.Skill
+	_ = "STUB: not implemented"
+	return nil, ""
 }
+
+// Mark as loaded.
+
+// Docs selection
 
 var _ tool.Tool = (*LoadTool)(nil)
 var _ tool.CallableTool = (*LoadTool)(nil)

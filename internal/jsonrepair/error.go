@@ -9,8 +9,6 @@
 
 package jsonrepair
 
-import "fmt"
-
 // Error represents a JSON repair error with position information.
 type Error struct {
 	Message  string // Message is the error message.
@@ -18,6 +16,4 @@ type Error struct {
 }
 
 // Error returns the error message and position.
-func (e *Error) Error() string {
-	return fmt.Sprintf("%s at position %d", e.Message, e.Position)
-}
+func (e *Error) Error() string { _ = "STUB: not implemented"; return "" }

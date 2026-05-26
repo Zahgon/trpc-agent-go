@@ -12,28 +12,16 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"math"
 	"net/http"
-	"strings"
-	"sync"
 
-	aguievents "github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/adapter"
 	aguirunner "trpc.group/trpc-go/trpc-agent-go/server/agui/runner"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/translator"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/langfuse"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -87,111 +75,41 @@ func main() {
 
 // runOptionResolver resolves the run options for the agent.
 func runOptionResolver(ctx context.Context, input *adapter.RunAgentInput) ([]agent.RunOption, error) {
-	userID, err := userIDResolver(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("userIDResolver: %w", err)
-	}
-	content, ok := input.Messages[len(input.Messages)-1].ContentString()
-	if !ok {
-		return nil, fmt.Errorf("last message content is not a string")
-	}
-	return []agent.RunOption{
-		agent.WithSpanAttributes(
-			attribute.String("agentName", agentName),
-			attribute.String("modelName", *modelName),
-			attribute.String("langfuse.environment", "development"),
-			attribute.String("langfuse.session.id", input.ThreadID),
-			attribute.String("langfuse.user.id", userID),
-			attribute.String("langfuse.trace.input", content),
-		),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // langfuseCallback is a callback that sends the output to Langfuse.
 func langfuseCallback() translator.AfterTranslateCallback {
+	_ = "STUB: not implemented"
 	// Store the output for each trace ID.
-	langfuseOutputs := sync.Map{}
-	// Get the output for a given trace ID, default to empty string.
-	getOutputBuilder := func(traceID string) *strings.Builder {
-		data, ok := langfuseOutputs.Load(traceID)
-		if !ok {
-			return &strings.Builder{}
-		}
-		output, ok := data.(*strings.Builder)
-		if !ok {
-			return &strings.Builder{}
-		}
-		return output
-	}
-	// Return the callback that sends the output to Langfuse.
-	return func(ctx context.Context, event aguievents.Event) (aguievents.Event, error) {
-		span := trace.SpanFromContext(ctx)
-		traceID := span.SpanContext().TraceID().String()
-		switch e := event.(type) {
-		// Reset the output.
-		case *aguievents.RunStartedEvent:
-			langfuseOutputs.Store(traceID, &strings.Builder{})
-		// Report the output.
-		case *aguievents.RunFinishedEvent, *aguievents.RunErrorEvent:
-			outputBuilder := getOutputBuilder(traceID)
-			span.SetAttributes(attribute.String("langfuse.trace.output", outputBuilder.String()))
-			langfuseOutputs.Delete(traceID)
-		// Aggregate the output.
-		case *aguievents.TextMessageContentEvent:
-			outputBuilder := getOutputBuilder(traceID)
-			outputBuilder.WriteString(e.Delta)
-			langfuseOutputs.Store(traceID, outputBuilder)
-		}
-		return nil, nil
-	}
+	return *new(translator.AfterTranslateCallback)
 }
+
+// Get the output for a given trace ID, default to empty string.
+
+// Return the callback that sends the output to Langfuse.
+
+// Reset the output.
+
+// Report the output.
+
+// Aggregate the output.
 
 // userIDResolver resolves the user ID from the AG-UI input.
 func userIDResolver(ctx context.Context, input *adapter.RunAgentInput) (string, error) {
-	return "user", nil
+	_ = "STUB: not implemented"
+	return "",
+
+		// newAgent creates a new agent.
+		nil
 }
 
-// newAgent creates a new agent.
-func newAgent() agent.Agent {
-	modelInstance := openai.New(*modelName)
-	generationConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(512),
-		Temperature: floatPtr(0.7),
-		Stream:      *isStream,
-	}
-	calculatorTool := function.NewFunctionTool(
-		calculator,
-		function.WithName("calculator"),
-		function.WithDescription("A calculator tool, you can use it to calculate the result of the operation. "+
-			"a is the first number, b is the second number, "+
-			"the operation can be add, subtract, multiply, divide, power."),
-	)
-	return llmagent.New(
-		agentName,
-		llmagent.WithTools([]tool.Tool{calculatorTool}),
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(generationConfig),
-		llmagent.WithInstruction("You are a helpful assistant."),
-	)
-}
+func newAgent() agent.Agent { _ = "STUB: not implemented"; return *new(agent.Agent) }
 
 func calculator(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch args.Operation {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		result = args.A / args.B
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	default:
-		return calculatorResult{Result: 0}, fmt.Errorf("invalid operation: %s", args.Operation)
-	}
-	return calculatorResult{Result: result}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {
@@ -204,10 +122,6 @@ type calculatorResult struct {
 	Result float64 `json:"result"`
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

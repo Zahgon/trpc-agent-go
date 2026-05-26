@@ -10,7 +10,6 @@
 package graph
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -44,9 +43,7 @@ type InterruptError struct {
 }
 
 // Error returns the error message for the interrupt.
-func (g *InterruptError) Error() string {
-	return fmt.Sprintf("graph interrupted at node %s (step %d): %v", g.NodeID, g.Step, g.Value)
-}
+func (g *InterruptError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // ResumeCommand represents a command to resume graph execution.
 type ResumeCommand struct {
@@ -57,51 +54,31 @@ type ResumeCommand struct {
 }
 
 // NewResumeCommand creates a new resume command.
-func NewResumeCommand() *ResumeCommand {
-	return &ResumeCommand{
-		ResumeMap: make(map[string]any),
-	}
-}
+func NewResumeCommand() *ResumeCommand { _ = "STUB: not implemented"; return nil }
 
 // WithResume sets the resume value.
-func (c *ResumeCommand) WithResume(value any) *ResumeCommand {
-	c.Resume = value
-	return c
-}
+func (c *ResumeCommand) WithResume(value any) *ResumeCommand { _ = "STUB: not implemented"; return nil }
 
 // WithResumeMap sets the resume map.
 func (c *ResumeCommand) WithResumeMap(resumeMap map[string]any) *ResumeCommand {
-	c.ResumeMap = resumeMap
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddResumeValue adds a resume value for a specific task.
 func (c *ResumeCommand) AddResumeValue(taskID string, value any) *ResumeCommand {
-	if c.ResumeMap == nil {
-		c.ResumeMap = make(map[string]any)
-	}
-	c.ResumeMap[taskID] = value
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewInterruptError creates a new InterruptError with the given value.
-func NewInterruptError(value any) *InterruptError {
-	return &InterruptError{
-		Value:     value,
-		Timestamp: time.Now().UTC(),
-	}
-}
+func NewInterruptError(value any) *InterruptError { _ = "STUB: not implemented"; return nil }
 
 // IsInterruptError checks if an error is a InterruptError.
-func IsInterruptError(err error) bool {
-	_, ok := err.(*InterruptError)
-	return ok
-}
+func IsInterruptError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // GetInterruptError extracts InterruptError from an error.
 func GetInterruptError(err error) (*InterruptError, bool) {
-	if interrupt, ok := err.(*InterruptError); ok {
-		return interrupt, true
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }

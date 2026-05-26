@@ -10,10 +10,7 @@ package main
 
 import (
 	"context"
-	"io"
-	"strings"
 	"sync"
-	"time"
 )
 
 const llmInstruction = `You are a careful weather assistant.
@@ -34,39 +31,12 @@ type flakyWeatherService struct {
 	attempts          int
 }
 
-func (s *flakyWeatherService) Attempts() int {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.attempts
-}
+func (s *flakyWeatherService) Attempts() int { _ = "STUB: not implemented"; return 0 }
 
 func (s *flakyWeatherService) getWeather(
 	ctx context.Context,
 	args weatherArgs,
 ) (map[string]any, error) {
-	if strings.TrimSpace(args.Location) == "" {
-		args.Location = defaultLocation
-	}
-	s.mu.Lock()
-	s.attempts++
-	attempt := s.attempts
-	shouldFail := s.failuresRemaining > 0
-	if shouldFail {
-		s.failuresRemaining--
-	}
-	s.mu.Unlock()
-	printToolAttempt(attempt, args.Location)
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	case <-time.After(100 * time.Millisecond):
-	}
-	if shouldFail {
-		return nil, io.ErrUnexpectedEOF
-	}
-	return map[string]any{
-		"location": args.Location,
-		"forecast": "sunny",
-		"attempt":  attempt,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

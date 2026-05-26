@@ -11,7 +11,6 @@ package usersimulation
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
 )
 
@@ -26,51 +25,24 @@ type options struct {
 // Option configures the default simulator implementation.
 type Option func(*options)
 
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		userIDSupplier: func(ctx context.Context) string {
-			return uuid.New().String()
-		},
-		sessionIDSupplier: func(ctx context.Context) string {
-			return uuid.New().String()
-		},
-		systemPromptBuilder: buildDefaultSystemPrompt,
-	}
-	for _, o := range opt {
-		if o == nil {
-			continue
-		}
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithStopSignal overrides the scenario stop signal for the default simulator.
-func WithStopSignal(signal string) Option {
-	return func(opts *options) {
-		opts.stopSignal = &signal
-	}
-}
+func WithStopSignal(signal string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxAllowedInvocations overrides the scenario turn limit for the default simulator.
-func WithMaxAllowedInvocations(n int) Option {
-	return func(opts *options) {
-		opts.maxAllowedInvocations = &n
-	}
-}
+func WithMaxAllowedInvocations(n int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUserIDSupplier overrides the internal simulator user ID supplier.
 func WithUserIDSupplier(supplier func(context.Context) string) Option {
-	return func(opts *options) {
-		opts.userIDSupplier = supplier
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSessionIDSupplier overrides the internal simulator session ID supplier.
 func WithSessionIDSupplier(supplier func(context.Context) string) Option {
-	return func(opts *options) {
-		opts.sessionIDSupplier = supplier
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // SystemPromptBuilder builds the simulator's initial system prompt text.
@@ -78,7 +50,6 @@ type SystemPromptBuilder func(ctx context.Context, scenario *evalset.Conversatio
 
 // WithSystemPromptBuilder overrides the initial system prompt builder for the default simulator.
 func WithSystemPromptBuilder(builder SystemPromptBuilder) Option {
-	return func(opts *options) {
-		opts.systemPromptBuilder = builder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

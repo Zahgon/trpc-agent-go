@@ -18,40 +18,21 @@ var (
 // RegisterQdrantInstance registers a named Qdrant instance with its configuration options.
 // If an instance with the same name already exists, it will be overwritten.
 func RegisterQdrantInstance(name string, opts ...ClientBuilderOpt) {
-	registryMu.Lock()
-	defer registryMu.Unlock()
-	qdrantRegistry[name] = opts
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetQdrantInstance retrieves the configuration options for a named Qdrant instance.
 // Returns a copy of the options and true if found, or nil and false if not found.
 func GetQdrantInstance(name string) ([]ClientBuilderOpt, bool) {
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-	opts, ok := qdrantRegistry[name]
-	if !ok {
-		return nil, false
-	}
-	// copy to prevent external modifications
-	copyOpts := make([]ClientBuilderOpt, len(opts))
-	copy(copyOpts, opts)
-	return copyOpts, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
+
+// copy to prevent external modifications
 
 // UnregisterQdrantInstance removes a named Qdrant instance from the registry.
-func UnregisterQdrantInstance(name string) {
-	registryMu.Lock()
-	defer registryMu.Unlock()
-	delete(qdrantRegistry, name)
-}
+func UnregisterQdrantInstance(name string) { _ = "STUB: not implemented"; return }
 
 // ListQdrantInstances returns a list of all registered instance names.
-func ListQdrantInstances() []string {
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-	names := make([]string, 0, len(qdrantRegistry))
-	for name := range qdrantRegistry {
-		names = append(names, name)
-	}
-	return names
-}
+func ListQdrantInstances() []string { _ = "STUB: not implemented"; return nil }

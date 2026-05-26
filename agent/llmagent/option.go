@@ -19,7 +19,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/internal/flow/processor"
 	"trpc.group/trpc-go/trpc-agent-go/internal/skillprofile"
-	"trpc.group/trpc-go/trpc-agent-go/internal/structuredoutput"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/searchfilter"
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -620,11 +619,7 @@ const (
 )
 
 // WithModel sets the model to use.
-func WithModel(model model.Model) Option {
-	return func(opts *Options) {
-		opts.Model = model
-	}
-}
+func WithModel(model model.Model) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithModels registers a map of models that can be switched by name.
 // The map key is the model name, and the value is the model.Model instance.
@@ -632,9 +627,8 @@ func WithModel(model model.Model) Option {
 // model. If only WithModels is set, the first model in the map will be used
 // as the initial model (note: map iteration order is not guaranteed).
 func WithModels(models map[string]model.Model) Option {
-	return func(opts *Options) {
-		opts.Models = models
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithModelSelector sets the default model selector for this LLMAgent.
@@ -642,36 +636,26 @@ func WithModels(models map[string]model.Model) Option {
 // model override is not present. Returning nil with nil error keeps the base
 // model for the call.
 func WithModelSelector(selector agent.ModelSelector) Option {
-	return func(opts *Options) {
-		opts.ModelSelector = selector
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithDescription sets the description of the agent.
-func WithDescription(description string) Option {
-	return func(opts *Options) {
-		opts.Description = description
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInstruction sets the instruction template of the agent.
 // The template uses the same placeholder subset as the internal prompt state
 // adapter in `internal/prompt/adapter/state`. See `Render` there for supported
 // placeholder forms and resolution rules.
-func WithInstruction(instruction string) Option {
-	return func(opts *Options) {
-		opts.Instruction = instruction
-	}
-}
+func WithInstruction(instruction string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGlobalInstruction sets the global instruction template of the agent.
 // The template uses the same placeholder subset as the internal prompt state
 // adapter in `internal/prompt/adapter/state`. See `Render` there for supported
 // placeholder forms and resolution rules.
 func WithGlobalInstruction(instruction string) Option {
-	return func(opts *Options) {
-		opts.GlobalInstruction = instruction
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithModelInstructions sets model-specific instruction template overrides.
@@ -680,9 +664,8 @@ func WithGlobalInstruction(instruction string) Option {
 // placeholder forms and resolution rules.
 // Key: model.Info().Name, Value: instruction text.
 func WithModelInstructions(instructions map[string]string) Option {
-	return func(opts *Options) {
-		opts.ModelInstructions = cloneStringMap(instructions)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithModelGlobalInstructions sets model-specific system prompt template
@@ -691,53 +674,35 @@ func WithModelInstructions(instructions map[string]string) Option {
 // supported placeholder forms and resolution rules.
 // Key: model.Info().Name, Value: system prompt text.
 func WithModelGlobalInstructions(prompts map[string]string) Option {
-	return func(opts *Options) {
-		opts.ModelGlobalInstructions = cloneStringMap(prompts)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGenerationConfig sets the generation configuration.
 func WithGenerationConfig(config model.GenerationConfig) Option {
-	return func(opts *Options) {
-		opts.GenerationConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMaxLLMCalls sets the optional upper bound on the number of LLM calls
 // allowed per invocation for this agent. When limit is:
 //   - > 0: the limit is enforced per invocation.
 //   - <= 0: no limit is applied (default behavior).
-func WithMaxLLMCalls(limit int) Option {
-	return func(opts *Options) {
-		opts.MaxLLMCalls = limit
-	}
-}
+func WithMaxLLMCalls(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxToolIterations sets the optional upper bound on how many tool-call
 // iterations are allowed per invocation for this agent. When limit is:
 //   - > 0: the limit is enforced per invocation.
 //   - <= 0: no limit is applied (default behavior).
-func WithMaxToolIterations(limit int) Option {
-	return func(opts *Options) {
-		opts.MaxToolIterations = limit
-	}
-}
+func WithMaxToolIterations(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the buffer size for event channels.
-func WithChannelBufferSize(size int) Option {
-	return func(opts *Options) {
-		if size < 0 {
-			size = defaultChannelBufferSize
-		}
-		opts.ChannelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCodeExecutor sets the code executor to use for executing code blocks.
 func WithCodeExecutor(ce codeexecutor.CodeExecutor) Option {
-	return func(opts *Options) {
-		opts.codeExecutor = ce
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithWorkspaceExecSurfaceEnabled controls whether generic workspace
@@ -750,10 +715,8 @@ func WithCodeExecutor(ce codeexecutor.CodeExecutor) Option {
 //
 // Default: true.
 func WithWorkspaceExecSurfaceEnabled(enable bool) Option {
-	return func(opts *Options) {
-		value := enable
-		opts.workspaceExecSurfaceEnabled = &value
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableCodeExecutionResponseProcessor controls whether the agent
@@ -771,25 +734,15 @@ func WithWorkspaceExecSurfaceEnabled(enable bool) Option {
 // disabling the processor when it injects a local CodeExecutor on
 // behalf of WithSkills.
 func WithEnableCodeExecutionResponseProcessor(enable bool) Option {
-	return func(opts *Options) {
-		opts.EnableCodeExecutionResponseProcessor = enable
-		opts.codeExecutionResponseProcessorExplicit = true
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTools sets the list of tools available to the agent.
-func WithTools(tools []tool.Tool) Option {
-	return func(opts *Options) {
-		opts.Tools = tools
-	}
-}
+func WithTools(tools []tool.Tool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithToolSets sets the list of tool sets available to the agent.
-func WithToolSets(toolSets []tool.ToolSet) Option {
-	return func(opts *Options) {
-		opts.ToolSets = toolSets
-	}
-}
+func WithToolSets(toolSets []tool.ToolSet) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRefreshToolSetsOnRun controls whether tools from ToolSets are
 // refreshed from the underlying ToolSet on each run.
@@ -797,11 +750,7 @@ func WithToolSets(toolSets []tool.ToolSet) Option {
 // the tools list for each invocation instead of using a fixed snapshot.
 // This is useful when ToolSets provide a dynamic tool list (for example,
 // MCP ToolSets that support ListTools at runtime).
-func WithRefreshToolSetsOnRun(refresh bool) Option {
-	return func(opts *Options) {
-		opts.RefreshToolSetsOnRun = refresh
-	}
-}
+func WithRefreshToolSetsOnRun(refresh bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkills enables model-agnostic Agent Skills support using the
 // provided repository. The processor will inject a small overview
@@ -821,19 +770,14 @@ func WithRefreshToolSetsOnRun(refresh bool) Option {
 // For production, prefer configuring an explicit code executor (for
 // example, a container-backed executor) rather than relying on the
 // local fallback.
-func WithSkills(repo skill.Repository) Option {
-	return func(opts *Options) {
-		opts.skillsRepository = repo
-	}
-}
+func WithSkills(repo skill.Repository) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkillFilter narrows visible skills per run context without changing the
 // mounted repository roots. The filter is evaluated against skill summaries
 // and can read runtime state from ctx.
 func WithSkillFilter(filter skill.VisibilityFilter) Option {
-	return func(opts *Options) {
-		opts.skillFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillToolProfile selects which built-in skill tools are registered when
@@ -863,9 +807,8 @@ func WithSkillFilter(filter skill.VisibilityFilter) Option {
 //     knowledge-only agent, or when you are wiring execution through
 //     your own user-registered tools.
 func WithSkillToolProfile(profile SkillToolProfile) Option {
-	return func(opts *Options) {
-		opts.skillToolProfile = string(profile)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAllowedSkillTools overrides the profile-derived built-in skill tool set
@@ -876,13 +819,8 @@ func WithSkillToolProfile(profile SkillToolProfile) Option {
 //
 // When configured with no tools, no built-in skill tools are registered.
 func WithAllowedSkillTools(tools ...SkillTool) Option {
-	return func(opts *Options) {
-		names := make([]string, 0, len(tools))
-		for _, tl := range tools {
-			names = append(names, string(tl))
-		}
-		opts.allowedSkillTools = names
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillLoadMode sets how long skill bodies/docs loaded via skill_load
@@ -892,31 +830,22 @@ func WithAllowedSkillTools(tools ...SkillTool) Option {
 //   - SkillLoadModeTurn (default)
 //   - SkillLoadModeOnce
 //   - SkillLoadModeSession (legacy)
-func WithSkillLoadMode(mode string) Option {
-	return func(opts *Options) {
-		opts.SkillLoadMode = mode
-	}
-}
+func WithSkillLoadMode(mode string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxLoadedSkills caps how many skills remain "loaded" in session
 // state at the same time.
 //
 // When max <= 0, no cap is applied (default behavior). Recent skill
 // touches are tracked by skill_load / skill_select_docs state updates.
-func WithMaxLoadedSkills(max int) Option {
-	return func(opts *Options) {
-		opts.MaxLoadedSkills = max
-	}
-}
+func WithMaxLoadedSkills(max int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkillsLoadedContentInToolResults enables an alternative injection
 // mode where loaded skill bodies/docs are materialized into tool result
 // messages (skill_load / skill_select_docs) instead of being appended
 // to the system prompt.
 func WithSkillsLoadedContentInToolResults(enable bool) Option {
-	return func(opts *Options) {
-		opts.SkillsLoadedContentInToolResults = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkipSkillsFallbackOnSessionSummary controls whether the agent
@@ -927,9 +856,8 @@ func WithSkillsLoadedContentInToolResults(enable bool) Option {
 func WithSkipSkillsFallbackOnSessionSummary(
 	skip bool,
 ) Option {
-	return func(opts *Options) {
-		opts.SkipSkillsFallbackOnSessionSummary = skip
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillsToolingGuidance overrides the tooling/workspace guidance
@@ -943,10 +871,8 @@ func WithSkipSkillsFallbackOnSessionSummary(
 func WithSkillsToolingGuidance(
 	guidance string,
 ) Option {
-	return func(opts *Options) {
-		text := guidance
-		opts.skillsToolingGuidance = &text
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillsCapabilityGuidance overrides the capability disclosure block
@@ -959,10 +885,8 @@ func WithSkillsToolingGuidance(
 func WithSkillsCapabilityGuidance(
 	guidance string,
 ) Option {
-	return func(opts *Options) {
-		text := guidance
-		opts.skillsCapabilityGuidance = &text
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillsProtocolGuidance overrides the full skill protocol text
@@ -976,31 +900,21 @@ func WithSkillsCapabilityGuidance(
 func WithSkillsProtocolGuidance(
 	guidance string,
 ) Option {
-	return func(opts *Options) {
-		text := guidance
-		opts.skillsProtocolGuidance = &text
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillsDirectoryHints exposes skill directory locators in the skills
 // overview and in loaded skill materialization.
 //
 // Default: false.
-func WithSkillsDirectoryHints(enable bool) Option {
-	return func(opts *Options) {
-		opts.skillsDirectoryHints = enable
-	}
-}
+func WithSkillsDirectoryHints(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkillsFilePathHints exposes SKILL.md file locators in the skills
 // overview and in loaded skill materialization.
 //
 // Default: false.
-func WithSkillsFilePathHints(enable bool) Option {
-	return func(opts *Options) {
-		opts.skillsFilePathHints = enable
-	}
-}
+func WithSkillsFilePathHints(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkillLoadToolDescription overrides the skill_load tool
 // description.
@@ -1012,30 +926,22 @@ func WithSkillsFilePathHints(enable bool) Option {
 func WithSkillLoadToolDescription(
 	description string,
 ) Option {
-	return func(opts *Options) {
-		text := description
-		opts.skillLoadToolDescription = &text
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunAllowedCommands restricts skill_run to a single,
 // allowlisted command (no shell syntax) when non-empty.
 func WithSkillRunAllowedCommands(cmds ...string) Option {
-	return func(opts *Options) {
-		opts.skillRunAllowedCommands = append(
-			[]string(nil), cmds...,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunDeniedCommands rejects a single, denylisted command (no shell
 // syntax) when non-empty.
 func WithSkillRunDeniedCommands(cmds ...string) Option {
-	return func(opts *Options) {
-		opts.skillRunDeniedCommands = append(
-			[]string(nil), cmds...,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunOutputLimits customizes inline stdout/stderr and
@@ -1043,17 +949,15 @@ func WithSkillRunDeniedCommands(cmds ...string) Option {
 func WithSkillRunOutputLimits(
 	limits toolskill.RunOutputLimits,
 ) Option {
-	return func(opts *Options) {
-		opts.skillRunOutputLimits = limits
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunForceSaveArtifacts forces skill_run to persist collected
 // outputs via the artifact service when possible.
 func WithSkillRunForceSaveArtifacts(enable bool) Option {
-	return func(opts *Options) {
-		opts.skillRunForceSaveArtifacts = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunRequireSkillLoaded rejects skill_run unless the skill was
@@ -1062,17 +966,15 @@ func WithSkillRunForceSaveArtifacts(enable bool) Option {
 // When enabled, models must call skill_load first to bring SKILL.md (and any
 // selected docs) into context, reducing hallucinated commands/scripts.
 func WithSkillRunRequireSkillLoaded(enable bool) Option {
-	return func(opts *Options) {
-		opts.skillRunRequireSkillLoaded = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkillRunStager overrides how skill_run materializes skills into
 // the execution workspace.
 func WithSkillRunStager(stager toolskill.SkillStager) Option {
-	return func(opts *Options) {
-		opts.skillRunStager = stager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithWorkspaceBootstrap declares the static files and one-shot
@@ -1090,9 +992,8 @@ func WithSkillRunStager(stager toolskill.SkillStager) Option {
 func WithWorkspaceBootstrap(
 	spec codeexecutor.WorkspaceBootstrapSpec,
 ) Option {
-	return func(opts *Options) {
-		opts.workspaceBootstrap = spec
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithWorkspacePreparersDisabled keeps workspace_exec on its legacy
@@ -1100,44 +1001,32 @@ func WithWorkspaceBootstrap(
 // or a bootstrap spec is configured. Primarily useful for regression
 // tests that assert pre-reconciler behavior.
 func WithWorkspacePreparersDisabled(disabled bool) Option {
-	return func(opts *Options) {
-		opts.disableWorkspacePreparers = disabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPlanner sets the planner to use for planning instructions.
-func WithPlanner(planner planner.Planner) Option {
-	return func(opts *Options) {
-		opts.Planner = planner
-	}
-}
+func WithPlanner(planner planner.Planner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSubAgents sets the list of sub-agents available to the agent.
-func WithSubAgents(subAgents []agent.Agent) Option {
-	return func(opts *Options) {
-		opts.SubAgents = subAgents
-	}
-}
+func WithSubAgents(subAgents []agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentCallbacks sets the agent callbacks.
 func WithAgentCallbacks(callbacks *agent.Callbacks) Option {
-	return func(opts *Options) {
-		opts.AgentCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithModelCallbacks sets the model callbacks.
 func WithModelCallbacks(callbacks *model.Callbacks) Option {
-	return func(opts *Options) {
-		opts.ModelCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolCallbacks sets the tool callbacks.
 func WithToolCallbacks(callbacks *tool.Callbacks) Option {
-	return func(opts *Options) {
-		opts.ToolCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExtensions installs agent-scoped extensions on this
@@ -1184,79 +1073,47 @@ func WithToolCallbacks(callbacks *tool.Callbacks) Option {
 // silently skipped; duplicates by Name are rejected at New() time
 // (panic), matching runner-level plugin semantics.
 func WithExtensions(extensions ...extension.Extension) Option {
-	return func(opts *Options) {
-		for _, e := range extensions {
-			if e == nil {
-				continue
-			}
-			opts.extensions = append(opts.extensions, e)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolCallRetryPolicy sets the retry policy for callable tool calls.
 func WithToolCallRetryPolicy(policy *tool.RetryPolicy) Option {
-	return func(opts *Options) {
-		opts.ToolCallRetryPolicy = policy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithKnowledge sets the knowledge base for the agent.
 // If provided, the knowledge search tool will be automatically added to the agent's tools.
-func WithKnowledge(kb knowledge.Knowledge) Option {
-	return func(opts *Options) {
-		opts.Knowledge = kb
-	}
-}
+func WithKnowledge(kb knowledge.Knowledge) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOutputKey sets the key in session state to store the output of the agent.
-func WithOutputKey(outputKey string) Option {
-	return func(opts *Options) {
-		opts.OutputKey = outputKey
-	}
-}
+func WithOutputKey(outputKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOutputSchema sets the JSON schema for validating agent output.
 // When this is set, the agent can ONLY reply and CANNOT use any tools,
 // such as function tools, RAGs, agent transfer, etc.
-func WithOutputSchema(schema map[string]any) Option {
-	return func(opts *Options) {
-		opts.OutputSchema = schema
-	}
-}
+func WithOutputSchema(schema map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInputSchema sets the JSON schema for validating agent input.
 // When this is set, the agent's input will be validated against this schema
 // when used as a tool or when receiving input from other agents.
-func WithInputSchema(schema map[string]any) Option {
-	return func(opts *Options) {
-		opts.InputSchema = schema
-	}
-}
+func WithInputSchema(schema map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAddNameToInstruction adds the agent name to the instruction if true.
 func WithAddNameToInstruction(addNameToInstruction bool) Option {
-	return func(opts *Options) {
-		opts.AddNameToInstruction = addNameToInstruction
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableParallelTools enables parallel tool execution if set to true.
 // By default, tools execute serially for safety and compatibility.
-func WithEnableParallelTools(enable bool) Option {
-	return func(opts *Options) {
-		opts.EnableParallelTools = enable
-	}
-}
+func WithEnableParallelTools(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDefaultTransferMessage configures the default message used when the model
 // calls a sub-agent without providing a message. If msg is an empty string,
 // the default message injection is disabled; if non-empty, it is enabled and msg is used.
-func WithDefaultTransferMessage(msg string) Option {
-	return func(opts *Options) {
-		opts.DefaultTransferMessage = &msg
-	}
-}
+func WithDefaultTransferMessage(msg string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStructuredOutputJSONSchema sets a JSON schema structured output for normal runs.
 //
@@ -1265,87 +1122,42 @@ func WithDefaultTransferMessage(msg string) Option {
 //
 // name should be a short identifier for the schema. Some providers (e.g. OpenAI) require it.
 func WithStructuredOutputJSONSchema(name string, schema map[string]any, strict bool, description string) Option {
-	return func(opts *Options) {
-		if schema == nil {
-			return
-		}
-		opts.StructuredOutput = newStructuredOutput(
-			structuredoutput.Name(name),
-			schema,
-			strict,
-			description,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithStructuredOutputJSON sets a JSON schema structured output for normal runs.
 // The schema is constructed automatically from the provided example type.
 // Provide a typed zero-value pointer like: new(MyStruct) or (*MyStruct)(nil) and we infer the type.
 func WithStructuredOutputJSON(examplePtr any, strict bool, description string) Option {
-	return func(opts *Options) {
-		name, schema, t := structuredoutput.FromType(examplePtr, strict)
-		if schema == nil {
-			return
-		}
-		opts.StructuredOutput = newStructuredOutput(name, schema, strict, description)
-		opts.StructuredOutputType = t
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func newStructuredOutput(name string, schema map[string]any, strict bool, description string) *model.StructuredOutput {
-	if schema == nil {
-		return nil
-	}
-	return &model.StructuredOutput{
-		Type: model.StructuredOutputJSONSchema,
-		JSONSchema: &model.JSONSchemaConfig{
-			Name:        name,
-			Schema:      schema,
-			Strict:      strict,
-			Description: description,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithAddCurrentTime adds the current time to the system prompt if true.
-func WithAddCurrentTime(addCurrentTime bool) Option {
-	return func(opts *Options) {
-		opts.AddCurrentTime = addCurrentTime
-	}
-}
+func WithAddCurrentTime(addCurrentTime bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimezone specifies the timezone to use for time display.
-func WithTimezone(timezone string) Option {
-	return func(opts *Options) {
-		opts.Timezone = timezone
-	}
-}
+func WithTimezone(timezone string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeFormat specifies the format for time display.
 // The format should be a valid Go time format string.
 // See https://pkg.go.dev/time#Time.Format for more details.
-func WithTimeFormat(timeFormat string) Option {
-	return func(opts *Options) {
-		opts.TimeFormat = timeFormat
-	}
-}
+func WithTimeFormat(timeFormat string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAddContextPrefix controls whether to add "For context:" prefix when converting foreign events.
 // When false, foreign agent events are passed directly without the prefix.
 // This is useful for chain agents where you want to pass formatted data between agents.
-func WithAddContextPrefix(addPrefix bool) Option {
-	return func(opts *Options) {
-		opts.AddContextPrefix = addPrefix
-	}
-}
+func WithAddContextPrefix(addPrefix bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAddSessionSummary controls whether to prepend the current-branch summary
 // as a system message in the request context when available.
-func WithAddSessionSummary(addSummary bool) Option {
-	return func(opts *Options) {
-		opts.AddSessionSummary = addSummary
-	}
-}
+func WithAddSessionSummary(addSummary bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSessionSummaryInjectionMode sets the injection mode for session summaries.
 //
@@ -1356,28 +1168,19 @@ func WithAddSessionSummary(addSummary bool) Option {
 //     If the first history message is also a user message, the summary is
 //     merged into it to avoid consecutive user messages.
 func WithSessionSummaryInjectionMode(mode processor.SessionSummaryInjectionMode) Option {
-	return func(opts *Options) {
-		opts.SessionSummaryInjectionMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSyncSummaryIntraRun enables synchronous summary refresh between LLM loop
 // iterations in the same run. When enabled, the summary is updated before each
 // LLM call within a run, ensuring the model sees the most recent summary.
 // When disabled (default), summary refresh happens asynchronously.
-func WithSyncSummaryIntraRun(enable bool) Option {
-	return func(opts *Options) {
-		opts.SyncSummaryIntraRun = enable
-	}
-}
+func WithSyncSummaryIntraRun(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxHistoryRuns sets the maximum number of history messages when AddSessionSummary is false.
 // When 0 (default), no limit is applied.
-func WithMaxHistoryRuns(maxRuns int) Option {
-	return func(opts *Options) {
-		opts.MaxHistoryRuns = maxRuns
-	}
-}
+func WithMaxHistoryRuns(maxRuns int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableContextCompaction enables prompt-side context compaction.
 // Historical oversized tool results can be compacted during request
@@ -1385,41 +1188,31 @@ func WithMaxHistoryRuns(maxRuns int) Option {
 // also true, the framework may additionally trigger a one-time synchronous
 // summary refresh before the LLM call.
 func WithEnableContextCompaction(enable bool) Option {
-	return func(opts *Options) {
-		opts.EnableContextCompaction = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionThresholdRatio sets the fraction of the model context
 // window at which pre-LLM synchronous summary retry triggers. This retry is
 // only available when AddSessionSummary is enabled.
 func WithContextCompactionThresholdRatio(ratio float64) Option {
-	return func(opts *Options) {
-		if ratio > 0 && ratio <= 1 {
-			opts.ContextCompactionThresholdRatio = ratio
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionToolResultMaxTokens sets the token threshold above
 // which
 // historical tool results are replaced with a placeholder.
 func WithContextCompactionToolResultMaxTokens(tokens int) Option {
-	return func(opts *Options) {
-		if tokens >= 0 {
-			opts.ContextCompactionToolResultMaxTokens = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionKeepRecentRequests preserves the latest N completed
 // requests in full when request-side context compaction is enabled.
 func WithContextCompactionKeepRecentRequests(n int) Option {
-	return func(opts *Options) {
-		if n >= 0 {
-			opts.ContextCompactionKeepRecentRequests = n
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionOversizedToolResultMaxTokens sets the token threshold
@@ -1432,11 +1225,8 @@ func WithContextCompactionKeepRecentRequests(n int) Option {
 // when opting in is processor.DefaultContextCompactionOversizedToolResultMaxTokens
 // (8192).
 func WithContextCompactionOversizedToolResultMaxTokens(tokens int) Option {
-	return func(opts *Options) {
-		if tokens >= 0 {
-			opts.ContextCompactionOversizedToolResultMaxTokens = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionTokenCounter sets the token counter used by context
@@ -1445,52 +1235,30 @@ func WithContextCompactionOversizedToolResultMaxTokens(tokens int) Option {
 // tokens. For SimpleTokenCounter, WithApproxRunesPerToken is runes per token
 // (estimated tokens = counted runes / value).
 func WithContextCompactionTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *Options) {
-		if counter != nil {
-			opts.ContextCompactionTokenCounter = counter
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolResultCompactionConfig sets tool-name based compaction rules.
 func WithToolResultCompactionConfig(
 	config *ToolResultCompactionConfig,
 ) Option {
-	return func(opts *Options) {
-		if config == nil {
-			return
-		}
-		opts.ToolResultCompactionConfig = &ToolResultCompactionConfig{
-			ForceCleanToolNames: append(
-				[]string(nil),
-				config.ForceCleanToolNames...,
-			),
-			KeepToolNames: append(
-				[]string(nil),
-				config.KeepToolNames...,
-			),
-			SkipRecentFunc: config.SkipRecentFunc,
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPreserveSameBranch controls whether messages from the same invocation
 // branch lineage (ancestor/descendant) should preserve their original roles
 // instead of being rewritten into user context when used as history.
 // Default is false.
-func WithPreserveSameBranch(preserve bool) Option {
-	return func(opts *Options) {
-		opts.PreserveSameBranch = preserve
-	}
-}
+func WithPreserveSameBranch(preserve bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPreserveForeignMessages controls whether messages authored by other
 // agents should preserve their original assistant/tool roles and order instead
 // of being rewritten into user context when used as history. Default is false.
 func WithPreserveForeignMessages(preserve bool) Option {
-	return func(opts *Options) {
-		opts.PreserveForeignMessages = preserve
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEventMessageProjector rewrites one event-derived message before
@@ -1498,66 +1266,54 @@ func WithPreserveForeignMessages(preserve bool) Option {
 func WithEventMessageProjector(
 	projector EventMessageProjector,
 ) Option {
-	return func(opts *Options) {
-		opts.EventMessageProjector = projector
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAwaitUserReplyTool controls whether the await_user_reply framework tool
 // is exposed to the model.
-func WithAwaitUserReplyTool(enabled bool) Option {
-	return func(opts *Options) {
-		opts.EnableAwaitUserReplyTool = enabled
-	}
-}
+func WithAwaitUserReplyTool(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithKnowledgeFilter sets the metadata filter for the knowledge base.
 func WithKnowledgeFilter(filter map[string]any) Option {
-	return func(opts *Options) {
-		opts.KnowledgeFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithKnowledgeConditionedFilter sets the complex condition filter for the knowledge base.
 func WithKnowledgeConditionedFilter(filter *searchfilter.UniversalFilterCondition) Option {
-	return func(opts *Options) {
-		opts.KnowledgeConditionedFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithKnowledgeAgenticFilterInfo sets the knowledge agentic filter info for the knowledge base.
 func WithKnowledgeAgenticFilterInfo(filter map[string][]any) Option {
-	return func(opts *Options) {
-		opts.AgenticFilterInfo = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableKnowledgeAgenticFilter sets whether enable llm generate filter for the knowledge base.
 func WithEnableKnowledgeAgenticFilter(agenticFilter bool) Option {
-	return func(opts *Options) {
-		opts.EnableKnowledgeAgenticFilter = agenticFilter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEndInvocationAfterTransfer sets whether end invocation after transfer.
 func WithEndInvocationAfterTransfer(end bool) Option {
-	return func(opts *Options) {
-		opts.EndInvocationAfterTransfer = end
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessageTimelineFilterMode sets the message timeline filter mode.
 func WithMessageTimelineFilterMode(mode string) Option {
-	return func(opts *Options) {
-		opts.messageTimelineFilterMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessageBranchFilterMode sets the message branch filter mode.
 func WithMessageBranchFilterMode(mode string) Option {
-	return func(opts *Options) {
-		opts.messageBranchFilterMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithReasoningContentMode controls how reasoning_content is handled in
@@ -1571,11 +1327,7 @@ func WithMessageBranchFilterMode(mode string) Option {
 //     requests that performed tool calls (default, recommended).
 //   - ReasoningContentModeKeepAll: Keep all reasoning_content (for debugging).
 //   - ReasoningContentModeDiscardAll: Discard all reasoning_content from history.
-func WithReasoningContentMode(mode string) Option {
-	return func(opts *Options) {
-		opts.ReasoningContentMode = mode
-	}
-}
+func WithReasoningContentMode(mode string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSummaryFormatter sets a custom formatter for session summary content.
 // This allows users to customize how summaries are presented to the model.
@@ -1585,38 +1337,17 @@ func WithReasoningContentMode(mode string) Option {
 //	    return fmt.Sprintf("## Previous Context\n\n%s", summary)
 //	})
 func WithSummaryFormatter(formatter func(summary string) string) Option {
-	return func(opts *Options) {
-		opts.summaryFormatter = formatter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolFilter sets the tool filter function.
-func WithToolFilter(filter tool.FilterFunc) Option {
-	return func(opts *Options) {
-		opts.toolFilter = filter
-	}
-}
+func WithToolFilter(filter tool.FilterFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessageFilterMode sets the message filter mode.
 func WithMessageFilterMode(mode MessageFilterMode) Option {
-	return func(opts *Options) {
-		switch mode {
-		case FullContext:
-			opts.messageBranchFilterMode = BranchFilterModePrefix
-			opts.messageTimelineFilterMode = TimelineFilterAll
-		case RequestContext:
-			opts.messageBranchFilterMode = BranchFilterModePrefix
-			opts.messageTimelineFilterMode = TimelineFilterCurrentRequest
-		case IsolatedRequest:
-			opts.messageBranchFilterMode = BranchFilterModeExact
-			opts.messageTimelineFilterMode = TimelineFilterCurrentRequest
-		case IsolatedInvocation:
-			opts.messageBranchFilterMode = BranchFilterModeExact
-			opts.messageTimelineFilterMode = TimelineFilterCurrentInvocation
-		default:
-			panic("invalid option value")
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPreloadMemory sets the framework-side preload behavior.
@@ -1629,26 +1360,17 @@ func WithMessageFilterMode(mode MessageFilterMode) Option {
 //     WARNING: Loading all memories may significantly increase token usage
 //     and API costs, especially for users with many stored memories.
 //     Consider using a positive budget (e.g., 10-50) for production use.
-func WithPreloadMemory(limit int) Option {
-	return func(opts *Options) {
-		opts.PreloadMemory = limit
-	}
-}
+func WithPreloadMemory(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPreloadSessionRecall sets the number of recalled
 // session events to preload into the system prompt.
-func WithPreloadSessionRecall(limit int) Option {
-	return func(opts *Options) {
-		opts.PreloadSessionRecall = limit
-	}
-}
+func WithPreloadSessionRecall(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPreloadSessionRecallMinScore sets the minimum
 // search score required for preloaded session recall.
 func WithPreloadSessionRecallMinScore(minScore float64) Option {
-	return func(opts *Options) {
-		opts.PreloadSessionRecallMinScore = minScore
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPreloadSessionRecallSearchMode sets the retrieval
@@ -1657,25 +1379,13 @@ func WithPreloadSessionRecallMinScore(minScore float64) Option {
 func WithPreloadSessionRecallSearchMode(
 	mode session.SearchMode,
 ) Option {
-	return func(opts *Options) {
-		switch mode {
-		case "", session.SearchModeHybrid:
-			opts.PreloadSessionRecallSearchMode = session.SearchModeHybrid
-		case session.SearchModeDense:
-			opts.PreloadSessionRecallSearchMode = session.SearchModeDense
-		default:
-			opts.PreloadSessionRecallSearchMode = session.SearchModeHybrid
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableOnDemandSession enables or disables invocation-scoped on-demand
 // session recall tools and their lightweight overview prompt.
-func WithEnableOnDemandSession(enable bool) Option {
-	return func(opts *Options) {
-		opts.EnableOnDemandSession = enable
-	}
-}
+func WithEnableOnDemandSession(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPostToolPrompt overrides the default dynamic prompt injected when tool
 // results are detected in the conversation. The default prompt guides the
@@ -1686,28 +1396,11 @@ func WithEnableOnDemandSession(enable bool) Option {
 // Example usage:
 //
 //	llmagent.WithPostToolPrompt("[Dynamic Prompt] Summarize the tool output concisely.")
-func WithPostToolPrompt(prompt string) Option {
-	return func(opts *Options) {
-		opts.PostToolPrompt = prompt
-	}
-}
+func WithPostToolPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnablePostToolPrompt enables or disables post-tool prompt injection.
 // When disabled, no prompt is injected after tool results, even if a custom
 // PostToolPrompt is configured.
-func WithEnablePostToolPrompt(enable bool) Option {
-	return func(opts *Options) {
-		opts.postToolPromptEnabled = &enable
-	}
-}
+func WithEnablePostToolPrompt(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func cloneStringMap(src map[string]string) map[string]string {
-	if src == nil {
-		return nil
-	}
-	dst := make(map[string]string, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
-	return dst
-}
+func cloneStringMap(src map[string]string) map[string]string { _ = "STUB: not implemented"; return nil }

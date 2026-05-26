@@ -50,15 +50,7 @@ type options struct {
 	nudgeHooks     []NudgeHook
 }
 
-func defaultOptions() options {
-	return options{
-		toolName:       DefaultToolName,
-		description:    DefaultToolDescription,
-		defaultNudge:   DefaultNudgeMessage,
-		stateKeyPrefix: DefaultStateKeyPrefix,
-		clearOnAllDone: true,
-	}
-}
+func defaultOptions() options { _ = "STUB: not implemented"; return *new(options) }
 
 // Option configures a Tool.
 type Option func(*options)
@@ -66,59 +58,27 @@ type Option func(*options)
 // WithToolName overrides the registered tool name.
 //
 // Must match ^[a-zA-Z0-9_-]+$ for maximum LLM-provider compatibility.
-func WithToolName(name string) Option {
-	return func(o *options) {
-		if name != "" {
-			o.toolName = name
-		}
-	}
-}
+func WithToolName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDescription overrides the short description exposed to the model.
 // For the long usage prompt, inject it via the agent's system instruction
 // (see todo.DefaultToolPrompt for a ready-to-use text).
-func WithDescription(desc string) Option {
-	return func(o *options) {
-		if desc != "" {
-			o.description = desc
-		}
-	}
-}
+func WithDescription(desc string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNudgeMessage overrides the default reminder appended to every tool
 // result. Set to "" to disable the default nudge (hooks still run).
-func WithNudgeMessage(msg string) Option {
-	return func(o *options) {
-		o.defaultNudge = msg
-	}
-}
+func WithNudgeMessage(msg string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStateKeyPrefix overrides the session.State key prefix used for
 // persistence. The final key is "<prefix>[:<branch>]".
-func WithStateKeyPrefix(prefix string) Option {
-	return func(o *options) {
-		if prefix != "" {
-			o.stateKeyPrefix = prefix
-		}
-	}
-}
+func WithStateKeyPrefix(prefix string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClearOnAllDone controls whether the list is cleared once every
 // item reaches "completed". Enabled by default to avoid unbounded
 // context growth. Disable it if you want completed items to persist
 // (e.g. for UI history).
-func WithClearOnAllDone(clear bool) Option {
-	return func(o *options) {
-		o.clearOnAllDone = clear
-	}
-}
+func WithClearOnAllDone(clear bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNudgeHook registers an additional policy hook. Hooks run in the
 // order they are registered, after the default nudge message.
-func WithNudgeHook(hook NudgeHook) Option {
-	return func(o *options) {
-		if hook != nil {
-			o.nudgeHooks = append(o.nudgeHooks, hook)
-		}
-	}
-}
+func WithNudgeHook(hook NudgeHook) Option { _ = "STUB: not implemented"; return *new(Option) }

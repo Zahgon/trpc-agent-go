@@ -18,8 +18,4 @@ type options struct {
 
 // WithRunLifecycleEvents controls whether RUN_* lifecycle events are included in the
 // message snapshot as activity messages.
-func WithRunLifecycleEvents(include bool) Option {
-	return func(o *options) {
-		o.includeRunLifecycleEvents = include
-	}
-}
+func WithRunLifecycleEvents(include bool) Option { _ = "STUB: not implemented"; return *new(Option) }

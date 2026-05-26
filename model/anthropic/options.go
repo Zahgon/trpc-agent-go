@@ -126,53 +126,27 @@ var (
 type Option func(*options)
 
 // WithAPIKey sets the API key for the Anthropic client.
-func WithAPIKey(key string) Option {
-	return func(o *options) {
-		o.apiKey = key
-	}
-}
+func WithAPIKey(key string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseURL sets the base URL for the Anthropic client.
-func WithBaseURL(url string) Option {
-	return func(o *options) {
-		o.baseURL = url
-	}
-}
+func WithBaseURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the channel buffer size for the Anthropic client, 256 by default.
-func WithChannelBufferSize(size int) Option {
-	return func(o *options) {
-		if size <= 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAnthropicClientOptions appends custom request options for the Anthropic client.
 func WithAnthropicClientOptions(opts ...option.RequestOption) Option {
-	return func(o *options) {
-		o.anthropicClientOptions = append(o.anthropicClientOptions, opts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHeaders appends static HTTP headers to all Anthropic requests.
-func WithHeaders(headers map[string]string) Option {
-	return func(o *options) {
-		if len(headers) == 0 {
-			return
-		}
-		for k, v := range headers {
-			o.anthropicClientOptions = append(o.anthropicClientOptions, option.WithHeader(k, v))
-		}
-	}
-}
+func WithHeaders(headers map[string]string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAnthropicRequestOptions appends per-request options for the Anthropic client.
 func WithAnthropicRequestOptions(opts ...option.RequestOption) Option {
-	return func(o *options) {
-		o.anthropicRequestOptions = append(o.anthropicRequestOptions, opts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatRequestCallback sets the function to be called before sending a
@@ -180,25 +154,22 @@ func WithAnthropicRequestOptions(opts ...option.RequestOption) Option {
 // the response goroutine starts. Start your own goroutine in the callback
 // if asynchronous behavior is needed.
 func WithChatRequestCallback(fn ChatRequestCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatRequestCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatResponseCallback sets the function to be called after receiving a chat response.
 // Used for non-streaming responses.
 func WithChatResponseCallback(fn ChatResponseCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatResponseCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatChunkCallback sets the function to be called after receiving a chat chunk.
 // Used for streaming responses.
 func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatChunkCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatStreamCompleteCallback sets the function to be called when
@@ -206,73 +177,48 @@ func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
 // terminal streaming result is surfaced to the caller.
 // Called for both successful and failed streaming completions.
 func WithChatStreamCompleteCallback(fn ChatStreamCompleteCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatStreamCompleteCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithShowToolCallDelta controls whether to expose tool call argument deltas in
 // streaming responses. When enabled, input_json_delta chunks from Anthropic will
 // be forwarded via Response.Choices[].Delta.ToolCalls so callers can reconstruct
 // arguments incrementally.
-func WithShowToolCallDelta(show bool) Option {
-	return func(opts *options) {
-		opts.showToolCallDelta = show
-	}
-}
+func WithShowToolCallDelta(show bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClientOptions sets the HTTP client options for the Anthropic client.
 func WithHTTPClientOptions(httpOpts ...HTTPClientOption) Option {
-	return func(opts *options) {
-		opts.httpClientOptions = httpOpts
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableTokenTailoring enables automatic token tailoring based on model context window.
 // When enabled, the system will automatically calculate max input tokens using the model's
 // context window minus reserved tokens and protocol overhead.
-func WithEnableTokenTailoring(enabled bool) Option {
-	return func(opts *options) {
-		opts.enableTokenTailoring = enabled
-	}
-}
+func WithEnableTokenTailoring(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxInputTokens sets only the input token limit for token tailoring.
 // The counter/strategy will be lazily initialized if not provided.
 // Defaults to SimpleTokenCounter and MiddleOutStrategy.
-func WithMaxInputTokens(limit int) Option {
-	return func(opts *options) {
-		opts.maxInputTokens = limit
-	}
-}
+func WithMaxInputTokens(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for this
 // model instance.
-func WithContextWindow(tokens int) Option {
-	return func(opts *options) {
-		if tokens > 0 {
-			opts.contextWindow = tokens
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenCounter sets the TokenCounter used for token tailoring.
 // If not provided and token limit is enabled, a SimpleTokenCounter will be used.
 func WithTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *options) {
-		if counter == nil {
-			return
-		}
-		opts.tokenCounter = counter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTailoringStrategy sets the TailoringStrategy used for token tailoring.
 // If not provided and token limit is enabled, a MiddleOutStrategy will be used.
 func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
-	return func(opts *options) {
-		opts.tailoringStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTokenTailoringConfig sets custom token tailoring budget parameters.
@@ -289,27 +235,8 @@ func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
 // Note: It is recommended to use the default values unless you have specific
 // requirements.
 func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
-	return func(opts *options) {
-		if config == nil {
-			return
-		}
-		if config.ProtocolOverheadTokens <= 0 {
-			config.ProtocolOverheadTokens = imodel.DefaultProtocolOverheadTokens
-		}
-		if config.ReserveOutputTokens <= 0 {
-			config.ReserveOutputTokens = imodel.DefaultReserveOutputTokens
-		}
-		if config.SafetyMarginRatio <= 0 {
-			config.SafetyMarginRatio = imodel.DefaultSafetyMarginRatio
-		}
-		if config.InputTokensFloor <= 0 {
-			config.InputTokensFloor = imodel.DefaultInputTokensFloor
-		}
-		if config.MaxInputTokensRatio <= 0 {
-			config.MaxInputTokensRatio = imodel.DefaultMaxInputTokensRatio
-		}
-		opts.tokenTailoringConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCacheSystemPrompt controls whether to cache system prompts.
@@ -320,11 +247,7 @@ func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
 // disable this to avoid paying the 25% cache creation cost without cache read benefits.
 //
 // Default: false (disabled)
-func WithCacheSystemPrompt(cache bool) Option {
-	return func(opts *options) {
-		opts.cacheSystemPrompt = cache
-	}
-}
+func WithCacheSystemPrompt(cache bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCacheTools controls whether to cache tool definitions.
 // Tool definitions with extensive schemas benefit from caching when
@@ -333,11 +256,7 @@ func WithCacheSystemPrompt(cache bool) Option {
 // Note: If tools change frequently, disable this to avoid unnecessary cache creation costs.
 //
 // Default: false (disabled)
-func WithCacheTools(cache bool) Option {
-	return func(opts *options) {
-		opts.cacheTools = cache
-	}
-}
+func WithCacheTools(cache bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCacheMessages controls whether to cache messages for multi-turn conversations.
 // When enabled, cache control will be applied to the last assistant message
@@ -355,8 +274,4 @@ func WithCacheTools(cache bool) Option {
 // (1-2 turns), the creation cost may not be recouped.
 //
 // Default: false (disabled, opt-in for multi-turn scenarios)
-func WithCacheMessages(cache bool) Option {
-	return func(opts *options) {
-		opts.cacheMessages = cache
-	}
-}
+func WithCacheMessages(cache bool) Option { _ = "STUB: not implemented"; return *new(Option) }

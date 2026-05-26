@@ -26,17 +26,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"path/filepath"
 	"strings"
-	"time"
 
 	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge"
-	openaiembedder "trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/ocr/tesseract"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source/dir"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore"
 
 	// Import PDF reader to register it.
 	_ "trpc.group/trpc-go/trpc-agent-go/knowledge/document/reader/pdf"
@@ -90,162 +83,36 @@ func main() {
 
 // setupKnowledgeBase creates and loads the knowledge base with PDF OCR support.
 func setupKnowledgeBase(ctx context.Context, storeType util.VectorStoreType) (*knowledge.BuiltinKnowledge, error) {
-	fmt.Println("\nSetting up knowledge base...")
-
-	// Create Tesseract OCR extractor.
-	fmt.Println("  Creating Tesseract OCR engine...")
-	ocrExtractor, err := tesseract.New(
-		tesseract.WithLanguage("eng+chi_sim"),
-		tesseract.WithConfidenceThreshold(60.0),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create Tesseract engine: %w", err)
-	}
-
-	// Create embedder.
-	fmt.Println("  Creating OpenAI embedder...")
-	emb := openaiembedder.New(
-		openaiembedder.WithModel(defaultEmbeddingModel),
-	)
-
-	// Create vector store.
-	fmt.Println("  Creating vector store...")
-	vs, err := util.NewVectorStoreByType(storeType)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get absolute path for data directory.
-	absDataDir, err := filepath.Abs(dataDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get absolute path: %w", err)
-	}
-
-	// Create directory source with OCR support.
-	fmt.Printf("  Creating directory source for PDFs in %s...\n", absDataDir)
-	sources := []source.Source{
-		dir.New(
-			[]string{absDataDir},
-			dir.WithName("PDF Documents with OCR"),
-			dir.WithMetadataValue("type", "pdf"),
-			dir.WithOCRExtractor(ocrExtractor),
-		),
-	}
-
-	// Create knowledge base.
-	fmt.Println("  Creating knowledge base...")
-	kb := knowledge.New(
-		knowledge.WithVectorStore(vs),
-		knowledge.WithEmbedder(emb),
-		knowledge.WithSources(sources),
-	)
-
-	// Load the knowledge base.
-	fmt.Println("\nLoading PDFs into knowledge base...")
-	startTime := time.Now()
-
-	if err := kb.Load(ctx, knowledge.WithShowProgress(true), knowledge.WithShowStats(true)); err != nil {
-		return nil, fmt.Errorf("failed to load knowledge base: %w", err)
-	}
-
-	loadTime := time.Since(startTime)
-	fmt.Printf("Knowledge base loaded successfully in %v\n", loadTime)
-
-	return kb, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Create Tesseract OCR extractor.
+
+// Create embedder.
+
+// Create vector store.
+
+// Get absolute path for data directory.
+
+// Create directory source with OCR support.
+
+// Create knowledge base.
+
+// Load the knowledge base.
 
 // showStats displays knowledge base statistics.
 func showStats(ctx context.Context, kb *knowledge.BuiltinKnowledge, storeType util.VectorStoreType) {
-	result, err := kb.Search(ctx, &knowledge.SearchRequest{
-		Query:      "",
-		MaxResults: 10000,
-		MinScore:   0.0,
-		SearchMode: vectorstore.SearchModeFilter,
-		SearchFilter: &knowledge.SearchFilter{
-			Metadata: map[string]any{},
-		},
-	})
-	if err != nil {
-		fmt.Printf("Failed to get stats: %v\n", err)
-		return
-	}
-
-	totalDocs := len(result.Documents)
-	totalChars := 0
-	ocrCount := 0
-	sourceFiles := make(map[string]bool)
-
-	for _, doc := range result.Documents {
-		totalChars += len(doc.Document.Content)
-
-		if ocrEnabled, ok := doc.Document.Metadata["ocr_enabled"].(string); ok && ocrEnabled == "true" {
-			ocrCount++
-		}
-
-		if sourceName, ok := doc.Document.Metadata["source_name"].(string); ok && sourceName != "" {
-			sourceFiles[sourceName] = true
-		}
-	}
-
-	fmt.Printf("  Total Chunks: %d\n", totalDocs)
-	fmt.Printf("  Source Files: %d\n", len(sourceFiles))
-	fmt.Printf("  OCR-Processed Chunks: %d\n", ocrCount)
-	fmt.Printf("  Total Characters: %d\n", totalChars)
-	if totalDocs > 0 {
-		fmt.Printf("  Avg Chars/Chunk: %d\n", totalChars/totalDocs)
-	}
-	fmt.Printf("  OCR Engine: Tesseract\n")
-	fmt.Printf("  Vector Store: %s\n", storeType)
+	_ = "STUB: not implemented"
+	return
 }
 
 // search performs a knowledge base search and displays results.
 func search(ctx context.Context, kb *knowledge.BuiltinKnowledge, query string) error {
-	startTime := time.Now()
-
-	result, err := kb.Search(ctx, &knowledge.SearchRequest{
-		Query:      query,
-		MaxResults: 5,
-		MinScore:   0.3,
-	})
-	if err != nil {
-		return err
-	}
-
-	searchTime := time.Since(startTime)
-
-	fmt.Printf("Search completed in %v\n", searchTime)
-	fmt.Printf("Found %d results:\n", len(result.Documents))
-
-	if len(result.Documents) == 0 {
-		fmt.Println("  No matching results found.")
-		return nil
-	}
-
-	for i, doc := range result.Documents {
-		fmt.Printf("\n  #%d (Score: %.4f)\n", i+1, doc.Score)
-		if doc.Document.Name != "" {
-			fmt.Printf("    Source: %s\n", doc.Document.Name)
-		}
-
-		// Display metadata.
-		metaParts := []string{}
-		for k, v := range doc.Document.Metadata {
-			if !strings.HasPrefix(k, "trpc_agent_go_") {
-				metaParts = append(metaParts, fmt.Sprintf("%s=%v", k, v))
-			}
-		}
-		if len(metaParts) > 0 {
-			fmt.Printf("    Metadata: %s\n", strings.Join(metaParts, ", "))
-		}
-
-		// Display content (truncate if too long).
-		content := doc.Document.Content
-		maxLen := 200
-		if len(content) > maxLen {
-			content = content[:maxLen] + "..."
-		}
-		fmt.Printf("    Content: %s\n", content)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Display metadata.
+
+// Display content (truncate if too long).

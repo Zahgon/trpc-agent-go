@@ -11,9 +11,6 @@ package tool
 
 import (
 	"context"
-	"errors"
-	"io"
-	"net"
 	"time"
 )
 
@@ -55,27 +52,8 @@ type RetryPolicy struct {
 
 // DefaultRetryOn applies the framework's default retry decision for tool calls.
 func DefaultRetryOn(ctx context.Context, info *RetryInfo) (bool, error) {
-	if ctx != nil && ctx.Err() != nil {
-		return false, nil
-	}
-	if info == nil || info.Error == nil || info.ResultError {
-		return false, nil
-	}
-	if errors.Is(info.Error, context.Canceled) || errors.Is(info.Error, context.DeadlineExceeded) {
-		return false, nil
-	}
-	if errors.Is(info.Error, io.EOF) || errors.Is(info.Error, io.ErrUnexpectedEOF) {
-		return true, nil
-	}
-	var netErr net.Error
-	if errors.As(info.Error, &netErr) {
-		if netErr.Timeout() {
-			return true, nil
-		}
-		// Temporary is deprecated but still widely implemented by network stacks.
-		if netErr.Temporary() {
-			return true, nil
-		}
-	}
+	_ = "STUB: not implemented"
 	return false, nil
 }
+
+// Temporary is deprecated but still widely implemented by network stacks.

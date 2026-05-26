@@ -25,7 +25,8 @@ type AppendMessages struct{ Items []model.Message }
 
 // Apply implements the MessageOp interface.
 func (op AppendMessages) Apply(dst []model.Message) []model.Message {
-	return append(dst, op.Items...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ReplaceLastUser replaces the last user message in the durable history.
@@ -34,28 +35,20 @@ type ReplaceLastUser struct{ Content string }
 
 // Apply implements the MessageOp interface.
 func (op ReplaceLastUser) Apply(dst []model.Message) []model.Message {
-	for i := len(dst) - 1; i >= 0; i-- {
-		if dst[i].Role == model.RoleUser {
-			// Replace the content while preserving other fields.
-			dst[i] = model.Message{
-				Role:             model.RoleUser,
-				Content:          op.Content,
-				ContentParts:     dst[i].ContentParts,
-				ToolID:           dst[i].ToolID,
-				ToolName:         dst[i].ToolName,
-				ToolCalls:        dst[i].ToolCalls,
-				ReasoningContent: dst[i].ReasoningContent,
-			}
-			return dst
-		}
-	}
-	// No user message at the end of history, append a new one.
-	return append(dst, model.NewUserMessage(op.Content))
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Replace the content while preserving other fields.
+
+// No user message at the end of history, append a new one.
 
 // RemoveAllMessages clears all messages for full rebuild scenarios.
 // Used sparingly: for reordering/trimming when starting fresh.
 type RemoveAllMessages struct{}
 
 // Apply implements the MessageOp interface.
-func (RemoveAllMessages) Apply(_ []model.Message) []model.Message { return nil }
+func (RemoveAllMessages) Apply(_ []model.Message) []model.Message {
+	_ = "STUB: not implemented"
+	return nil
+}

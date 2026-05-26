@@ -12,8 +12,6 @@ package session
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"slices"
 	"time"
 )
 
@@ -44,38 +42,7 @@ type TrackEvents struct {
 }
 
 // TracksFromState returns the tracks stored in the session state.
-func TracksFromState(state StateMap) ([]Track, error) {
-	if state == nil {
-		return nil, nil
-	}
-	raw, ok := state[tracksStateKey]
-	if !ok || len(raw) == 0 {
-		return nil, nil
-	}
-	var tracks []Track
-	if err := json.Unmarshal(raw, &tracks); err != nil {
-		return nil, fmt.Errorf("decode track index: %w", err)
-	}
-	return tracks, nil
-}
+func TracksFromState(state StateMap) ([]Track, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // ensureTrackExists ensures the track exists in the session state.
-func ensureTrackExists(state StateMap, track Track) error {
-	if state == nil {
-		return fmt.Errorf("state is nil")
-	}
-	tracks, err := TracksFromState(state)
-	if err != nil {
-		return fmt.Errorf("get tracks from state: %w", err)
-	}
-	if slices.Contains(tracks, track) {
-		return nil
-	}
-	tracks = append(tracks, track)
-	encoded, err := json.Marshal(tracks)
-	if err != nil {
-		return fmt.Errorf("encode track index: %w", err)
-	}
-	state[tracksStateKey] = encoded
-	return nil
-}
+func ensureTrackExists(state StateMap, track Track) error { _ = "STUB: not implemented"; return nil }

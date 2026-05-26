@@ -10,21 +10,11 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
-	"encoding/xml"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
-
-	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -101,222 +91,47 @@ type upgradeConfigFile struct {
 	StateDir *string `yaml:"state_dir,omitempty"`
 }
 
-func isTopLevelVersionRequest(args []string) bool {
-	if len(args) == 0 {
-		return false
-	}
+func isTopLevelVersionRequest(args []string) bool { _ = "STUB: not implemented"; return false }
 
-	switch strings.TrimSpace(args[0]) {
-	case "version", "-version", "--version":
-		return true
-	default:
-		return false
-	}
-}
+func isTopLevelUpgradeRequest(args []string) bool { _ = "STUB: not implemented"; return false }
 
-func isTopLevelUpgradeRequest(args []string) bool {
-	if len(args) == 0 {
-		return false
-	}
-	return strings.TrimSpace(args[0]) == subcmdUpgrade
-}
+func runUpgradeCommand(args []string) int { _ = "STUB: not implemented"; return 0 }
 
-func runUpgradeCommand(args []string) int {
-	if len(args) > 0 && isHelpRequest(args[0]) {
-		printUpgradeUsage(os.Stdout)
-		return 0
-	}
-
-	paths, err := parseUpgradePaths(args)
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		return 2
-	}
-
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		upgradeCommandTimeout,
-	)
-	defer cancel()
-
-	if err := upgradeToLatest(ctx, os.Stdout, os.Stderr, paths); err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		return 1
-	}
-	return 0
-}
-
-func printUpgradeUsage(w io.Writer) {
-	_, _ = fmt.Fprintln(w, "Usage:")
-	_, _ = fmt.Fprintln(w, "  openclaw upgrade [--config PATH]")
-	_, _ = fmt.Fprintln(w, "                   [--state-dir PATH]")
-	_, _ = fmt.Fprintln(w, "")
-	_, _ = fmt.Fprintln(
-		w,
-		"Upgrade the current OpenClaw binary to the latest release.",
-	)
-}
+func printUpgradeUsage(w io.Writer) { _ = "STUB: not implemented"; return }
 
 func parseUpgradePaths(args []string) (upgradePaths, error) {
-	inputs, err := parseUpgradePathInputs(args)
-	if err != nil {
-		return upgradePaths{}, err
-	}
-
-	binDir, err := currentBinaryDir()
-	if err != nil {
-		return upgradePaths{}, err
-	}
-	return resolveUpgradePaths(binDir, inputs)
+	_ = "STUB: not implemented"
+	return *new(upgradePaths), nil
 }
 
 func parseUpgradePathInputs(args []string) (upgradePathInputs, error) {
-	inputs := upgradePathInputs{}
-
-	for i := 0; i < len(args); i++ {
-		raw := strings.TrimSpace(args[i])
-		if raw == "" {
-			continue
-		}
-
-		if value, ok := matchFlagValue(raw, flagConfig); ok {
-			if value == "" && isSeparateFlagToken(raw, flagConfig) {
-				if i+1 >= len(args) {
-					return upgradePathInputs{}, fmt.Errorf(
-						"flag %q requires a value",
-						flagConfig,
-					)
-				}
-				i++
-				value = strings.TrimSpace(args[i])
-			}
-			inputs.ConfigPath = value
-			continue
-		}
-
-		if value, ok := matchFlagValue(raw, flagStateDir); ok {
-			if value == "" && isSeparateFlagToken(raw, flagStateDir) {
-				if i+1 >= len(args) {
-					return upgradePathInputs{}, fmt.Errorf(
-						"flag %q requires a value",
-						flagStateDir,
-					)
-				}
-				i++
-				value = strings.TrimSpace(args[i])
-			}
-			inputs.StateDir = value
-			continue
-		}
-
-		return upgradePathInputs{}, fmt.Errorf(
-			"upgrade does not support argument %q",
-			raw,
-		)
-	}
-
-	return inputs, nil
+	_ = "STUB: not implemented"
+	return *new(upgradePathInputs), nil
 }
 
 func resolveUpgradePaths(
 	binDir string,
 	inputs upgradePathInputs,
 ) (upgradePaths, error) {
-	metadata, err := readInstallMetadata(binDir)
-	if err != nil {
-		return upgradePaths{}, err
-	}
-
-	configPath, err := resolveUpgradeConfigPath(
-		inputs.ConfigPath,
-		metadata,
-	)
-	if err != nil {
-		return upgradePaths{}, err
-	}
-	stateDir, err := resolveUpgradeStateDir(
-		inputs.StateDir,
-		configPath,
-		metadata,
-	)
-	if err != nil {
-		return upgradePaths{}, err
-	}
-
-	return upgradePaths{
-		ConfigPath: configPath,
-		StateDir:   stateDir,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(upgradePaths), nil
 }
 
-func isSeparateFlagToken(raw string, name string) bool {
-	raw = strings.TrimSpace(raw)
-	return raw == "-"+name || raw == "--"+name
-}
+func isSeparateFlagToken(raw string, name string) bool { _ = "STUB: not implemented"; return false }
 
 func matchFlagValue(raw string, name string) (string, bool) {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return "", false
-	}
-
-	if isSeparateFlagToken(raw, name) {
-		return "", true
-	}
-
-	prefixes := []string{
-		"-" + name + "=",
-		"--" + name + "=",
-	}
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(raw, prefix) {
-			return strings.TrimSpace(strings.TrimPrefix(raw, prefix)),
-				true
-		}
-	}
+	_ = "STUB: not implemented"
 	return "", false
 }
 
-func isHelpRequest(raw string) bool {
-	switch strings.TrimSpace(raw) {
-	case "help", "-h", "--help":
-		return true
-	default:
-		return false
-	}
-}
+func isHelpRequest(raw string) bool { _ = "STUB: not implemented"; return false }
 
 func resolveUpgradeConfigPath(
 	raw string,
 	metadata installMetadata,
 ) (string, error) {
-	configPath := strings.TrimSpace(raw)
-	if configPath == "" {
-		configPath = strings.TrimSpace(
-			os.Getenv(openClawConfigEnvName),
-		)
-	}
-	if configPath != "" {
-		return filepath.Abs(configPath)
-	}
-
-	configDir := strings.TrimSpace(metadata.ConfigDir)
-	if configDir != "" {
-		return filepath.Abs(
-			filepath.Join(configDir, defaultConfigFile),
-		)
-	}
-
-	home, err := userHomeDirFunc()
-	if err != nil {
-		return "", fmt.Errorf("resolve home dir: %w", err)
-	}
-	return filepath.Join(
-		home,
-		defaultConfigRootDir,
-		defaultConfigAppDir,
-		defaultConfigFile,
-	), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func resolveUpgradeStateDir(
@@ -324,105 +139,15 @@ func resolveUpgradeStateDir(
 	configPath string,
 	metadata installMetadata,
 ) (string, error) {
-	stateDir := strings.TrimSpace(raw)
-	if stateDir != "" {
-		return filepath.Abs(stateDir)
-	}
-
-	stateDir = strings.TrimSpace(metadata.StateDir)
-	if stateDir != "" {
-		return filepath.Abs(stateDir)
-	}
-
-	stateDir = configuredUpgradeStateDir(configPath)
-	if stateDir != "" {
-		return filepath.Abs(stateDir)
-	}
-
-	home, err := userHomeDirFunc()
-	if err != nil {
-		return "", fmt.Errorf("resolve home dir: %w", err)
-	}
-	return filepath.Join(
-		home,
-		defaultConfigRootDir,
-		defaultConfigAppDir,
-	), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func configuredUpgradeStateDir(configPath string) string {
-	path := strings.TrimSpace(configPath)
-	if path == "" {
-		return ""
-	}
-
-	body, err := os.ReadFile(path)
-	if err != nil {
-		return ""
-	}
-
-	var cfg upgradeConfigFile
-	if err := yaml.Unmarshal(body, &cfg); err != nil {
-		return ""
-	}
-	if cfg.StateDir == nil {
-		return ""
-	}
-
-	stateDir := strings.TrimSpace(*cfg.StateDir)
-	if !filepath.IsAbs(stateDir) {
-		return ""
-	}
-	return stateDir
-}
+func configuredUpgradeStateDir(configPath string) string { _ = "STUB: not implemented"; return "" }
 
 func readInstallMetadata(binDir string) (installMetadata, error) {
-	path := filepath.Join(binDir, installMetadataFileName)
-	body, err := os.ReadFile(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return installMetadata{}, nil
-		}
-		return installMetadata{}, fmt.Errorf(
-			"read install metadata: %w",
-			err,
-		)
-	}
-
-	var metadata installMetadata
-	scanner := bufio.NewScanner(strings.NewReader(string(body)))
-	lineNumber := 0
-	for scanner.Scan() {
-		lineNumber++
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		key, value, ok := strings.Cut(line, "=")
-		if !ok {
-			return installMetadata{}, fmt.Errorf(
-				"parse install metadata line %d",
-				lineNumber,
-			)
-		}
-
-		switch strings.TrimSpace(key) {
-		case installMetadataKeyBin:
-			metadata.BinDir = strings.TrimSpace(value)
-		case installMetadataKeyCfg:
-			metadata.ConfigDir = strings.TrimSpace(value)
-		case installMetadataKeyState:
-			metadata.StateDir = strings.TrimSpace(value)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return installMetadata{}, fmt.Errorf(
-			"scan install metadata: %w",
-			err,
-		)
-	}
-	return metadata, nil
+	_ = "STUB: not implemented"
+	return *new(installMetadata), nil
 }
 
 func upgradeToLatest(
@@ -431,120 +156,32 @@ func upgradeToLatest(
 	stderr io.Writer,
 	paths upgradePaths,
 ) error {
-	latest, err := fetchLatestReleaseVersion(ctx)
-	if err != nil {
-		return fmt.Errorf("get latest release version: %w", err)
-	}
-
-	current := currentVersion()
-	if !hasNewerRelease(latest, current) {
-		_, _ = fmt.Fprintf(
-			stdout,
-			"openclaw is already up to date (%s)\n",
-			current,
-		)
-		return nil
-	}
-
-	binDir, err := currentBinaryDir()
-	if err != nil {
-		return err
-	}
-
-	configDir := filepath.Dir(paths.ConfigPath)
-	_, _ = fmt.Fprintf(
-		stdout,
-		"Upgrading openclaw from %s to %s\n",
-		current,
-		latest,
-	)
-
-	if err := installReleaseFunc(
-		ctx,
-		latest,
-		binDir,
-		configDir,
-		paths.StateDir,
-		stdout,
-		stderr,
-	); err != nil {
-		return fmt.Errorf("upgrade failed: %w", err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func fetchLatestReleaseVersion(ctx context.Context) (string, error) {
-	version, err := fetchLatestReleaseVersionFromAPI(ctx)
-	if err == nil {
-		return version, nil
-	}
-
-	version, feedErr := fetchLatestReleaseVersionFromFeed(ctx)
-	if feedErr == nil {
-		return version, nil
-	}
-
-	return "", fmt.Errorf(
-		"resolve latest release: api failed: %v; "+
-			"feed failed: %w",
-		err,
-		feedErr,
-	)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func fetchLatestReleaseVersionFromAPI(
 	ctx context.Context,
 ) (string, error) {
-	body, err := fetchReleaseAsset(ctx, latestReleaseAPIURL())
-	if err != nil {
-		return "", err
-	}
-
-	var releases []githubRelease
-	if err := json.Unmarshal(body, &releases); err != nil {
-		return "", fmt.Errorf("decode releases: %w", err)
-	}
-
-	tags := make([]string, 0, len(releases))
-	for _, release := range releases {
-		tags = append(tags, release.TagName)
-	}
-	return latestReleaseVersionFromTags(tags)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func fetchLatestReleaseVersionFromFeed(
 	ctx context.Context,
 ) (string, error) {
-	body, err := fetchReleaseAsset(ctx, latestReleaseFeedURL())
-	if err != nil {
-		return "", err
-	}
-
-	var feed githubReleaseFeed
-	if err := xml.Unmarshal(body, &feed); err != nil {
-		return "", fmt.Errorf("decode releases feed: %w", err)
-	}
-
-	tags := make([]string, 0, len(feed.Entries))
-	for _, entry := range feed.Entries {
-		tags = append(tags, entry.Title)
-	}
-	return latestReleaseVersionFromTags(tags)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func latestReleaseVersionFromTags(tags []string) (string, error) {
-	for _, rawTag := range tags {
-		tag := strings.TrimSpace(rawTag)
-		version := normalizeReleaseVersion(tag)
-		if version == "" {
-			continue
-		}
-		if releaseTagForVersion(version) != tag {
-			continue
-		}
-		return version, nil
-	}
-	return "", fmt.Errorf("no openclaw release found")
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func installRelease(
@@ -556,200 +193,38 @@ func installRelease(
 	stdout io.Writer,
 	stderr io.Writer,
 ) error {
-	scriptPath, err := downloadInstallScript(ctx)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = os.Remove(scriptPath) }()
-
-	cmd := exec.CommandContext(
-		ctx,
-		"bash",
-		scriptPath,
-		"--version", version,
-		"--bin-dir", binDir,
-		"--config-dir", configDir,
-		"--state-dir", stateDir,
-	)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-	return cmd.Run()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func downloadInstallScript(ctx context.Context) (string, error) {
-	body, err := fetchReleaseAsset(ctx, installScriptURL())
-	if err != nil {
-		return "", err
-	}
-
-	tmpFile, err := os.CreateTemp("", "openclaw-install-*.sh")
-	if err != nil {
-		return "", fmt.Errorf("create temp file: %w", err)
-	}
-
-	path := tmpFile.Name()
-	if _, err := tmpFile.Write(body); err != nil {
-		_ = tmpFile.Close()
-		return "", fmt.Errorf("write install script: %w", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		return "", fmt.Errorf("close install script: %w", err)
-	}
-	if err := os.Chmod(path, 0o700); err != nil {
-		return "", fmt.Errorf("chmod install script: %w", err)
-	}
-	return path, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func fetchReleaseAsset(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		url,
-		nil,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("fetch %q: %w", url, err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(
-			"fetch %q: unexpected status %s",
-			url,
-			resp.Status,
-		)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read response body: %w", err)
-	}
-	return body, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func latestReleaseAPIURL() string {
-	return strings.TrimRight(releaseAPIBaseURL(), "/") +
-		"/repos/" + releaseRepo() + "/releases?per_page=100"
-}
+func latestReleaseAPIURL() string { _ = "STUB: not implemented"; return "" }
 
-func latestReleaseFeedURL() string {
-	return strings.TrimRight(releaseDownloadBaseURL(), "/") +
-		"/" + releaseRepo() + "/releases.atom"
-}
+func latestReleaseFeedURL() string { _ = "STUB: not implemented"; return "" }
 
-func installScriptURL() string {
-	override := strings.TrimSpace(os.Getenv(installScriptEnvName))
-	if override != "" {
-		return override
-	}
-	return defaultInstallScriptURL
-}
+func installScriptURL() string { _ = "STUB: not implemented"; return "" }
 
-func releaseAPIBaseURL() string {
-	override := strings.TrimSpace(os.Getenv(releaseAPIBaseURLEnvName))
-	if override != "" {
-		return strings.TrimRight(override, "/")
-	}
-	return defaultGitHubAPIBaseURL
-}
+func releaseAPIBaseURL() string { _ = "STUB: not implemented"; return "" }
 
-func releaseDownloadBaseURL() string {
-	override := strings.TrimSpace(
-		os.Getenv(releaseDownloadBaseURLEnvName),
-	)
-	if override != "" {
-		return strings.TrimRight(override, "/")
-	}
-	return defaultGitHubDownloadBaseURL
-}
+func releaseDownloadBaseURL() string { _ = "STUB: not implemented"; return "" }
 
-func releaseRepo() string {
-	override := strings.TrimSpace(os.Getenv(releaseRepoEnvName))
-	if override != "" {
-		return override
-	}
-	return defaultReleaseRepo
-}
+func releaseRepo() string { _ = "STUB: not implemented"; return "" }
 
-func currentBinaryDir() (string, error) {
-	path, err := executablePathFunc()
-	if err != nil {
-		return "", fmt.Errorf("resolve executable path: %w", err)
-	}
-	return filepath.Dir(path), nil
-}
+func currentBinaryDir() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
-func hasNewerRelease(latest string, current string) bool {
-	return compareReleaseVersions(latest, current) > 0
-}
+func hasNewerRelease(latest string, current string) bool { _ = "STUB: not implemented"; return false }
 
-func compareReleaseVersions(left string, right string) int {
-	leftParts, leftOK := parseReleaseVersion(left)
-	rightParts, rightOK := parseReleaseVersion(right)
+func compareReleaseVersions(left string, right string) int { _ = "STUB: not implemented"; return 0 }
 
-	switch {
-	case leftOK && rightOK:
-	case leftOK:
-		return 1
-	case rightOK:
-		return -1
-	default:
-		return strings.Compare(
-			normalizeReleaseVersion(left),
-			normalizeReleaseVersion(right),
-		)
-	}
+func versionPart(parts []int, index int) int { _ = "STUB: not implemented"; return 0 }
 
-	maxLen := len(leftParts)
-	if len(rightParts) > maxLen {
-		maxLen = len(rightParts)
-	}
-
-	for i := 0; i < maxLen; i++ {
-		leftValue := versionPart(leftParts, i)
-		rightValue := versionPart(rightParts, i)
-		switch {
-		case leftValue > rightValue:
-			return 1
-		case leftValue < rightValue:
-			return -1
-		}
-	}
-	return 0
-}
-
-func versionPart(parts []int, index int) int {
-	if index >= len(parts) {
-		return 0
-	}
-	return parts[index]
-}
-
-func parseReleaseVersion(raw string) ([]int, bool) {
-	version := normalizeReleaseVersion(raw)
-	version = strings.TrimPrefix(version, "v")
-	if version == "" {
-		return nil, false
-	}
-
-	fields := strings.Split(version, ".")
-	parts := make([]int, 0, len(fields))
-	for _, field := range fields {
-		field = strings.TrimSpace(field)
-		if field == "" {
-			return nil, false
-		}
-		value, err := strconv.Atoi(field)
-		if err != nil {
-			return nil, false
-		}
-		parts = append(parts, value)
-	}
-	return parts, len(parts) > 0
-}
+func parseReleaseVersion(raw string) ([]int, bool) { _ = "STUB: not implemented"; return nil, false }

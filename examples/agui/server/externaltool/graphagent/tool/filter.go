@@ -10,11 +10,4 @@
 package tool
 
 // IsExternalTool reports whether name is handled by the graph external interrupt node.
-func IsExternalTool(name string) bool {
-	switch name {
-	case ExternalSearchName, ExternalApprovalName:
-		return true
-	default:
-		return false
-	}
-}
+func IsExternalTool(name string) bool { _ = "STUB: not implemented"; return false }

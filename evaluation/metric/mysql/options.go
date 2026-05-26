@@ -12,8 +12,6 @@ package mysql
 
 import (
 	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 )
 
 const defaultInitTimeout = 30 * time.Second
@@ -37,65 +35,25 @@ type options struct {
 // Option configures options.
 type Option func(*options)
 
-func newOptions(opts ...Option) *options {
-	o := &options{
-		initTimeout: defaultInitTimeout,
-	}
-	for _, opt := range opts {
-		opt(o)
-	}
-	return o
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithMySQLClientDSN sets the MySQL DSN connection string directly (recommended).
-func WithMySQLClientDSN(dsn string) Option {
-	return func(o *options) {
-		o.dsn = dsn
-	}
-}
+func WithMySQLClientDSN(dsn string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMySQLInstance uses a MySQL instance from storage.
 // The instance must be registered via storage.RegisterMySQLInstance() before use.
-func WithMySQLInstance(instanceName string) Option {
-	return func(o *options) {
-		o.instanceName = instanceName
-	}
-}
+func WithMySQLInstance(instanceName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraOptions sets extra options passed to the storage MySQL client builder.
-func WithExtraOptions(extraOptions ...any) Option {
-	return func(o *options) {
-		o.extraOptions = append(o.extraOptions, extraOptions...)
-	}
-}
+func WithExtraOptions(extraOptions ...any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipDBInit skips database initialization (table and index creation).
-func WithSkipDBInit(skip bool) Option {
-	return func(o *options) {
-		o.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTablePrefix sets a prefix for all table names.
 //
 // Security: Uses internal/session/sqldb.MustValidateTablePrefix to prevent SQL injection.
-func WithTablePrefix(prefix string) Option {
-	return func(o *options) {
-		if prefix == "" {
-			o.tablePrefix = ""
-			return
-		}
-		sqldb.MustValidateTablePrefix(prefix)
-		o.tablePrefix = prefix
-	}
-}
+func WithTablePrefix(prefix string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInitTimeout sets the timeout for schema initialization.
-func WithInitTimeout(timeout time.Duration) Option {
-	return func(o *options) {
-		if timeout <= 0 {
-			return
-		}
-		o.initTimeout = timeout
-	}
-}
+func WithInitTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

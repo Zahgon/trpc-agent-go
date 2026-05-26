@@ -11,8 +11,6 @@ package runtimeprofile
 
 import (
 	"context"
-	"sort"
-	"strings"
 	"sync"
 )
 
@@ -36,10 +34,8 @@ type StoreFunc func(ctx context.Context) (Config, error)
 
 // Load implements Store.
 func (f StoreFunc) Load(ctx context.Context) (Config, error) {
-	if f == nil {
-		return Config{}, nil
-	}
-	return f(ctx)
+	_ = "STUB: not implemented"
+	return *new(Config), nil
 }
 
 // StaticStore stores one immutable profile config.
@@ -49,17 +45,20 @@ type StaticStore struct {
 
 // Load implements Store.
 func (s StaticStore) Load(context.Context) (Config, error) {
-	return cloneConfig(s.Config), nil
+	_ = "STUB: not implemented"
+	return *new(Config), nil
 }
 
 // ProfileIDs implements Catalog.
 func (s StaticStore) ProfileIDs(context.Context) ([]string, error) {
-	return profileIDs(cloneConfig(s.Config)), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // AppNames implements Catalog.
 func (s StaticStore) AppNames(context.Context) ([]string, error) {
-	return appNames(cloneConfig(s.Config)), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CachedResolver lazily loads profiles and keeps a version-keyed resolver
@@ -72,168 +71,51 @@ type CachedResolver struct {
 }
 
 // NewCachedResolver creates a resolver backed by a reloadable store.
-func NewCachedResolver(store Store) *CachedResolver {
-	if store == nil {
-		return nil
-	}
-	return &CachedResolver{store: store}
-}
+func NewCachedResolver(store Store) *CachedResolver { _ = "STUB: not implemented"; return nil }
 
 // Resolve implements Resolver.
 func (r *CachedResolver) Resolve(
 	ctx context.Context,
 	req Request,
 ) (Profile, error) {
-	resolver, err := r.resolverForRead(ctx)
-	if err != nil || resolver == nil {
-		return Profile{}, err
-	}
-	return resolver.Resolve(ctx, req)
+	_ = "STUB: not implemented"
+	return *new(Profile), nil
 }
 
 // Reload refreshes the resolver snapshot from the store.
-func (r *CachedResolver) Reload(ctx context.Context) error {
-	if r == nil || r.store == nil {
-		return nil
-	}
-	cfg, err := r.store.Load(ctx)
-	if err != nil {
-		return err
-	}
-	resolver, err := NewResolver(cfg)
-	if err != nil {
-		return err
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.resolver = resolver
-	r.loaded = true
-	return nil
-}
+func (r *CachedResolver) Reload(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 // Invalidate clears the current snapshot. The next Resolve will reload it.
-func (r *CachedResolver) Invalidate() {
-	if r == nil {
-		return
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.resolver = nil
-	r.loaded = false
-}
+func (r *CachedResolver) Invalidate() { _ = "STUB: not implemented"; return }
 
 // ProfileIDs implements Catalog.
 func (r *CachedResolver) ProfileIDs(ctx context.Context) ([]string, error) {
-	cfg, err := r.configForCatalog(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return profileIDs(cfg), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // AppNames implements Catalog.
 func (r *CachedResolver) AppNames(ctx context.Context) ([]string, error) {
-	cfg, err := r.configForCatalog(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return appNames(cfg), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *CachedResolver) resolverForRead(
 	ctx context.Context,
 ) (Resolver, error) {
-	if r == nil {
-		return nil, nil
-	}
-	r.mu.RLock()
-	resolver := r.resolver
-	loaded := r.loaded
-	r.mu.RUnlock()
-	if loaded {
-		return resolver, nil
-	}
-	if err := r.Reload(ctx); err != nil {
-		return nil, err
-	}
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return r.resolver, nil
+	_ = "STUB: not implemented"
+	return *new(Resolver), nil
 }
 
 func (r *CachedResolver) configForCatalog(
 	ctx context.Context,
 ) (Config, error) {
-	if r == nil || r.store == nil {
-		return Config{}, nil
-	}
-	cfg, err := r.store.Load(ctx)
-	if err != nil {
-		return Config{}, err
-	}
-	return cloneConfig(cfg), nil
+	_ = "STUB: not implemented"
+	return *new(Config), nil
 }
 
-func cloneConfig(cfg Config) Config {
-	cfg.Default = strings.TrimSpace(cfg.Default)
-	cfg.Selectors = cloneSelectors(cfg.Selectors)
-	if len(cfg.Profiles) == 0 {
-		cfg.Profiles = nil
-		return cfg
-	}
-	profiles := make(map[string]Profile, len(cfg.Profiles))
-	for key, profile := range cfg.Profiles {
-		profiles[key] = cloneProfile(profile)
-	}
-	cfg.Profiles = profiles
-	return cfg
-}
+func cloneConfig(cfg Config) Config { _ = "STUB: not implemented"; return *new(Config) }
 
-func profileIDs(cfg Config) []string {
-	if len(cfg.Profiles) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(cfg.Profiles))
-	seen := make(map[string]struct{}, len(cfg.Profiles))
-	for key, profile := range cfg.Profiles {
-		id := strings.TrimSpace(profile.ID)
-		if id == "" {
-			id = strings.TrimSpace(key)
-		}
-		if id == "" {
-			continue
-		}
-		if _, ok := seen[id]; ok {
-			continue
-		}
-		seen[id] = struct{}{}
-		out = append(out, id)
-	}
-	sort.Strings(out)
-	return out
-}
+func profileIDs(cfg Config) []string { _ = "STUB: not implemented"; return nil }
 
-func appNames(cfg Config) []string {
-	if len(cfg.Profiles) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(cfg.Profiles))
-	seen := make(map[string]struct{}, len(cfg.Profiles))
-	for key, profile := range cfg.Profiles {
-		id := strings.TrimSpace(profile.ID)
-		if id == "" {
-			profile.ID = strings.TrimSpace(key)
-		}
-		appName := RuntimeAppName(profile)
-		if appName == "" {
-			continue
-		}
-		if _, ok := seen[appName]; ok {
-			continue
-		}
-		seen[appName] = struct{}{}
-		out = append(out, appName)
-	}
-	sort.Strings(out)
-	return out
-}
+func appNames(cfg Config) []string { _ = "STUB: not implemented"; return nil }

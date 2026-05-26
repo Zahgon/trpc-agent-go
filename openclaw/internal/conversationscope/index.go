@@ -11,8 +11,6 @@ package conversationscope
 
 import (
 	"context"
-	"sort"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
@@ -31,28 +29,8 @@ func RememberIndexedStorageUser(
 	canonicalUserID string,
 	storageUserID string,
 ) error {
-	if svc == nil {
-		return nil
-	}
-	appName = strings.TrimSpace(appName)
-	canonicalUserID = strings.TrimSpace(canonicalUserID)
-	storageUserID = strings.TrimSpace(storageUserID)
-	if appName == "" ||
-		canonicalUserID == "" ||
-		storageUserID == "" ||
-		canonicalUserID == storageUserID {
-		return nil
-	}
-	return svc.UpdateUserState(
-		ctx,
-		session.UserKey{
-			AppName: appName,
-			UserID:  canonicalUserID,
-		},
-		session.StateMap{
-			storageUserStateKey(storageUserID): storageUserStateValue,
-		},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListIndexedStorageUsers lists extra persisted storage scopes remembered for
@@ -63,25 +41,8 @@ func ListIndexedStorageUsers(
 	appName string,
 	canonicalUserID string,
 ) ([]string, error) {
-	if svc == nil {
-		return nil, nil
-	}
-	appName = strings.TrimSpace(appName)
-	canonicalUserID = strings.TrimSpace(canonicalUserID)
-	if appName == "" || canonicalUserID == "" {
-		return nil, nil
-	}
-	state, err := svc.ListUserStates(
-		ctx,
-		session.UserKey{
-			AppName: appName,
-			UserID:  canonicalUserID,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return indexedStorageUsersFromState(state), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RememberIndexedStorageScope records one persisted conversation scope at
@@ -92,21 +53,8 @@ func RememberIndexedStorageScope(
 	appName string,
 	storageUserID string,
 ) error {
-	if svc == nil {
-		return nil
-	}
-	appName = strings.TrimSpace(appName)
-	storageUserID = strings.TrimSpace(storageUserID)
-	if appName == "" || storageUserID == "" {
-		return nil
-	}
-	return svc.UpdateAppState(
-		ctx,
-		appName,
-		session.StateMap{
-			storageScopeStateKey(storageUserID): storageUserStateValue,
-		},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListIndexedStorageScopes lists persisted conversation scopes remembered
@@ -116,18 +64,8 @@ func ListIndexedStorageScopes(
 	svc session.Service,
 	appName string,
 ) ([]string, error) {
-	if svc == nil {
-		return nil, nil
-	}
-	appName = strings.TrimSpace(appName)
-	if appName == "" {
-		return nil, nil
-	}
-	state, err := svc.ListAppStates(ctx, appName)
-	if err != nil {
-		return nil, err
-	}
-	return indexedStorageScopesFromState(state), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DeleteIndexedStorageUser removes one remembered storage scope index.
@@ -138,95 +76,20 @@ func DeleteIndexedStorageUser(
 	canonicalUserID string,
 	storageUserID string,
 ) error {
-	if svc == nil {
-		return nil
-	}
-	appName = strings.TrimSpace(appName)
-	canonicalUserID = strings.TrimSpace(canonicalUserID)
-	key := storageUserStateKey(storageUserID)
-	if appName == "" || canonicalUserID == "" || key == "" {
-		return nil
-	}
-	return svc.DeleteUserState(
-		ctx,
-		session.UserKey{
-			AppName: appName,
-			UserID:  canonicalUserID,
-		},
-		key,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func indexedStorageUsersFromState(state session.StateMap) []string {
-	if len(state) == 0 {
-		return nil
-	}
-	seen := make(map[string]struct{}, len(state))
-	out := make([]string, 0, len(state))
-	for key, value := range state {
-		if value == nil || !strings.HasPrefix(key, storageUserStatePrefix) {
-			continue
-		}
-		storageUserID := strings.TrimSpace(
-			strings.TrimPrefix(key, storageUserStatePrefix),
-		)
-		if storageUserID == "" {
-			continue
-		}
-		if _, ok := seen[storageUserID]; ok {
-			continue
-		}
-		seen[storageUserID] = struct{}{}
-		out = append(out, storageUserID)
-	}
-	sort.Strings(out)
-	if len(out) == 0 {
-		return nil
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func indexedStorageScopesFromState(state session.StateMap) []string {
-	if len(state) == 0 {
-		return nil
-	}
-	seen := make(map[string]struct{}, len(state))
-	out := make([]string, 0, len(state))
-	for key, value := range state {
-		if value == nil || !strings.HasPrefix(key, storageScopeStatePrefix) {
-			continue
-		}
-		storageUserID := strings.TrimSpace(
-			strings.TrimPrefix(key, storageScopeStatePrefix),
-		)
-		if storageUserID == "" {
-			continue
-		}
-		if _, ok := seen[storageUserID]; ok {
-			continue
-		}
-		seen[storageUserID] = struct{}{}
-		out = append(out, storageUserID)
-	}
-	sort.Strings(out)
-	if len(out) == 0 {
-		return nil
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func storageUserStateKey(storageUserID string) string {
-	storageUserID = strings.TrimSpace(storageUserID)
-	if storageUserID == "" {
-		return ""
-	}
-	return storageUserStatePrefix + storageUserID
-}
+func storageUserStateKey(storageUserID string) string { _ = "STUB: not implemented"; return "" }
 
-func storageScopeStateKey(storageUserID string) string {
-	storageUserID = strings.TrimSpace(storageUserID)
-	if storageUserID == "" {
-		return ""
-	}
-	return storageScopeStatePrefix + storageUserID
-}
+func storageScopeStateKey(storageUserID string) string { _ = "STUB: not implemented"; return "" }

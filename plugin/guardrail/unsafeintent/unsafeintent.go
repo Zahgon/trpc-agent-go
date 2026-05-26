@@ -10,10 +10,6 @@
 package unsafeintent
 
 import (
-	"context"
-	"fmt"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/plugin"
 	unsafereview "trpc.group/trpc-go/trpc-agent-go/plugin/guardrail/unsafeintent/review"
@@ -27,77 +23,29 @@ type Plugin struct {
 }
 
 // New creates a new unsafe intent plugin.
-func New(options ...Option) (*Plugin, error) {
-	opts := newOptions(options...)
-	if opts.reviewer == nil {
-		return nil, fmt.Errorf("newing unsafe intent plugin: reviewer is nil")
-	}
-	return &Plugin{
-		name:         opts.name,
-		reviewer:     opts.reviewer,
-		tokenCounter: model.NewSimpleTokenCounter(),
-	}, nil
-}
+func New(options ...Option) (*Plugin, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // Name implements plugin.Plugin.
 func (p *Plugin) Name() string {
-	return p.name
+	_ = "STUB: not implemented"
+
+	// Register implements plugin.Plugin.
+	return ""
 }
 
-// Register implements plugin.Plugin.
-func (p *Plugin) Register(r *plugin.Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	r.BeforeModel(p.beforeModel())
-}
+func (p *Plugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *Plugin) beforeModel() model.BeforeModelCallbackStructured {
-	return func(ctx context.Context, args *model.BeforeModelArgs) (*model.BeforeModelResult, error) {
-		if p == nil || args == nil || args.Request == nil {
-			return nil, nil
-		}
-		req := p.buildReviewRequest(ctx, args.Request.Messages)
-		if req == nil {
-			return nil, nil
-		}
-		decision, err := p.reviewer.Review(ctx, req)
-		if err != nil {
-			log.ErrorfContext(ctx, "Unsafe intent review denied: %v", err)
-			return &model.BeforeModelResult{CustomResponse: p.blockedResponse("")}, nil
-		}
-		if decision == nil {
-			err = fmt.Errorf("unsafe intent reviewer returned nil decision")
-			log.ErrorfContext(ctx, "Unsafe intent review denied: %v", err)
-			return &model.BeforeModelResult{CustomResponse: p.blockedResponse("")}, nil
-		}
-		if !decision.Blocked {
-			return nil, nil
-		}
-		denyMessage := unsafeIntentDenyMessage(decision)
-		log.WarnContext(ctx, denyMessage)
-		return &model.BeforeModelResult{CustomResponse: p.blockedResponse(denyMessage)}, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(model.BeforeModelCallbackStructured)
 }
 
 func (p *Plugin) blockedResponse(content string) *model.Response {
-	if content == "" {
-		content = "The input was blocked by the unsafe intent guardrail."
-	}
-	return &model.Response{
-		Object: model.ObjectTypeChatCompletion,
-		Done:   true,
-		Choices: []model.Choice{{
-			Index:   0,
-			Message: model.NewAssistantMessage(content),
-		}},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func unsafeIntentDenyMessage(decision *unsafereview.Decision) string {
-	return fmt.Sprintf(
-		"Unsafe intent detected (category: %s): %s",
-		decision.Category,
-		decision.Reason,
-	)
+	_ = "STUB: not implemented"
+	return ""
 }

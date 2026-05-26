@@ -10,9 +10,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation"
@@ -69,73 +67,11 @@ func main() {
 	printSummary(result, *outputDir)
 }
 
-func newLoggingCallback() *service.Callback {
-	return &service.Callback{
-		BeforeInferenceSet: func(ctx context.Context, args *service.BeforeInferenceSetArgs) (*service.BeforeInferenceSetResult, error) {
-			printCallbackArgs("BeforeInferenceSet", args)
-			return nil, nil
-		},
-		AfterInferenceSet: func(ctx context.Context, args *service.AfterInferenceSetArgs) (*service.AfterInferenceSetResult, error) {
-			printCallbackArgs("AfterInferenceSet", args)
-			return nil, nil
-		},
-		BeforeInferenceCase: func(ctx context.Context, args *service.BeforeInferenceCaseArgs) (*service.BeforeInferenceCaseResult, error) {
-			printCallbackArgs("BeforeInferenceCase", args)
-			return nil, nil
-		},
-		AfterInferenceCase: func(ctx context.Context, args *service.AfterInferenceCaseArgs) (*service.AfterInferenceCaseResult, error) {
-			printCallbackArgs("AfterInferenceCase", args)
-			return nil, nil
-		},
-		BeforeEvaluateSet: func(ctx context.Context, args *service.BeforeEvaluateSetArgs) (*service.BeforeEvaluateSetResult, error) {
-			printCallbackArgs("BeforeEvaluateSet", args)
-			return nil, nil
-		},
-		AfterEvaluateSet: func(ctx context.Context, args *service.AfterEvaluateSetArgs) (*service.AfterEvaluateSetResult, error) {
-			printCallbackArgs("AfterEvaluateSet", args)
-			return nil, nil
-		},
-		BeforeEvaluateCase: func(ctx context.Context, args *service.BeforeEvaluateCaseArgs) (*service.BeforeEvaluateCaseResult, error) {
-			printCallbackArgs("BeforeEvaluateCase", args)
-			return nil, nil
-		},
-		AfterEvaluateCase: func(ctx context.Context, args *service.AfterEvaluateCaseArgs) (*service.AfterEvaluateCaseResult, error) {
-			printCallbackArgs("AfterEvaluateCase", args)
-			return nil, nil
-		},
-	}
-}
+func newLoggingCallback() *service.Callback { _ = "STUB: not implemented"; return nil }
 
-func printCallbackArgs(point string, args any) {
-	data, err := json.Marshal(args)
-	if err != nil {
-		fmt.Printf("[callback %s] error: %v\n", point, err)
-		return
-	}
-	fmt.Printf("[callback %s] args=%s\n", point, string(data))
-}
+func printCallbackArgs(point string, args any) { _ = "STUB: not implemented"; return }
 
 func printSummary(result *evaluation.EvaluationResult, outDir string) {
-	fmt.Println("✅ Evaluation completed with callbacks")
-	fmt.Printf("App: %s\n", result.AppName)
-	fmt.Printf("Eval Set: %s\n", result.EvalSetID)
-	fmt.Printf("Overall Status: %s\n", result.OverallStatus)
-	runs := 0
-	if len(result.EvalCases) > 0 {
-		runs = len(result.EvalCases[0].EvalCaseResults)
-	}
-	fmt.Printf("Runs: %d\n", runs)
-	for _, caseResult := range result.EvalCases {
-		fmt.Printf("Case %s -> %s\n", caseResult.EvalCaseID, caseResult.OverallStatus)
-		for _, metricResult := range caseResult.MetricResults {
-			fmt.Printf("  Metric %s: score %.2f (threshold %.2f) => %s\n",
-				metricResult.MetricName,
-				metricResult.Score,
-				metricResult.Threshold,
-				metricResult.EvalStatus,
-			)
-		}
-		fmt.Println()
-	}
-	fmt.Printf("Results saved under: %s\n", outDir)
+	_ = "STUB: not implemented"
+	return
 }

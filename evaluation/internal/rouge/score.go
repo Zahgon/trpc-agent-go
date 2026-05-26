@@ -20,9 +20,4 @@ type Score struct {
 }
 
 // fMeasure computes the harmonic mean of precision and recall.
-func fMeasure(precision, recall float64) float64 {
-	if precision+recall > 0 {
-		return 2 * precision * recall / (precision + recall)
-	}
-	return 0
-}
+func fMeasure(precision, recall float64) float64 { _ = "STUB: not implemented"; return 0 }

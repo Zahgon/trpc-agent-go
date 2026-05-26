@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/internal/modelcontext"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -22,11 +21,7 @@ type Option func(*sessionSummarizer)
 // WithName sets a logical name for the summarizer instance.
 // This name is used for telemetry tagging (e.g., gen_ai.task_type) to help
 // distinguish different summarization tasks.
-func WithName(name string) Option {
-	return func(s *sessionSummarizer) {
-		s.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // SkipRecentFunc defines a function that determines how many recent events to skip during summarization.
 // It receives all events and returns the number of recent events to skip.
@@ -38,37 +33,19 @@ type SkipRecentFunc func(events []event.Event) int
 // replaced with the extracted conversation when generating the summary. When
 // WithMaxSummaryWords is configured, {max_summary_words} must be included in
 // either this prompt or WithSystemPrompt.
-func WithPrompt(prompt string) Option {
-	return func(s *sessionSummarizer) {
-		if prompt != "" {
-			s.prompt = prompt
-		}
-	}
-}
+func WithPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSystemPrompt sets an additional system prompt for summarization.
 // The prompt is rendered into a dedicated system message before the user prompt.
 // It must not include the {conversation_text} placeholder; keep conversation
 // content in the user prompt instead. When WithMaxSummaryWords is configured,
 // {max_summary_words} may be included here instead of the user prompt.
-func WithSystemPrompt(prompt string) Option {
-	return func(s *sessionSummarizer) {
-		if prompt != "" {
-			s.systemPrompt = prompt
-		}
-	}
-}
+func WithSystemPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxSummaryWords sets the maximum word count for summaries.
 // A value <= 0 means no word limit. The word limit will be included in the
 // prompt to guide the model's generation rather than truncating the output.
-func WithMaxSummaryWords(maxWords int) Option {
-	return func(s *sessionSummarizer) {
-		if maxWords > 0 {
-			s.maxSummaryWords = maxWords
-		}
-	}
-}
+func WithMaxSummaryWords(maxWords int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipRecent sets a custom function to determine how many of the most recent
 // events (from the tail) should be skipped during summarization. The function
@@ -95,107 +72,63 @@ func WithMaxSummaryWords(maxWords int) Option {
 //	    }
 //	    return skipCount
 //	})
-func WithSkipRecent(skipFunc SkipRecentFunc) Option {
-	return func(s *sessionSummarizer) {
-		s.skipRecentFunc = skipFunc
-	}
-}
+func WithSkipRecent(skipFunc SkipRecentFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenThreshold appends a token-based check.
 // Note: all checks in a summarizer are combined with global AND semantics.
 // If you call multiple threshold options (e.g. token + event), all must pass.
-func WithTokenThreshold(tokenCount int) Option {
-	return func(s *sessionSummarizer) {
-		s.checks = append(s.checks, CheckTokenThresholdContext(tokenCount))
-	}
-}
+func WithTokenThreshold(tokenCount int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEventThreshold appends an event-count-based check.
 // Note: all checks in a summarizer are combined with global AND semantics.
 // If you call multiple threshold options (e.g. token + event), all must pass.
-func WithEventThreshold(eventCount int) Option {
-	return func(s *sessionSummarizer) {
-		s.checks = append(s.checks, wrapChecker(CheckEventThreshold(eventCount)))
-	}
-}
+func WithEventThreshold(eventCount int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeThreshold appends a time-based check.
 // Note: all checks in a summarizer are combined with global AND semantics.
 // If you call multiple threshold options (e.g. event + time), all must pass.
 func WithTimeThreshold(interval time.Duration) Option {
-	return func(s *sessionSummarizer) {
-		s.checks = append(s.checks, wrapChecker(CheckTimeThreshold(interval)))
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChecksAll appends a single composite check that requires all provided checks (AND logic).
-func WithChecksAll(checks ...Checker) Option {
-	return func(s *sessionSummarizer) {
-		if len(checks) > 0 {
-			s.checks = append(s.checks, wrapChecker(ChecksAll(checks)))
-		}
-	}
-}
+func WithChecksAll(checks ...Checker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChecksAny appends a single composite check that passes if any provided check passes (OR logic).
-func WithChecksAny(checks ...Checker) Option {
-	return func(s *sessionSummarizer) {
-		if len(checks) > 0 {
-			s.checks = append(s.checks, wrapChecker(ChecksAny(checks)))
-		}
-	}
-}
+func WithChecksAny(checks ...Checker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChecksAllContext appends a single composite context-aware check that
 // requires all provided checks (AND logic).
 func WithChecksAllContext(checks ...ContextChecker) Option {
-	return func(s *sessionSummarizer) {
-		if len(checks) > 0 {
-			s.checks = append(s.checks, allContextChecks(checks))
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChecksAnyContext appends a single composite context-aware check that
 // passes if any provided check passes (OR logic).
 func WithChecksAnyContext(checks ...ContextChecker) Option {
-	return func(s *sessionSummarizer) {
-		if len(checks) > 0 {
-			s.checks = append(s.checks, anyContextChecks(checks))
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPreSummaryHook sets a pre-summary hook to modify text before the model call.
-func WithPreSummaryHook(h PreSummaryHook) Option {
-	return func(s *sessionSummarizer) {
-		s.preHook = h
-	}
-}
+func WithPreSummaryHook(h PreSummaryHook) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPostSummaryHook sets a post-summary hook to modify the summary before returning.
-func WithPostSummaryHook(h PostSummaryHook) Option {
-	return func(s *sessionSummarizer) {
-		s.postHook = h
-	}
-}
+func WithPostSummaryHook(h PostSummaryHook) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithModelCallbacks sets model callbacks for summarization.
 //
 // Note: Only structured callback signatures are supported.
 func WithModelCallbacks(callbacks *model.Callbacks) Option {
-	return func(s *sessionSummarizer) {
-		s.modelCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSummaryHookAbortOnError decides whether to abort when a hook returns an error.
 // Default false: ignore hook errors and use original text/summary; true: return error.
-func WithSummaryHookAbortOnError(abort bool) Option {
-	return func(s *sessionSummarizer) {
-		s.hookAbortOnError = abort
-	}
-}
+func WithSummaryHookAbortOnError(abort bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithToolCallFormatter sets a custom formatter for tool calls in the summary input.
 // The formatter receives a ToolCall and returns a formatted string.
@@ -208,9 +141,8 @@ func WithSummaryHookAbortOnError(abort bool) Option {
 //	    return fmt.Sprintf("[Called tool: %s]", tc.Function.Name)
 //	})
 func WithToolCallFormatter(f ToolCallFormatter) Option {
-	return func(s *sessionSummarizer) {
-		s.toolCallFormatter = f
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolResultFormatter sets a custom formatter for tool results in the summary input.
@@ -228,9 +160,8 @@ func WithToolCallFormatter(f ToolCallFormatter) Option {
 //	    return fmt.Sprintf("[%s: %s]", msg.ToolName, content)
 //	})
 func WithToolResultFormatter(f ToolResultFormatter) Option {
-	return func(s *sessionSummarizer) {
-		s.toolResultFormatter = f
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextThreshold enables automatic summarization based on the model's
@@ -249,24 +180,12 @@ func WithToolResultFormatter(f ToolResultFormatter) Option {
 //	summary.NewSummarizer(model, summary.WithContextThreshold(
 //	    summary.WithContextThresholdRatio(0.6)))
 func WithContextThreshold(opts ...ContextThresholdOption) Option {
-	return func(s *sessionSummarizer) {
-		effectiveOpts := append([]ContextThresholdOption(nil), opts...)
-		// If no explicit fallback window is configured, try to resolve one
-		// from the summarizer's own model. This ensures that when invocation
-		// context is unavailable (e.g. manual CreateSessionSummary calls),
-		// the checker uses the summarizer model's context window instead of
-		// the conservative framework default (8192).
-		o := contextThresholdOptions{
-			fallbackContextWindow: defaultContextThresholdFallbackWindow,
-		}
-		for _, opt := range effectiveOpts {
-			opt(&o)
-		}
-		if !o.fallbackContextWindowSet && s.model != nil {
-			if w, ok := modelcontext.ResolveContextWindow(s.model); ok {
-				effectiveOpts = append(effectiveOpts, WithContextThresholdFallbackWindow(w))
-			}
-		}
-		s.checks = append(s.checks, CheckContextThreshold(effectiveOpts...))
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
+
+// If no explicit fallback window is configured, try to resolve one
+// from the summarizer's own model. This ensures that when invocation
+// context is unavailable (e.g. manual CreateSessionSummary calls),
+// the checker uses the summarizer model's context window instead of
+// the conservative framework default (8192).

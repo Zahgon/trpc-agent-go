@@ -10,8 +10,6 @@
 package pgvector
 
 import (
-	"strings"
-
 	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 )
 
@@ -251,12 +249,8 @@ var indexDefs = []indexDefinition{
 func buildCreateTableSQL(
 	schema, prefix, tableName, template string,
 ) string {
-	fullName := sqldb.BuildTableNameWithSchema(
-		schema, prefix, tableName,
-	)
-	return strings.ReplaceAll(
-		template, "{{TABLE_NAME}}", fullName,
-	)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // buildCreateIndexSQL builds CREATE INDEX SQL with
@@ -264,16 +258,6 @@ func buildCreateTableSQL(
 func buildCreateIndexSQL(
 	schema, prefix, tableName, suffix, template string,
 ) string {
-	fullName := sqldb.BuildTableNameWithSchema(
-		schema, prefix, tableName,
-	)
-	indexName := sqldb.BuildIndexNameWithSchema(
-		schema, prefix, tableName, suffix,
-	)
-	sql := strings.ReplaceAll(
-		template, "{{TABLE_NAME}}", fullName,
-	)
-	return strings.ReplaceAll(
-		sql, "{{INDEX_NAME}}", indexName,
-	)
+	_ = "STUB: not implemented"
+	return ""
 }

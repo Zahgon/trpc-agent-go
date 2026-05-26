@@ -12,10 +12,6 @@ package skills
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"sort"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/skill"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -66,159 +62,30 @@ type ListTool struct {
 	repo *Repository
 }
 
-func NewListTool(repo *Repository) *ListTool {
-	return &ListTool{repo: repo}
-}
+func NewListTool(repo *Repository) *ListTool { _ = "STUB: not implemented"; return nil }
 
-func (t *ListTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:        skillListToolName,
-		Description: "List all discovered skills and whether each is enabled.",
-		InputSchema: &tool.Schema{
-			Type:        "object",
-			Description: "List skills input",
-			Properties: map[string]*tool.Schema{
-				"mode": {
-					Type: "string",
-					Description: "all (default), enabled, or " +
-						"disabled",
-				},
-			},
-		},
-		OutputSchema: &tool.Schema{
-			Type:        "object",
-			Description: "Skill list result",
-			Properties: map[string]*tool.Schema{
-				"total":    {Type: "number"},
-				"enabled":  {Type: "number"},
-				"disabled": {Type: "number"},
-				"skills": {
-					Type: "array",
-					Items: &tool.Schema{
-						Type: "object",
-					},
-				},
-			},
-		},
-	}
-}
+func (t *ListTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 func (t *ListTool) Call(ctx context.Context, args []byte) (any, error) {
-	_ = ctx
-
-	var in listInput
-	if len(args) > 0 {
-		if err := json.Unmarshal(args, &in); err != nil {
-			return nil, fmt.Errorf("invalid args: %w", err)
-		}
-	}
-	mode := normalizeListMode(in.Mode)
-
-	if t.repo == nil || t.repo.base == nil {
-		return listOutput{Total: 0}, nil
-	}
-
-	out := t.buildOutput(mode)
-	return out, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func normalizeListMode(raw string) string {
-	v := strings.ToLower(strings.TrimSpace(raw))
-	switch v {
-	case "":
-		return skillListModeAll
-	case skillListModeAll, skillListModeEnabled, skillListModeDisabled:
-		return v
-	default:
-		return skillListModeAll
-	}
-}
+func normalizeListMode(raw string) string { _ = "STUB: not implemented"; return "" }
 
 func (t *ListTool) buildOutput(mode string) listOutput {
-	if t == nil || t.repo == nil || t.repo.base == nil {
-		return listOutput{Total: 0}
-	}
-
-	t.repo.mu.RLock()
-	defer t.repo.mu.RUnlock()
-
-	sums := t.repo.base.Summaries()
-	sort.Slice(sums, func(i, j int) bool {
-		return sums[i].Name < sums[j].Name
-	})
-
-	out := listOutput{
-		Skills: make([]skillEntry, 0, len(sums)),
-	}
-	for _, s := range sums {
-		name := strings.TrimSpace(s.Name)
-		if name == "" {
-			continue
-		}
-
-		entry := t.entryForSummary(s)
-		if mode == skillListModeEnabled && !entry.Enabled {
-			continue
-		}
-		if mode == skillListModeDisabled && entry.Enabled {
-			continue
-		}
-
-		out.Skills = append(out.Skills, entry)
-		out.Total++
-		if entry.Enabled {
-			out.Enabled++
-		} else {
-			out.Disabled++
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return *new(listOutput)
 }
 
 func (t *ListTool) entryForSummary(s skill.Summary) skillEntry {
-	repo := t.repo
-	name := strings.TrimSpace(s.Name)
-	enabled := false
-	if repo != nil {
-		_, enabled = repo.eligible[name]
-	}
-
-	entry := skillEntry{
-		Name:        name,
-		Description: strings.TrimSpace(s.Description),
-		Enabled:     enabled,
-	}
-	if !enabled && repo != nil {
-		entry.Reason = strings.TrimSpace(repo.reasons[name])
-	}
-
-	meta := (*openClawMetadata)(nil)
-	if repo != nil {
-		meta = repo.metas[name]
-	}
-	if meta == nil {
-		return entry
-	}
-
-	entry.Emoji = strings.TrimSpace(meta.Emoji)
-	entry.Homepage = strings.TrimSpace(meta.Homepage)
-	entry.Requires = normalizeSkillRequires(*meta)
-	return entry
+	_ = "STUB: not implemented"
+	return *new(skillEntry)
 }
 
 func normalizeSkillRequires(meta openClawMetadata) *skillRequires {
-	req := skillRequires{
-		OS:      append([]string(nil), meta.OS...),
-		Bins:    append([]string(nil), meta.Requires.Bins...),
-		AnyBins: append([]string(nil), meta.Requires.AnyBins...),
-		Env:     append([]string(nil), meta.Requires.Env...),
-		Config:  append([]string(nil), meta.Requires.Config...),
-	}
-	if len(req.OS) == 0 && len(req.Bins) == 0 && len(req.AnyBins) == 0 &&
-		len(req.Env) == 0 && len(req.Config) == 0 {
-		return nil
-	}
-	return &req
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ tool.Tool = (*ListTool)(nil)

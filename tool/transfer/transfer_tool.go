@@ -12,9 +12,6 @@ package transfer
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -55,106 +52,27 @@ type Tool struct {
 }
 
 // New creates a new transfer_to_agent tool with the provided agent information.
-func New(agents []agent.Info) *Tool {
-	return &Tool{
-		availableAgents: agents,
-	}
-}
+func New(agents []agent.Info) *Tool { _ = "STUB: not implemented"; return nil }
 
 // findAgentInfo finds agent information by name.
 // Returns nil if no agent with the given name is found.
-func (t *Tool) findAgentInfo(name string) *agent.Info {
-	for _, agentInfo := range t.availableAgents {
-		if agentInfo.Name == name {
-			return &agentInfo
-		}
-	}
-	return nil
-}
+func (t *Tool) findAgentInfo(name string) *agent.Info { _ = "STUB: not implemented"; return nil }
 
 // Declaration implements the tool.Tool interface.
 func (t *Tool) Declaration() *tool.Declaration {
+	_ = "STUB: not implemented"
 	// Build detailed agent descriptions.
-	var agentDescriptions []string
-	agentNames := make([]string, len(t.availableAgents))
-
-	for i, agentInfo := range t.availableAgents {
-		agentNames[i] = agentInfo.Name
-		agentDescriptions = append(agentDescriptions,
-			fmt.Sprintf("- %s: %s", agentInfo.Name, agentInfo.Description))
-	}
-
-	agentDetailsText := strings.Join(agentDescriptions, "\n")
-
-	schema := &tool.Schema{
-		Type: "object",
-		Properties: map[string]*tool.Schema{
-			FieldAgentName: {
-				Type: "string",
-				Description: fmt.Sprintf(
-					"Name of the agent to transfer control to.\n\nAvailable agents:\n%s\n\nValid agent names: %v",
-					agentDetailsText, agentNames),
-			},
-			FieldMessage: {
-				Type:        "string",
-				Description: "Optional message to pass to the target agent",
-			},
-		},
-		Required: []string{FieldAgentName},
-	}
-
-	return &tool.Declaration{
-		Name:        TransferToolName,
-		Description: "Transfer control to another agent. This will hand over the conversation to the specified agent.",
-		InputSchema: schema,
-	}
+	return nil
 }
 
 // Call implements the tool.CallableTool interface.
 func (t *Tool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	var req Request
-	if err := json.Unmarshal(jsonArgs, &req); err != nil {
-		return Response{
-			Success:      false,
-			Message:      fmt.Sprintf("Invalid request format: %v", err),
-			TransferType: "error",
-		}, nil
-	}
-
-	// Find the target agent information.
-	targetAgentInfo := t.findAgentInfo(req.AgentName)
-	if targetAgentInfo == nil {
-		availableAgents := make([]string, len(t.availableAgents))
-		for i, agentInfo := range t.availableAgents {
-			availableAgents[i] = agentInfo.Name
-		}
-		return Response{
-			Success:      false,
-			Message:      fmt.Sprintf("Agent '%s' not found. Available agents: %v", req.AgentName, availableAgents),
-			TransferType: "error",
-		}, nil
-	}
-
-	// Get invocation from context.
-	invocation, ok := agent.InvocationFromContext(ctx)
-	if !ok || invocation == nil {
-		return Response{
-			Success:      false,
-			Message:      "Transfer failed: no invocation context available",
-			TransferType: "error",
-		}, nil
-	}
-
-	// Set transfer information in the invocation with just the agent name.
-	invocation.TransferInfo = &agent.TransferInfo{
-		TargetAgentName: targetAgentInfo.Name,
-		Message:         req.Message,
-	}
-
-	return Response{
-		Success:      true,
-		Message:      fmt.Sprintf("Transfer initiated to agent '%s'", req.AgentName),
-		TargetAgent:  req.AgentName,
-		TransferType: "agent_handoff",
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Find the target agent information.
+
+// Get invocation from context.
+
+// Set transfer information in the invocation with just the agent name.

@@ -35,10 +35,6 @@ package mcpbroker
 import (
 	"context"
 	"errors"
-	"fmt"
-	"net/url"
-	"sort"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -223,38 +219,12 @@ type BrokerErrorDecision struct {
 }
 
 // New creates a new MCP broker.
-func New(opts ...Option) *Broker {
-	options := brokerOptions{
-		servers: make(map[string]mcpcfg.ConnectionConfig),
-		adhocSensitiveHeaderDenyset: func() map[string]struct{} {
-			result := make(map[string]struct{}, len(defaultSensitiveHeaderDenylist))
-			for _, name := range defaultSensitiveHeaderDenylist {
-				result[name] = struct{}{}
-			}
-			return result
-		}(),
-	}
-
-	for _, opt := range opts {
-		opt(&options)
-	}
-
-	return &Broker{options: options}
-}
+func New(opts ...Option) *Broker { _ = "STUB: not implemented"; return nil }
 
 // WithServers adds named MCP server configurations provided by code.
 func WithServers(servers map[string]mcpcfg.ConnectionConfig) Option {
-	return func(opts *brokerOptions) {
-		if len(servers) == 0 {
-			return
-		}
-		if opts.servers == nil {
-			opts.servers = make(map[string]mcpcfg.ConnectionConfig, len(servers))
-		}
-		for name, cfg := range servers {
-			opts.servers[name] = cloneConnectionConfig(cfg)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAllowAdHocHTTP controls whether ad-hoc HTTP MCP targets are allowed.
@@ -289,11 +259,7 @@ func WithServers(servers map[string]mcpcfg.ConnectionConfig) Option {
 // occupy a goroutine plus a TCP connection until the OS gives up. Hosts that
 // enable ad-hoc HTTP should bound it explicitly via WithAdHocHTTPTimeout, or via
 // WithClientOptionsProvider for finer-grained per-call policy.
-func WithAllowAdHocHTTP(enabled bool) Option {
-	return func(opts *brokerOptions) {
-		opts.allowAdHocHTTP = enabled
-	}
-}
+func WithAllowAdHocHTTP(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAdHocHTTPTimeout sets the upper bound on the total wall-clock time the
 // broker spends on a single ad-hoc HTTP MCP operation (mcp_list_tools,
@@ -329,14 +295,7 @@ func WithAllowAdHocHTTP(enabled bool) Option {
 // This option only affects ad-hoc HTTP operations. Named servers configured
 // via WithServers continue to use their own ConnectionConfig.Timeout, which
 // is not modified by this option.
-func WithAdHocHTTPTimeout(d time.Duration) Option {
-	return func(opts *brokerOptions) {
-		if d < 0 {
-			d = 0
-		}
-		opts.adhocHTTPTimeout = d
-	}
-}
+func WithAdHocHTTPTimeout(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAdHocSensitiveHeaderDenylist adds case-insensitive header names that the
 // broker must reject when the model supplies them via the "headers" parameter of
@@ -363,28 +322,14 @@ func WithAdHocHTTPTimeout(d time.Duration) Option {
 // reachable on the same network - rely on such headers should pass them in via
 // this option.
 func WithAdHocSensitiveHeaderDenylist(headers []string) Option {
-	return func(opts *brokerOptions) {
-		if len(headers) == 0 {
-			return
-		}
-		if opts.adhocSensitiveHeaderDenyset == nil {
-			opts.adhocSensitiveHeaderDenyset = make(map[string]struct{})
-		}
-		for _, header := range headers {
-			header = strings.ToLower(strings.TrimSpace(header))
-			if header == "" {
-				continue
-			}
-			opts.adhocSensitiveHeaderDenyset[header] = struct{}{}
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHTTPHeaderInjector injects per-run HTTP headers derived from context and target metadata.
 func WithHTTPHeaderInjector(fn HTTPHeaderInjector) Option {
-	return func(opts *brokerOptions) {
-		opts.httpHeaderInjector = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithClientOptionsProvider registers a hook that returns extra trpc-mcp-go client options after
@@ -392,22 +337,18 @@ func WithHTTPHeaderInjector(fn HTTPHeaderInjector) Option {
 // clients, or stdio options without adding parallel WithX hooks for each concern. See
 // ClientOptionsProvider for the trust boundary, failure modes, and the HTTP-retry caveat.
 func WithClientOptionsProvider(fn ClientOptionsProvider) Option {
-	return func(opts *brokerOptions) {
-		opts.clientOptionsProvider = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithErrorInterceptor intercepts HTTP MCP execution errors and may translate them for model consumption.
 func WithErrorInterceptor(fn ErrorInterceptor) Option {
-	return func(opts *brokerOptions) {
-		opts.errorInterceptor = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // Tools returns the broker's MCP management tools.
-func (b *Broker) Tools() []tool.Tool {
-	return newBrokerTools(b)
-}
+func (b *Broker) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 type namedServer struct {
 	Name       string
@@ -417,84 +358,18 @@ type namedServer struct {
 }
 
 func (b *Broker) resolveNamedServers() ([]namedServer, map[string]namedServer, error) {
-	merged := make(map[string]namedServer, len(b.options.servers))
-	for name, cfg := range b.options.servers {
-		server, serverErr := normalizeNamedServer(name, cfg, originCode)
-		if serverErr != nil {
-			return nil, nil, serverErr
-		}
-		if _, exists := merged[server.Name]; exists {
-			return nil, nil, fmt.Errorf("duplicate MCP server name after normalization: %s", server.Name)
-		}
-		merged[server.Name] = server
-	}
-
-	list := make([]namedServer, 0, len(merged))
-	for _, server := range merged {
-		list = append(list, server)
-	}
-	sort.Slice(list, func(i, j int) bool {
-		return list[i].Name < list[j].Name
-	})
-
-	return list, merged, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (b *Broker) resolveTarget(input targetInput) (resolvedTarget, error) {
-	serverName := strings.TrimSpace(input.ServerName)
-	urlValue := strings.TrimSpace(input.URL)
-
-	if serverName == "" && urlValue == "" {
-		return resolvedTarget{}, fmt.Errorf("exactly one of server_name or url is required")
-	}
-
-	if serverName != "" {
-		_, merged, err := b.resolveNamedServers()
-		if err != nil {
-			return resolvedTarget{}, err
-		}
-		server, ok := merged[serverName]
-		if !ok {
-			return resolvedTarget{}, fmt.Errorf("unknown MCP server: %s", serverName)
-		}
-		return resolvedTarget{
-			Name:       server.Name,
-			Origin:     server.Origin,
-			TargetType: server.TargetType,
-			Config:     server.Config,
-		}, nil
-	}
-
-	if !b.options.allowAdHocHTTP {
-		return resolvedTarget{}, fmt.Errorf("ad-hoc HTTP MCP is disabled")
-	}
-
-	config, targetType, err := b.buildAdHocConfig(input)
-	if err != nil {
-		return resolvedTarget{}, err
-	}
-	return resolvedTarget{
-		Origin:     OriginAdhoc,
-		TargetType: targetType,
-		Config:     config,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(resolvedTarget), nil
 }
 
 func (b *Broker) listServers(ctx context.Context, _ listServersInput) (listServersOutput, error) {
-	servers, _, err := b.resolveNamedServers()
-	if err != nil {
-		return listServersOutput{}, err
-	}
-
-	output := listServersOutput{Servers: make([]listServersServer, 0, len(servers))}
-	for _, server := range servers {
-		output.Servers = append(output.Servers, listServersServer{
-			Name:        server.Name,
-			Transport:   server.Config.Transport,
-			Description: server.Config.Description,
-		})
-	}
-	return output, nil
+	_ = "STUB: not implemented"
+	return *new(listServersOutput), nil
 }
 
 func (b *Broker) resolveListSelector(
@@ -502,32 +377,8 @@ func (b *Broker) resolveListSelector(
 	transport string,
 	headers map[string]string,
 ) (resolvedTarget, string, error) {
-	selector = strings.TrimSpace(selector)
-	if selector == "" {
-		return resolvedTarget{}, "", fmt.Errorf("selector is required")
-	}
-
-	if looksLikeHTTPSelector(selector) {
-		target, err := b.resolveTarget(targetInput{
-			URL:       selector,
-			Transport: transport,
-			Headers:   headers,
-		})
-		if err != nil {
-			return resolvedTarget{}, "", err
-		}
-		return target, selector, nil
-	}
-
-	target, err := b.resolveTarget(targetInput{
-		ServerName: selector,
-		Transport:  transport,
-		Headers:    headers,
-	})
-	if err != nil {
-		return resolvedTarget{}, "", err
-	}
-	return target, selector, nil
+	_ = "STUB: not implemented"
+	return *new(resolvedTarget), "", nil
 }
 
 func (b *Broker) resolveCallSelector(
@@ -535,132 +386,23 @@ func (b *Broker) resolveCallSelector(
 	transport string,
 	headers map[string]string,
 ) (resolvedTarget, string, string, error) {
-	selector = strings.TrimSpace(selector)
-	if selector == "" {
-		return resolvedTarget{}, "", "", fmt.Errorf("selector is required")
-	}
-
-	if looksLikeHTTPSelector(selector) {
-		baseURL, toolName, err := splitHTTPToolSelector(selector)
-		if err != nil {
-			return resolvedTarget{}, "", "", err
-		}
-		target, targetErr := b.resolveTarget(targetInput{
-			URL:       baseURL,
-			Transport: transport,
-			Headers:   headers,
-		})
-		if targetErr != nil {
-			return resolvedTarget{}, "", "", targetErr
-		}
-		return target, baseURL, toolName, nil
-	}
-
-	serverName, toolName, err := b.splitNamedToolSelector(selector)
-	if err != nil {
-		return resolvedTarget{}, "", "", err
-	}
-	target, targetErr := b.resolveTarget(targetInput{
-		ServerName: serverName,
-		Transport:  transport,
-		Headers:    headers,
-	})
-	if targetErr != nil {
-		return resolvedTarget{}, "", "", targetErr
-	}
-	return target, serverName, toolName, nil
+	_ = "STUB: not implemented"
+	return *new(resolvedTarget), "", "", nil
 }
 
 func (b *Broker) splitNamedToolSelector(selector string) (string, string, error) {
-	selector = strings.TrimSpace(selector)
-	if selector == "" {
-		return "", "", fmt.Errorf("selector is required")
-	}
-
-	_, merged, err := b.resolveNamedServers()
-	if err != nil {
-		return "", "", err
-	}
-
-	bestName := ""
-	for name := range merged {
-		prefix := name + "."
-		if strings.HasPrefix(selector, prefix) && len(name) > len(bestName) {
-			bestName = name
-		}
-	}
-	if bestName != "" {
-		toolName := strings.TrimSpace(strings.TrimPrefix(selector, bestName+"."))
-		if toolName == "" {
-			return "", "", fmt.Errorf("call selector must be <server>.<tool>, <url>.<tool>, or <url>#tool=<tool>")
-		}
-		return bestName, toolName, nil
-	}
-
-	lastDot := strings.LastIndex(selector, ".")
-	if lastDot <= 0 || lastDot == len(selector)-1 {
-		return "", "", fmt.Errorf("call selector must be <server>.<tool>, <url>.<tool>, or <url>#tool=<tool>")
-	}
-
-	serverName := strings.TrimSpace(selector[:lastDot])
-	if _, ok := merged[serverName]; !ok {
-		return "", "", fmt.Errorf("unknown MCP server: %s", serverName)
-	}
-	return serverName, strings.TrimSpace(selector[lastDot+1:]), nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
 func splitHTTPToolSelector(selector string) (string, string, error) {
-	selector = strings.TrimSpace(selector)
-	if fragmentIndex := strings.Index(selector, "#tool="); fragmentIndex >= 0 {
-		baseURL := strings.TrimSpace(selector[:fragmentIndex])
-		toolName := strings.TrimSpace(selector[fragmentIndex+len("#tool="):])
-		if baseURL == "" || toolName == "" {
-			return "", "", fmt.Errorf("call selector must be <server>.<tool>, <url>.<tool>, or <url>#tool=<tool>")
-		}
-		return baseURL, toolName, nil
-	}
-
-	parsedURL, err := url.Parse(selector)
-	if err != nil {
-		return "", "", fmt.Errorf("invalid HTTP selector %q: %w", selector, err)
-	}
-	pathValue := parsedURL.EscapedPath()
-	lastSlash := strings.LastIndex(pathValue, "/")
-	segment := pathValue[lastSlash+1:]
-	firstDot := strings.Index(segment, ".")
-	if firstDot <= 0 || firstDot == len(segment)-1 {
-		return "", "", fmt.Errorf("call selector must be <server>.<tool>, <url>.<tool>, or <url>#tool=<tool>")
-	}
-
-	toolName := strings.TrimSpace(segment[firstDot+1:])
-	parsedURL.Path = strings.TrimSpace(pathValue[:lastSlash+1] + segment[:firstDot])
-	parsedURL.RawPath = parsedURL.Path
-	baseURL := strings.TrimSpace(parsedURL.String())
-	if baseURL == "" || toolName == "" {
-		return "", "", fmt.Errorf("call selector must be <server>.<tool>, <url>.<tool>, or <url>#tool=<tool>")
-	}
-	return baseURL, toolName, nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
 func shouldUseFragmentHTTPToolSelector(selector string) bool {
-	selector = strings.TrimSpace(selector)
-	parsedURL, err := url.Parse(selector)
-	if err != nil {
-		return true
-	}
-	if parsedURL.RawQuery != "" || parsedURL.Fragment != "" {
-		return true
-	}
-	pathValue := parsedURL.EscapedPath()
-	if pathValue == "" {
-		return false
-	}
-	lastSlash := strings.LastIndex(pathValue, "/")
-	segment := pathValue[lastSlash+1:]
-	return strings.Contains(segment, ".")
+	_ = "STUB: not implemented"
+	return false
 }
 
-func looksLikeHTTPSelector(selector string) bool {
-	selector = strings.ToLower(strings.TrimSpace(selector))
-	return strings.HasPrefix(selector, "http://") || strings.HasPrefix(selector, "https://")
-}
+func looksLikeHTTPSelector(selector string) bool { _ = "STUB: not implemented"; return false }

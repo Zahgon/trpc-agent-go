@@ -12,11 +12,7 @@ package openai
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"strings"
-	"time"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -185,308 +181,80 @@ type converter struct {
 }
 
 // newConverter creates a new converter.
-func newConverter(modelName string) *converter {
-	return &converter{
-		modelName: modelName,
-	}
-}
+func newConverter(modelName string) *converter { _ = "STUB: not implemented"; return nil }
 
 // convertRequest converts an OpenAI request to trpc-agent-go messages.
 func (c *converter) convertRequest(_ context.Context, req *openAIRequest) ([]model.Message, error) {
-	if req == nil {
-		return nil, fmt.Errorf("request is nil")
-	}
-	if len(req.Messages) == 0 {
-		return nil, fmt.Errorf("messages cannot be empty")
-	}
-	messages := make([]model.Message, 0, len(req.Messages))
-	for _, msg := range req.Messages {
-		converted, err := c.convertMessage(msg)
-		if err != nil {
-			return nil, fmt.Errorf("convert message: %w", err)
-		}
-		messages = append(messages, *converted)
-	}
-	return messages, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // convertMessage converts a single OpenAI message to model.Message.
 func (c *converter) convertMessage(msg openAIMessage) (*model.Message, error) {
-	role, err := c.convertRole(msg.Role)
-	if err != nil {
-		return nil, err
-	}
-	result := &model.Message{
-		Role: role,
-	}
-	// Handle content.
-	if msg.Content != nil {
-		switch v := msg.Content.(type) {
-		case string:
-			result.Content = v
-		case []any:
-			// Multimodal content.
-			for _, part := range v {
-				// Marshal part to JSON bytes, then unmarshal to contentPart struct.
-				partBytes, err := json.Marshal(part)
-				if err != nil {
-					continue
-				}
-				var cp contentPart
-				if err := json.Unmarshal(partBytes, &cp); err != nil {
-					continue
-				}
-				switch cp.Type {
-				case contentTypeText:
-					if cp.Text != "" {
-						if result.Content == "" {
-							result.Content = cp.Text
-						} else {
-							result.Content += "\n" + cp.Text
-						}
-					}
-				case contentTypeImageURL:
-					if cp.ImageURL.URL != "" {
-						result.AddImageURL(cp.ImageURL.URL, cp.ImageURL.Detail)
-					}
-				}
-			}
-		}
-	}
-	// Handle tool calls.
-	if len(msg.ToolCalls) > 0 {
-		result.ToolCalls = make([]model.ToolCall, 0, len(msg.ToolCalls))
-		for _, tc := range msg.ToolCalls {
-			argsBytes := []byte(tc.Function.Arguments)
-			result.ToolCalls = append(result.ToolCalls, model.ToolCall{
-				ID:   tc.ID,
-				Type: tc.Type,
-				Function: model.FunctionDefinitionParam{
-					Name:      tc.Function.Name,
-					Arguments: argsBytes,
-				},
-			})
-		}
-	}
-	// Handle tool response.
-	if msg.ToolCallID != "" {
-		result.ToolID = msg.ToolCallID
-		result.ToolName = msg.Name
-		if content, ok := msg.Content.(string); ok {
-			result.Content = content
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Handle content.
+
+// Multimodal content.
+
+// Marshal part to JSON bytes, then unmarshal to contentPart struct.
+
+// Handle tool calls.
+
+// Handle tool response.
 
 // convertRole converts OpenAI role to model.Role.
 func (c *converter) convertRole(role string) (model.Role, error) {
-	switch role {
-	case roleSystem:
-		return model.RoleSystem, nil
-	case roleUser:
-		return model.RoleUser, nil
-	case roleAssistant:
-		return model.RoleAssistant, nil
-	case roleTool:
-		return model.RoleTool, nil
-	default:
-		return "", fmt.Errorf("invalid role: %s", role)
-	}
+	_ = "STUB: not implemented"
+	return *new(model.Role), nil
 }
 
 // convertToResponse converts an event to a non-streaming response.
 func (c *converter) convertToResponse(evt *event.Event) (*openAIResponse, error) {
-	if len(evt.Response.Choices) == 0 {
-		return nil, nil
-	}
-	choice := evt.Response.Choices[0]
-	msg, err := c.convertModelMessageToOpenAI(choice.Message)
-	if err != nil {
-		return nil, err
-	}
-	finishReason := finishReasonStop
-	if choice.FinishReason != nil {
-		finishReason = *choice.FinishReason
-	}
-	response := &openAIResponse{
-		ID:      evt.ID,
-		Object:  objectChatCompletion,
-		Created: evt.Response.Created,
-		Model:   c.modelName,
-		Choices: []openAIChoice{
-			{
-				Index:        0,
-				Message:      *msg,
-				FinishReason: &finishReason,
-			},
-		},
-	}
-	if evt.Usage != nil {
-		response.Usage = &openAIUsage{
-			PromptTokens:     evt.Usage.PromptTokens,
-			CompletionTokens: evt.Usage.CompletionTokens,
-			TotalTokens:      evt.Usage.TotalTokens,
-		}
-	}
-	return response, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // convertToChunk converts an event to a streaming chunk.
 func (c *converter) convertToChunk(evt *event.Event) (*openAIChunk, error) {
-	if len(evt.Response.Choices) == 0 {
-		return nil, nil
-	}
-	choice := evt.Response.Choices[0]
-	delta, err := c.convertModelMessageToOpenAI(choice.Delta)
-	if err != nil {
-		return nil, err
-	}
-	// Skip empty deltas unless there's a finish reason.
-	contentStr := ""
-	if delta.Content != nil {
-		if str, ok := delta.Content.(string); ok {
-			contentStr = str
-		}
-	}
-	if contentStr == "" && len(delta.ToolCalls) == 0 && delta.Role == "" {
-		if choice.FinishReason == nil {
-			return nil, nil
-		}
-	}
-	var finishReason *string
-	if choice.FinishReason != nil {
-		finishReason = choice.FinishReason
-	}
-	chunk := &openAIChunk{
-		ID:      evt.ID,
-		Object:  objectChatCompletionChunk,
-		Created: evt.Response.Created,
-		Model:   c.modelName,
-		Choices: []openAIChunkChoice{
-			{
-				Index:        0,
-				Delta:        *delta,
-				FinishReason: finishReason,
-			},
-		},
-	}
-	return chunk, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip empty deltas unless there's a finish reason.
 
 // convertModelMessageToOpenAI converts model.Message to openAIMessage.
 func (c *converter) convertModelMessageToOpenAI(msg model.Message) (*openAIMessage, error) {
-	result := &openAIMessage{
-		Role: string(msg.Role),
-	}
-	if msg.Content != "" {
-		result.Content = msg.Content
-	}
-	if len(msg.ToolCalls) > 0 {
-		result.ToolCalls = make([]openAIToolCall, 0, len(msg.ToolCalls))
-		for _, tc := range msg.ToolCalls {
-			result.ToolCalls = append(result.ToolCalls, openAIToolCall{
-				ID:   tc.ID,
-				Type: tc.Type,
-				Function: openAIToolCallFunction{
-					Name:      tc.Function.Name,
-					Arguments: string(tc.Function.Arguments),
-				},
-			})
-		}
-	}
-	if msg.ToolID != "" {
-		result.ToolCallID = msg.ToolID
-		result.Name = msg.ToolName
-		result.Role = roleTool
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // aggregateStreamingEvents aggregates streaming events into a final response.
 func (c *converter) aggregateStreamingEvents(events []*event.Event) (*openAIResponse, error) {
-	if len(events) == 0 {
-		return nil, fmt.Errorf("no events to aggregate")
-	}
-	// Find the final event with usage.
-	var finalEvent *event.Event
-	var allContent strings.Builder
-	var toolCalls []model.ToolCall
-	for _, evt := range events {
-		if evt.Response != nil && evt.Usage != nil {
-			finalEvent = evt
-		}
-		if evt.Response != nil && len(evt.Response.Choices) > 0 {
-			choice := evt.Response.Choices[0]
-			// Handle streaming delta content.
-			if choice.Delta.Content != "" {
-				allContent.WriteString(choice.Delta.Content)
-			}
-			// Handle non-streaming message content (for compatibility).
-			if choice.Message.Content != "" && allContent.Len() == 0 {
-				allContent.WriteString(choice.Message.Content)
-			}
-			// Handle streaming delta tool calls.
-			if len(choice.Delta.ToolCalls) > 0 {
-				toolCalls = append(toolCalls, choice.Delta.ToolCalls...)
-			}
-			// Handle non-streaming message tool calls (for compatibility).
-			if len(choice.Message.ToolCalls) > 0 && len(toolCalls) == 0 {
-				toolCalls = append(toolCalls, choice.Message.ToolCalls...)
-			}
-		}
-	}
-	if finalEvent == nil {
-		// Use the last event if no event with usage found.
-		finalEvent = events[len(events)-1]
-	}
-	// Build the aggregated message.
-	msg := model.Message{
-		Role:      model.RoleAssistant,
-		Content:   allContent.String(),
-		ToolCalls: toolCalls,
-	}
-	openAIMsg, err := c.convertModelMessageToOpenAI(msg)
-	if err != nil {
-		return nil, err
-	}
-	// Get finish_reason from framework first, then fallback to defaults.
-	finishReason := finishReasonStop
-	if len(toolCalls) > 0 {
-		finishReason = finishReasonToolCalls
-	}
-	if finalEvent.Response != nil && len(finalEvent.Response.Choices) > 0 {
-		if finalEvent.Response.Choices[0].FinishReason != nil {
-			finishReason = *finalEvent.Response.Choices[0].FinishReason
-		}
-	}
-	response := &openAIResponse{
-		ID:      finalEvent.ID,
-		Object:  objectChatCompletion,
-		Created: time.Now().Unix(),
-		Model:   c.modelName,
-		Choices: []openAIChoice{
-			{
-				Index:        0,
-				Message:      *openAIMsg,
-				FinishReason: &finishReason,
-			},
-		},
-	}
-	if finalEvent.Usage != nil {
-		response.Usage = &openAIUsage{
-			PromptTokens:     finalEvent.Usage.PromptTokens,
-			CompletionTokens: finalEvent.Usage.CompletionTokens,
-			TotalTokens:      finalEvent.Usage.TotalTokens,
-		}
-	}
-	return response, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// Find the final event with usage.
+
+// Handle streaming delta content.
+
+// Handle non-streaming message content (for compatibility).
+
+// Handle streaming delta tool calls.
+
+// Handle non-streaming message tool calls (for compatibility).
+
+// Use the last event if no event with usage found.
+
+// Build the aggregated message.
+
+// Get finish_reason from framework first, then fallback to defaults.
+
 // generateResponseID generates a unique response ID.
-func generateResponseID() string {
-	return "chatcmpl-" + uuid.New().String()
-}
+func generateResponseID() string { _ = "STUB: not implemented"; return "" }
 
 // openAIError represents an OpenAI error response.
 type openAIError struct {
@@ -500,14 +268,4 @@ type openAIErrorDetail struct {
 }
 
 // formatError formats an error as OpenAI error response.
-func formatError(err error, errorType string) *openAIError {
-	if errorType == "" {
-		errorType = errorTypeInvalidRequest
-	}
-	return &openAIError{
-		Error: openAIErrorDetail{
-			Message: err.Error(),
-			Type:    errorType,
-		},
-	}
-}
+func formatError(err error, errorType string) *openAIError { _ = "STUB: not implemented"; return nil }

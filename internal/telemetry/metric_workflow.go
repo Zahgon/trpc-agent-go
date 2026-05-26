@@ -17,7 +17,6 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/metric/histogram"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/semconv/metrics"
-	semconvtrace "trpc.group/trpc-go/trpc-agent-go/telemetry/semconv/trace"
 )
 
 var (
@@ -43,35 +42,12 @@ type WorkflowAttributes struct {
 }
 
 func (a WorkflowAttributes) toAttributes() []attribute.KeyValue {
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationWorkflow),
-		attribute.String(semconvtrace.KeyGenAISystem, a.System),
-		attribute.String(semconvtrace.KeyGenAIAppName, a.AppName),
-		attribute.String(semconvtrace.KeyGenAIUserID, a.UserID),
-		attribute.String(semconvtrace.KeyGenAIAgentID, a.AgentID),
-		attribute.String(semconvtrace.KeyGenAIWorkflowID, a.WorkflowID),
-		attribute.String(semconvtrace.KeyGenAIWorkflowName, a.WorkflowName),
-		attribute.String(semconvtrace.KeyGenAIWorkflowType, a.WorkflowType),
-	}
-	if a.AgentName != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIAgentName, a.AgentName))
-	}
-	if a.ErrorType != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyErrorType, a.ErrorType))
-	} else if a.Error != nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyErrorType, ToErrorType(a.Error, semconvtrace.ValueDefaultErrorType)))
-	}
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ReportWorkflowMetrics reports the workflow execution metrics.
 func ReportWorkflowMetrics(ctx context.Context, attrs WorkflowAttributes, duration time.Duration) {
-	if WorkflowMetricGenAIClientOperationDuration == nil {
-		return
-	}
-	WorkflowMetricGenAIClientOperationDuration.Record(
-		ctx,
-		duration.Seconds(),
-		metric.WithAttributes(attrs.toAttributes()...),
-	)
+	_ = "STUB: not implemented"
+	return
 }

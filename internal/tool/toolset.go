@@ -11,7 +11,6 @@ package tool
 
 import (
 	"context"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -24,46 +23,21 @@ type NamedToolSet struct {
 
 // NewNamedToolSet creates a new named toolset wrapper.
 // If the toolSet is already a NamedToolSet, it returns itself to avoid double-wrapping.
-func NewNamedToolSet(toolSet tool.ToolSet) *NamedToolSet {
-	if t, ok := toolSet.(*NamedToolSet); ok {
-		return t
-	}
-	return &NamedToolSet{
-		toolSet: toolSet,
-	}
-}
+func NewNamedToolSet(toolSet tool.ToolSet) *NamedToolSet { _ = "STUB: not implemented"; return nil }
 
 // Tools returns tools with names prefixed by the toolset name to avoid conflicts.
 func (s *NamedToolSet) Tools(ctx context.Context) []tool.Tool {
-	tools := s.toolSet.Tools(ctx)
-
-	toolSetName := s.toolSet.Name()
-	if toolSetName == "" {
-		return tools
-	}
-
-	// Create tools with prefixed names to avoid conflicts
-	prefixedTools := make([]tool.Tool, 0, len(tools))
-	for _, t := range tools {
-		prefixedTool := &NamedTool{
-			original: t,
-			name:     toolSetName,
-		}
-		prefixedTools = append(prefixedTools, prefixedTool)
-	}
-
-	return prefixedTools
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Create tools with prefixed names to avoid conflicts
 
 // Close implements the ToolSet interface.
-func (s *NamedToolSet) Close() error {
-	return s.toolSet.Close()
-}
+func (s *NamedToolSet) Close() error { _ = "STUB: not implemented"; return nil }
 
 // Name implements the ToolSet interface.
-func (s *NamedToolSet) Name() string {
-	return s.toolSet.Name()
-}
+func (s *NamedToolSet) Name() string { _ = "STUB: not implemented"; return "" }
 
 // NamedTool wraps an original tool with a prefixed name to avoid conflicts.
 type NamedTool struct {
@@ -72,53 +46,34 @@ type NamedTool struct {
 }
 
 // Declaration returns the tool declaration with a prefixed name.
-func (t *NamedTool) Declaration() *tool.Declaration {
-	decl := t.original.Declaration()
-	name := decl.Name
-	if t.name != "" {
-		name = t.name + "_" + name
-	}
-
-	return &tool.Declaration{
-		Name:         name,
-		Description:  decl.Description,
-		InputSchema:  decl.InputSchema,
-		OutputSchema: decl.OutputSchema,
-	}
-}
+func (t *NamedTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // Original returns the underlying Tool instance wrapped by the NamedTool.
 func (t *NamedTool) Original() tool.Tool {
-	return t.original
+	_ = "STUB: not implemented"
+
+	// ToolSetName returns the source ToolSet name for runtime policy checks.
+	return *new(tool.Tool)
 }
 
-// ToolSetName returns the source ToolSet name for runtime policy checks.
 func (t *NamedTool) ToolSetName() string {
-	return t.name
+	_ = "STUB: not implemented"
+
+	// Call delegates to the original tool's Call method.
+	return ""
 }
 
-// Call delegates to the original tool's Call method.
 func (t *NamedTool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	if callable, ok := t.original.(tool.CallableTool); ok {
-		return callable.Call(ctx, jsonArgs)
-	}
-	return nil, fmt.Errorf("tool is not callable")
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 // StreamableCall delegates to the original tool's StreamableCall method.
 func (t *NamedTool) StreamableCall(ctx context.Context, jsonArgs []byte) (*tool.StreamReader, error) {
-	if streamable, ok := t.original.(tool.StreamableTool); ok {
-		return streamable.StreamableCall(ctx, jsonArgs)
-	}
-	return nil, fmt.Errorf("tool is not streamable")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // SkipSummarization delegates to the original tool when it implements
 // a SkipSummarization() bool preference; otherwise returns false.
-func (t *NamedTool) SkipSummarization() bool {
-	type skipper interface{ SkipSummarization() bool }
-	if s, ok := t.original.(skipper); ok {
-		return s.SkipSummarization()
-	}
-	return false
-}
+func (t *NamedTool) SkipSummarization() bool { _ = "STUB: not implemented"; return false }

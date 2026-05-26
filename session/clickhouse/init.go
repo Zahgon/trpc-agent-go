@@ -11,11 +11,8 @@ package clickhouse
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // SQL templates for table creation (ClickHouse syntax)
@@ -116,20 +113,6 @@ var tableDefs = []tableDefinition{
 }
 
 // initDB initializes the database schema.
-func (s *Service) initDB(ctx context.Context) error {
-	log.Info("initializing clickhouse session database schema...")
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Create tables
-	for _, tableDef := range tableDefs {
-		fullTableName := sqldb.BuildTableName(s.opts.tablePrefix, tableDef.name)
-		sql := strings.ReplaceAll(tableDef.template, "{{TABLE_NAME}}", fullTableName)
-
-		if err := s.chClient.Exec(ctx, sql); err != nil {
-			return fmt.Errorf("create table %s failed: %w", fullTableName, err)
-		}
-		log.Infof("created table: %s", fullTableName)
-	}
-
-	log.Info("clickhouse session database schema initialized successfully")
-	return nil
-}
+// Create tables

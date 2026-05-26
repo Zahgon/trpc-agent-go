@@ -10,7 +10,6 @@
 package mcp
 
 import (
-	"fmt"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -114,17 +113,15 @@ type ToolSetOption func(*toolSetConfig)
 //	// Exclude specific tools
 //	mcp.WithToolFilterFunc(tool.NewExcludeToolNamesFilter("deprecated_tool"))
 func WithToolFilterFunc(filterFunc tool.FilterFunc) ToolSetOption {
-	return func(c *toolSetConfig) {
-		c.toolFilterFunc = filterFunc
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolSetOption)
 }
 
 // WithMCPOptions sets additional MCP client options.
 // This can be used to pass options to the underlying MCP client.
 func WithMCPOptions(options ...mcp.ClientOption) ToolSetOption {
-	return func(c *toolSetConfig) {
-		c.mcpOptions = append(c.mcpOptions, options...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolSetOption)
 }
 
 // WithSessionReconnect enables automatic session reconnection with specified max attempts.
@@ -132,46 +129,27 @@ func WithMCPOptions(options ...mcp.ClientOption) ToolSetOption {
 // When enabled, the session manager will automatically attempt to recreate
 // the MCP session when it receives session-expired errors from the transport layer.
 func WithSessionReconnect(maxAttempts int) ToolSetOption {
-	return func(c *toolSetConfig) {
-		// Clamp to valid range
-		if maxAttempts < minReconnectAttempts {
-			maxAttempts = minReconnectAttempts
-		}
-		if maxAttempts > maxReconnectAttemptsLimit {
-			maxAttempts = maxReconnectAttemptsLimit
-		}
-		c.sessionReconnectConfig = &SessionReconnectConfig{
-			EnableAutoReconnect:  true,
-			MaxReconnectAttempts: maxAttempts,
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolSetOption)
 }
+
+// Clamp to valid range
 
 // WithSessionReconnectConfig enables automatic session reconnection with custom configuration.
 // This provides full control over reconnection behavior for advanced use cases.
 func WithSessionReconnectConfig(config SessionReconnectConfig) ToolSetOption {
-	return func(c *toolSetConfig) {
-		// Always enable auto reconnect when using this option
-		config.EnableAutoReconnect = true
-		// Clamp to valid range
-		if config.MaxReconnectAttempts < minReconnectAttempts {
-			config.MaxReconnectAttempts = minReconnectAttempts
-		}
-		if config.MaxReconnectAttempts > maxReconnectAttemptsLimit {
-			config.MaxReconnectAttempts = maxReconnectAttemptsLimit
-		}
-		c.sessionReconnectConfig = &config
-	}
+	_ = "STUB: not implemented"
+	return *new(ToolSetOption)
 }
+
+// Always enable auto reconnect when using this option
+
+// Clamp to valid range
 
 // WithName sets the name of the MCP toolset for identification and conflict resolution.
 // This name will be used when implementing tool name prefixing to avoid conflicts
 // between tools from different toolsets.
-func WithName(name string) ToolSetOption {
-	return func(c *toolSetConfig) {
-		c.name = name
-	}
-}
+func WithName(name string) ToolSetOption { _ = "STUB: not implemented"; return *new(ToolSetOption) }
 
 // Per-request dynamic HTTP headers (e.g. user-specific Authorization tokens)
 // are supported directly through the upstream MCP client. Pass an
@@ -201,14 +179,6 @@ func WithName(name string) ToolSetOption {
 
 // validateTransport validates the transport string and returns the internal transport type.
 func validateTransport(t string) (transport, error) {
-	switch t {
-	case "stdio":
-		return transportStdio, nil
-	case "sse":
-		return transportSSE, nil
-	case "streamable", "streamable_http":
-		return transportStreamable, nil
-	default:
-		return "", fmt.Errorf("unsupported transport: %s, supported: stdio, sse, streamable", t)
-	}
+	_ = "STUB: not implemented"
+	return *new(transport), nil
 }

@@ -11,33 +11,19 @@ package tool
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 // InternalLookupName is the graph-executed internal lookup tool name.
 const InternalLookupName = "internal_lookup"
 
-func newInternalLookupTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		InternalLookup,
-		function.WithName(InternalLookupName),
-		function.WithDescription("Look up information from an internal system."),
-	)
-}
+func newInternalLookupTool() agenttool.Tool { _ = "STUB: not implemented"; return *new(agenttool.Tool) }
 
 // InternalLookup returns deterministic internal context for the requested query.
 func InternalLookup(_ context.Context, args InternalLookupArgs) (InternalLookupResult, error) {
-	query := strings.TrimSpace(args.Query)
-	if query == "" {
-		query = "default"
-	}
-	return InternalLookupResult{
-		Result: fmt.Sprintf("internal lookup result for %s", query),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(InternalLookupResult), nil
 }
 
 // InternalLookupArgs is the argument schema for internal_lookup.

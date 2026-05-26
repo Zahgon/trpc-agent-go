@@ -17,18 +17,6 @@ type options struct {
 type Option func(*options)
 
 // WithStrict enables strict structured-output-compatible schema generation.
-func WithStrict() Option {
-	return func(o *options) {
-		o.strict = true
-	}
-}
+func WithStrict() Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		if o != nil {
-			o(opts)
-		}
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }

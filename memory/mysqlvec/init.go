@@ -11,10 +11,6 @@ package mysqlvec
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // SQL templates for table creation (MySQL syntax).
@@ -71,58 +67,18 @@ const (
 
 // detectVectorSupport checks if the MySQL server supports native VECTOR type (9.0+).
 func (s *Service) detectVectorSupport(ctx context.Context) bool {
+	_ = "STUB: not implemented"
 	// Try creating a temporary probe to check VECTOR support.
-	var result int
-	err := s.db.QueryRow(ctx, []any{&result},
-		"SELECT 1 FROM (SELECT CAST('[1.0]' AS VECTOR) AS v) t LIMIT 1")
-	return err == nil
+	return false
 }
 
 // initDB initializes the database schema.
 // Note: s.supportsVector must be set before calling this method.
-func (s *Service) initDB(ctx context.Context) error {
-	log.InfoContext(ctx, "initializing mysqlvec memory database schema...")
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	if s.supportsVector {
-		log.InfoContext(ctx, "mysqlvec: MySQL VECTOR type detected")
-	} else {
-		log.InfoContext(ctx, "mysqlvec: MySQL VECTOR type not available, using BLOB fallback")
-	}
-
-	var createSQL string
-	if s.supportsVector {
-		createSQL = fmt.Sprintf(sqlCreateTableWithVector, s.tableName, s.opts.indexDimension)
-	} else {
-		createSQL = fmt.Sprintf(sqlCreateTableWithBlob, s.tableName)
-	}
-
-	if _, err := s.db.Exec(ctx, createSQL); err != nil {
-		return fmt.Errorf("create table %s failed: %w", s.tableName, err)
-	}
-	log.InfofContext(ctx, "created table: %s", s.tableName)
-
-	// Add episodic columns for migration from older schemas.
-	// MySQL does not support ADD COLUMN IF NOT EXISTS, so we use
-	// plain ADD COLUMN and silently ignore error 1060 (Duplicate column name).
-	episodicColumns := []string{
-		fmt.Sprintf("ALTER TABLE %s ADD COLUMN memory_kind VARCHAR(32) NOT NULL DEFAULT 'fact'", s.tableName),
-		fmt.Sprintf("ALTER TABLE %s ADD COLUMN event_time TIMESTAMP(6) NULL", s.tableName),
-		fmt.Sprintf("ALTER TABLE %s ADD COLUMN participants JSON", s.tableName),
-		fmt.Sprintf("ALTER TABLE %s ADD COLUMN location VARCHAR(1024) NULL", s.tableName),
-	}
-	for _, ddl := range episodicColumns {
-		if _, err := s.db.Exec(ctx, ddl); err != nil {
-			if !isDuplicateColumnError(err) {
-				return fmt.Errorf("add episodic column on table %s failed: %w", s.tableName, err)
-			}
-		}
-	}
-
-	log.InfoContext(ctx, "mysqlvec memory database schema initialized successfully")
-	return nil
-}
+// Add episodic columns for migration from older schemas.
+// MySQL does not support ADD COLUMN IF NOT EXISTS, so we use
+// plain ADD COLUMN and silently ignore error 1060 (Duplicate column name).
 
 // isDuplicateColumnError checks for MySQL error 1060 (Duplicate column name).
-func isDuplicateColumnError(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "1060")
-}
+func isDuplicateColumnError(err error) bool { _ = "STUB: not implemented"; return false }

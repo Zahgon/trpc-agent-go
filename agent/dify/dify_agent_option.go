@@ -23,11 +23,7 @@ type StreamingRespHandler func(resp *model.Response) (string, error)
 type Option func(*DifyAgent)
 
 // WithBaseUrl sets the base URL of the Dify service
-func WithBaseUrl(baseUrl string) Option {
-	return func(a *DifyAgent) {
-		a.baseUrl = baseUrl
-	}
-}
+func WithBaseUrl(baseUrl string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMode sets the Dify service mode (chatflow or workflow).
 // Default is ModeChatflow if not specified.
@@ -36,85 +32,56 @@ func WithBaseUrl(baseUrl string) Option {
 //
 //	WithMode(dify.ModeWorkflow)  // Use workflow mode
 //	WithMode(dify.ModeChatflow)  // Use chatflow mode (default)
-func WithMode(mode DifyMode) Option {
-	return func(a *DifyAgent) {
-		a.mode = mode
-	}
-}
+func WithMode(mode DifyMode) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithName sets the name of agent
-func WithName(name string) Option {
-	return func(a *DifyAgent) {
-		a.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDescription sets the agent description
-func WithDescription(description string) Option {
-	return func(a *DifyAgent) {
-		a.description = description
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCustomEventConverter adds a custom A2A event converter to the DifyAgent.
 func WithCustomEventConverter(converter DifyEventConverter) Option {
-	return func(a *DifyAgent) {
-		a.eventConverter = converter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCustomRequestConverter adds a custom A2A message converter to the DifyAgent.
 // This converter will be used to convert invocations to A2A protocol messages.
 func WithCustomRequestConverter(converter DifyRequestConverter) Option {
-	return func(a *DifyAgent) {
-		a.requestConverter = converter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCustomWorkflowConverter adds a custom workflow request converter to the DifyAgent.
 // This converter will be used when mode is set to ModeWorkflow.
 func WithCustomWorkflowConverter(converter DifyWorkflowRequestConverter) Option {
-	return func(a *DifyAgent) {
-		a.workflowConverter = converter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithStreamingChannelBufSize set the buf size of streaming protocol
-func WithStreamingChannelBufSize(size int) Option {
-	return func(a *DifyAgent) {
-		a.streamingBufSize = size
-	}
-}
+func WithStreamingChannelBufSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStreamingRespHandler sets a handler function to process streaming responses.
 func WithStreamingRespHandler(handler StreamingRespHandler) Option {
-	return func(a *DifyAgent) {
-		a.streamingRespHandler = handler
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTransferStateKey sets the keys in session state to transfer to the A2A agent message by metadata
-func WithTransferStateKey(key ...string) Option {
-	return func(a *DifyAgent) {
-		a.transferStateKey = append(a.transferStateKey, key...)
-	}
-}
+func WithTransferStateKey(key ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableStreaming explicitly controls whether to use streaming protocol.
 // If not set (nil), the agent will use the streaming capability from the agent card.
 // This option overrides the agent card's capability setting.
-func WithEnableStreaming(enable bool) Option {
-	return func(a *DifyAgent) {
-		a.enableStreaming = &enable
-	}
-}
+func WithEnableStreaming(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAutoGenConversationName sets whether to auto-generate conversation names in Dify.
 // This option is only applicable for chatflow mode.
 func WithAutoGenConversationName(enable bool) Option {
-	return func(a *DifyAgent) {
-		a.autoGenConversationName = &enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGetDifyClientFunc sets a custom function to create Dify client for each invocation.
@@ -143,7 +110,6 @@ func WithAutoGenConversationName(enable bool) Option {
 //	    }), nil
 //	})
 func WithGetDifyClientFunc(fn func(*agent.Invocation) (*dify.Client, error)) Option {
-	return func(a *DifyAgent) {
-		a.getDifyClientFunc = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

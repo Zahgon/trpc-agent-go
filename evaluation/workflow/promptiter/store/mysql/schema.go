@@ -10,10 +10,7 @@ package mysql
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/internal/mysqldb"
 	storage "trpc.group/trpc-go/trpc-agent-go/storage/mysql"
 )
 
@@ -36,17 +33,6 @@ const (
 )
 
 func ensureSchema(ctx context.Context, db storage.Client, tableName string) error {
-	createTableQuery := strings.ReplaceAll(sqlCreateRunsTable, "{{TABLE_NAME}}", tableName)
-	if _, err := db.Exec(ctx, createTableQuery); err != nil {
-		return fmt.Errorf("create table %s failed: %w", tableName, err)
-	}
-	createIndexQuery := strings.ReplaceAll(sqlCreateAppRunUniqueIndex, "{{TABLE_NAME}}", tableName)
-	createIndexQuery = strings.ReplaceAll(createIndexQuery, "{{INDEX_NAME}}", appRunUniqueIndexName)
-	if _, err := db.Exec(ctx, createIndexQuery); err != nil {
-		if mysqldb.IsDuplicateKeyName(err) {
-			return nil
-		}
-		return fmt.Errorf("create index %s on table %s failed: %w", appRunUniqueIndexName, tableName, err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

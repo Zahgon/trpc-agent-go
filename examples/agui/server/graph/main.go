@@ -12,10 +12,7 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"fmt"
-	"maps"
 	"net/http"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
@@ -31,8 +28,6 @@ import (
 	aguiadapter "trpc.group/trpc-go/trpc-agent-go/server/agui/adapter"
 	aguirunner "trpc.group/trpc-go/trpc-agent-go/server/agui/runner"
 	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -114,102 +109,23 @@ func main() {
 }
 
 func buildGraph(modelInstance model.Model, generationConfig model.GenerationConfig) (*graph.Graph, error) {
-	schema := graph.MessagesStateSchema()
-	sg := graph.NewStateGraph(schema)
-
-	tools := map[string]tool.Tool{
-		"calculator": function.NewFunctionTool(
-			calculator,
-			function.WithName("calculator"),
-			function.WithDescription(`Perform basic arithmetic on two numbers.
-Supported operations: add, subtract, multiply, divide.
-Use this tool to compute totals and scaled values in everyday tasks.
-Return a JSON object with a numeric result.`),
-		),
-	}
-
-	sg.AddNode(nodePrepare, prepareNode)
-	sg.AddLLMNode(
-		nodeRecipeCalcLLM,
-		modelInstance,
-		`You are helping the user scale a cookie recipe.
-Read the user's message and use the calculator tool to compute, in order:
-1) scale = desired_servings / base_servings
-2) flour_g = base_flour_g * scale
-3) butter_g = base_butter_g * scale
-4) sugar_g = base_sugar_g * scale
-5) subtotal_g = flour_g + butter_g
-6) total_g = subtotal_g + sugar_g
-Rules:
-- Call the calculator tool for each step above, in order.
-- When calling the calculator tool, use operation values: add, subtract, multiply, divide.
-- Do not write the final recipe message in this node.`,
-		tools,
-		graph.WithGenerationConfig(generationConfig),
-	)
-	sg.AddToolsNode(nodeExecuteTools, tools)
-	sg.AddNode(nodeConfirm, confirmNode)
-	sg.AddLLMNode(
-		nodeDraftMessageLLM,
-		modelInstance,
-		`Write a final recipe message based on the conversation and calculator tool results.
-Include:
-- A scaled ingredient list.
-- A short shopping list.
-- Simple step-by-step instructions.`,
-		nil,
-		graph.WithGenerationConfig(generationConfig),
-	)
-	sg.AddAgentNode(nodePolishMessageAgent, graph.WithSubgraphInputFromLastResponse())
-	sg.AddNode(nodeFinish, finishNode)
-
-	sg.SetEntryPoint(nodePrepare)
-	sg.AddEdge(nodePrepare, nodeRecipeCalcLLM)
-	sg.AddToolsConditionalEdges(nodeRecipeCalcLLM, nodeExecuteTools, nodeConfirm)
-	sg.AddEdge(nodeExecuteTools, nodeConfirm)
-	sg.AddEdge(nodeConfirm, nodeDraftMessageLLM)
-	sg.AddEdge(nodeDraftMessageLLM, nodePolishMessageAgent)
-	sg.AddEdge(nodePolishMessageAgent, nodeFinish)
-	sg.SetFinishPoint(nodeFinish)
-
-	return sg.Compile()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func prepareNode(ctx context.Context, state graph.State) (any, error) {
-	metadata := map[string]any{
-		"example": "agui.server.graph",
-	}
-	return graph.State{graph.StateKeyMetadata: metadata}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func confirmNode(ctx context.Context, state graph.State) (any, error) {
-	message := "Confirm continuing after the recipe amounts are calculated."
-	v, err := graph.Interrupt(ctx, state, nodeConfirm, message)
-	if err != nil {
-		return nil, err
-	}
-	confirmed, ok := v.(bool)
-	if !ok {
-		return nil, fmt.Errorf("invalid confirmation value: %T", v)
-	}
-	if confirmed {
-		return nil, nil
-	}
-	return &graph.Command{
-		Update: graph.State{
-			graph.StateKeyMetadata: map[string]any{
-				"finish": "canceled",
-			},
-		},
-		GoTo: graph.End,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func finishNode(ctx context.Context, state graph.State) (any, error) {
-	metadata := map[string]any{
-		"finish": "ok",
-	}
-	return graph.State{graph.StateKeyMetadata: metadata}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 type calculatorArgs struct {
@@ -223,47 +139,15 @@ type calculatorResult struct {
 }
 
 func calculator(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	switch args.Operation {
-	case "add":
-		return calculatorResult{Result: args.A + args.B}, nil
-	case "subtract":
-		return calculatorResult{Result: args.A - args.B}, nil
-	case "multiply":
-		return calculatorResult{Result: args.A * args.B}, nil
-	case "divide":
-		if args.B == 0 {
-			return calculatorResult{}, errors.New("division by zero")
-		}
-		return calculatorResult{Result: args.A / args.B}, nil
-	default:
-		return calculatorResult{}, fmt.Errorf("unsupported operation: %s", args.Operation)
-	}
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 func resolveRuntimeState(_ context.Context, input *aguiadapter.RunAgentInput) (map[string]any, error) {
-	if input == nil {
-		return nil, nil
-	}
-	state, _ := input.State.(map[string]any)
-	if state == nil {
-		return nil, nil
-	}
-
-	runtimeState := make(map[string]any)
-	if lineageID, ok := state[graph.CfgKeyLineageID].(string); ok {
-		runtimeState[graph.CfgKeyLineageID] = lineageID
-	}
-	if checkpointID, ok := state[graph.CfgKeyCheckpointID].(string); ok {
-		runtimeState[graph.CfgKeyCheckpointID] = checkpointID
-	}
-	if resumeMap, ok := state[graph.CfgKeyResumeMap].(map[string]any); ok && len(resumeMap) > 0 {
-		copied := make(map[string]any)
-		maps.Copy(copied, resumeMap)
-		runtimeState[graph.StateKeyCommand] = &graph.Command{ResumeMap: copied}
-	}
-	return runtimeState, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func intPtr(i int) *int { return &i }
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 { return &f }
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

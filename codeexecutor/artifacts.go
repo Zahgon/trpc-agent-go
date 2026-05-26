@@ -11,8 +11,6 @@ package codeexecutor
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/artifact"
 )
@@ -22,24 +20,8 @@ import (
 func LoadArtifactHelper(
 	ctx context.Context, name string, version *int,
 ) ([]byte, string, int, error) {
-	svc, ok := ArtifactServiceFromContext(ctx)
-	if !ok || svc == nil {
-		return nil, "", 0, fmt.Errorf("artifact service not in context")
-	}
-	info := artifactSessionFromContext(ctx)
-	art, err := svc.LoadArtifact(ctx, info, name, version)
-	if err != nil {
-		return nil, "", 0, err
-	}
-	if art == nil {
-		return nil, "", 0, fmt.Errorf("artifact not found: %s", name)
-	}
-	actual := resolveArtifactVersion(ctx, svc, info, name, version)
-	mt := art.MimeType
-	if mt == "" {
-		mt = "application/octet-stream"
-	}
-	return art.Data, mt, actual, nil
+	_ = "STUB: not implemented"
+	return nil, "", 0, nil
 }
 
 func resolveArtifactVersion(
@@ -49,82 +31,26 @@ func resolveArtifactVersion(
 	name string,
 	version *int,
 ) int {
-	if version != nil {
-		return *version
-	}
-	vers, err := svc.ListVersions(ctx, info, name)
-	if err != nil || len(vers) == 0 {
-		return 0
-	}
-	max := vers[0]
-	for _, v := range vers[1:] {
-		if v > max {
-			max = v
-		}
-	}
-	return max
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // ParseArtifactRef splits "name@version" into name and optional version.
 func ParseArtifactRef(ref string) (string, *int, error) {
-	last := strings.LastIndex(ref, "@")
-	if last < 0 {
-		return ref, nil, nil
-	}
-	if last == len(ref)-1 {
-		return ref, nil, nil
-	}
-	suffix := ref[last+1:]
-	if !isDecimalVersion(suffix) {
-		return ref, nil, nil
-	}
-	name := ref[:last]
-	if strings.TrimSpace(name) == "" {
-		return "", nil, fmt.Errorf("invalid artifact ref: %s", ref)
-	}
-	version := parseDecimalVersion(suffix)
-	return name, &version, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }
 
-func isDecimalVersion(s string) bool {
-	if s == "" {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		if s[i] < '0' || s[i] > '9' {
-			return false
-		}
-	}
-	return true
-}
+func isDecimalVersion(s string) bool { _ = "STUB: not implemented"; return false }
 
-func parseDecimalVersion(s string) int {
-	var v int
-	for i := 0; i < len(s); i++ {
-		v = v*10 + int(s[i]-'0')
-	}
-	return v
-}
+func parseDecimalVersion(s string) int { _ = "STUB: not implemented"; return 0 }
 
 // SaveArtifactHelper saves a file as artifact using callback context.
 func SaveArtifactHelper(
 	ctx context.Context, filename string, data []byte, mime string,
 ) (int, error) {
-	svc, ok := ArtifactServiceFromContext(ctx)
-	if !ok || svc == nil {
-		return 0, fmt.Errorf("artifact service not in context")
-	}
-	info := artifactSessionFromContext(ctx)
-	ver, err := svc.SaveArtifact(ctx, info, filename,
-		&artifact.Artifact{
-			Data:     data,
-			MimeType: mime,
-			Name:     filename,
-		})
-	if err != nil {
-		return 0, err
-	}
-	return ver, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // WithArtifactService attaches artifact.Service to context so lower
@@ -138,7 +64,8 @@ type artifactSessionKey struct{}
 func WithArtifactService(
 	ctx context.Context, svc artifact.Service,
 ) context.Context {
-	return context.WithValue(ctx, artifactKey{}, svc)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // ArtifactServiceFromContext fetches the artifact.Service previously
@@ -147,30 +74,21 @@ func WithArtifactService(
 func ArtifactServiceFromContext(
 	ctx context.Context,
 ) (artifact.Service, bool) {
-	v := ctx.Value(artifactKey{})
-	if v == nil {
-		return nil, false
-	}
-	svc, ok := v.(artifact.Service)
-	return svc, ok
+	_ = "STUB: not implemented"
+	return *new(artifact.Service), false
 }
 
 // WithArtifactSession stores artifact session info in context.
 func WithArtifactSession(
 	ctx context.Context, info artifact.SessionInfo,
 ) context.Context {
-	return context.WithValue(ctx, artifactSessionKey{}, info)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 func artifactSessionFromContext(
 	ctx context.Context,
 ) artifact.SessionInfo {
-	v := ctx.Value(artifactSessionKey{})
-	if v == nil {
-		return artifact.SessionInfo{}
-	}
-	if info, ok := v.(artifact.SessionInfo); ok {
-		return info
-	}
-	return artifact.SessionInfo{}
+	_ = "STUB: not implemented"
+	return *new(artifact.SessionInfo)
 }

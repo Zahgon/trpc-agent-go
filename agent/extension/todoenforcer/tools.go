@@ -11,12 +11,7 @@ package todoenforcer
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -86,43 +81,15 @@ type declareBlockerTool struct {
 var _ tool.CallableTool = (*declareBlockerTool)(nil)
 
 func newDeclareBlockerTool(name, description string, e *Enforcer) *declareBlockerTool {
-	if name == "" {
-		name = DefaultDeclareBlockerToolName
-	}
-	if description == "" {
-		description = DefaultDeclareBlockerToolDescription
-	}
-	return &declareBlockerTool{name: name, description: description, enforcer: e}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Declaration exposes the tool to the model. The reason field is
 // declared `required` at the schema level so providers that
 // enforce JSON Schema's `required` (OpenAI, Gemini) reject
 // malformed calls before they even reach our Go code.
-func (t *declareBlockerTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:        t.name,
-		Description: t.description,
-		InputSchema: &tool.Schema{
-			Type: "object",
-			Properties: map[string]*tool.Schema{
-				"reason": {
-					Type:        "string",
-					Description: "Concrete, user-facing description of what input is missing and why you cannot continue.",
-				},
-			},
-			Required: []string{"reason"},
-		},
-		OutputSchema: &tool.Schema{
-			Type: "object",
-			Properties: map[string]*tool.Schema{
-				"ok":     {Type: "boolean"},
-				"reason": {Type: "string"},
-			},
-			Required: []string{"ok", "reason"},
-		},
-	}
-}
+func (t *declareBlockerTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // Call records the declaration and returns success. Two
 // behaviours worth pinning down because they are the heart of
@@ -150,32 +117,13 @@ func (t *declareBlockerTool) Declaration() *tool.Declaration {
 // normal tool error and the model gets a chance to retry with a
 // real reason.
 func (t *declareBlockerTool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	in, err := decodeDeclareBlockerInput(jsonArgs)
-	if err != nil {
-		return nil, err
-	}
-	reason := strings.TrimSpace(in.Reason)
-	if reason == "" {
-		return nil, errors.New("todo_declare_blocker: reason is required and must be non-empty")
-	}
-
-	inv, _ := agent.InvocationFromContext(ctx)
-	markBlockerDeclared(inv, reason)
-	if t.enforcer != nil {
-		t.enforcer.notifyBlockerDeclared(inv, reason)
-	}
-	return declareBlockerOutput{OK: true, Reason: reason}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 // decodeDeclareBlockerInput is split out so tests can reuse the
 // parser without going through Call.
 func decodeDeclareBlockerInput(raw []byte) (declareBlockerInput, error) {
-	var in declareBlockerInput
-	if len(raw) == 0 {
-		return in, errors.New("todo_declare_blocker: empty arguments")
-	}
-	if err := json.Unmarshal(raw, &in); err != nil {
-		return in, fmt.Errorf("todo_declare_blocker: decode arguments: %w", err)
-	}
-	return in, nil
+	_ = "STUB: not implemented"
+	return *new(declareBlockerInput), nil
 }

@@ -12,21 +12,10 @@ package agent
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"strings"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/graph"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/appender"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/flush"
-	"trpc.group/trpc-go/trpc-agent-go/internal/teamtrace"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -95,51 +84,29 @@ const (
 
 // WithResponseMode sets how AgentTool builds the tool result from child agent
 // events.
-func WithResponseMode(mode ResponseMode) Option {
-	return func(opts *agentToolOptions) {
-		opts.responseMode = mode
-	}
-}
+func WithResponseMode(mode ResponseMode) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipSummarization sets whether to skip summarization of the agent output.
-func WithSkipSummarization(skip bool) Option {
-	return func(opts *agentToolOptions) {
-		opts.skipSummarization = skip
-	}
-}
+func WithSkipSummarization(skip bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStreamInner controls whether the AgentTool should forward inner agent
 // streaming events up to the parent flow. When false, the flow will treat the
 // tool as callable-only (no inner streaming in the parent transcript).
-func WithStreamInner(enabled bool) Option {
-	return func(opts *agentToolOptions) {
-		opts.streamInner = enabled
-	}
-}
+func WithStreamInner(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInnerTextMode controls whether forwarded inner assistant text is
 // visible in the parent flow when StreamInner is enabled.
-func WithInnerTextMode(mode InnerTextMode) Option {
-	return func(opts *agentToolOptions) {
-		opts.innerTextMode = tool.NormalizeInnerTextMode(mode)
-	}
-}
+func WithInnerTextMode(mode InnerTextMode) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStructuredStreamErrors controls whether AgentTool opts into structured
 // error chunks when it is executed through the framework as a streamable tool.
 func WithStructuredStreamErrors(enabled bool) Option {
-	return func(opts *agentToolOptions) {
-		opts.structuredStreamErrors = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithDescription sets the description exposed by the agent tool declaration.
-func WithDescription(description string) Option {
-	return func(opts *agentToolOptions) {
-		copiedDescription := description
-		opts.description = &copiedDescription
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // HistoryScope controls whether and how AgentTool inherits parent history.
 //   - HistoryScopeIsolated: keep child events isolated; do not inherit parent history.
@@ -158,11 +125,7 @@ const (
 )
 
 // WithHistoryScope sets the history inheritance behavior for AgentTool.
-func WithHistoryScope(scope HistoryScope) Option {
-	return func(opts *agentToolOptions) {
-		opts.historyScope = scope
-	}
-}
+func WithHistoryScope(scope HistoryScope) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // NewTool creates a new Tool that wraps the given agent.
 //
@@ -174,78 +137,28 @@ func WithHistoryScope(scope HistoryScope) Option {
 //
 // Best practice: Use ^[a-zA-Z0-9_-]+ only to ensure maximum compatibility.
 func NewTool(agent agent.Agent, opts ...Option) *Tool {
+	_ = "STUB: not implemented"
 	// Default to allowing summarization so the parent agent can perform its
 	// normal post-tool reasoning unless opt-out is requested.
-	options := &agentToolOptions{
-		skipSummarization:      false,
-		structuredStreamErrors: false,
-		historyScope:           HistoryScopeIsolated,
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-	info := agent.Info()
-
-	// Use the agent's input schema if available, otherwise fall back to default.
-	var inputSchema *tool.Schema
-	if info.InputSchema != nil {
-		// Convert the agent's input schema to tool.Schema format.
-		inputSchema = convertMapToToolSchema(info.InputSchema)
-	} else {
-		// Generate default input schema for the agent tool.
-		inputSchema = &tool.Schema{
-			Type:        "object",
-			Description: "Input for the agent tool",
-			Properties: map[string]*tool.Schema{
-				"request": {
-					Type:        "string",
-					Description: "The request to send to the agent",
-				},
-			},
-			Required: []string{"request"},
-		}
-	}
-	var outputSchema *tool.Schema
-	if info.OutputSchema != nil {
-		outputSchema = convertMapToToolSchema(info.OutputSchema)
-	} else {
-		outputSchema = &tool.Schema{
-			Type:        "string",
-			Description: "The response from the agent",
-		}
-	}
-	description := info.Description
-	if options.description != nil {
-		description = *options.description
-	}
-	return &Tool{
-		agent:                  agent,
-		skipSummarization:      options.skipSummarization,
-		streamInner:            options.streamInner,
-		innerTextMode:          tool.NormalizeInnerTextMode(options.innerTextMode),
-		structuredStreamErrors: options.structuredStreamErrors,
-		historyScope:           options.historyScope,
-		responseMode:           normalizeResponseMode(options.responseMode),
-		name:                   info.Name,
-		description:            description,
-		inputSchema:            inputSchema,
-		outputSchema:           outputSchema,
-	}
+	return nil
 }
+
+// Use the agent's input schema if available, otherwise fall back to default.
+
+// Convert the agent's input schema to tool.Schema format.
+
+// Generate default input schema for the agent tool.
 
 // Call executes the agent tool with the provided JSON arguments.
 func (at *Tool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	message := model.NewUserMessage(string(jsonArgs))
-
-	// Prefer to reuse parent invocation + session so the child can see parent
-	// history according to the configured history scope.
-	if parentInv, ok := agent.InvocationFromContext(ctx); ok && parentInv != nil && parentInv.Session != nil {
-		return at.callWithParentInvocation(ctx, parentInv, message)
-	}
-
-	// Fallback: isolated in-memory run when parent invocation is not available.
-	return at.callWithIsolatedRunner(ctx, message)
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Prefer to reuse parent invocation + session so the child can see parent
+// history according to the configured history scope.
+
+// Fallback: isolated in-memory run when parent invocation is not available.
 
 // callWithParentInvocation executes the agent using parent invocation context.
 // This allows the child agent to inherit parent history based on the configured
@@ -255,38 +168,22 @@ func (at *Tool) callWithParentInvocation(
 	parentInv *agent.Invocation,
 	message model.Message,
 ) (string, error) {
+	_ = "STUB: not implemented"
 	// If the parent invocation does not have a session, fall back to isolated mode.
-	if parentInv.Session == nil {
-		return at.callWithIsolatedRunner(ctx, message)
-	}
-	// Flush all events emitted before this tool call so that the snapshot sees all events.
-	if err := flush.Invoke(ctx, parentInv); err != nil {
-		return "", fmt.Errorf("flush parent invocation session: %w", err)
-	}
-	// Build child filter key based on history scope.
-	childKey := at.buildChildFilterKey(parentInv)
-	subInv := parentInv.Clone(at.childInvocationOptions(parentInv, message, childKey)...)
-
-	// Run the agent and collect response.
-	subCtx := agent.NewInvocationContext(ctx, subInv)
-	evCh, err := agent.RunWithPlugins(subCtx, subInv, at.agent)
-	if err != nil {
-		return "", fmt.Errorf("failed to run agent: %w", err)
-	}
-	return at.collectResponse(subInv, at.wrapWithCallSemantics(subCtx, subInv, evCh))
+	return "", nil
 }
+
+// Flush all events emitted before this tool call so that the snapshot sees all events.
+
+// Build child filter key based on history scope.
+
+// Run the agent and collect response.
 
 func (at *Tool) surfaceRootNodeIDForParentInvocation(
 	parentInv *agent.Invocation,
 ) string {
-	if parentInv == nil || at.agent == nil {
-		return ""
-	}
-	rootNodeID := teamtrace.MemberTraceRootForInvocation(parentInv)
-	if rootNodeID == "" {
-		return ""
-	}
-	return teamtrace.MemberNodeID(rootNodeID, at.agent.Info().Name)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (at *Tool) childInvocationOptions(
@@ -294,48 +191,14 @@ func (at *Tool) childInvocationOptions(
 	message model.Message,
 	childKey string,
 ) []agent.InvocationOptions {
-	invocationOpts := []agent.InvocationOptions{
-		agent.WithInvocationAgent(at.agent),
-		agent.WithInvocationMessage(message),
-		agent.WithInvocationEventFilterKey(childKey),
-	}
-	if parentInv == nil {
-		return invocationOpts
-	}
-	if surfaceRootNodeID := at.surfaceRootNodeIDForParentInvocation(parentInv); surfaceRootNodeID != "" {
-		invocationOpts = append(
-			invocationOpts,
-			func(inv *agent.Invocation) {
-				agent.SetInvocationSurfaceRootNodeID(inv, surfaceRootNodeID)
-			},
-		)
-	}
-	return invocationOpts
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // wrapWithCompletion consumes events, notifies completion when required, and forwards to a new channel.
 func (at *Tool) wrapWithCompletion(ctx context.Context, inv *agent.Invocation, src <-chan *event.Event) <-chan *event.Event {
-	if inv == nil {
-		return src
-	}
-	out := make(chan *event.Event)
-	runCtx := agent.CloneContext(ctx)
-	go func(ctx context.Context) {
-		defer close(out)
-		for evt := range src {
-			if evt != nil {
-				ensureInvocationEventFields(inv, evt)
-				if evt.RequiresCompletion {
-					completionID := agent.GetAppendEventNoticeKey(evt.ID)
-					if err := inv.NotifyCompletion(ctx, completionID); err != nil {
-						log.Errorf("AgentTool: notify completion failed: %v", err)
-					}
-				}
-			}
-			out <- evt
-		}
-	}(runCtx)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // wrapWithCallSemantics consumes events from a child agent invocation that is
@@ -347,95 +210,13 @@ func (at *Tool) wrapWithCallSemantics(
 	inv *agent.Invocation,
 	src <-chan *event.Event,
 ) <-chan *event.Event {
-	if inv == nil || inv.Session == nil {
-		return at.wrapWithCompletion(ctx, inv, src)
-	}
-
-	at.ensureUserMessageForCall(ctx, inv)
-
-	out := make(chan *event.Event)
-	runCtx := agent.CloneContext(ctx)
-	go func(ctx context.Context) {
-		defer close(out)
-		var pendingVisibleCompletion *event.Event
-		for evt := range src {
-			if evt != nil {
-				ensureInvocationEventFields(inv, evt)
-				pendingVisibleCompletion = at.updatePendingVisibleCompletionForSession(
-					ctx,
-					inv,
-					pendingVisibleCompletion,
-					evt,
-				)
-				if shouldSuppressGraphExecutorBarrierEvent(inv, evt) {
-					at.completeSuppressedBarrierEvent(
-						ctx,
-						inv,
-						evt,
-						&pendingVisibleCompletion,
-					)
-					continue
-				}
-				if shouldMirrorEventToSession(evt) {
-					persistedEvent := persistableSessionEvent(evt)
-					if shouldDelayVisibleCompletionSessionMirror(persistedEvent) {
-						pendingVisibleCompletion = at.replacePendingVisibleCompletionForSession(
-							ctx,
-							inv,
-							pendingVisibleCompletion,
-							persistedEvent,
-						)
-					} else {
-						at.appendEvent(ctx, inv, persistedEvent)
-					}
-				}
-				if evt.RequiresCompletion {
-					if pendingVisibleCompletion != nil {
-						at.appendEvent(ctx, inv, pendingVisibleCompletion)
-						pendingVisibleCompletion = nil
-					}
-					completionID :=
-						agent.GetAppendEventNoticeKey(evt.ID)
-					if err := inv.NotifyCompletion(
-						ctx, completionID,
-					); err != nil {
-						log.Errorf(
-							"AgentTool: notify completion failed: %v",
-							err,
-						)
-					}
-				}
-			}
-			out <- evt
-		}
-		if pendingVisibleCompletion != nil {
-			at.appendEvent(ctx, inv, pendingVisibleCompletion)
-		}
-	}(runCtx)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ensureInvocationEventFields(inv *agent.Invocation, evt *event.Event) {
-	if inv == nil || evt == nil {
-		return
-	}
-	if evt.RequestID == "" {
-		evt.RequestID = inv.RunOptions.RequestID
-	}
-	if evt.InvocationID == "" {
-		evt.InvocationID = inv.InvocationID
-	}
-	if evt.ParentInvocationID == "" {
-		if parent := inv.GetParentInvocation(); parent != nil {
-			evt.ParentInvocationID = parent.InvocationID
-		}
-	}
-	if evt.Branch == "" {
-		evt.Branch = inv.Branch
-	}
-	if evt.FilterKey == "" {
-		evt.FilterKey = inv.GetEventFilterKey()
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) updatePendingVisibleCompletionForSession(
@@ -444,21 +225,8 @@ func (at *Tool) updatePendingVisibleCompletionForSession(
 	pending *event.Event,
 	evt *event.Event,
 ) *event.Event {
-	if pending == nil || evt == nil {
-		return pending
-	}
-	if shouldDelayVisibleCompletionSessionMirror(evt) {
-		return pending
-	}
-	if evt.Error != nil {
-		at.appendPendingVisibleCompletionState(ctx, inv, pending)
-		return nil
-	}
-	if content, ok := assistantMessageContent(evt); ok && content != "" {
-		at.appendPendingVisibleCompletionState(ctx, inv, pending)
-		return nil
-	}
-	return pending
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (at *Tool) appendPendingVisibleCompletionState(
@@ -466,11 +234,8 @@ func (at *Tool) appendPendingVisibleCompletionState(
 	inv *agent.Invocation,
 	pending *event.Event,
 ) {
-	stateOnly := visibleCompletionStateOnlySessionEvent(pending)
-	if stateOnly == nil {
-		return
-	}
-	at.appendEvent(ctx, inv, stateOnly)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) replacePendingVisibleCompletionForSession(
@@ -479,13 +244,8 @@ func (at *Tool) replacePendingVisibleCompletionForSession(
 	pending *event.Event,
 	next *event.Event,
 ) *event.Event {
-	if next == nil {
-		return pending
-	}
-	if pending != nil {
-		at.appendPendingVisibleCompletionState(ctx, inv, pending)
-	}
-	return next
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (at *Tool) wrapWithStreamSemantics(
@@ -493,53 +253,24 @@ func (at *Tool) wrapWithStreamSemantics(
 	inv *agent.Invocation,
 	src <-chan *event.Event,
 ) <-chan *event.Event {
-	if shouldDeferStreamCompletion(ctx, inv) {
-		return src
-	}
-	return at.wrapWithCallSemantics(ctx, inv, src)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shouldDeferStreamCompletion(
 	ctx context.Context,
 	inv *agent.Invocation,
 ) bool {
-	if inv == nil || inv.Session == nil {
-		return false
-	}
-	callID, ok := ctx.Value(tool.ContextKeyToolCallID{}).(string)
-	if !ok || callID == "" {
-		return false
-	}
-	return appender.IsAttached(inv)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (at *Tool) ensureUserMessageForCall(
 	ctx context.Context,
 	inv *agent.Invocation,
 ) {
-	if inv == nil || inv.Session == nil {
-		return
-	}
-	if inv.Message.Role != model.RoleUser || inv.Message.Content == "" {
-		return
-	}
-
-	inv.Session.EventMu.RLock()
-	for i := range inv.Session.Events {
-		if inv.Session.Events[i].InvocationID == inv.InvocationID &&
-			inv.Session.Events[i].IsUserMessage() {
-			inv.Session.EventMu.RUnlock()
-			return
-		}
-	}
-	inv.Session.EventMu.RUnlock()
-
-	evt := event.NewResponseEvent(inv.InvocationID, "user", &model.Response{
-		Done:    false,
-		Choices: []model.Choice{{Index: 0, Message: inv.Message}},
-	})
-	agent.InjectIntoEvent(inv, evt)
-	at.appendEvent(ctx, inv, evt)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) appendEvent(
@@ -547,123 +278,44 @@ func (at *Tool) appendEvent(
 	inv *agent.Invocation,
 	evt *event.Event,
 ) {
-	if inv == nil || inv.Session == nil || evt == nil {
-		return
-	}
-	ok, err := appender.Invoke(ctx, inv, evt)
-	if ok {
-		if err != nil {
-			log.Errorf(
-				"AgentTool: session append failed: %v", err,
-			)
-			if evt.ID == "" || !sessionHasEventID(inv, evt.ID) {
-				inv.Session.UpdateUserSession(evt)
-			}
-		}
-		return
-	}
-	inv.Session.UpdateUserSession(evt)
+	_ = "STUB: not implemented"
+	return
 }
 
 func sessionHasEventID(inv *agent.Invocation, eventID string) bool {
-	if inv == nil || inv.Session == nil || eventID == "" {
-		return false
-	}
-	inv.Session.EventMu.RLock()
-	defer inv.Session.EventMu.RUnlock()
-
-	for i := range inv.Session.Events {
-		if inv.Session.Events[i].ID == eventID {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func shouldMirrorEventToSession(evt *event.Event) bool {
-	if evt == nil {
-		return false
-	}
-	if len(evt.StateDelta) > 0 {
-		return true
-	}
-	if evt.Response == nil {
-		return false
-	}
-	if evt.IsPartial {
-		return false
-	}
-	return evt.IsValidContent()
-}
+func shouldMirrorEventToSession(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-func persistableSessionEvent(evt *event.Event) *event.Event {
-	if !isGraphCompletionEvent(evt) {
-		return evt
-	}
-	copyEvt := *evt
-	if evt.Response != nil {
-		copyEvt.Response = evt.Response.Clone()
-		copyEvt.Response.Choices = nil
-	}
-	return &copyEvt
-}
+func persistableSessionEvent(evt *event.Event) *event.Event { _ = "STUB: not implemented"; return nil }
 
 func shouldDelayVisibleCompletionSessionMirror(evt *event.Event) bool {
-	if evt == nil {
-		return false
-	}
-	if !graph.IsVisibleGraphCompletionEvent(evt) {
-		return false
-	}
-	_, ok := assistantMessageContent(evt)
-	return ok
+	_ = "STUB: not implemented"
+	return false
 }
 
 func visibleCompletionStateOnlySessionEvent(evt *event.Event) *event.Event {
-	if evt == nil || len(evt.StateDelta) == 0 {
-		return nil
-	}
-	copyEvt := *evt
-	if evt.Response != nil {
-		copyEvt.Response = evt.Response.Clone()
-		copyEvt.Response.Choices = nil
-	}
-	return &copyEvt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shouldSuppressGraphExecutorBarrierEvent(
 	inv *agent.Invocation,
 	evt *event.Event,
 ) bool {
-	if inv == nil || evt == nil || !agent.IsGraphExecutorEventsDisabled(inv) {
-		return false
-	}
-	return evt.Object == graph.ObjectTypeGraphNodeBarrier ||
-		evt.Object == graph.ObjectTypeGraphBarrier
+	_ = "STUB: not implemented"
+	return false
 }
 
-func isGraphCompletionEvent(evt *event.Event) bool {
-	if evt == nil || evt.Response == nil {
-		return false
-	}
-	return evt.Done &&
-		evt.Object == graph.ObjectTypeGraphExecution
-}
+func isGraphCompletionEvent(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-func isGraphCompletionSnapshotEvent(evt *event.Event) bool {
-	return isGraphCompletionEvent(evt) ||
-		graph.IsVisibleGraphCompletionEvent(evt)
-}
+func isGraphCompletionSnapshotEvent(evt *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 func assistantMessageContent(evt *event.Event) (string, bool) {
-	if evt == nil || evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return "", false
-	}
-	message := evt.Response.Choices[0].Message
-	if message.Role != model.RoleAssistant || message.Content == "" {
-		return "", false
-	}
-	return message.Content, true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 type pendingFinalResultChunk struct {
@@ -672,49 +324,18 @@ type pendingFinalResultChunk struct {
 }
 
 func graphCompletionFinalChunk(evt *event.Event) (pendingFinalResultChunk, bool) {
-	if !isGraphCompletionSnapshotEvent(evt) {
-		return pendingFinalResultChunk{}, false
-	}
-	chunk := pendingFinalResultChunk{
-		StateDelta: cloneStateDelta(evt.StateDelta),
-	}
-	if result, ok := assistantMessageContent(evt); ok {
-		chunk.Result = result
-	}
-	if chunk.Result == nil && len(chunk.StateDelta) == 0 {
-		return pendingFinalResultChunk{}, false
-	}
-	return chunk, true
+	_ = "STUB: not implemented"
+	return *new(pendingFinalResultChunk), false
 }
 
 func completionResponseIDFromStateDelta(delta map[string][]byte) string {
-	if len(delta) == 0 {
-		return ""
-	}
-	raw, ok := delta[graph.StateKeyLastResponseID]
-	if !ok || len(raw) == 0 {
-		return ""
-	}
-	var responseID string
-	if err := json.Unmarshal(raw, &responseID); err != nil {
-		return ""
-	}
-	return responseID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func cloneStateDelta(delta map[string][]byte) map[string][]byte {
-	if len(delta) == 0 {
-		return nil
-	}
-	cloned := make(map[string][]byte, len(delta))
-	for key, value := range delta {
-		if value == nil {
-			cloned[key] = nil
-			continue
-		}
-		cloned[key] = append([]byte(nil), value...)
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // callWithIsolatedRunner executes the agent in an isolated environment using
@@ -724,105 +345,31 @@ func (at *Tool) callWithIsolatedRunner(
 	ctx context.Context,
 	message model.Message,
 ) (string, error) {
-	r := runner.NewRunner(
-		at.name,
-		at.agent,
-		runner.WithSessionService(inmemory.NewSessionService()),
-	)
-	evCh, err := r.Run(
-		ctx,
-		"tool_user",
-		"tool_session",
-		message,
-		at.fallbackRunnerRunOptions(ctx)...,
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to run agent: %w", err)
-	}
-	parentInv, _ := agent.InvocationFromContext(ctx)
-	return at.collectResponse(parentInv, evCh)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // buildChildFilterKey constructs a child filter key based on the history scope
 // configuration. For HistoryScopeParentBranch, it creates a hierarchical key
 // that allows the child to inherit parent history.
 func (at *Tool) buildChildFilterKey(parentInv *agent.Invocation) string {
-	childKey := at.agent.Info().Name + "-" + uuid.NewString()
-	if at.historyScope == HistoryScopeParentBranch {
-		if pk := parentInv.GetEventFilterKey(); pk != "" {
-			childKey = pk + agent.EventFilterKeyDelimiter + childKey
-		}
-	}
-	return childKey
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // collectResponse collects and concatenates assistant messages from the event
 // channel, returning the complete response text.
 func (at *Tool) collectResponse(inv *agent.Invocation, evCh <-chan *event.Event) (string, error) {
-	if at.responseMode == ResponseModeFinalOnly {
-		return collectFinalResponse(evCh)
-	}
-	if !shouldRewriteCallableCompletion(inv) {
-		return collectLegacyResponse(evCh)
-	}
-	var response strings.Builder
-	var lastAssistantMessage string
-	var sawGraphCompletionSnapshot bool
-	for ev := range evCh {
-		if ev.Error != nil {
-			return "", fmt.Errorf("agent error: %s", ev.Error.Message)
-		}
-		graphCompletionSnapshot := isGraphCompletionSnapshotEvent(ev)
-		if graphCompletionSnapshot {
-			sawGraphCompletionSnapshot = true
-		}
-		content, ok := assistantMessageContent(ev)
-		if !ok {
-			continue
-		}
-		if graphCompletionSnapshot && content == lastAssistantMessage {
-			continue
-		}
-		if graphCompletionSnapshot &&
-			!ev.IsPartial &&
-			response.Len() > 0 {
-			response.Reset()
-			lastAssistantMessage = ""
-		}
-		if !graphCompletionSnapshot &&
-			sawGraphCompletionSnapshot &&
-			!ev.IsPartial {
-			response.Reset()
-			lastAssistantMessage = ""
-			sawGraphCompletionSnapshot = false
-		}
-		response.WriteString(content)
-		if !ev.IsPartial {
-			lastAssistantMessage = content
-		}
-	}
-	return response.String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // collectFinalResponse returns the last complete child assistant message. If no
 // complete assistant message is emitted, it returns an empty string and nil
 // error.
 func collectFinalResponse(evCh <-chan *event.Event) (string, error) {
-	var finalResponse string
-	for ev := range evCh {
-		if ev == nil {
-			continue
-		}
-		if ev.Error != nil {
-			return "", fmt.Errorf("agent error: %s", ev.Error.Message)
-		}
-		content, ok := assistantMessageContent(ev)
-		if !ok || ev.IsPartial {
-			continue
-		}
-		finalResponse = content
-	}
-	return finalResponse, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // collectLegacyResponse preserves the pre-#1365 concatenation semantics for the
@@ -833,58 +380,26 @@ func collectFinalResponse(evCh <-chan *event.Event) (string, error) {
 // broader alignment with the snapshot-aware collector is tracked as a separate
 // semantic-change request.
 func collectLegacyResponse(evCh <-chan *event.Event) (string, error) {
-	var response strings.Builder
-	var lastNonPartialAssistantContent string
-	for ev := range evCh {
-		if ev.Error != nil {
-			return "", fmt.Errorf("agent error: %s", ev.Error.Message)
-		}
-		if ev.Response == nil || len(ev.Response.Choices) == 0 {
-			continue
-		}
-		choice := ev.Response.Choices[0]
-		if choice.Message.Role != model.RoleAssistant || choice.Message.Content == "" {
-			continue
-		}
-		content := choice.Message.Content
-		if !ev.IsPartial &&
-			isGraphCompletionSnapshotEvent(ev) &&
-			content == lastNonPartialAssistantContent {
-			continue
-		}
-		response.WriteString(content)
-		if !ev.IsPartial {
-			lastNonPartialAssistantContent = content
-		}
-	}
-	return response.String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func shouldRewriteCallableCompletion(inv *agent.Invocation) bool {
-	return inv != nil && agent.IsGraphCompletionEventDisabled(inv)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func normalizeResponseMode(mode ResponseMode) ResponseMode {
-	switch mode {
-	case ResponseModeDefault:
-		return ResponseModeDefault
-	case ResponseModeFinalOnly:
-		return mode
-	default:
-		log.Debugf("AgentTool: unknown response mode %d, using default", mode)
-		return ResponseModeDefault
-	}
+	_ = "STUB: not implemented"
+	return *new(ResponseMode)
 }
 
 // StreamableCall executes the agent tool with streaming support and returns a stream reader.
 // It runs the wrapped agent and forwards its streaming text output as chunks.
 // The returned chunks' Content are plain strings representing incremental text.
 func (at *Tool) StreamableCall(ctx context.Context, jsonArgs []byte) (*tool.StreamReader, error) {
-	stream := tool.NewStream(64)
-	runCtx := at.streamableCallContext(ctx)
-	go at.runStreamableCall(runCtx, jsonArgs, stream.Writer)
-
-	return stream.Reader, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type streamCompletionState struct {
@@ -899,19 +414,8 @@ type streamCompletionState struct {
 }
 
 func (at *Tool) streamableCallContext(ctx context.Context) context.Context {
-	toolCallID, hasToolCallID := tool.ToolCallIDFromContext(ctx)
-	runCtx := agent.CloneContext(ctx)
-	if !hasToolCallID || toolCallID == "" {
-		return runCtx
-	}
-	if _, ok := tool.ToolCallIDFromContext(runCtx); ok {
-		return runCtx
-	}
-	return context.WithValue(
-		runCtx,
-		tool.ContextKeyToolCallID{},
-		toolCallID,
-	)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 func (at *Tool) runStreamableCall(
@@ -919,14 +423,8 @@ func (at *Tool) runStreamableCall(
 	jsonArgs []byte,
 	writer *tool.StreamWriter,
 ) {
-	defer writer.Close()
-	parentInv, ok := agent.InvocationFromContext(ctx)
-	message := model.NewUserMessage(string(jsonArgs))
-	if ok && parentInv != nil && parentInv.Session != nil {
-		at.streamFromParentInvocation(ctx, parentInv, message, writer)
-		return
-	}
-	at.streamFromFallbackRunner(ctx, message, writer)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) streamFromParentInvocation(
@@ -935,29 +433,8 @@ func (at *Tool) streamFromParentInvocation(
 	message model.Message,
 	writer *tool.StreamWriter,
 ) {
-	if err := flush.Invoke(ctx, parentInv); err != nil {
-		sendStreamableCallError(
-			ctx,
-			writer,
-			"flush parent invocation session failed: %w",
-			err,
-		)
-		return
-	}
-	childKey := at.buildChildFilterKey(parentInv)
-	subInv := parentInv.Clone(at.childInvocationOptions(parentInv, message, childKey)...)
-	subCtx := agent.NewInvocationContext(ctx, subInv)
-	evCh, err := agent.RunWithPlugins(subCtx, subInv, at.agent)
-	if err != nil {
-		sendStreamableCallError(ctx, writer, "agent tool run error: %w", err)
-		return
-	}
-	at.forwardSubInvocationStream(
-		subCtx,
-		subInv,
-		at.wrapWithStreamSemantics(subCtx, subInv, evCh),
-		writer,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) forwardSubInvocationStream(
@@ -966,86 +443,16 @@ func (at *Tool) forwardSubInvocationStream(
 	wrapped <-chan *event.Event,
 	writer *tool.StreamWriter,
 ) {
-	managePendingVisibleCompletion := shouldDeferStreamCompletion(ctx, subInv)
-	emitFinalResultChunk := tool.FinalResultChunksFromContext(ctx)
-	state := streamCompletionState{}
-	for ev := range wrapped {
-		if ev != nil {
-			ensureInvocationEventFields(subInv, ev)
-		}
-		if shouldSuppressGraphExecutorBarrierEvent(subInv, ev) {
-			at.completeSuppressedBarrierStreamEvent(ctx, subInv, ev, &state)
-			continue
-		}
-		at.updateFinalOnlyStreamResult(ev, &state)
-		if agent.IsGraphCompletionEventDisabled(subInv) &&
-			isGraphCompletionSnapshotEvent(ev) {
-			if emitFinalResultChunk {
-				at.capturePendingCompletionChunk(ev, &state)
-				if managePendingVisibleCompletion {
-					at.capturePendingVisibleCompletion(ctx, subInv, ev, &state)
-				}
-				continue
-			}
-			visibleEvent, ok := visibleCompletionStreamEvent(ev, subInv.AgentName)
-			if !ok {
-				continue
-			}
-			if managePendingVisibleCompletion {
-				at.capturePendingVisibleCompletion(ctx, subInv, visibleEvent, &state)
-			}
-			state.pendingStreamVisibleEvent = visibleEvent
-			state.sawGraphCompletionSnapshot = true
-			continue
-		}
-		if managePendingVisibleCompletion {
-			state.pendingVisibleCompletion = at.updatePendingVisibleCompletionForSession(
-				ctx,
-				subInv,
-				state.pendingVisibleCompletion,
-				ev,
-			)
-			if ev != nil &&
-				ev.RequiresCompletion &&
-				state.pendingVisibleCompletion != nil {
-				at.flushPendingVisibleCompletionForSession(
-					ctx,
-					subInv,
-					&state,
-				)
-			}
-		}
-		at.updateStreamCompletionState(ev, &state)
-		if writer.Send(tool.StreamChunk{Content: ev}, nil) {
-			return
-		}
-	}
-	if managePendingVisibleCompletion {
-		at.flushPendingVisibleCompletionForSession(ctx, subInv, &state)
-	}
-	if emitFinalResultChunk {
-		if at.responseMode == ResponseModeFinalOnly {
-			at.emitFinalOnlyResultChunk(&state, writer)
-			return
-		}
-		at.emitPendingCompletionChunk(&state, writer)
-		return
-	}
-	at.emitPendingVisibleCompletionEvent(&state, writer)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) updateFinalOnlyStreamResult(
 	ev *event.Event,
 	state *streamCompletionState,
 ) {
-	if state == nil {
-		return
-	}
-	content, ok := assistantMessageContent(ev)
-	if !ok || ev.IsPartial {
-		return
-	}
-	state.finalOnlyResult = content
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) capturePendingVisibleCompletion(
@@ -1054,19 +461,8 @@ func (at *Tool) capturePendingVisibleCompletion(
 	ev *event.Event,
 	state *streamCompletionState,
 ) {
-	if state == nil {
-		return
-	}
-	sessionEvent := visibleCompletionSessionEvent(ev, inv.AgentName)
-	if sessionEvent == nil {
-		return
-	}
-	state.pendingVisibleCompletion = at.replacePendingVisibleCompletionForSession(
-		ctx,
-		inv,
-		state.pendingVisibleCompletion,
-		sessionEvent,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) flushPendingVisibleCompletionForSession(
@@ -1074,14 +470,8 @@ func (at *Tool) flushPendingVisibleCompletionForSession(
 	inv *agent.Invocation,
 	state *streamCompletionState,
 ) {
-	if state == nil || state.pendingVisibleCompletion == nil {
-		return
-	}
-	if _, ok := assistantMessageContent(state.pendingVisibleCompletion); ok {
-		at.ensureUserMessageForCall(ctx, inv)
-	}
-	at.appendEvent(ctx, inv, state.pendingVisibleCompletion)
-	state.pendingVisibleCompletion = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) completeSuppressedBarrierEvent(
@@ -1090,17 +480,8 @@ func (at *Tool) completeSuppressedBarrierEvent(
 	evt *event.Event,
 	pending **event.Event,
 ) {
-	if evt == nil || inv == nil || !evt.RequiresCompletion {
-		return
-	}
-	if pending != nil && *pending != nil {
-		at.appendEvent(ctx, inv, *pending)
-		*pending = nil
-	}
-	completionID := agent.GetAppendEventNoticeKey(evt.ID)
-	if err := inv.NotifyCompletion(ctx, completionID); err != nil {
-		log.Errorf("AgentTool: notify suppressed barrier completion failed: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) completeSuppressedBarrierStreamEvent(
@@ -1109,94 +490,36 @@ func (at *Tool) completeSuppressedBarrierStreamEvent(
 	evt *event.Event,
 	state *streamCompletionState,
 ) {
-	if evt == nil || inv == nil || !evt.RequiresCompletion {
-		return
-	}
-	if state != nil && state.pendingVisibleCompletion != nil {
-		at.flushPendingVisibleCompletionForSession(ctx, inv, state)
-	}
-	completionID := agent.GetAppendEventNoticeKey(evt.ID)
-	if err := inv.NotifyCompletion(ctx, completionID); err != nil {
-		log.Errorf("AgentTool: notify suppressed barrier completion failed: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) capturePendingCompletionChunk(
 	ev *event.Event,
 	state *streamCompletionState,
 ) {
-	if chunk, ok := graphCompletionFinalChunk(ev); ok {
-		responseID := completionResponseIDFromStateDelta(chunk.StateDelta)
-		if chunk.Result == nil &&
-			state.lastAssistantContent != "" &&
-			(responseID == "" || responseID == state.lastAssistantResponseID) {
-			chunk.Result = state.lastAssistantContent
-		}
-		pendingChunk := chunk
-		state.pendingCompletionChunk = &pendingChunk
-		state.sawGraphCompletionSnapshot = true
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) updateStreamCompletionState(
 	ev *event.Event,
 	state *streamCompletionState,
 ) {
-	graphCompletionSnapshot := isGraphCompletionSnapshotEvent(ev)
-	if graphCompletionSnapshot {
-		state.sawGraphCompletionSnapshot = true
-	}
-	if ev != nil && ev.Error != nil {
-		state.pendingCompletionChunk = nil
-		state.pendingStreamVisibleEvent = nil
-		state.sawGraphCompletionSnapshot = false
-		state.overrideResult = ""
-		return
-	}
-	content, ok := assistantMessageContent(ev)
-	if !ok || graphCompletionSnapshot || ev.IsPartial {
-		return
-	}
-	state.lastAssistantContent = content
-	if ev.Response != nil {
-		state.lastAssistantResponseID = ev.Response.ID
-	}
-	if state.sawGraphCompletionSnapshot {
-		state.overrideResult = content
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func visibleCompletionSessionEvent(evt *event.Event, author string) *event.Event {
-	if evt == nil {
-		return nil
-	}
-	visible := evt
-	if isGraphCompletionEvent(evt) {
-		rewritten, ok := graph.VisibleGraphCompletionEventForAuthor(evt, author)
-		if !ok {
-			return nil
-		}
-		visible = rewritten
-	}
-	if !shouldDelayVisibleCompletionSessionMirror(visible) {
-		return visibleCompletionStateOnlySessionEvent(visible)
-	}
-	return persistableSessionEvent(visible)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func visibleCompletionStreamEvent(
 	evt *event.Event,
 	author string,
 ) (*event.Event, bool) {
-	if evt == nil {
-		return nil, false
-	}
-	if isGraphCompletionEvent(evt) {
-		return graph.VisibleGraphCompletionEventForAuthor(evt, author)
-	}
-	if graph.IsVisibleGraphCompletionEvent(evt) {
-		return evt, true
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
@@ -1204,64 +527,24 @@ func (at *Tool) emitPendingVisibleCompletionEvent(
 	state *streamCompletionState,
 	writer *tool.StreamWriter,
 ) {
-	if state == nil || state.pendingStreamVisibleEvent == nil {
-		return
-	}
-	visibleEvent := state.pendingStreamVisibleEvent
-	if state.overrideResult != "" {
-		stateOnly := visibleCompletionStateOnlySessionEvent(visibleEvent)
-		if stateOnly == nil {
-			return
-		}
-		visibleEvent = stateOnly
-	}
-	_ = writer.Send(tool.StreamChunk{Content: visibleEvent}, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) emitPendingCompletionChunk(
 	state *streamCompletionState,
 	writer *tool.StreamWriter,
 ) {
-	if state.pendingCompletionChunk == nil {
-		return
-	}
-	if state.overrideResult != "" {
-		state.pendingCompletionChunk.Result = state.overrideResult
-	}
-	var content any = tool.FinalResultChunk{
-		Result: state.pendingCompletionChunk.Result,
-	}
-	if len(state.pendingCompletionChunk.StateDelta) > 0 {
-		content = tool.FinalResultStateChunk{
-			Result:     state.pendingCompletionChunk.Result,
-			StateDelta: cloneStateDelta(state.pendingCompletionChunk.StateDelta),
-		}
-	}
-	_ = writer.Send(tool.StreamChunk{
-		Content: content,
-	}, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) emitFinalOnlyResultChunk(
 	state *streamCompletionState,
 	writer *tool.StreamWriter,
 ) {
-	result := ""
-	var stateDelta map[string][]byte
-	if state != nil {
-		result = state.finalOnlyResult
-		if state.pendingCompletionChunk != nil {
-			stateDelta = state.pendingCompletionChunk.StateDelta
-		}
-	}
-	var content any = tool.FinalResultChunk{Result: result}
-	if len(stateDelta) > 0 {
-		content = tool.FinalResultStateChunk{
-			Result:     result,
-			StateDelta: cloneStateDelta(stateDelta),
-		}
-	}
-	_ = writer.Send(tool.StreamChunk{Content: content}, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (at *Tool) streamFromFallbackRunner(
@@ -1269,27 +552,8 @@ func (at *Tool) streamFromFallbackRunner(
 	message model.Message,
 	writer *tool.StreamWriter,
 ) {
-	r := runner.NewRunner(
-		at.name,
-		at.agent,
-		runner.WithSessionService(inmemory.NewSessionService()),
-	)
-	evCh, err := r.Run(
-		ctx,
-		"tool_user",
-		"tool_session",
-		message,
-		at.fallbackRunnerRunOptions(ctx)...,
-	)
-	if err != nil {
-		sendStreamableCallError(ctx, writer, "agent tool run error: %w", err)
-		return
-	}
-	for ev := range evCh {
-		if ev != nil && writer.Send(tool.StreamChunk{Content: ev}, nil) {
-			return
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func sendStreamableCallError(
@@ -1298,78 +562,43 @@ func sendStreamableCallError(
 	format string,
 	err error,
 ) {
-	streamErr := fmt.Errorf(format, err)
-	if !tool.StructuredStreamErrorsFromContext(ctx) {
-		if writer.Send(tool.StreamChunk{Content: streamErr.Error()}, nil) {
-			return
-		}
-		return
-	}
-	if errorEvent := streamableCallErrorEvent(ctx, streamErr); errorEvent != nil {
-		_ = writer.Send(tool.StreamChunk{Content: errorEvent}, nil)
-		return
-	}
-	_ = writer.Send(tool.StreamChunk{Content: streamErr.Error()}, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 func streamableCallErrorEvent(ctx context.Context, err error) *event.Event {
-	if err == nil {
-		return nil
-	}
-	evt := event.NewErrorEvent("", "", model.ErrorTypeFlowError, err.Error())
-	if inv, ok := agent.InvocationFromContext(ctx); ok && inv != nil {
-		agent.InjectIntoEvent(inv, evt)
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (at *Tool) fallbackRunnerRunOptions(ctx context.Context) []agent.RunOption {
-	parentInv, ok := agent.InvocationFromContext(ctx)
-	if !ok || parentInv == nil {
-		return nil
-	}
-	opts := make([]agent.RunOption, 0, 3)
-	if agent.IsGraphCompletionEventDisabled(parentInv) {
-		opts = append(opts, agent.WithDisableGraphCompletionEvent(true))
-	}
-	if agent.IsGraphExecutorEventsDisabled(parentInv) {
-		opts = append(opts, agent.WithDisableGraphExecutorEvents(true))
-	}
-	if size := agent.GetEventChannelBufferSize(parentInv); size > 0 {
-		opts = append(opts, agent.WithEventChannelBufferSize(size))
-	}
-	return opts
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SkipSummarization exposes whether the AgentTool prefers skipping
 // outer-agent summarization after its tool.response.
-func (at *Tool) SkipSummarization() bool { return at.skipSummarization }
+func (at *Tool) SkipSummarization() bool { _ = "STUB: not implemented"; return false }
 
 // StructuredStreamErrors reports that AgentTool expects structured error chunks.
-func (at *Tool) StructuredStreamErrors() bool {
-	if at == nil {
-		return false
-	}
-	return at.structuredStreamErrors
-}
+func (at *Tool) StructuredStreamErrors() bool { _ = "STUB: not implemented"; return false }
 
 // TRPCAgentGoStructuredStreamErrorsOptIn provides an explicit framework hook
 // for structured stream error semantics.
 func (at *Tool) TRPCAgentGoStructuredStreamErrorsOptIn() bool {
-	return at.StructuredStreamErrors()
+	_ = "STUB: not implemented"
+	return false
 }
 
 // StreamInner exposes whether this AgentTool prefers the flow to treat it as
 // streamable (forwarding inner deltas) versus callable-only.
-func (at *Tool) StreamInner() bool { return at.streamInner }
+func (at *Tool) StreamInner() bool { _ = "STUB: not implemented"; return false }
 
 // InnerTextMode exposes how forwarded inner assistant text should be handled
 // when StreamInner is enabled.
 func (at *Tool) InnerTextMode() InnerTextMode {
-	if at == nil {
-		return tool.InnerTextModeInclude
-	}
-	return tool.NormalizeInnerTextMode(at.innerTextMode)
+	_ = "STUB: not implemented"
+	return *new(InnerTextMode)
 }
 
 // Declaration returns the tool's declaration information.
@@ -1380,30 +609,11 @@ func (at *Tool) InnerTextMode() InnerTextMode {
 // - Cannot contain Chinese characters, parentheses, or special symbols
 //
 // Best practice: Use ^[a-zA-Z0-9_-]+ only to ensure maximum compatibility.
-func (at *Tool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:         at.name,
-		Description:  at.description,
-		InputSchema:  at.inputSchema,
-		OutputSchema: at.outputSchema,
-	}
-}
+func (at *Tool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // convertMapToToolSchema converts a map[string]any schema to tool.Schema format.
 // This function handles the conversion from the agent's input schema format to the tool schema format.
 func convertMapToToolSchema(schema map[string]any) *tool.Schema {
-	if schema == nil {
-		return nil
-	}
-	bs, err := json.Marshal(schema)
-	if err != nil {
-		log.Errorf("json marshal schema error: %+v", err)
-		return nil
-	}
-	result := &tool.Schema{}
-	if err := json.Unmarshal(bs, result); err != nil {
-		log.Errorf("json unmarshal schema error: %+v", err)
-		return nil
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }

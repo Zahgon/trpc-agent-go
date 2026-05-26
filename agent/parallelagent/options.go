@@ -33,25 +33,14 @@ var (
 // WithSubAgents sets the sub-agents that will be executed in parallel.
 // All agents will start simultaneously and their events will be merged
 // into a single output stream.
-func WithSubAgents(sub []agent.Agent) Option {
-	return func(o *Options) { o.subAgents = sub }
-}
+func WithSubAgents(sub []agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the buffer size for the event channel.
 // This controls how many events can be buffered before blocking.
 // Default is 256 if not specified.
-func WithChannelBufferSize(size int) Option {
-	return func(o *Options) {
-		if size < 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentCallbacks attaches lifecycle callbacks to the parallel agent.
 // These callbacks allow custom logic to be executed before and after
 // the parallel agent runs.
-func WithAgentCallbacks(cb *agent.Callbacks) Option {
-	return func(o *Options) { o.agentCallbacks = cb }
-}
+func WithAgentCallbacks(cb *agent.Callbacks) Option { _ = "STUB: not implemented"; return *new(Option) }

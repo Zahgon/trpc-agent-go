@@ -11,9 +11,7 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -75,54 +73,11 @@ func main() {
 	printExitReason(ctx)
 }
 
-func cancelOnEnter(cancel context.CancelFunc) {
-	if cancel == nil {
-		return
-	}
-	reader := bufio.NewReader(os.Stdin)
-	_, _ = reader.ReadString('\n')
-	cancel()
-}
+func cancelOnEnter(cancel context.CancelFunc) { _ = "STUB: not implemented"; return }
 
-func printEvents(eventCh <-chan *event.Event) {
-	for evt := range eventCh {
-		if evt == nil || evt.Response == nil {
-			continue
-		}
-		if evt.Response.Error != nil {
-			fmt.Fprintf(
-				os.Stderr,
-				"event error: %s\n",
-				evt.Response.Error.Message,
-			)
-			continue
-		}
-		for _, choice := range evt.Response.Choices {
-			if choice.Delta.Content != "" {
-				fmt.Print(choice.Delta.Content)
-				continue
-			}
-			if choice.Message.Content != "" {
-				fmt.Print(choice.Message.Content)
-			}
-		}
-	}
-	fmt.Println()
-}
+func printEvents(eventCh <-chan *event.Event) { _ = "STUB: not implemented"; return }
 
-func printExitReason(ctx context.Context) {
-	if ctx == nil {
-		return
-	}
-	switch {
-	case errors.Is(ctx.Err(), context.Canceled):
-		fmt.Println("Run stopped: context canceled.")
-	case errors.Is(ctx.Err(), context.DeadlineExceeded):
-		fmt.Println("Run stopped: timeout reached.")
-	default:
-		fmt.Println("Run finished.")
-	}
-}
+func printExitReason(ctx context.Context) { _ = "STUB: not implemented"; return }
 
 type slowWriter struct {
 	name  string
@@ -130,25 +85,16 @@ type slowWriter struct {
 }
 
 func newSlowWriter(name string, delay time.Duration) *slowWriter {
-	return &slowWriter{name: name, delay: delay}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *slowWriter) Run(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	if invocation == nil {
-		return nil, errors.New("invocation is nil")
-	}
-	out := make(chan *event.Event, eventChanBuf)
-	runCtx := agent.CloneContext(ctx)
-
-	go func() {
-		defer close(out)
-		a.stream(runCtx, invocation, out)
-	}()
-
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (a *slowWriter) stream(
@@ -156,52 +102,20 @@ func (a *slowWriter) stream(
 	invocation *agent.Invocation,
 	out chan<- *event.Event,
 ) {
-	for i := 0; i < len(demoIntroChunks); i++ {
-		evt := demoEvent(invocation, a.name, demoIntroChunks[i])
-		if err := agent.EmitEvent(ctx, invocation, out, evt); err != nil {
-			return
-		}
-	}
-
-	if a.delay <= 0 {
-		a.delay = chunkDelay
-	}
-	ticker := time.NewTicker(a.delay)
-	defer ticker.Stop()
-
-	count := 0
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			count++
-			content := fmt.Sprintf(demoChunkFormat, count)
-			evt := demoEvent(invocation, a.name, content)
-			if err := agent.EmitEvent(
-				ctx,
-				invocation,
-				out,
-				evt,
-			); err != nil {
-				return
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (a *slowWriter) Tools() []tool.Tool { return nil }
+func (a *slowWriter) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
-func (a *slowWriter) Info() agent.Info {
-	return agent.Info{
-		Name:        a.name,
-		Description: "Streams text slowly until cancelled.",
-	}
+func (a *slowWriter) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
+
+func (a *slowWriter) SubAgents() []agent.Agent { _ = "STUB: not implemented"; return nil }
+
+func (a *slowWriter) FindSubAgent(_ string) agent.Agent {
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
-
-func (a *slowWriter) SubAgents() []agent.Agent { return nil }
-
-func (a *slowWriter) FindSubAgent(_ string) agent.Agent { return nil }
 
 const demoChunkFormat = "chunk %d\n"
 
@@ -216,20 +130,6 @@ func demoEvent(
 	author string,
 	content string,
 ) *event.Event {
-	rsp := &model.Response{
-		Object:    model.ObjectTypeChatCompletionChunk,
-		Created:   time.Now().Unix(),
-		Done:      false,
-		IsPartial: true,
-		Choices: []model.Choice{
-			{
-				Index: 0,
-				Delta: model.Message{
-					Role:    model.RoleAssistant,
-					Content: content,
-				},
-			},
-		},
-	}
-	return event.NewResponseEvent(invocation.InvocationID, author, rsp)
+	_ = "STUB: not implemented"
+	return nil
 }

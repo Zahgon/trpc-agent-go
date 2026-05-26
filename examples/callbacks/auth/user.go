@@ -9,8 +9,6 @@
 
 package main
 
-import "slices"
-
 // UserContext represents the user information and permissions.
 type UserContext struct {
 	UserID      string   `json:"user_id"`
@@ -50,42 +48,19 @@ var toolPermissions = map[string][]string{
 }
 
 // getPermissionsForRole returns the permissions for a given role.
-func getPermissionsForRole(role string) []string {
-	switch role {
-	case roleAdmin:
-		return []string{permissionRead, permissionWrite, permissionDelete, permissionList}
-	case roleUser:
-		return []string{permissionRead, permissionWrite, permissionList}
-	case roleGuest:
-		return []string{permissionRead, permissionList}
-	default:
-		return []string{}
-	}
-}
+func getPermissionsForRole(role string) []string { _ = "STUB: not implemented"; return nil }
 
 // hasPermission checks if the user has the required permission for a tool.
 func hasPermission(userCtx *UserContext, toolName string) bool {
-	if userCtx == nil {
-		return false
-	}
-
-	// Get required permissions for the tool.
-	requiredPerms, ok := toolPermissions[toolName]
-	if !ok {
-		// Tool not found in permission map, allow by default.
-		return true
-	}
-
-	// Check if user has all required permissions.
-	for _, requiredPerm := range requiredPerms {
-		found := slices.Contains(userCtx.Permissions, requiredPerm)
-		if !found {
-			return false
-		}
-	}
-
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
+
+// Get required permissions for the tool.
+
+// Tool not found in permission map, allow by default.
+
+// Check if user has all required permissions.
 
 // AuditEntry represents a single audit log entry.
 type AuditEntry struct {

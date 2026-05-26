@@ -10,12 +10,6 @@
 // Package searchfilter provides search and filter functionality for trpc-agent-go.
 package searchfilter
 
-import (
-	"encoding/json"
-	"fmt"
-	"strings"
-)
-
 const (
 	// OperatorAnd is the "and" operator.
 	OperatorAnd = "and"
@@ -83,63 +77,21 @@ type UniversalFilterCondition struct {
 // UnmarshalJSON implements custom JSON unmarshaling for UniversalFilterCondition.
 // This handles the recursive structure where Value can be []*UniversalFilterCondition for logical operators.
 func (c *UniversalFilterCondition) UnmarshalJSON(data []byte) error {
+	_ = "STUB: not implemented"
 	// Use an auxiliary struct to avoid infinite recursion
-	type Alias struct {
-		Field    string `json:"field,omitempty"`
-		Operator string `json:"operator"`
-		Value    any    `json:"value,omitempty"`
-	}
-
-	var aux Alias
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	c.Field = aux.Field
-	c.Operator = strings.ToLower(aux.Operator)
-
-	// Handle logical operators (and/or) - Value should be []*UniversalFilterCondition
-	if c.Operator == OperatorAnd || c.Operator == OperatorOr {
-		// Value can be an array of conditions
-		valueSlice, ok := aux.Value.([]any)
-		if !ok {
-			return fmt.Errorf("logical operator %s requires an array of conditions", c.Operator)
-		}
-
-		conditions := make([]*UniversalFilterCondition, 0, len(valueSlice))
-		for i, v := range valueSlice {
-			// Re-marshal and unmarshal to convert map[string]any to UniversalFilterCondition
-			condBytes, err := json.Marshal(v)
-			if err != nil {
-				return fmt.Errorf("failed to marshal condition at index %d: %w", i, err)
-			}
-
-			var cond UniversalFilterCondition
-			if err := json.Unmarshal(condBytes, &cond); err != nil {
-				return fmt.Errorf("failed to unmarshal condition at index %d: %w", i, err)
-			}
-			conditions = append(conditions, &cond)
-		}
-		c.Value = conditions
-	} else {
-		// For comparison operators, keep the value as-is
-		c.Value = aux.Value
-	}
-
 	return nil
 }
 
+// Handle logical operators (and/or) - Value should be []*UniversalFilterCondition
+
+// Value can be an array of conditions
+
+// Re-marshal and unmarshal to convert map[string]any to UniversalFilterCondition
+
+// For comparison operators, keep the value as-is
+
 // MarshalJSON implements custom JSON marshaling for UniversalFilterCondition.
 func (c *UniversalFilterCondition) MarshalJSON() ([]byte, error) {
-	type Alias struct {
-		Field    string `json:"field,omitempty"`
-		Operator string `json:"operator"`
-		Value    any    `json:"value,omitempty"`
-	}
-
-	return json.Marshal(&Alias{
-		Field:    c.Field,
-		Operator: c.Operator,
-		Value:    c.Value,
-	})
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -49,56 +49,29 @@ type errorMessagePlugin struct {
 }
 
 // New creates a new error message plugin.
-func New(options ...Option) plugin.Plugin {
-	opts := newOptions(options...)
-	return &errorMessagePlugin{
-		name:         opts.name,
-		resolver:     opts.resolver,
-		finishReason: opts.finishReason,
-	}
-}
+func New(options ...Option) plugin.Plugin { _ = "STUB: not implemented"; return *new(plugin.Plugin) }
 
 // Name implements plugin.Plugin.
 func (p *errorMessagePlugin) Name() string {
-	return p.name
+	_ = "STUB: not implemented"
+
+	// Register implements plugin.Plugin.
+	return ""
 }
 
-// Register implements plugin.Plugin.
-func (p *errorMessagePlugin) Register(r *plugin.Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	r.OnEvent(p.onEvent)
-}
+func (p *errorMessagePlugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *errorMessagePlugin) onEvent(
 	ctx context.Context,
 	inv *agent.Invocation,
 	e *event.Event,
 ) (*event.Event, error) {
-	if p == nil || p.resolver == nil {
-		return nil, nil
-	}
-	if !isRewritableErrorEvent(e) {
-		return nil, nil
-	}
-	content, ok := p.resolver(ctx, inv, e)
-	if !ok || content == "" {
-		return nil, nil
-	}
-
-	// Shallow-copy the event and deep-copy Response so upstream/sibling
-	// consumers are not affected by our mutation.
-	updated := *e
-	updated.Response = e.Response.Clone()
-	ensureFirstAssistantChoice(updated.Response)
-	updated.Response.Choices[0].Message.Content = content
-	if updated.Response.Choices[0].FinishReason == nil {
-		reason := p.finishReason
-		updated.Response.Choices[0].FinishReason = &reason
-	}
-	return &updated, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Shallow-copy the event and deep-copy Response so upstream/sibling
+// consumers are not affected by our mutation.
 
 // isRewritableErrorEvent reports whether the event is an error event that has
 // no assistant-visible content yet. Events that already carry valid content
@@ -106,35 +79,11 @@ func (p *errorMessagePlugin) onEvent(
 // untouched so this plugin never overwrites real assistant text. Partial
 // events are also skipped so that a later final event can still decide the
 // outcome without this plugin leaking a premature failure message to callers.
-func isRewritableErrorEvent(e *event.Event) bool {
-	if e == nil || e.Response == nil || e.Response.Error == nil {
-		return false
-	}
-	if e.IsPartial {
-		return false
-	}
-	if e.IsValidContent() {
-		return false
-	}
-	return true
-}
+func isRewritableErrorEvent(e *event.Event) bool { _ = "STUB: not implemented"; return false }
 
-func ensureFirstAssistantChoice(rsp *model.Response) {
-	if rsp == nil {
-		return
-	}
-	if len(rsp.Choices) == 0 {
-		rsp.Choices = []model.Choice{{
-			Index: 0,
-			Message: model.Message{
-				Role: model.RoleAssistant,
-			},
-		}}
-		return
-	}
-	// Always force the first choice into an assistant role so resolver
-	// output is never written into a non-assistant choice (for example when
-	// upstream emits an error event whose first choice carries a
-	// role=user or role=system placeholder).
-	rsp.Choices[0].Message.Role = model.RoleAssistant
-}
+func ensureFirstAssistantChoice(rsp *model.Response) { _ = "STUB: not implemented"; return }
+
+// Always force the first choice into an assistant role so resolver
+// output is never written into a non-assistant choice (for example when
+// upstream emits an error event whose first choice carries a
+// role=user or role=system placeholder).

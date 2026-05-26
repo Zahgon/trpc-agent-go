@@ -32,10 +32,8 @@ func NewConditionalRequestProcessor(
 	predicate InvocationPredicate,
 	delegate flow.RequestProcessor,
 ) *ConditionalRequestProcessor {
-	return &ConditionalRequestProcessor{
-		predicate: predicate,
-		delegate:  delegate,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessRequest runs the wrapped request processor only when enabled for this invocation.
@@ -45,13 +43,8 @@ func (p *ConditionalRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if p == nil || p.delegate == nil {
-		return
-	}
-	if p.predicate != nil && !p.predicate(ctx, invocation) {
-		return
-	}
-	p.delegate.ProcessRequest(ctx, invocation, req, ch)
+	_ = "STUB: not implemented"
+	return
 }
 
 // ConditionalResponseProcessor runs one response processor only when the predicate passes.
@@ -65,10 +58,8 @@ func NewConditionalResponseProcessor(
 	predicate InvocationPredicate,
 	delegate flow.ResponseProcessor,
 ) *ConditionalResponseProcessor {
-	return &ConditionalResponseProcessor{
-		predicate: predicate,
-		delegate:  delegate,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessResponse runs the wrapped response processor only when enabled for this invocation.
@@ -79,11 +70,6 @@ func (p *ConditionalResponseProcessor) ProcessResponse(
 	rsp *model.Response,
 	ch chan<- *event.Event,
 ) {
-	if p == nil || p.delegate == nil {
-		return
-	}
-	if p.predicate != nil && !p.predicate(ctx, invocation) {
-		return
-	}
-	p.delegate.ProcessResponse(ctx, invocation, req, rsp, ch)
+	_ = "STUB: not implemented"
+	return
 }

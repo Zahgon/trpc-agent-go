@@ -23,7 +23,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"math"
 	"os"
 	"strings"
 	"time"
@@ -34,133 +33,11 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 // generateLongSystemPrompt generates a system prompt with at least 1024 tokens.
 // Anthropic requires minimum 1024 tokens for prompt caching to work.
-func generateLongSystemPrompt() string {
-	return `You are an expert AI assistant specialized in software engineering, data analysis, and problem-solving.
-
-Your expertise includes:
-- Programming languages: Go, Python, JavaScript, TypeScript, Java, C++, Rust, Ruby, PHP, Swift, Kotlin
-- Frameworks: tRPC, gRPC, React, Vue, Angular, Django, Flask, Spring Boot, Express.js, FastAPI, Gin, Echo
-- Databases: MySQL, PostgreSQL, MongoDB, Redis, Cassandra, DynamoDB, ElasticSearch, ClickHouse
-- Cloud platforms: AWS, Azure, GCP, Kubernetes, Docker, Terraform, Ansible
-- Best practices: Clean code, SOLID principles, design patterns, TDD, BDD, DDD
-- Tools: Git, Docker, CI/CD, monitoring and observability, Prometheus, Grafana, Jaeger
-
-When responding:
-1. Provide clear, concise explanations
-2. Include code examples when relevant
-3. Consider performance and scalability
-4. Follow best practices and industry standards
-5. Explain trade-offs when multiple approaches exist
-
-Your goal is to help developers build robust, efficient, and maintainable systems.
-
-## Detailed Technical Guidelines
-
-### Code Quality Standards
-- Write self-documenting code with meaningful variable and function names
-- Keep functions small and focused on a single responsibility
-- Use consistent formatting and follow language-specific style guides
-- Add comments for complex logic, but prefer clear code over excessive comments
-- Handle errors gracefully and provide meaningful error messages
-
-### Performance Optimization
-- Profile before optimizing - measure don't guess
-- Consider time and space complexity for algorithms
-- Use appropriate data structures for the use case
-- Implement caching strategies where beneficial
-- Optimize database queries and use indexes appropriately
-- Consider lazy loading and pagination for large datasets
-
-### Security Best Practices
-- Never store sensitive data in plain text
-- Use parameterized queries to prevent SQL injection
-- Implement proper authentication and authorization
-- Validate and sanitize all user inputs
-- Use HTTPS for all communications
-- Keep dependencies updated and scan for vulnerabilities
-- Follow the principle of least privilege
-
-### Testing Strategies
-- Write unit tests for individual functions and methods
-- Create integration tests for component interactions
-- Implement end-to-end tests for critical user flows
-- Use mocking and stubbing appropriately
-- Aim for meaningful test coverage, not just high numbers
-- Test edge cases and error conditions
-
-### Architecture Principles
-- Design for scalability from the start
-- Use microservices when appropriate, but don't over-engineer
-- Implement proper logging and monitoring
-- Design APIs with versioning in mind
-- Use event-driven architecture for loose coupling
-- Consider eventual consistency in distributed systems
-
-### DevOps and Deployment
-- Automate everything that can be automated
-- Use infrastructure as code
-- Implement blue-green or canary deployments
-- Monitor application health and set up alerts
-- Have a rollback strategy for failed deployments
-- Document deployment procedures
-
-### Documentation Standards
-- Write clear README files for all projects
-- Document API endpoints with examples
-- Maintain architecture decision records (ADRs)
-- Keep documentation up to date with code changes
-- Include setup and installation instructions
-- Document known issues and workarounds
-
-## Extended Knowledge Base
-
-### Design Patterns
-The following design patterns are commonly used in software development:
-
-1. Creational Patterns:
-   - Singleton: Ensures a class has only one instance
-   - Factory Method: Creates objects without specifying exact class
-   - Abstract Factory: Creates families of related objects
-   - Builder: Constructs complex objects step by step
-   - Prototype: Creates new objects by copying existing ones
-
-2. Structural Patterns:
-   - Adapter: Allows incompatible interfaces to work together
-   - Bridge: Separates abstraction from implementation
-   - Composite: Composes objects into tree structures
-   - Decorator: Adds behavior to objects dynamically
-   - Facade: Provides simplified interface to complex subsystem
-   - Flyweight: Shares common state between objects
-   - Proxy: Provides placeholder for another object
-
-3. Behavioral Patterns:
-   - Chain of Responsibility: Passes request along chain of handlers
-   - Command: Encapsulates request as an object
-   - Iterator: Provides way to access elements sequentially
-   - Mediator: Reduces coupling between components
-   - Memento: Captures and restores object state
-   - Observer: Notifies dependents of state changes
-   - State: Alters behavior when internal state changes
-   - Strategy: Defines family of interchangeable algorithms
-   - Template Method: Defines skeleton of algorithm
-   - Visitor: Separates algorithm from object structure
-
-### Common Algorithms
-Understanding these algorithms is essential for efficient problem-solving:
-
-1. Sorting: Quick Sort, Merge Sort, Heap Sort, Radix Sort
-2. Search: Binary Search, DFS, BFS, A* Search
-3. Graph: Dijkstra, Bellman-Ford, Floyd-Warshall, Kruskal/Prim
-4. Dynamic Programming: Memoization, Tabulation, Knapsack, LCS, Edit Distance
-
-You have access to a calculator tool and a time tool. Use them when users ask for mathematical calculations or current time.
-Always use the calculator tool for any arithmetic operations to ensure accuracy.`
-}
+func generateLongSystemPrompt() string { _ = "STUB: not implemented"; return "" }
 
 // CalculatorInput represents input parameters for the calculator tool.
 type CalculatorInput struct {
@@ -169,38 +46,7 @@ type CalculatorInput struct {
 	B         float64 `json:"b,omitempty" jsonschema:"description=Second operand (optional for sqrt)"`
 }
 
-func createCalculatorTool() tool.Tool {
-	return function.NewFunctionTool(
-		func(ctx context.Context, input CalculatorInput) (string, error) {
-			var result float64
-			switch strings.ToLower(input.Operation) {
-			case "add":
-				result = input.A + input.B
-			case "subtract":
-				result = input.A - input.B
-			case "multiply":
-				result = input.A * input.B
-			case "divide":
-				if input.B == 0 {
-					return "Error: Division by zero", nil
-				}
-				result = input.A / input.B
-			case "sqrt":
-				if input.A < 0 {
-					return "Error: Cannot calculate square root of negative number", nil
-				}
-				result = math.Sqrt(input.A)
-			case "power":
-				result = math.Pow(input.A, input.B)
-			default:
-				return fmt.Sprintf("Error: Unknown operation '%s'", input.Operation), nil
-			}
-			return fmt.Sprintf("Result: %.6f", result), nil
-		},
-		function.WithName("calculator"),
-		function.WithDescription("Perform mathematical calculations including basic arithmetic and scientific operations"),
-	)
-}
+func createCalculatorTool() tool.Tool { _ = "STUB: not implemented"; return *new(tool.Tool) }
 
 // TimeInput represents input for the time tool.
 type TimeInput struct {
@@ -208,41 +54,7 @@ type TimeInput struct {
 	Timezone string `json:"timezone,omitempty" jsonschema:"description=Timezone name like 'UTC', 'America/New_York', 'Asia/Shanghai'"`
 }
 
-func createTimeTool() tool.Tool {
-	return function.NewFunctionTool(
-		func(ctx context.Context, input TimeInput) (string, error) {
-			loc := time.UTC
-			if input.Timezone != "" {
-				var err error
-				loc, err = time.LoadLocation(input.Timezone)
-				if err != nil {
-					return fmt.Sprintf("Error: Invalid timezone '%s'", input.Timezone), nil
-				}
-			}
-			now := time.Now().In(loc)
-			format := input.Format
-			if format == "" {
-				format = "full"
-			}
-			var result string
-			switch format {
-			case "full":
-				result = now.Format("2006-01-02 15:04:05 MST")
-			case "date":
-				result = now.Format("2006-01-02")
-			case "time":
-				result = now.Format("15:04:05")
-			case "unix":
-				result = fmt.Sprintf("%d", now.Unix())
-			default:
-				result = now.Format(format)
-			}
-			return fmt.Sprintf("Current time (%s): %s", loc.String(), result), nil
-		},
-		function.WithName("get_current_time"),
-		function.WithDescription("Get the current date and time in various formats and timezones"),
-	)
-}
+func createTimeTool() tool.Tool { _ = "STUB: not implemented"; return *new(tool.Tool) }
 
 // turnUsage records the cache metrics for a single request turn.
 type turnUsage struct {
@@ -255,106 +67,34 @@ type turnUsage struct {
 	Elapsed             time.Duration
 }
 
-func (t *turnUsage) totalInput() int {
-	return t.InputTokens + t.CacheReadTokens
-}
+func (t *turnUsage) totalInput() int { _ = "STUB: not implemented"; return 0 }
 
-func (t *turnUsage) cacheHitRate() float64 {
-	total := t.totalInput()
-	if total == 0 {
-		return 0
-	}
-	return float64(t.CacheReadTokens) / float64(total) * 100
-}
+func (t *turnUsage) cacheHitRate() float64 { _ = "STUB: not implemented"; return 0 }
 
 // printTurnResult prints the result for a single turn.
-func printTurnResult(tu *turnUsage, response string) {
-	display := response
-	if len(display) > 150 {
-		display = display[:150] + "..."
-	}
-	fmt.Printf("   Response: %s\n", display)
-	fmt.Printf("   Time: %v\n", tu.Elapsed)
-	total := tu.totalInput()
-	fmt.Printf("   Tokens - total_input: %d, new: %d, cache_read: %d, cache_creation: %d\n",
-		total, tu.InputTokens, tu.CacheReadTokens, tu.CacheCreationTokens)
-	if tu.CacheReadTokens > 0 {
-		fmt.Printf("   Cache hit rate: %.1f%%\n", tu.cacheHitRate())
-	}
-}
+func printTurnResult(tu *turnUsage, response string) { _ = "STUB: not implemented"; return }
 
 // printPhaseStats prints aggregate stats for a phase.
-func printPhaseStats(usages []*turnUsage) {
-	var totalInput, totalCacheRead, totalCacheCreation, turns int
-	for _, u := range usages {
-		totalInput += u.InputTokens
-		totalCacheRead += u.CacheReadTokens
-		totalCacheCreation += u.CacheCreationTokens
-		turns++
-	}
-	fmt.Println(strings.Repeat("-", 50))
-	fmt.Printf("Phase stats: %d turns, total_new=%d, cache_read=%d, cache_creation=%d\n",
-		turns, totalInput, totalCacheRead, totalCacheCreation)
-	total := totalInput + totalCacheRead
-	if total > 0 && totalCacheRead > 0 {
-		rate := float64(totalCacheRead) / float64(total) * 100
-		savings := float64(totalCacheRead) * 0.9 / float64(total) * 100
-		fmt.Printf("Overall cache hit rate: %.1f%%, estimated savings: %.1f%%\n", rate, savings)
-	}
-	fmt.Println()
-}
+func printPhaseStats(usages []*turnUsage) { _ = "STUB: not implemented"; return }
 
 // runTurn executes one turn and collects usage metrics.
 func runTurn(ctx context.Context, r runner.Runner, userID, sessionID, query string) (string, *model.Usage, error) {
-	message := model.NewUserMessage(query)
-	eventChan, err := r.Run(ctx, userID, sessionID, message)
-	if err != nil {
-		return "", nil, err
-	}
-
-	var finalResponse string
-	var usage *model.Usage
-
-	for evt := range eventChan {
-		if evt.Error != nil {
-			fmt.Printf("   Event error: %s\n", evt.Error.Message)
-			continue
-		}
-		if len(evt.Response.Choices) > 0 {
-			if len(evt.Response.Choices[0].Message.ToolCalls) > 0 {
-				for _, tc := range evt.Response.Choices[0].Message.ToolCalls {
-					fmt.Printf("   [tool call] %s\n", tc.Function.Name)
-				}
-			}
-			if content := evt.Response.Choices[0].Message.Content; content != "" {
-				finalResponse = content
-			}
-		}
-		if evt.Response.Usage != nil {
-			usage = evt.Response.Usage
-		}
-		if evt.IsFinalResponse() {
-			break
-		}
-	}
-	return finalResponse, usage, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }
 
 // extractUsage extracts cache-related metrics from model.Usage.
 func extractUsage(usage *model.Usage) (inputTokens, cacheRead, cacheCreation int) {
-	if usage == nil {
-		return
-	}
-	inputTokens = usage.PromptTokens
-	cacheRead = usage.PromptTokensDetails.CachedTokens
-	// CacheCreationTokens is reported via PromptTokens when cache is first created.
-	// Anthropic SDK reports it separately; we capture it from the raw usage if available.
-	// In the current model.Usage mapping, cache_creation_input_tokens is not directly exposed
-	// as a separate field, but the relationship is:
-	//   total billed input = input_tokens + cache_read + cache_creation
-	// For display purposes, if no cache read and inputTokens is large, that likely includes creation.
-	return
+	_ = "STUB: not implemented"
+	return 0, 0, 0
 }
+
+// CacheCreationTokens is reported via PromptTokens when cache is first created.
+// Anthropic SDK reports it separately; we capture it from the raw usage if available.
+// In the current model.Usage mapping, cache_creation_input_tokens is not directly exposed
+// as a separate field, but the relationship is:
+//   total billed input = input_tokens + cache_read + cache_creation
+// For display purposes, if no cache read and inputTokens is large, that likely includes creation.
 
 func main() {
 	apiKey := os.Getenv("ANTHROPIC_API_KEY")

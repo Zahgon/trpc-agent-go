@@ -12,10 +12,6 @@ package tool
 
 import (
 	"context"
-	"fmt"
-	"runtime/debug"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 const (
@@ -199,49 +195,29 @@ type CallbacksOption func(*Callbacks)
 
 // WithContinueOnError sets whether to continue executing callbacks when an error occurs.
 func WithContinueOnError(continueOnError bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnError = continueOnError
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // WithContinueOnResponse sets whether to continue executing callbacks when a CustomResult is returned.
 func WithContinueOnResponse(continueOnResponse bool) CallbacksOption {
-	return func(c *Callbacks) {
-		c.continueOnResponse = continueOnResponse
-	}
+	_ = "STUB: not implemented"
+	return *new(CallbacksOption)
 }
 
 // NewCallbacks creates a new Callbacks instance for tool.
-func NewCallbacks(opts ...CallbacksOption) *Callbacks {
-	c := &Callbacks{}
-	for _, opt := range opts {
-		opt(c)
-	}
-	return c
-}
+func NewCallbacks(opts ...CallbacksOption) *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // Clone returns an independent copy of c, including callback lists,
 // ToolResultMessages and execution options.
-func (c *Callbacks) Clone() *Callbacks {
-	if c == nil {
-		return nil
-	}
-	out := &Callbacks{
-		BeforeTool:         append([]BeforeToolCallbackStructured(nil), c.BeforeTool...),
-		AfterTool:          append([]AfterToolCallbackStructured(nil), c.AfterTool...),
-		ToolResultMessages: c.ToolResultMessages,
-		continueOnError:    c.continueOnError,
-		continueOnResponse: c.continueOnResponse,
-	}
-	return out
-}
+func (c *Callbacks) Clone() *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // RegisterToolResultMessages registers a ToolResultMessages callback.
 // The callback will be invoked once per tool execution, after the tool has
 // completed and after all AfterTool callbacks have run.
 func (c *Callbacks) RegisterToolResultMessages(cb ToolResultMessagesFunc) *Callbacks {
-	c.ToolResultMessages = cb
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunToolResultMessages runs the ToolResultMessages callback (if set) with panic
@@ -250,95 +226,31 @@ func (c *Callbacks) RunToolResultMessages(
 	ctx context.Context,
 	in *ToolResultMessagesInput,
 ) (result any, err error) {
-	if c == nil || c.ToolResultMessages == nil {
-		return nil, nil
-	}
-
-	toolCallID := ""
-	toolName := ""
-	if in != nil {
-		toolCallID = in.ToolCallID
-		toolName = in.ToolName
-	}
-	defer recoverToolCallbackPanic(
-		ctx,
-		toolResultMessagesCallbackPanic,
-		toolCallID,
-		toolName,
-		&err,
-	)
-	return c.ToolResultMessages(ctx, in)
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 // RegisterBeforeTool registers a before tool callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterBeforeTool(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case BeforeToolCallbackStructured:
-		c.BeforeTool = append(c.BeforeTool, callback)
-	case BeforeToolCallback:
-		wrapped := func(ctx context.Context, args *BeforeToolArgs) (*BeforeToolResult, error) {
-			// Call old signature
-			customResult, err := callback(ctx, args.ToolName, args.Declaration, &args.Arguments)
-			if err != nil {
-				if customResult != nil {
-					return &BeforeToolResult{CustomResult: customResult}, err
-				}
-				return nil, err
-			}
-			if customResult != nil {
-				return &BeforeToolResult{CustomResult: customResult}, nil
-			}
-			return &BeforeToolResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.BeforeTool = append(c.BeforeTool, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterBeforeTool(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // RegisterAfterTool registers an after tool callback.
 // Supports both old and new callback function signatures.
 // Old signatures are automatically wrapped into new signatures.
-func (c *Callbacks) RegisterAfterTool(cb any) *Callbacks {
-	switch callback := cb.(type) {
-	case AfterToolCallbackStructured:
-		c.AfterTool = append(c.AfterTool, callback)
-	case AfterToolCallback:
-		wrapped := func(ctx context.Context, args *AfterToolArgs) (*AfterToolResult, error) {
-			// Call old signature
-			customResult, err := callback(ctx, args.ToolName, args.Declaration, args.Arguments, args.Result, args.Error)
-			if err != nil {
-				if customResult != nil {
-					return &AfterToolResult{CustomResult: customResult}, err
-				}
-				return nil, err
-			}
-			if customResult != nil {
-				return &AfterToolResult{CustomResult: customResult}, nil
-			}
-			return &AfterToolResult{}, nil // Return empty result to indicate callback was executed.
-		}
-		c.AfterTool = append(c.AfterTool, wrapped)
-	default:
-		panic("unsupported callback type")
-	}
-	return c
-}
+func (c *Callbacks) RegisterAfterTool(cb any) *Callbacks { _ = "STUB: not implemented"; return nil }
+
+// Call old signature
+
+// Return empty result to indicate callback was executed.
 
 // handleCallbackError processes callback error and returns whether to continue.
 func (c *Callbacks) handleCallbackError(err error, firstErr *error) (shouldStop bool) {
-	if err == nil {
-		return false
-	}
-	if !c.continueOnError {
-		return true
-	}
-	if *firstErr == nil {
-		*firstErr = err
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -350,23 +262,7 @@ func (c *Callbacks) processBeforeToolResult(
 	args *BeforeToolArgs,
 	lastResult **BeforeToolResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		*ctx = result.Context
-	}
-	if result.ModifiedArguments != nil {
-		args.Arguments = result.ModifiedArguments
-	}
-	if result.CustomResult != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -375,19 +271,8 @@ func (c *Callbacks) finalizeBeforeToolResult(
 	lastResult *BeforeToolResult,
 	firstErr error,
 ) (*BeforeToolResult, error) {
-	if lastResult != nil && lastResult.CustomResult != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult != nil && lastResult.Context == nil && lastResult.CustomResult == nil && lastResult.ModifiedArguments == nil {
-		return nil, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func recoverToolCallbackPanic(
@@ -397,22 +282,8 @@ func recoverToolCallbackPanic(
 	toolName string,
 	errp *error,
 ) {
-	recovered := recover()
-	if recovered == nil {
-		return
-	}
-
-	stack := debug.Stack()
-	log.ErrorfContext(
-		ctx,
-		callbackPanicLogFmt,
-		stage,
-		toolCallID,
-		toolName,
-		recovered,
-		string(stack),
-	)
-	*errp = fmt.Errorf(callbackPanicErrFmt, stage, recovered)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *Callbacks) runBeforeToolCallback(
@@ -420,20 +291,8 @@ func (c *Callbacks) runBeforeToolCallback(
 	cb BeforeToolCallbackStructured,
 	args *BeforeToolArgs,
 ) (result *BeforeToolResult, err error) {
-	toolCallID := ""
-	toolName := ""
-	if args != nil {
-		toolCallID = args.ToolCallID
-		toolName = args.ToolName
-	}
-	defer recoverToolCallbackPanic(
-		ctx,
-		beforeToolCallbackPanic,
-		toolCallID,
-		toolName,
-		&err,
-	)
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunBeforeTool runs all before tool callbacks in order.
@@ -443,25 +302,8 @@ func (c *Callbacks) RunBeforeTool(
 	ctx context.Context,
 	args *BeforeToolArgs,
 ) (*BeforeToolResult, error) {
-	var lastResult *BeforeToolResult
-	var firstErr error
-
-	for _, cb := range c.BeforeTool {
-		result, err := c.runBeforeToolCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return result, err
-		}
-
-		if c.processBeforeToolResult(result, &ctx, args, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeBeforeToolResult(lastResult, firstErr)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // processAfterToolResult processes after tool callback result and updates context.
@@ -471,32 +313,7 @@ func (c *Callbacks) processAfterToolResult(
 	ctx *context.Context,
 	lastResult **AfterToolResult,
 ) (shouldStop bool) {
-	if result == nil {
-		return false
-	}
-	if result.Context != nil {
-		*ctx = result.Context
-	}
-	if *lastResult != nil {
-		merged := *result
-		if merged.Context == nil {
-			merged.Context = (*lastResult).Context
-		}
-		if merged.CustomResult == nil {
-			merged.CustomResult = (*lastResult).CustomResult
-		}
-		merged.SkipSummarization = merged.SkipSummarization ||
-			(*lastResult).SkipSummarization
-		result = &merged
-	}
-	if result.CustomResult != nil {
-		*lastResult = result
-		if !c.continueOnResponse {
-			return true
-		}
-	} else {
-		*lastResult = result
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -506,24 +323,8 @@ func (c *Callbacks) finalizeAfterToolResult(
 	firstErr error,
 	args *AfterToolArgs,
 ) (*AfterToolResult, error) {
-	if lastResult != nil && lastResult.CustomResult != nil {
-		if c.continueOnError && firstErr != nil {
-			return lastResult, firstErr
-		}
-		return lastResult, nil
-	}
-	if c.continueOnError && firstErr != nil {
-		return lastResult, firstErr
-	}
-	if lastResult == nil {
-		if args.Result != nil {
-			return &AfterToolResult{
-				CustomResult: args.Result,
-			}, nil
-		}
-		return &AfterToolResult{}, nil
-	}
-	return lastResult, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Callbacks) runAfterToolCallback(
@@ -531,42 +332,15 @@ func (c *Callbacks) runAfterToolCallback(
 	cb AfterToolCallbackStructured,
 	args *AfterToolArgs,
 ) (result *AfterToolResult, err error) {
-	toolCallID := ""
-	toolName := ""
-	if args != nil {
-		toolCallID = args.ToolCallID
-		toolName = args.ToolName
-	}
-	defer recoverToolCallbackPanic(
-		ctx,
-		afterToolCallbackPanic,
-		toolCallID,
-		toolName,
-		&err,
-	)
-	restore := normalizeAfterToolArgsResult(args)
-	defer restore()
-	return cb(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // normalizeAfterToolArgsResult temporarily rewrites args.Result to the
 // callback-facing result shape and returns a restore function.
 func normalizeAfterToolArgsResult(args *AfterToolArgs) func() {
-	if args == nil {
-		return func() {}
-	}
-	type callbackResultGetter interface {
-		GetCallbackResult() any
-	}
-	rg, ok := args.Result.(callbackResultGetter)
-	if !ok {
-		return func() {}
-	}
-	original := args.Result
-	args.Result = rg.GetCallbackResult()
-	return func() {
-		args.Result = original
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunAfterTool runs all after tool callbacks in order.
@@ -576,23 +350,6 @@ func (c *Callbacks) RunAfterTool(
 	ctx context.Context,
 	args *AfterToolArgs,
 ) (*AfterToolResult, error) {
-	var lastResult *AfterToolResult
-	var firstErr error
-
-	for _, cb := range c.AfterTool {
-		result, err := c.runAfterToolCallback(ctx, cb, args)
-
-		if c.handleCallbackError(err, &firstErr) {
-			return result, err
-		}
-
-		if c.processAfterToolResult(result, &ctx, &lastResult) {
-			if c.continueOnError && firstErr != nil {
-				return result, firstErr
-			}
-			return result, nil
-		}
-	}
-
-	return c.finalizeAfterToolResult(lastResult, firstErr, args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

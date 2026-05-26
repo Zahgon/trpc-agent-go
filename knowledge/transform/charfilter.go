@@ -11,7 +11,6 @@ package transform
 
 import (
 	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 )
@@ -27,69 +26,37 @@ type CharFilter struct {
 // Example:
 //
 //	filter := transform.NewCharFilter("\n", "\t", "\r")
-func NewCharFilter(charsToRemove ...string) *CharFilter {
-	args := make([]string, 0, len(charsToRemove)*2)
-	for _, char := range charsToRemove {
-		if char == "" {
-			continue
-		}
-		args = append(args, char, "")
-	}
-	return &CharFilter{
-		replacer: strings.NewReplacer(args...),
-	}
-}
+func NewCharFilter(charsToRemove ...string) *CharFilter { _ = "STUB: not implemented"; return nil }
 
 // Preprocess applies the character filter to documents before chunking.
 func (cf *CharFilter) Preprocess(docs []*document.Document) ([]*document.Document, error) {
-	return cf.transform(docs)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Postprocess returns documents unchanged (no-op for CharFilter).
+		nil
 }
 
-// Postprocess returns documents unchanged (no-op for CharFilter).
 func (cf *CharFilter) Postprocess(docs []*document.Document) ([]*document.Document, error) {
-	return docs, nil
+	_ = "STUB: not implemented"
+
+	// transform applies the character filter transformation to documents.
+	return nil, nil
 }
 
-// transform applies the character filter transformation to documents.
 func (cf *CharFilter) transform(docs []*document.Document) ([]*document.Document, error) {
-	if len(docs) == 0 {
-		return docs, nil
-	}
-
-	result := make([]*document.Document, 0, len(docs))
-	for _, doc := range docs {
-		if doc == nil {
-			continue
-		}
-		cleaned := cf.cleanContent(doc.Content)
-		result = append(result, cf.createProcessedDoc(doc, cleaned))
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // cleanContent applies all character filters to the content.
-func (cf *CharFilter) cleanContent(content string) string {
-	return cf.replacer.Replace(content)
-}
+func (cf *CharFilter) cleanContent(content string) string { _ = "STUB: not implemented"; return "" }
 
 // createProcessedDoc creates a new document with processed content.
 func (cf *CharFilter) createProcessedDoc(original *document.Document, content string) *document.Document {
-	metadata := make(map[string]any)
-	for k, v := range original.Metadata {
-		metadata[k] = v
-	}
-
-	return &document.Document{
-		ID:        original.ID,
-		Name:      original.Name,
-		Content:   content,
-		Metadata:  metadata,
-		CreatedAt: original.CreatedAt,
-		UpdatedAt: time.Now().UTC(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Name returns the name of this transformer.
-func (cf *CharFilter) Name() string {
-	return "CharFilter"
-}
+func (cf *CharFilter) Name() string { _ = "STUB: not implemented"; return "" }

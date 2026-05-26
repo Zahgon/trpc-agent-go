@@ -11,17 +11,11 @@ package backwarder
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"slices"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
 	atrace "trpc.group/trpc-go/trpc-agent-go/agent/trace"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter"
-	idecode "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/decode"
-	irunner "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/runner"
-	isurface "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/surface"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -111,361 +105,52 @@ type backwarder struct {
 
 // New creates a Backwarder instance with injected runner and options.
 func New(ctx context.Context, runner runner.Runner, opt ...Option) (Backwarder, error) {
-	if runner == nil {
-		return nil, errors.New("runner is nil")
-	}
-	opts := newOptions(opt...)
-	if opts.messageBuilder == nil {
-		return nil, errors.New("message builder is nil")
-	}
-	if opts.userIDSupplier == nil {
-		return nil, errors.New("user id supplier is nil")
-	}
-	if opts.sessionIDSupplier == nil {
-		return nil, errors.New("session id supplier is nil")
-	}
-	return &backwarder{
-		runner:            runner,
-		runOptions:        opts.runOptions,
-		messageBuilder:    opts.messageBuilder,
-		userIDSupplier:    opts.userIDSupplier,
-		sessionIDSupplier: opts.sessionIDSupplier,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Backwarder), nil
 }
 
 // Backward computes local gradients and upstream propagation paths for one step.
 func (b *backwarder) Backward(ctx context.Context, request *Request) (*Result, error) {
-	if b.runner == nil {
-		return nil, errors.New("runner is nil")
-	}
-	if b.messageBuilder == nil {
-		return nil, errors.New("message builder is nil")
-	}
-	if b.userIDSupplier == nil {
-		return nil, errors.New("user id supplier is nil")
-	}
-	if b.sessionIDSupplier == nil {
-		return nil, errors.New("session id supplier is nil")
-	}
-	normalizedRequest, err := normalizeRequest(request)
-	if err != nil {
-		return nil, fmt.Errorf("normalize backward request: %w", err)
-	}
-	if isNoOpBackwardRequest(normalizedRequest) {
-		return &Result{
-			Gradients: []promptiter.SurfaceGradient{},
-			Upstream:  []Propagation{},
-		}, nil
-	}
-	message, err := b.messageBuilder(ctx, normalizedRequest)
-	if err != nil {
-		return nil, fmt.Errorf("build backward message: %w", err)
-	}
-	if message == nil {
-		return nil, errors.New("message is nil")
-	}
-	userID := b.userIDSupplier(ctx)
-	if userID == "" {
-		return nil, errors.New("user id is empty")
-	}
-	sessionID := b.sessionIDSupplier(ctx)
-	if sessionID == "" {
-		return nil, errors.New("session id is empty")
-	}
-	runOptions := slices.Clone(b.runOptions)
-	runOptions = append(runOptions, backwardStructuredOutput(normalizedRequest))
-	events, err := b.runner.Run(
-		ctx,
-		userID,
-		sessionID,
-		*message,
-		runOptions...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("runner run: %w", err)
-	}
-	output, err := irunner.CaptureOutput(events)
-	if err != nil {
-		return nil, fmt.Errorf("capture runner output: %w", err)
-	}
-	result, err := idecode.DecodeOutputJSON[Result](output)
-	if err != nil {
-		return nil, fmt.Errorf("decode backward result: %w", err)
-	}
-	if result == nil {
-		return nil, errors.New("backward result is empty")
-	}
-	result, err = sanitizeBackwardResult(normalizedRequest, result)
-	if err != nil {
-		return nil, fmt.Errorf("sanitize backward result: %w", err)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func isNoOpBackwardRequest(request *Request) bool {
-	return request != nil && len(requestAllowedGradientSurfaceIDs(request)) == 0 && len(request.Predecessors) == 0
-}
+func isNoOpBackwardRequest(request *Request) bool { _ = "STUB: not implemented"; return false }
 
 func backwardStructuredOutput(request *Request) agent.RunOption {
-	return agent.WithStructuredOutputJSONSchema(
-		"BackwardResult",
-		backwardResultSchema(request),
-		true,
-		"One PromptIter backward propagation result.",
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.RunOption)
 }
 
-func backwardResultSchema(request *Request) map[string]any {
-	surfaceIDs := requestAllowedGradientSurfaceIDs(request)
-	predecessorStepIDs := requestPredecessorStepIDs(request)
-	return map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"Gradients": backwardGradientArraySchema(surfaceIDs),
-			"Upstream":  backwardPropagationArraySchema(predecessorStepIDs),
-		},
-		"required":             []string{"Gradients", "Upstream"},
-		"additionalProperties": false,
-	}
-}
+func backwardResultSchema(request *Request) map[string]any { _ = "STUB: not implemented"; return nil }
 
-func requestSurfaceIDs(request *Request) []string {
-	if request == nil {
-		return nil
-	}
-	ids := make([]string, 0, len(request.Surfaces))
-	seen := make(map[string]struct{}, len(request.Surfaces))
-	for _, surface := range request.Surfaces {
-		if surface.SurfaceID == "" {
-			continue
-		}
-		if _, ok := seen[surface.SurfaceID]; ok {
-			continue
-		}
-		seen[surface.SurfaceID] = struct{}{}
-		ids = append(ids, surface.SurfaceID)
-	}
-	return ids
-}
+func requestSurfaceIDs(request *Request) []string { _ = "STUB: not implemented"; return nil }
 
 func requestAllowedGradientSurfaceIDs(request *Request) []string {
-	if request == nil {
-		return nil
-	}
-	if request.AllowedGradientSurfaceIDs == nil {
-		return requestSurfaceIDs(request)
-	}
-	return append([]string(nil), request.AllowedGradientSurfaceIDs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func requestPredecessorStepIDs(request *Request) []string {
-	if request == nil {
-		return nil
-	}
-	ids := make([]string, 0, len(request.Predecessors))
-	seen := make(map[string]struct{}, len(request.Predecessors))
-	for _, predecessor := range request.Predecessors {
-		if predecessor.StepID == "" {
-			continue
-		}
-		if _, ok := seen[predecessor.StepID]; ok {
-			continue
-		}
-		seen[predecessor.StepID] = struct{}{}
-		ids = append(ids, predecessor.StepID)
-	}
-	return ids
-}
+func requestPredecessorStepIDs(request *Request) []string { _ = "STUB: not implemented"; return nil }
 
 func backwardGradientArraySchema(surfaceIDs []string) map[string]any {
-	itemSchema := map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"SurfaceID": map[string]any{
-				"type": "string",
-				"enum": surfaceIDs,
-			},
-			"Severity": map[string]any{
-				"type": "string",
-				"enum": []string{
-					string(promptiter.LossSeverityP0),
-					string(promptiter.LossSeverityP1),
-					string(promptiter.LossSeverityP2),
-					string(promptiter.LossSeverityP3),
-				},
-			},
-			"Gradient": map[string]any{
-				"type": "string",
-			},
-		},
-		"required":             []string{"SurfaceID", "Severity", "Gradient"},
-		"additionalProperties": false,
-	}
-	if len(surfaceIDs) == 0 {
-		return map[string]any{
-			"type":     "array",
-			"items":    itemSchema,
-			"maxItems": 0,
-		}
-	}
-	return map[string]any{
-		"type":  "array",
-		"items": itemSchema,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func backwardPropagationArraySchema(predecessorStepIDs []string) map[string]any {
-	itemSchema := map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"PredecessorStepID": map[string]any{
-				"type": "string",
-				"enum": predecessorStepIDs,
-			},
-			"Gradients": map[string]any{
-				"type": "array",
-				"items": map[string]any{
-					"type": "object",
-					"properties": map[string]any{
-						"Severity": map[string]any{
-							"type": "string",
-							"enum": []string{
-								string(promptiter.LossSeverityP0),
-								string(promptiter.LossSeverityP1),
-								string(promptiter.LossSeverityP2),
-								string(promptiter.LossSeverityP3),
-							},
-						},
-						"Gradient": map[string]any{
-							"type": "string",
-						},
-					},
-					"required":             []string{"Severity", "Gradient"},
-					"additionalProperties": false,
-				},
-			},
-		},
-		"required":             []string{"PredecessorStepID", "Gradients"},
-		"additionalProperties": false,
-	}
-	if len(predecessorStepIDs) == 0 {
-		return map[string]any{
-			"type":     "array",
-			"items":    itemSchema,
-			"maxItems": 0,
-		}
-	}
-	return map[string]any{
-		"type":  "array",
-		"items": itemSchema,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func normalizeRequest(request *Request) (*Request, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
-	}
-	if request.EvalSetID == "" {
-		return nil, errors.New("eval set id is empty")
-	}
-	if request.EvalCaseID == "" {
-		return nil, errors.New("eval case id is empty")
-	}
-	if request.Node == nil {
-		return nil, errors.New("node is nil")
-	}
-	if request.Node.NodeID == "" {
-		return nil, errors.New("node id is empty")
-	}
-	if request.StepID == "" {
-		return nil, errors.New("step id is empty")
-	}
-	if request.Input == nil {
-		return nil, errors.New("input is nil")
-	}
-	surfaceIndex, err := isurface.BuildIndex(request.Surfaces)
-	if err != nil {
-		return nil, fmt.Errorf("build surface index: %w", err)
-	}
-	if _, err := normalizeAllowedGradientSurfaceIDs(request, surfaceIndex); err != nil {
-		return nil, fmt.Errorf("normalize allowed gradient surface ids: %w", err)
-	}
-	if _, err := buildPredecessorIndex(request.Predecessors); err != nil {
-		return nil, fmt.Errorf("build predecessor index: %w", err)
-	}
-	if len(request.Incoming) == 0 {
-		return nil, errors.New("incoming gradients are empty")
-	}
-	for _, packet := range request.Incoming {
-		if packet.FromStepID == "" {
-			return nil, errors.New("incoming gradient from step id is empty")
-		}
-		if packet.Gradient == "" {
-			return nil, errors.New("incoming gradient is empty")
-		}
-	}
-	return request, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func sanitizeBackwardResult(request *Request, result *Result) (*Result, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
-	}
-	if result == nil {
-		return nil, errors.New("backward result is nil")
-	}
-	surfaceIndex, err := isurface.BuildIndex(request.Surfaces)
-	if err != nil {
-		return nil, fmt.Errorf("build surface index: %w", err)
-	}
-	allowedGradientSurfaceIndex, err := buildAllowedGradientSurfaceIndex(request, surfaceIndex)
-	if err != nil {
-		return nil, fmt.Errorf("build allowed gradient surface index: %w", err)
-	}
-	predecessorIndex, err := buildPredecessorIndex(request.Predecessors)
-	if err != nil {
-		return nil, fmt.Errorf("build predecessor index: %w", err)
-	}
-	sanitized := &Result{
-		Gradients: make([]promptiter.SurfaceGradient, 0, len(result.Gradients)),
-		Upstream:  make([]Propagation, 0, len(result.Upstream)),
-	}
-	for _, gradient := range result.Gradients {
-		sanitizedGradient, keep, err := sanitizeSurfaceGradient(request, allowedGradientSurfaceIndex, gradient)
-		if err != nil {
-			return nil, fmt.Errorf("sanitize surface gradient: %w", err)
-		}
-		if !keep {
-			continue
-		}
-		sanitized.Gradients = append(sanitized.Gradients, sanitizedGradient)
-	}
-	if len(predecessorIndex) == 0 && len(result.Upstream) > 0 {
-		return nil, errors.New("upstream propagations are not allowed without predecessors")
-	}
-	upstreamIndex := make(map[string]int, len(result.Upstream))
-	for _, propagation := range result.Upstream {
-		sanitizedPropagation, keep, err := sanitizePropagation(request, predecessorIndex, propagation)
-		if err != nil {
-			return nil, fmt.Errorf("sanitize propagation: %w", err)
-		}
-		if !keep {
-			continue
-		}
-		if existingIndex, ok := upstreamIndex[sanitizedPropagation.PredecessorStepID]; ok {
-			sanitized.Upstream[existingIndex].Gradients = append(
-				sanitized.Upstream[existingIndex].Gradients,
-				sanitizedPropagation.Gradients...,
-			)
-			continue
-		}
-		upstreamIndex[sanitizedPropagation.PredecessorStepID] = len(sanitized.Upstream)
-		sanitized.Upstream = append(sanitized.Upstream, sanitizedPropagation)
-	}
-	if len(sanitized.Gradients) == 0 && len(sanitized.Upstream) == 0 {
-		return nil, errors.New("backward result is empty")
-	}
-	return sanitized, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func sanitizeSurfaceGradient(
@@ -473,42 +158,8 @@ func sanitizeSurfaceGradient(
 	surfaceIndex map[string]astructure.Surface,
 	gradient promptiter.SurfaceGradient,
 ) (promptiter.SurfaceGradient, bool, error) {
-	if gradient.Gradient == "" {
-		return promptiter.SurfaceGradient{}, false, nil
-	}
-	if evalSetID := gradient.EvalSetID; evalSetID != "" && evalSetID != request.EvalSetID {
-		return promptiter.SurfaceGradient{}, false, fmt.Errorf(
-			"gradient eval set id %q does not match request eval set id %q",
-			gradient.EvalSetID,
-			request.EvalSetID,
-		)
-	}
-	if evalCaseID := gradient.EvalCaseID; evalCaseID != "" && evalCaseID != request.EvalCaseID {
-		return promptiter.SurfaceGradient{}, false, fmt.Errorf(
-			"gradient eval case id %q does not match request eval case id %q",
-			gradient.EvalCaseID,
-			request.EvalCaseID,
-		)
-	}
-	if stepID := gradient.StepID; stepID != "" && stepID != request.StepID {
-		return promptiter.SurfaceGradient{}, false, fmt.Errorf(
-			"gradient step id %q does not match request step id %q",
-			gradient.StepID,
-			request.StepID,
-		)
-	}
-	surfaceID, err := sanitizeGradientSurfaceID(surfaceIndex, gradient.SurfaceID)
-	if err != nil {
-		return promptiter.SurfaceGradient{}, false, fmt.Errorf("sanitize gradient surface id: %w", err)
-	}
-	return promptiter.SurfaceGradient{
-		EvalSetID:  request.EvalSetID,
-		EvalCaseID: request.EvalCaseID,
-		StepID:     request.StepID,
-		SurfaceID:  surfaceID,
-		Severity:   gradient.Severity,
-		Gradient:   gradient.Gradient,
-	}, true, nil
+	_ = "STUB: not implemented"
+	return *new(promptiter.SurfaceGradient), false, nil
 }
 
 func sanitizePropagation(
@@ -516,135 +167,43 @@ func sanitizePropagation(
 	predecessorIndex map[string]Predecessor,
 	propagation Propagation,
 ) (Propagation, bool, error) {
-	predecessorStepID, err := sanitizePropagationPredecessorStepID(predecessorIndex, propagation.PredecessorStepID)
-	if err != nil {
-		return Propagation{}, false, fmt.Errorf("sanitize propagation predecessor step id: %w", err)
-	}
-	sanitized := Propagation{
-		PredecessorStepID: predecessorStepID,
-		Gradients:         make([]GradientPacket, 0, len(propagation.Gradients)),
-	}
-	for _, packet := range propagation.Gradients {
-		if packet.Gradient == "" {
-			continue
-		}
-		if fromStepID := packet.FromStepID; fromStepID != "" && fromStepID != request.StepID {
-			return Propagation{}, false, fmt.Errorf(
-				"propagation packet from step id %q does not match request step id %q",
-				packet.FromStepID,
-				request.StepID,
-			)
-		}
-		sanitized.Gradients = append(sanitized.Gradients, GradientPacket{
-			FromStepID: request.StepID,
-			Severity:   packet.Severity,
-			Gradient:   packet.Gradient,
-		})
-	}
-	if len(sanitized.Gradients) == 0 {
-		return Propagation{}, false, nil
-	}
-	return sanitized, true, nil
+	_ = "STUB: not implemented"
+	return *new(Propagation), false, nil
 }
 
 func buildPredecessorIndex(predecessors []Predecessor) (map[string]Predecessor, error) {
-	index := make(map[string]Predecessor, len(predecessors))
-	for _, predecessor := range predecessors {
-		if predecessor.StepID == "" {
-			return nil, errors.New("predecessor step id is empty")
-		}
-		if predecessor.NodeID == "" {
-			return nil, errors.New("predecessor node id is empty")
-		}
-		if _, ok := index[predecessor.StepID]; ok {
-			return nil, fmt.Errorf("duplicate predecessor step id %q", predecessor.StepID)
-		}
-		index[predecessor.StepID] = predecessor
-	}
-	return index, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeAllowedGradientSurfaceIDs(
 	request *Request,
 	surfaceIndex map[string]astructure.Surface,
 ) ([]string, error) {
-	if request == nil || request.AllowedGradientSurfaceIDs == nil {
-		return nil, nil
-	}
-	normalized := make([]string, 0, len(request.AllowedGradientSurfaceIDs))
-	seen := make(map[string]struct{}, len(request.AllowedGradientSurfaceIDs))
-	for _, surfaceID := range request.AllowedGradientSurfaceIDs {
-		if surfaceID == "" {
-			return nil, errors.New("allowed gradient surface id is empty")
-		}
-		if _, ok := surfaceIndex[surfaceID]; !ok {
-			return nil, fmt.Errorf("allowed gradient surface id %q is not part of request surfaces", surfaceID)
-		}
-		if _, ok := seen[surfaceID]; ok {
-			continue
-		}
-		seen[surfaceID] = struct{}{}
-		normalized = append(normalized, surfaceID)
-	}
-	request.AllowedGradientSurfaceIDs = normalized
-	return normalized, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func buildAllowedGradientSurfaceIndex(
 	request *Request,
 	surfaceIndex map[string]astructure.Surface,
 ) (map[string]astructure.Surface, error) {
-	allowedSurfaceIDs := requestAllowedGradientSurfaceIDs(request)
-	index := make(map[string]astructure.Surface, len(allowedSurfaceIDs))
-	for _, surfaceID := range allowedSurfaceIDs {
-		surface, ok := surfaceIndex[surfaceID]
-		if !ok {
-			return nil, fmt.Errorf("allowed gradient surface id %q is not part of request surfaces", surfaceID)
-		}
-		index[surfaceID] = surface
-	}
-	return index, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func sanitizeGradientSurfaceID(
 	surfaceIndex map[string]astructure.Surface,
 	surfaceID string,
 ) (string, error) {
-	switch {
-	case surfaceID == "" && len(surfaceIndex) == 1:
-		for id := range surfaceIndex {
-			return id, nil
-		}
-	case surfaceID == "":
-		return "", errors.New("gradient surface id is empty")
-	default:
-		if _, ok := surfaceIndex[surfaceID]; !ok {
-			return "", fmt.Errorf("gradient surface id %q is not part of allowed gradient surfaces", surfaceID)
-		}
-		return surfaceID, nil
-	}
-	return "", errors.New("gradient surface id is empty")
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func sanitizePropagationPredecessorStepID(
 	predecessorIndex map[string]Predecessor,
 	predecessorStepID string,
 ) (string, error) {
-	switch {
-	case predecessorStepID == "" && len(predecessorIndex) == 1:
-		for stepID := range predecessorIndex {
-			return stepID, nil
-		}
-	case predecessorStepID == "":
-		return "", errors.New("propagation predecessor step id is empty")
-	default:
-		if _, ok := predecessorIndex[predecessorStepID]; !ok {
-			return "", fmt.Errorf(
-				"propagation predecessor step id %q is not part of request predecessors",
-				predecessorStepID,
-			)
-		}
-		return predecessorStepID, nil
-	}
-	return "", errors.New("propagation predecessor step id is empty")
+	_ = "STUB: not implemented"
+	return "", nil
 }

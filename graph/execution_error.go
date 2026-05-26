@@ -11,12 +11,8 @@ package graph
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"reflect"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -78,22 +74,17 @@ type recoverableExecutionError struct {
 	cause error
 }
 
-func (e recoverableExecutionError) Error() string {
-	if e.cause == nil {
-		return ""
-	}
-	return e.cause.Error()
-}
+func (e recoverableExecutionError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e recoverableExecutionError) Unwrap() error {
-	return e.cause
-}
+func (e recoverableExecutionError) Unwrap() error { _ = "STUB: not implemented"; return nil }
 
 func (e recoverableExecutionError) Recoverable() bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// ExecutionErrorPolicyFunc decides how a node error should be recorded.
+	return false
 }
 
-// ExecutionErrorPolicyFunc decides how a node error should be recorded.
 type ExecutionErrorPolicyFunc func(
 	ctx context.Context,
 	callbackCtx *NodeCallbackContext,
@@ -110,10 +101,8 @@ func DefaultExecutionErrorPolicy(
 	_ any,
 	err error,
 ) ExecutionErrorPolicy {
-	if IsRecoverableExecutionError(err) {
-		return ExecutionErrorPolicy{Recover: true}
-	}
-	return ExecutionErrorPolicy{}
+	_ = "STUB: not implemented"
+	return *new(ExecutionErrorPolicy)
 }
 
 // ExecutionErrorCollectorOption configures an ExecutionErrorCollector.
@@ -130,26 +119,16 @@ type ExecutionErrorCollector struct {
 func NewExecutionErrorCollector(
 	opts ...ExecutionErrorCollectorOption,
 ) *ExecutionErrorCollector {
-	collector := &ExecutionErrorCollector{
-		stateKey:  StateKeyExecutionErrors,
-		eventType: ExecutionErrorEventType,
-		policy:    DefaultExecutionErrorPolicy,
-	}
-	for _, opt := range opts {
-		opt(collector)
-	}
-	return collector
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithExecutionErrorStateKey overrides the state key used by the collector.
 func WithExecutionErrorStateKey(
 	key string,
 ) ExecutionErrorCollectorOption {
-	return func(c *ExecutionErrorCollector) {
-		if key != "" {
-			c.stateKey = key
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ExecutionErrorCollectorOption)
 }
 
 // WithExecutionErrorEventType overrides the custom event type used on fatal
@@ -157,22 +136,16 @@ func WithExecutionErrorStateKey(
 func WithExecutionErrorEventType(
 	eventType string,
 ) ExecutionErrorCollectorOption {
-	return func(c *ExecutionErrorCollector) {
-		if eventType != "" {
-			c.eventType = eventType
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ExecutionErrorCollectorOption)
 }
 
 // WithExecutionErrorPolicy sets a custom error handling policy.
 func WithExecutionErrorPolicy(
 	policy ExecutionErrorPolicyFunc,
 ) ExecutionErrorCollectorOption {
-	return func(c *ExecutionErrorCollector) {
-		if policy != nil {
-			c.policy = policy
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ExecutionErrorCollectorOption)
 }
 
 // WithRecoverableExecutionErrors extends the default recovery policy with an
@@ -180,90 +153,47 @@ func WithExecutionErrorPolicy(
 func WithRecoverableExecutionErrors(
 	shouldRecover func(error) bool,
 ) ExecutionErrorCollectorOption {
-	return func(c *ExecutionErrorCollector) {
-		if shouldRecover == nil {
-			return
-		}
-		basePolicy := c.policy
-		c.policy = func(
-			ctx context.Context,
-			callbackCtx *NodeCallbackContext,
-			state State,
-			result any,
-			err error,
-		) ExecutionErrorPolicy {
-			policy := ExecutionErrorPolicy{}
-			if basePolicy != nil {
-				policy = basePolicy(
-					ctx,
-					callbackCtx,
-					state,
-					result,
-					err,
-				)
-			}
-			if policy.Recover || !shouldRecover(err) {
-				return policy
-			}
-			policy.Recover = true
-			return policy
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ExecutionErrorCollectorOption)
 }
 
 // MarkRecoverable wraps err so the default collector policy treats it as
 // recoverable.
-func MarkRecoverable(err error) error {
-	if err == nil || IsRecoverableExecutionError(err) {
-		return err
-	}
-	return recoverableExecutionError{cause: err}
-}
+func MarkRecoverable(err error) error { _ = "STUB: not implemented"; return nil }
 
 // NewRecoverableError returns a recoverable error with the provided message.
-func NewRecoverableError(message string) error {
-	return MarkRecoverable(errors.New(message))
-}
+func NewRecoverableError(message string) error { _ = "STUB: not implemented"; return nil }
 
 // IsRecoverableExecutionError reports whether err matches the default
 // recoverable-error contract.
-func IsRecoverableExecutionError(err error) bool {
-	var recoverable RecoverableExecutionError
-	if !errors.As(err, &recoverable) {
-		return false
-	}
-	return recoverable.Recoverable()
-}
+func IsRecoverableExecutionError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // StateKey returns the state key used by the collector.
 func (c *ExecutionErrorCollector) StateKey() string {
-	return c.stateKey
+	_ = "STUB: not implemented"
+
+	// StateField returns a StateField suitable for collecting execution errors.
+	return ""
 }
 
-// StateField returns a StateField suitable for collecting execution errors.
 func (c *ExecutionErrorCollector) StateField() StateField {
-	return StateField{
-		Type:    reflect.TypeOf([]ExecutionError{}),
-		Reducer: ExecutionErrorSliceReducer,
-		Default: func() any { return []ExecutionError{} },
-	}
+	_ = "STUB: not implemented"
+	return *new(StateField)
 }
 
 // AddField registers the collector's state field onto a schema.
 func (c *ExecutionErrorCollector) AddField(
 	schema *StateSchema,
 ) *StateSchema {
-	if schema == nil {
-		schema = NewStateSchema()
-	}
-	schema.AddField(c.stateKey, c.StateField())
-	return schema
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NodeCallbacks returns callbacks that collect execution errors on node
 // failure.
 func (c *ExecutionErrorCollector) NodeCallbacks() *NodeCallbacks {
-	return NewNodeCallbacks().RegisterAfterNode(c.afterNode)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SubgraphStateUpdate extracts collected execution errors from a child agent
@@ -271,32 +201,15 @@ func (c *ExecutionErrorCollector) NodeCallbacks() *NodeCallbacks {
 func (c *ExecutionErrorCollector) SubgraphStateUpdate(
 	result SubgraphResult,
 ) State {
-	executionErrors, err := ExecutionErrorsFromStateDelta(
-		result.EffectiveStateDelta(),
-		c.stateKey,
-	)
-	if err != nil || len(executionErrors) == 0 {
-		if err != nil {
-			log.Warnf(
-				"graph: failed to decode execution errors from subgraph "+
-					"state key %q: %v",
-				c.stateKey,
-				err,
-			)
-		}
-		return nil
-	}
-	return State{
-		c.stateKey: executionErrors,
-	}
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 // SubgraphOutputMapper returns a mapper that merges child execution errors
 // into the parent graph state.
 func (c *ExecutionErrorCollector) SubgraphOutputMapper() SubgraphOutputMapper {
-	return func(parent State, result SubgraphResult) State {
-		return c.SubgraphStateUpdate(result)
-	}
+	_ = "STUB: not implemented"
+	return *new(SubgraphOutputMapper)
 }
 
 // NewExecutionError creates a structured record from a node callback context.
@@ -305,51 +218,22 @@ func NewExecutionError(
 	err error,
 	severity ExecutionErrorSeverity,
 ) ExecutionError {
-	respErr := model.ResponseErrorFromError(err, model.ErrorTypeFlowError)
-	record := ExecutionError{
-		Severity:  severity,
-		Timestamp: time.Now(),
-		Error:     cloneResponseError(respErr),
-	}
-	if callbackCtx == nil {
-		return record
-	}
-	record.NodeID = callbackCtx.NodeID
-	record.NodeName = callbackCtx.NodeName
-	record.NodeType = callbackCtx.NodeType
-	record.StepNumber = callbackCtx.StepNumber
-	return record
+	_ = "STUB: not implemented"
+	return *new(ExecutionError)
 }
 
 // ExecutionErrorSliceReducer appends execution error slices.
 func ExecutionErrorSliceReducer(existing, update any) any {
-	if existing == nil {
-		existing = []ExecutionError{}
-	}
-	existingSlice, ok1 := existing.([]ExecutionError)
-	updateSlice, ok2 := update.([]ExecutionError)
-	if !ok1 || !ok2 {
-		return update
-	}
-
-	merged := make([]ExecutionError, 0, len(existingSlice)+len(updateSlice))
-	merged = append(merged, cloneExecutionErrors(existingSlice)...)
-	merged = append(merged, cloneExecutionErrors(updateSlice)...)
-	return merged
+	_ = "STUB: not implemented"
+	return *new(any)
 }
 
 // DecodeExecutionErrors unmarshals a serialized execution error slice.
 func DecodeExecutionErrors(
 	raw []byte,
 ) ([]ExecutionError, error) {
-	if len(raw) == 0 {
-		return nil, nil
-	}
-	var executionErrors []ExecutionError
-	if err := json.Unmarshal(raw, &executionErrors); err != nil {
-		return nil, err
-	}
-	return cloneExecutionErrors(executionErrors), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ExecutionErrorsFromStateDelta extracts execution errors from an event state
@@ -358,14 +242,8 @@ func ExecutionErrorsFromStateDelta(
 	stateDelta map[string][]byte,
 	key string,
 ) ([]ExecutionError, error) {
-	if len(stateDelta) == 0 {
-		return nil, nil
-	}
-	raw, ok := stateDelta[key]
-	if !ok {
-		return nil, nil
-	}
-	return DecodeExecutionErrors(raw)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *ExecutionErrorCollector) afterNode(
@@ -375,134 +253,43 @@ func (c *ExecutionErrorCollector) afterNode(
 	result any,
 	nodeErr error,
 ) (any, error) {
-	if nodeErr == nil {
-		return nil, nil
-	}
-
-	policy := c.policy(ctx, callbackCtx, state, result, nodeErr)
-	severity := ExecutionErrorSeverityFatal
-	if policy.Recover {
-		severity = ExecutionErrorSeverityRecoverable
-	}
-	record := NewExecutionError(callbackCtx, nodeErr, severity)
-	if policy.ResponseError != nil {
-		record.Error = cloneResponseError(policy.ResponseError)
-	}
-
-	update := State{
-		c.stateKey: []ExecutionError{record},
-	}
-
-	if policy.Recover {
-		replacement := policy.Replacement
-		if replacement == nil {
-			replacement = result
-		}
-		return mergeExecutionErrorReplacement(
-			replacement,
-			update,
-		), nil
-	}
-
-	if err := EmitCustomStateDelta(
-		ctx,
-		state,
-		update,
-		WithStateDeltaEventType(c.eventType),
-		WithStateDeltaEventMessage(executionErrorMessage(record)),
-		WithStateDeltaEventPayload(record),
-	); err != nil {
-		log.WarnfContext(
-			ctx,
-			"graph: failed to emit execution error state delta: %v",
-			err,
-		)
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func mergeExecutionErrorReplacement(
 	replacement any,
 	update State,
 ) any {
-	switch value := replacement.(type) {
-	case nil:
-		return update
-	case State:
-		return mergeStateForExecutionError(value, update)
-	case Command:
-		value.Update = mergeStateForExecutionError(value.Update, update)
-		return value
-	case *Command:
-		if value == nil {
-			return &Command{Update: update}
-		}
-		cloned := *value
-		cloned.Update = mergeStateForExecutionError(cloned.Update, update)
-		return &cloned
-	default:
-		log.Warnf(
-			"graph: execution error replacement type %T cannot "+
-				"merge state update",
-			replacement,
-		)
-		return replacement
-	}
+	_ = "STUB: not implemented"
+	return *new(any)
 }
 
 func mergeStateForExecutionError(
 	dst State,
 	update State,
 ) State {
-	if dst == nil {
-		dst = State{}
-	}
-	merged := dst.Clone()
-	for key, value := range update {
-		merged[key] = value
-	}
-	return merged
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 func cloneExecutionErrors(
 	executionErrors []ExecutionError,
 ) []ExecutionError {
-	if len(executionErrors) == 0 {
-		return nil
-	}
-	cloned := make([]ExecutionError, len(executionErrors))
-	for i := range executionErrors {
-		cloned[i] = executionErrors[i]
-		cloned[i].Error = cloneResponseError(
-			executionErrors[i].Error,
-		)
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneResponseError(
 	err *model.ResponseError,
 ) *model.ResponseError {
-	if err == nil {
-		return nil
-	}
-	cloned := *err
-	if err.Code != nil {
-		code := *err.Code
-		cloned.Code = &code
-	}
-	if err.Param != nil {
-		param := *err.Param
-		cloned.Param = &param
-	}
-	return &cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func executionErrorMessage(
 	record ExecutionError,
 ) string {
-	if record.Error == nil {
-		return ""
-	}
-	return record.Error.Message
+	_ = "STUB: not implemented"
+	return ""
 }

@@ -14,7 +14,6 @@ import (
 	"context"
 	"errors"
 	"sync"
-	"time"
 )
 
 const (
@@ -42,68 +41,19 @@ func newExternalInterruptWatcher(
 	parent context.Context,
 	state *graphInterruptState,
 ) (context.Context, *externalInterruptWatcher) {
-	if state == nil {
-		return parent, nil
-	}
-
-	runCtx, cancel := context.WithCancelCause(parent)
-	w := &externalInterruptWatcher{
-		state:  state,
-		stopCh: make(chan struct{}),
-		cancel: cancel,
-	}
-	go w.listen()
-	return runCtx, w
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
 
-func (w *externalInterruptWatcher) listen() {
-	select {
-	case <-w.stopCh:
-		return
-	case <-w.state.doneCh():
-	}
+func (w *externalInterruptWatcher) listen() { _ = "STUB: not implemented"; return }
 
-	timeout := w.state.timeoutOrNil()
-	if timeout == nil {
-		return
-	}
-	if *timeout <= 0 {
-		w.cancel(errGraphInterruptTimeout)
-		return
-	}
+func (w *externalInterruptWatcher) stop() { _ = "STUB: not implemented"; return }
 
-	timer := time.NewTimer(*timeout)
-	defer timer.Stop()
-
-	select {
-	case <-w.stopCh:
-		return
-	case <-timer.C:
-		w.cancel(errGraphInterruptTimeout)
-	}
-}
-
-func (w *externalInterruptWatcher) stop() {
-	if w == nil {
-		return
-	}
-	w.stopOnce.Do(func() {
-		close(w.stopCh)
-	})
-}
-
-func (w *externalInterruptWatcher) requested() bool {
-	if w == nil || w.state == nil {
-		return false
-	}
-	return w.state.requested()
-}
+func (w *externalInterruptWatcher) requested() bool { _ = "STUB: not implemented"; return false }
 
 func (w *externalInterruptWatcher) forced(ctx context.Context) bool {
-	if w == nil || ctx == nil {
-		return false
-	}
-	return errors.Is(context.Cause(ctx), errGraphInterruptTimeout)
+	_ = "STUB: not implemented"
+	return false
 }
 
 type stepExecutionReport struct {
@@ -117,52 +67,22 @@ type stepExecutionReport struct {
 func newStepExecutionReport(
 	fields map[string]StateField,
 ) *stepExecutionReport {
-	return &stepExecutionReport{
-		completed: make(map[*Task]bool),
-		inputs:    make(map[*Task]State),
-		fields:    fields,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *stepExecutionReport) recordInput(task *Task, input State) {
-	if r == nil || task == nil || task.NodeID == "" || input == nil {
-		return
-	}
-
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if _, exists := r.inputs[task]; exists {
-		return
-	}
-	r.inputs[task] = input.deepCopy(false, r.fields)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (r *stepExecutionReport) markCompleted(task *Task) {
-	if r == nil || task == nil {
-		return
-	}
-	r.mu.Lock()
-	r.completed[task] = true
-	r.mu.Unlock()
-}
+func (r *stepExecutionReport) markCompleted(task *Task) { _ = "STUB: not implemented"; return }
 
-func (r *stepExecutionReport) isCompleted(task *Task) bool {
-	if r == nil || task == nil {
-		return false
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	return r.completed[task]
-}
+func (r *stepExecutionReport) isCompleted(task *Task) bool { _ = "STUB: not implemented"; return false }
 
 func (r *stepExecutionReport) inputFor(task *Task) (State, bool) {
-	if r == nil || task == nil {
-		return nil, false
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	in, ok := r.inputs[task]
-	return in, ok
+	_ = "STUB: not implemented"
+	return *new(State), false
 }
 
 // ExternalInterruptPayload is stored in InterruptError.Value for external
@@ -172,13 +92,4 @@ type ExternalInterruptPayload struct {
 	Forced bool   `json:"forced"`
 }
 
-func newExternalInterruptError(forced bool) *InterruptError {
-	intr := NewInterruptError(ExternalInterruptPayload{
-		Key:    ExternalInterruptKey,
-		Forced: forced,
-	})
-	intr.Key = ExternalInterruptKey
-	intr.TaskID = ExternalInterruptKey
-	intr.SkipRerun = true
-	return intr
-}
+func newExternalInterruptError(forced bool) *InterruptError { _ = "STUB: not implemented"; return nil }

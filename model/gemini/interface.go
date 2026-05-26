@@ -40,9 +40,7 @@ type clientWrapper struct {
 }
 
 // Models implements client.Models
-func (c *clientWrapper) Models() Models {
-	return &modelsWrapper{models: c.client.Models}
-}
+func (c *clientWrapper) Models() Models { _ = "STUB: not implemented"; return *new(Models) }
 
 // modelsWrapper implements Models 结构体
 type modelsWrapper struct {
@@ -52,11 +50,13 @@ type modelsWrapper struct {
 // GenerateContent implements Models.GenerateContent
 func (m *modelsWrapper) GenerateContent(ctx context.Context, model string, contents []*genai.Content,
 	config *genai.GenerateContentConfig) (*genai.GenerateContentResponse, error) {
-	return m.models.GenerateContent(ctx, model, contents, config)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GenerateContentStream implements Models.GenerateContentStream
 func (m *modelsWrapper) GenerateContentStream(ctx context.Context, model string, contents []*genai.Content,
 	config *genai.GenerateContentConfig) iter.Seq2[*genai.GenerateContentResponse, error] {
-	return m.models.GenerateContentStream(ctx, model, contents, config)
+	_ = "STUB: not implemented"
+	return nil
 }

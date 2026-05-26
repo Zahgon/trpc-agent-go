@@ -11,13 +11,9 @@
 package agui
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
-	"net/url"
 
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	aguirunner "trpc.group/trpc-go/trpc-agent-go/server/agui/runner"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/service"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
@@ -33,91 +29,32 @@ type Server struct {
 
 // New creates a AG-UI server instance.
 func New(runner runner.Runner, opt ...Option) (*Server, error) {
-	if runner == nil {
-		return nil, errors.New("agui: runner must not be nil")
-	}
-	opts := newOptions(opt...)
-	aguiService, err := newService(runner, opts)
-	if err != nil {
-		return nil, fmt.Errorf("new service: %w", err)
-	}
-	chatPath, err := joinURLPath(opts.basePath, opts.path)
-	if err != nil {
-		return nil, fmt.Errorf("agui: url join chat path: %w", err)
-	}
-	return &Server{
-		basePath:       opts.basePath,
-		appName:        opts.appName,
-		path:           chatPath,
-		sessionService: opts.sessionService,
-		handler:        aguiService.Handler(),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // newService creates a new service instance.
 func newService(runner runner.Runner, opts *options) (service.Service, error) {
-	if opts.serviceFactory == nil {
-		return nil, errors.New("agui: serviceFactory must not be nil")
-	}
-	aguiRunner := aguirunner.New(runner, opts.aguiRunnerOptions...)
-	chatPath, err := joinURLPath(opts.basePath, opts.path)
-	if err != nil {
-		return nil, fmt.Errorf("agui: url join chat path: %w", err)
-	}
-	serviceOpts := []service.Option{
-		service.WithPath(chatPath),
-		service.WithHeartbeatInterval(opts.heartbeatInterval),
-	}
-	if opts.cancelEnabled {
-		cancelPath, err := joinURLPath(opts.basePath, opts.cancelPath)
-		if err != nil {
-			return nil, fmt.Errorf("agui: url join cancel path: %w", err)
-		}
-		serviceOpts = append(
-			serviceOpts,
-			service.WithCancelEnabled(true),
-			service.WithCancelPath(cancelPath),
-		)
-	}
-	if opts.messagesSnapshotEnabled {
-		if opts.appName == "" {
-			return nil, errors.New("agui: app name is required when messages snapshot is enabled")
-		}
-		if opts.sessionService == nil {
-			return nil, errors.New("agui: session service is required when messages snapshot is enabled")
-		}
-		if _, ok := opts.sessionService.(session.TrackService); !ok {
-			return nil, errors.New("agui: session service must implement TrackService")
-		}
-		messagesSnapshotPath, err := joinURLPath(opts.basePath, opts.messagesSnapshotPath)
-		if err != nil {
-			return nil, fmt.Errorf("agui: url join messages snapshot path: %w", err)
-		}
-		serviceOpts = append(
-			serviceOpts,
-			service.WithMessagesSnapshotEnabled(true),
-			service.WithMessagesSnapshotPath(messagesSnapshotPath),
-		)
-	}
-	return opts.serviceFactory(aguiRunner, serviceOpts...), nil
+	_ = "STUB: not implemented"
+	return *new(service.Service), nil
 }
 
 // joinURLPath joins the base path and the path into a URL path.
-func joinURLPath(basePath, path string) (string, error) {
-	return url.JoinPath(basePath, path)
-}
+func joinURLPath(basePath, path string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // Handler returns the http.Handler serving AG-UI requests.
 func (s *Server) Handler() http.Handler {
-	return s.handler
+	_ = "STUB: not implemented"
+
+	// Path returns the chat message endpoint path joined with BasePath.
+	return *new(http.Handler)
 }
 
-// Path returns the chat message endpoint path joined with BasePath.
 func (s *Server) Path() string {
-	return s.path
+	_ = "STUB: not implemented"
+
+	// BasePath returns the base URL path prefix shared by chat and history endpoints.
+	return ""
 }
 
-// BasePath returns the base URL path prefix shared by chat and history endpoints.
-func (s *Server) BasePath() string {
-	return s.basePath
-}
+func (s *Server) BasePath() string { _ = "STUB: not implemented"; return "" }

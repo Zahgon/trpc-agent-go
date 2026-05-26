@@ -19,10 +19,7 @@ import (
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	a2a "trpc.group/trpc-go/trpc-agent-go/server/a2a"
 )
 
@@ -70,29 +67,15 @@ func main() {
 }
 
 func buildNumberAgent(modelName string, desc string) agent.Agent {
+	_ = "STUB: not implemented"
 	// Create OpenAI model.
-	modelInstance := openai.New(modelName)
-
-	// Create LLM agent with tools.
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(2000),
-		Temperature: floatPtr(0.7),
-		Stream:      true, // Enable streaming
-	}
-	llmAgent := llmagent.New(
-		"calculator",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription(desc),
-		llmagent.WithInstruction(desc),
-		llmagent.WithGenerationConfig(genConfig),
-	)
-	return llmAgent
+	return *new(agent.Agent)
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+// Create LLM agent with tools.
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+// Enable streaming
+
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
+
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

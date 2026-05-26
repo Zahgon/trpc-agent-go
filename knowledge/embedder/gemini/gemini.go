@@ -12,17 +12,10 @@ package gemini
 
 import (
 	"context"
-	"fmt"
-	"math"
-	"os"
-	"strings"
 
 	"google.golang.org/genai"
 
-	itelemetry "trpc.group/trpc-go/trpc-agent-go/internal/telemetry"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/embedder"
-	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/telemetry/trace"
 )
 
 // Verify that Embedder implements the embedder.Embedder interface.
@@ -94,184 +87,86 @@ type Embedder struct {
 type Option func(*Embedder)
 
 // WithModel sets the embedding model to use.
-func WithModel(model string) Option {
-	return func(e *Embedder) {
-		e.model = model
-	}
-}
+func WithModel(model string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDimensions sets the number of dimensions for the embedding.
-func WithDimensions(dimensions int) Option {
-	return func(e *Embedder) {
-		e.dimensions = dimensions
-	}
-}
+func WithDimensions(dimensions int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTaskType sets the task type to optimize embedding results.
 // Choosing the appropriate task type can improve accuracy and efficiency.
-func WithTaskType(taskType string) Option {
-	return func(e *Embedder) {
-		e.taskType = taskType
-	}
-}
+func WithTaskType(taskType string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTitle sets the title for the text.
 // Only applicable when TaskType is RETRIEVAL_DOCUMENT.
-func WithTitle(title string) Option {
-	return func(e *Embedder) {
-		e.title = title
-	}
-}
+func WithTitle(title string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAPIKey sets the Google API key.
 // If not provided, will use GOOGLE_API_KEY environment variable.
 // APIKey priority: WithClientOptions > WithAPIKey > GOOGLE_API_KEY environment variable.
-func WithAPIKey(apiKey string) Option {
-	return func(e *Embedder) {
-		e.apiKey = apiKey
-	}
-}
+func WithAPIKey(apiKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRole sets the role when generating embeddings content.
-func WithRole(role genai.Role) Option {
-	return func(e *Embedder) {
-		e.role = role
-	}
-}
+func WithRole(role genai.Role) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClientOptions sets additional options for the Gemini client config.
 // APIKey priority: WithClientOptions > WithAPIKey > GOOGLE_API_KEY environment variable.
 func WithClientOptions(clientOptions *genai.ClientConfig) Option {
-	return func(e *Embedder) {
-		c := *clientOptions
-		e.clientOptions = &c
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRequestOptions sets additional options for the Gemini client requests.
 func WithRequestOptions(requestOptions *genai.EmbedContentConfig) Option {
-	return func(e *Embedder) {
-		r := *requestOptions
-		e.requestOptions = &r
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // New creates a new Gemini embedder with the given options.
 func New(ctx context.Context, opts ...Option) (*Embedder, error) {
+	_ = "STUB: not implemented"
 	// Create embedder with defaults.
-	e := &Embedder{
-		model:          DefaultModel,
-		dimensions:     DefaultDimensions,
-		taskType:       DefaultTaskType,
-		role:           DefaultRole,
-		apiKey:         os.Getenv(GoogleAPIKeyEnv),
-		clientOptions:  &genai.ClientConfig{},
-		requestOptions: &genai.EmbedContentConfig{},
-	}
-	// Apply functional options.
-	for _, opt := range opts {
-		opt(e)
-	}
-	// Build client options.
-	if e.clientOptions.APIKey == "" {
-		e.clientOptions.APIKey = e.apiKey
-	}
-	if e.clientOptions.APIKey == "" {
-		return nil, fmt.Errorf("GOOGLE_API_KEY is not provided")
-	}
-	// Create Gemini client.
-	client, err := genai.NewClient(ctx, e.clientOptions)
-	if err != nil {
-		return nil, err
-	}
-	e.client = client
-	return e, nil
+	return nil, nil
 }
+
+// Apply functional options.
+
+// Build client options.
+
+// Create Gemini client.
 
 // GetEmbedding implements the embedder.Embedder interface.
 // It generates an embedding vector for the given text.
 func (e *Embedder) GetEmbedding(ctx context.Context, text string) ([]float64, error) {
-	response, err := e.response(ctx, text)
-	if err != nil {
-		return nil, err
-	}
-	// Extract embedding from response.
-	if len(response.Embeddings) == 0 || len(response.Embeddings[0].Values) == 0 {
-		log.WarnContext(ctx, "received empty embedding response from Gemini API")
-		return []float64{}, nil
-	}
-	embedding := make([]float64, len(response.Embeddings[0].Values))
-	for i, v := range response.Embeddings[0].Values {
-		embedding[i] = float64(v)
-	}
-	return embedding, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Extract embedding from response.
 
 // GetEmbeddingWithUsage implements the embedder.Embedder interface.
 // It generates an embedding vector for the given text and returns usage information.
 func (e *Embedder) GetEmbeddingWithUsage(ctx context.Context, text string) ([]float64, map[string]any, error) {
-	response, err := e.response(ctx, text)
-	if err != nil {
-		return nil, nil, err
-	}
-	usage := make(map[string]any)
-	if response.Metadata != nil {
-		usage["billable_character_count"] = response.Metadata.BillableCharacterCount
-	}
-	// Extract embedding from response.
-	if len(response.Embeddings) == 0 || len(response.Embeddings[0].Values) == 0 {
-		log.WarnContext(ctx, "received empty embedding response from Gemini API")
-		return []float64{}, nil, nil
-	}
-	embedding := make([]float64, len(response.Embeddings[0].Values))
-	for i, v := range response.Embeddings[0].Values {
-		embedding[i] = float64(v)
-	}
-	return embedding, usage, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
+
+// Extract embedding from response.
 
 // GetDimensions implements the embedder.Embedder interface.
 // It returns the number of dimensions in the embedding vectors.
-func (e *Embedder) GetDimensions() int {
-	return e.dimensions
-}
+func (e *Embedder) GetDimensions() int { _ = "STUB: not implemented"; return 0 }
 
 func (e *Embedder) response(ctx context.Context, text string) (rsp *genai.EmbedContentResponse, err error) {
-	if text == "" {
-		return nil, fmt.Errorf("text cannot be empty")
-	}
-	ctx, span := trace.Tracer.Start(ctx, fmt.Sprintf("%s %s", itelemetry.OperationEmbeddings, e.model))
-	embeddingAttributes := &itelemetry.EmbeddingAttributes{
-		RequestEncodingFormat: &e.requestOptions.MIMEType,
-		RequestModel:          e.model,
-		Dimensions:            e.dimensions,
-	}
-	defer func() {
-		embeddingAttributes.Error = err
-		itelemetry.TraceEmbedding(span, embeddingAttributes)
-		span.End()
-	}()
-	// Remove the `models/` prefix from the model id if it exists.
-	model := strings.TrimPrefix(e.model, "models/")
-	// Create content from text.
-	content := genai.NewContentFromText(text, e.role)
-	// Create request.
-	request := *e.requestOptions
-	if request.OutputDimensionality == nil {
-		// Check for integer overflow before conversion.
-		if e.dimensions > math.MaxInt32 || e.dimensions < math.MinInt32 {
-			return nil, fmt.Errorf("dimensions value %d is out of range for int32", e.dimensions)
-		}
-		d := int32(e.dimensions)
-		request.OutputDimensionality = &d
-	}
-	if request.TaskType == "" {
-		request.TaskType = e.taskType
-	}
-	if request.Title == "" {
-		request.Title = e.title
-	}
-
-	// Call Gemini embeddings API.
-	return e.client.Models.EmbedContent(ctx, model, []*genai.Content{content}, &request)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Remove the `models/` prefix from the model id if it exists.
+
+// Create content from text.
+
+// Create request.
+
+// Check for integer overflow before conversion.
+
+// Call Gemini embeddings API.

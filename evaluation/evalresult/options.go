@@ -21,23 +21,10 @@ type Options struct {
 }
 
 // NewOptions creates a new Options with the default values.
-func NewOptions(opt ...Option) *Options {
-	opts := &Options{
-		BaseDir: defaultBaseDir,
-		Locator: &locator{},
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func NewOptions(opt ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Option is a functional option for configuring the eval result manager.
 type Option func(*Options)
 
 // WithBaseDir overrides the default base directory used to store results.
-func WithBaseDir(dir string) Option {
-	return func(m *Options) {
-		m.BaseDir = dir
-	}
-}
+func WithBaseDir(dir string) Option { _ = "STUB: not implemented"; return *new(Option) }

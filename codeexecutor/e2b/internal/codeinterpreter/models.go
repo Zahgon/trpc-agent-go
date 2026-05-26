@@ -9,11 +9,6 @@
 
 package codeinterpreter
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 // RunCodeLanguage is a supported language identifier for code execution.
 //
 // Known values: "python", "javascript", "typescript", "r", "java", "bash".
@@ -48,9 +43,13 @@ type OutputMessage struct {
 	Error bool
 }
 
-func (o OutputMessage) String() string { return o.Line }
+func (o OutputMessage) String() string {
+	_ = "STUB: not implemented"
 
-// ExecutionError represents an error that occurred during the execution of a cell.
+	// ExecutionError represents an error that occurred during the execution of a cell.
+	return ""
+}
+
 type ExecutionError struct {
 	// Name of the error (e.g. "NameError").
 	Name string `json:"name"`
@@ -60,15 +59,10 @@ type ExecutionError struct {
 	Traceback string `json:"traceback"`
 }
 
-func (e *ExecutionError) Error() string {
-	return fmt.Sprintf("%s: %s\n%s", e.Name, e.Value, e.Traceback)
-}
+func (e *ExecutionError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // ToJSON returns the JSON representation of this error.
-func (e *ExecutionError) ToJSON() string {
-	b, _ := json.Marshal(e)
-	return string(b)
-}
+func (e *ExecutionError) ToJSON() string { _ = "STUB: not implemented"; return "" }
 
 // Logs holds data printed to stdout and stderr during execution.
 type Logs struct {
@@ -104,113 +98,20 @@ type Result struct {
 }
 
 // Formats returns the list of MIME-like format names available on this result.
-func (r *Result) Formats() []string {
-	formats := []string{}
-	if r.Text != "" {
-		formats = append(formats, "text")
-	}
-	if r.HTML != "" {
-		formats = append(formats, "html")
-	}
-	if r.Markdown != "" {
-		formats = append(formats, "markdown")
-	}
-	if r.SVG != "" {
-		formats = append(formats, "svg")
-	}
-	if r.PNG != "" {
-		formats = append(formats, "png")
-	}
-	if r.JPEG != "" {
-		formats = append(formats, "jpeg")
-	}
-	if r.PDF != "" {
-		formats = append(formats, "pdf")
-	}
-	if r.LaTeX != "" {
-		formats = append(formats, "latex")
-	}
-	if r.JSON != nil {
-		formats = append(formats, "json")
-	}
-	if r.JavaScript != "" {
-		formats = append(formats, "javascript")
-	}
-	if r.Data != nil {
-		formats = append(formats, "data")
-	}
-	if r.Chart != nil {
-		formats = append(formats, "chart")
-	}
-	for k := range r.Extra {
-		formats = append(formats, k)
-	}
-	return formats
-}
+func (r *Result) Formats() []string { _ = "STUB: not implemented"; return nil }
 
 // String returns a short description of the result. If a textual representation
 // exists it is returned as-is, otherwise the list of available formats is
 // returned.
-func (r *Result) String() string {
-	if r.Text != "" {
-		return fmt.Sprintf("Result(%s)", r.Text)
-	}
-	return fmt.Sprintf("Result(Formats: %v)", r.Formats())
-}
+func (r *Result) String() string { _ = "STUB: not implemented"; return "" }
 
 // newResultFromRaw builds a Result from the raw JSON map coming from the server.
 // This mirrors the behaviour of the Python/JS SDKs.
-func newResultFromRaw(raw map[string]any) *Result {
-	r := &Result{Raw: raw}
+func newResultFromRaw(raw map[string]any) *Result { _ = "STUB: not implemented"; return nil }
 
-	// Known keys extraction
-	knownKeys := map[string]struct{}{
-		"type": {}, "is_main_result": {},
-		"text": {}, "html": {}, "markdown": {}, "svg": {},
-		"png": {}, "jpeg": {}, "pdf": {}, "latex": {},
-		"json": {}, "javascript": {}, "data": {}, "chart": {},
-		"extra": {},
-	}
+// Known keys extraction
 
-	r.Text = getString(raw, "text")
-	r.HTML = getString(raw, "html")
-	r.Markdown = getString(raw, "markdown")
-	r.SVG = getString(raw, "svg")
-	r.PNG = getString(raw, "png")
-	r.JPEG = getString(raw, "jpeg")
-	r.PDF = getString(raw, "pdf")
-	r.LaTeX = getString(raw, "latex")
-	r.JavaScript = getString(raw, "javascript")
-
-	if v, ok := raw["json"].(map[string]any); ok {
-		r.JSON = v
-	}
-	if v, ok := raw["data"].(map[string]any); ok {
-		r.Data = v
-	}
-	if v, ok := raw["is_main_result"].(bool); ok {
-		r.IsMainResult = v
-	}
-	if c, ok := raw["chart"].(map[string]any); ok {
-		r.Chart = deserializeChart(c)
-	}
-	if extra, ok := raw["extra"].(map[string]any); ok {
-		r.Extra = extra
-	}
-
-	// Collect unknown keys into Extra (keeps parity with JS SDK).
-	for k, v := range raw {
-		if _, known := knownKeys[k]; known {
-			continue
-		}
-		if r.Extra == nil {
-			r.Extra = make(map[string]any)
-		}
-		r.Extra[k] = v
-	}
-
-	return r
-}
+// Collect unknown keys into Extra (keeps parity with JS SDK).
 
 // Execution represents the result of a cell execution.
 type Execution struct {
@@ -226,31 +127,13 @@ type Execution struct {
 }
 
 // NewExecution creates an empty Execution.
-func NewExecution() *Execution {
-	return &Execution{
-		Results: []*Result{},
-		Logs:    Logs{Stdout: []string{}, Stderr: []string{}},
-	}
-}
+func NewExecution() *Execution { _ = "STUB: not implemented"; return nil }
 
 // Text returns the text representation of the main result, if any.
-func (e *Execution) Text() string {
-	for _, r := range e.Results {
-		if r.IsMainResult {
-			return r.Text
-		}
-	}
-	return ""
-}
+func (e *Execution) Text() string { _ = "STUB: not implemented"; return "" }
 
 // ToJSON serializes the execution to JSON.
-func (e *Execution) ToJSON() (string, error) {
-	b, err := json.Marshal(e)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
-}
+func (e *Execution) ToJSON() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // Context represents a code execution context (a persistent kernel).
 type Context struct {
@@ -263,13 +146,7 @@ type Context struct {
 }
 
 // contextFromJSON decodes a context from a raw JSON map.
-func contextFromJSON(data map[string]any) *Context {
-	return &Context{
-		ID:       getString(data, "id"),
-		Language: getString(data, "language"),
-		Cwd:      getString(data, "cwd"),
-	}
-}
+func contextFromJSON(data map[string]any) *Context { _ = "STUB: not implemented"; return nil }
 
 // OnStdoutFunc is a callback invoked for every stdout chunk produced by the
 // running code.

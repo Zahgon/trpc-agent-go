@@ -20,55 +20,34 @@ type options struct {
 	compare         CompareFunc
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures TextCriterion.
 type Option func(*options)
 
 // WithIgnore sets the ignore flag.
-func WithIgnore(ignore bool) Option {
-	return func(o *options) {
-		o.ignore = ignore
-	}
-}
+func WithIgnore(ignore bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCaseInsensitive sets case-insensitive comparison.
 func WithCaseInsensitive(caseInsensitive bool) Option {
-	return func(o *options) {
-		o.caseInsensitive = caseInsensitive
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMatchStrategy sets the match strategy.
 func WithMatchStrategy(matchStrategy TextMatchStrategy) Option {
-	return func(o *options) {
-		o.matchStrategy = matchStrategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithLengthCriterion sets the length criterion.
 func WithLengthCriterion(criterion *clength.LengthCriterion) Option {
-	return func(o *options) {
-		o.length = criterion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCompareName sets the name of the registered compare function.
-func WithCompareName(compareName string) Option {
-	return func(o *options) {
-		o.compareName = compareName
-	}
-}
+func WithCompareName(compareName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompare sets the custom compare function.
-func WithCompare(compare CompareFunc) Option {
-	return func(o *options) {
-		o.compare = compare
-	}
-}
+func WithCompare(compare CompareFunc) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -11,13 +11,25 @@
 package model
 
 // IntPtr returns a pointer to v.
-func IntPtr(v int) *int { return &v }
+func IntPtr(v int) *int {
+	_ = "STUB: not implemented"
 
-// Float64Ptr returns a pointer to v.
-func Float64Ptr(v float64) *float64 { return &v }
+	// Float64Ptr returns a pointer to v.
+	return nil
+}
 
-// BoolPtr returns a pointer to v.
-func BoolPtr(v bool) *bool { return &v }
+func Float64Ptr(v float64) *float64 {
+	_ = "STUB: not implemented"
 
-// StringPtr returns a pointer to v.
-func StringPtr(v string) *string { return &v }
+	// BoolPtr returns a pointer to v.
+	return nil
+}
+
+func BoolPtr(v bool) *bool {
+	_ = "STUB: not implemented"
+
+	// StringPtr returns a pointer to v.
+	return nil
+}
+
+func StringPtr(v string) *string { _ = "STUB: not implemented"; return nil }

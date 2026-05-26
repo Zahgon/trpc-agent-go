@@ -16,4 +16,6 @@ import "syscall"
 func applyParentDeathSignal(
 	_ *syscall.SysProcAttr,
 ) {
+	_ = "STUB: not implemented"
+	return
 }

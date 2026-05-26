@@ -11,13 +11,9 @@
 package tool
 
 import (
-	"fmt"
-	"strings"
-
 	"trpc.group/trpc-go/trpc-agent-go/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/searchfilter"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -102,51 +98,44 @@ var CodeScopeTypes = []any{
 
 // WithCodeSearchToolName sets the name of the code search tool.
 func WithCodeSearchToolName(name string) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.toolName = name
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchToolDescription sets the description of the code search tool.
 func WithCodeSearchToolDescription(description string) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.toolDescription = description
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchFilter sets a static metadata filter always applied to code search.
 func WithCodeSearchFilter(filter map[string]any) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.staticFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchConditionedFilter sets a static complex filter always applied to code search.
 func WithCodeSearchConditionedFilter(filter *searchfilter.UniversalFilterCondition) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.conditionedFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchMaxResults sets the maximum number of code search results.
 func WithCodeSearchMaxResults(maxResults int) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.maxResults = maxResults
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchMinScore sets the minimum relevance score threshold.
 func WithCodeSearchMinScore(minScore float64) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.minScore = minScore
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchRepoInfos sets the available repositories with descriptions.
 func WithCodeSearchRepoInfos(infos []CodeRepoInfo) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.repoInfos = infos
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchExtraFilterFields adds extra filter fields to the tool.
@@ -159,21 +148,16 @@ func WithCodeSearchRepoInfos(infos []CodeRepoInfo) CodeSearchOption {
 // silent misconfiguration; callers that intentionally want to customize the
 // set of repository names may ignore the warning.
 func WithCodeSearchExtraFilterFields(fields map[string][]any) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.extraFields = fields
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchExtraExcludeMetadataKeys appends extra metadata keys to be
 // stripped from each returned document, on top of the code-search default
 // exclusion list (imports, language, chunk index, etc.).
 func WithCodeSearchExtraExcludeMetadataKeys(keys ...string) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		if len(keys) == 0 {
-			return
-		}
-		o.extraExcludeMetadataKeys = append(o.extraExcludeMetadataKeys, keys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchDedup toggles invocation-scoped deduplication of code search
@@ -183,9 +167,8 @@ func WithCodeSearchExtraExcludeMetadataKeys(keys ...string) CodeSearchOption {
 // same AST chunk to the LLM. Deduplication state is stored on the invocation's
 // runtime state, so it is automatically scoped to a single user turn.
 func WithCodeSearchDedup(enabled bool) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.dedupEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // WithCodeSearchMaxDedupKeysPerInvocation overrides the per-invocation cap on
@@ -194,134 +177,24 @@ func WithCodeSearchDedup(enabled bool) CodeSearchOption {
 // cap lets a single user turn surface more distinct chunks before eviction,
 // at the cost of additional memory per in-flight invocation.
 func WithCodeSearchMaxDedupKeysPerInvocation(n int) CodeSearchOption {
-	return func(o *codeSearchOptions) {
-		o.maxDedupKeysPerInvocation = n
-	}
+	_ = "STUB: not implemented"
+	return *new(CodeSearchOption)
 }
 
 // NewCodeSearchTool creates a code-oriented search tool by reusing the generic
 // agentic filter search flow and exposing AST metadata fields to the model.
 func NewCodeSearchTool(kb knowledge.Knowledge, opts ...CodeSearchOption) tool.Tool {
-	o := &codeSearchOptions{
-		toolName:     defaultCodeSearchToolName,
-		maxResults:   defaultMaxResults,
-		minScore:     defaultCodeSearchMinScore,
-		dedupEnabled: true,
-	}
-	for _, opt := range opts {
-		opt(o)
-	}
-	if len(o.repoInfos) == 0 {
-		o.repoInfos = deriveCodeRepoInfos(kb)
-	}
-
-	agenticFilterInfo := map[string][]any{
-		"metadata.trpc_ast_type":      CodeEntityTypes,
-		"metadata.trpc_ast_scope":     CodeScopeTypes,
-		"content":                     {},
-		"metadata.trpc_ast_full_name": {},
-		"metadata.trpc_ast_package":   {},
-		"metadata.trpc_ast_file_path": {},
-		"metadata.trpc_ast_signature": {},
-	}
-
-	if len(o.repoInfos) > 0 {
-		agenticFilterInfo["metadata.trpc_ast_repo_name"] = codeRepoNamesToAnySlice(o.repoInfos)
-	} else {
-		agenticFilterInfo["metadata.trpc_ast_repo_name"] = []any{}
-	}
-
-	for k, v := range o.extraFields {
-		if _, collides := agenticFilterInfo[k]; collides {
-			log.Warnf("code_search: extra filter field %q overrides the built-in entry; "+
-				"make sure this is intentional (e.g. for metadata.trpc_ast_repo_name)", k)
-		}
-		agenticFilterInfo[k] = v
-	}
-
-	description := o.toolDescription
-	if description == "" {
-		description = codeSearchToolDescription
-		if len(o.repoInfos) > 0 {
-			description += buildCodeRepoSection(o.repoInfos)
-		}
-	}
-
-	wrappedOpts := []Option{
-		WithToolName(o.toolName),
-		WithToolDescription(description),
-		WithMaxResults(o.maxResults),
-		WithMinScore(o.minScore),
-		WithExcludeMetadataKeys(defaultCodeSearchExcludedMetadataKeys...),
-	}
-	if len(o.extraExcludeMetadataKeys) > 0 {
-		wrappedOpts = append(wrappedOpts, WithExcludeMetadataKeys(o.extraExcludeMetadataKeys...))
-	}
-	if o.staticFilter != nil {
-		wrappedOpts = append(wrappedOpts, WithFilter(o.staticFilter))
-	}
-	if o.conditionedFilter != nil {
-		wrappedOpts = append(wrappedOpts, WithConditionedFilter(o.conditionedFilter))
-	}
-	if o.dedupEnabled {
-		dedup := newCodeDedupStoreWithCap(o.maxDedupKeysPerInvocation)
-		wrappedOpts = append(wrappedOpts, WithResultPostProcessor(dedup.filter))
-	}
-
-	return NewAgenticFilterSearchTool(kb, agenticFilterInfo, wrappedOpts...)
+	_ = "STUB: not implemented"
+	return *new(tool.Tool)
 }
 
-func buildCodeRepoSection(infos []CodeRepoInfo) string {
-	var sb strings.Builder
-	sb.WriteString("\n\n== AVAILABLE REPOSITORIES ==\n\n")
-	for _, info := range infos {
-		if strings.TrimSpace(info.Description) == "" {
-			sb.WriteString(fmt.Sprintf("- %s\n", info.Name))
-			continue
-		}
-		sb.WriteString(fmt.Sprintf("- %s: %s\n", info.Name, info.Description))
-	}
-	return sb.String()
-}
+func buildCodeRepoSection(infos []CodeRepoInfo) string { _ = "STUB: not implemented"; return "" }
 
-func codeRepoNamesToAnySlice(infos []CodeRepoInfo) []any {
-	result := make([]any, len(infos))
-	for i, info := range infos {
-		result[i] = info.Name
-	}
-	return result
-}
+func codeRepoNamesToAnySlice(infos []CodeRepoInfo) []any { _ = "STUB: not implemented"; return nil }
 
 func deriveCodeRepoInfos(kb knowledge.Knowledge) []CodeRepoInfo {
-	provider, ok := kb.(sourceProvider)
-	if !ok {
-		return nil
-	}
-	sources := provider.Sources()
-	if len(sources) == 0 {
-		return nil
-	}
-	infos := make([]CodeRepoInfo, 0, len(sources))
-	seen := make(map[string]struct{}, len(sources))
-	for _, src := range sources {
-		repoSrc, ok := src.(repoDescriptorProvider)
-		if !ok {
-			continue
-		}
-		name, description, ok := repoSrc.RepositoryDescriptor()
-		if !ok || strings.TrimSpace(name) == "" {
-			continue
-		}
-		if _, exists := seen[name]; exists {
-			continue
-		}
-		seen[name] = struct{}{}
-		infos = append(infos, CodeRepoInfo{
-			Name:        name,
-			Description: strings.TrimSpace(description),
-		})
-	}
-	return infos
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // codeSearchToolDescription is the single source of truth for the natural

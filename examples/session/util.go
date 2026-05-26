@@ -13,31 +13,13 @@ package util
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	openaiembedder "trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	"trpc.group/trpc-go/trpc-agent-go/session/clickhouse"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/session/mysql"
-	sessionnoop "trpc.group/trpc-go/trpc-agent-go/session/noop"
-	sessionpgvector "trpc.group/trpc-go/trpc-agent-go/session/pgvector"
-	"trpc.group/trpc-go/trpc-agent-go/session/postgres"
-	"trpc.group/trpc-go/trpc-agent-go/session/redis"
-	sessionsqlite "trpc.group/trpc-go/trpc-agent-go/session/sqlite"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -92,28 +74,8 @@ func NewSessionServiceByType(
 	sessionType SessionType,
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	switch sessionType {
-	case SessionSQLite:
-		return newSQLiteSessionService(cfg)
-	case SessionRedis:
-		return newRedisSessionService(cfg)
-	case SessionPostgres:
-		return newPostgresSessionService(cfg)
-	case SessionPGVector:
-		return newPGVectorSessionService(cfg)
-	case SessionMySQL:
-		return newMySQLSessionService(cfg)
-	case SessionTDSQL:
-		return newTDSQLSessionService(cfg)
-	case SessionClickHouse:
-		return newClickHouseSessionService(cfg)
-	case SessionNoop:
-		return sessionnoop.NewService(), nil
-	case SessionInMemory:
-		fallthrough
-	default:
-		return newInMemorySessionService(cfg), nil
-	}
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 const (
@@ -131,35 +93,13 @@ const (
 func newSQLiteSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	dsn := GetEnvOrDefault(sqliteSessionDSNEnvKey, defaultSQLiteSessionDBDSN)
-	db, err := sql.Open(sqliteDriverName, dsn)
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(defaultSQLiteMaxOpenConns)
-	db.SetMaxIdleConns(defaultSQLiteMaxIdleConns)
-
-	svc, err := sessionsqlite.NewService(
-		db,
-		sessionsqlite.WithSessionEventLimit(cfg.EventLimit),
-		sessionsqlite.WithSessionTTL(cfg.TTL),
-		sessionsqlite.WithAppendEventHook(cfg.AppendEventHooks...),
-		sessionsqlite.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
-	if err != nil {
-		_ = db.Close()
-		return nil, err
-	}
-	return svc, nil
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 func newInMemorySessionService(cfg SessionServiceConfig) session.Service {
-	return sessioninmemory.NewSessionService(
-		sessioninmemory.WithSessionEventLimit(cfg.EventLimit),
-		sessioninmemory.WithSessionTTL(cfg.TTL),
-		sessioninmemory.WithAppendEventHook(cfg.AppendEventHooks...),
-		sessioninmemory.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service)
 }
 
 // newRedisSessionService creates a Redis session service.
@@ -168,18 +108,8 @@ func newInMemorySessionService(cfg SessionServiceConfig) session.Service {
 func newRedisSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	addr := GetEnvOrDefault("REDIS_ADDR", "localhost:6379")
-	redisURL := fmt.Sprintf("redis://%s", addr)
-
-	return redis.NewService(
-		redis.WithRedisClientURL(redisURL),
-		redis.WithSessionEventLimit(cfg.EventLimit),
-		redis.WithSessionTTL(cfg.TTL),
-		redis.WithAppendEventHook(cfg.AppendEventHooks...),
-		redis.WithGetSessionHook(cfg.GetSessionHooks...),
-		redis.WithCompatMode(redis.CompatModeLegacy),
-		redis.WithEnableTracing(cfg.EnableTracing),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 // newPostgresSessionService creates a PostgreSQL session service.
@@ -192,53 +122,15 @@ func newRedisSessionService(
 func newPostgresSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	host := GetEnvOrDefault("PG_HOST", "localhost")
-	portStr := GetEnvOrDefault("PG_PORT", "5432")
-	port, _ := strconv.Atoi(portStr)
-	user := GetEnvOrDefault("PG_USER", "root")
-	password := GetEnvOrDefault("PG_PASSWORD", "")
-	database := GetEnvOrDefault("PG_DATABASE", "trpc_agent_go")
-
-	return postgres.NewService(
-		postgres.WithHost(host),
-		postgres.WithPort(port),
-		postgres.WithUser(user),
-		postgres.WithPassword(password),
-		postgres.WithDatabase(database),
-		postgres.WithTablePrefix("trpc_"),
-		postgres.WithSessionEventLimit(cfg.EventLimit),
-		postgres.WithSessionTTL(cfg.TTL),
-		postgres.WithAppendEventHook(cfg.AppendEventHooks...),
-		postgres.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
-func getEmbeddingModel(defaultModel string) string {
-	if env := os.Getenv(openAIEmbeddingModelEnvKey); env != "" {
-		return env
-	}
-	return defaultModel
-}
+func getEmbeddingModel(defaultModel string) string { _ = "STUB: not implemented"; return "" }
 
 func newOpenAIEmbedder(defaultModel string) *openaiembedder.Embedder {
-	modelName := getEmbeddingModel(defaultModel)
-	opts := []openaiembedder.Option{
-		openaiembedder.WithModel(modelName),
-	}
-
-	if apiKey := os.Getenv(openAIEmbeddingAPIKeyEnvKey); apiKey != "" {
-		opts = append(opts, openaiembedder.WithAPIKey(apiKey))
-	}
-
-	baseURL := os.Getenv(openAIEmbeddingBaseURLEnvKey)
-	if baseURL == "" {
-		baseURL = os.Getenv("OPENAI_BASE_URL")
-	}
-	if baseURL != "" {
-		opts = append(opts, openaiembedder.WithBaseURL(baseURL))
-	}
-
-	return openaiembedder.New(opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // newPGVectorSessionService creates a PostgreSQL + pgvector
@@ -255,37 +147,8 @@ func newOpenAIEmbedder(defaultModel string) *openaiembedder.Embedder {
 func newPGVectorSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	host := GetEnvOrDefault("PGVECTOR_HOST", "localhost")
-	portStr := GetEnvOrDefault("PGVECTOR_PORT", "5432")
-	port := 5432
-	if parsed, err := strconv.Atoi(portStr); err == nil {
-		port = parsed
-	}
-	user := GetEnvOrDefault("PGVECTOR_USER", "postgres")
-	password := GetEnvOrDefault("PGVECTOR_PASSWORD", "")
-	database := GetEnvOrDefault(
-		"PGVECTOR_DATABASE", "trpc-agent-go-pgsession",
-	)
-	embedderModel := GetEnvOrDefault(
-		"PGVECTOR_EMBEDDER_MODEL",
-		openaiembedder.DefaultModel,
-	)
-	embedder := newOpenAIEmbedder(embedderModel)
-
-	return sessionpgvector.NewService(
-		sessionpgvector.WithHost(host),
-		sessionpgvector.WithPort(port),
-		sessionpgvector.WithUser(user),
-		sessionpgvector.WithPassword(password),
-		sessionpgvector.WithDatabase(database),
-		sessionpgvector.WithIndexDimension(embedder.GetDimensions()),
-		sessionpgvector.WithEmbedder(embedder),
-		sessionpgvector.WithTablePrefix("trpc_"),
-		sessionpgvector.WithSessionEventLimit(cfg.EventLimit),
-		sessionpgvector.WithSessionTTL(cfg.TTL),
-		sessionpgvector.WithAppendEventHook(cfg.AppendEventHooks...),
-		sessionpgvector.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 // newMySQLSessionService creates a MySQL session service.
@@ -298,23 +161,8 @@ func newPGVectorSessionService(
 func newMySQLSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	host := GetEnvOrDefault("MYSQL_HOST", "localhost")
-	port := GetEnvOrDefault("MYSQL_PORT", "3306")
-	user := GetEnvOrDefault("MYSQL_USER", "root")
-	password := GetEnvOrDefault("MYSQL_PASSWORD", "")
-	database := GetEnvOrDefault("MYSQL_DATABASE", "trpc_agent_go")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4",
-		user, password, host, port, database)
-
-	return mysql.NewService(
-		mysql.WithMySQLClientDSN(dsn),
-		mysql.WithTablePrefix("trpc_"),
-		mysql.WithSessionEventLimit(cfg.EventLimit),
-		mysql.WithSessionTTL(cfg.TTL),
-		mysql.WithAppendEventHook(cfg.AppendEventHooks...),
-		mysql.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 // newTDSQLSessionService creates a TDSQL (distributed MySQL) session service.
@@ -329,24 +177,8 @@ func newMySQLSessionService(
 func newTDSQLSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	host := GetEnvOrDefault("TDSQL_HOST", "localhost")
-	port := GetEnvOrDefault("TDSQL_PORT", "3306")
-	user := GetEnvOrDefault("TDSQL_USER", "root")
-	password := GetEnvOrDefault("TDSQL_PASSWORD", "")
-	database := GetEnvOrDefault("TDSQL_DATABASE", "trpc_agent_go")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4",
-		user, password, host, port, database)
-
-	return mysql.NewService(
-		mysql.WithMySQLClientDSN(dsn),
-		mysql.WithTablePrefix("trpc_"),
-		mysql.WithTDSQLSharding(true),
-		mysql.WithSessionEventLimit(cfg.EventLimit),
-		mysql.WithSessionTTL(cfg.TTL),
-		mysql.WithAppendEventHook(cfg.AppendEventHooks...),
-		mysql.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 // newClickHouseSessionService creates a ClickHouse session service.
@@ -359,23 +191,8 @@ func newTDSQLSessionService(
 func newClickHouseSessionService(
 	cfg SessionServiceConfig,
 ) (session.Service, error) {
-	host := GetEnvOrDefault("CLICKHOUSE_HOST", "localhost")
-	port := GetEnvOrDefault("CLICKHOUSE_PORT", "9000")
-	user := GetEnvOrDefault("CLICKHOUSE_USER", "default")
-	password := GetEnvOrDefault("CLICKHOUSE_PASSWORD", "")
-	database := GetEnvOrDefault("CLICKHOUSE_DATABASE", "trpc_agent_go")
-
-	dsn := fmt.Sprintf("clickhouse://%s:%s@%s:%s/%s",
-		user, password, host, port, database)
-
-	return clickhouse.NewService(
-		clickhouse.WithClickHouseDSN(dsn),
-		clickhouse.WithTablePrefix("trpc_"),
-		clickhouse.WithSessionEventLimit(cfg.EventLimit),
-		clickhouse.WithSessionTTL(cfg.TTL),
-		clickhouse.WithAppendEventHook(cfg.AppendEventHooks...),
-		clickhouse.WithGetSessionHook(cfg.GetSessionHooks...),
-	)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }
 
 // RunnerConfig holds configuration for creating a runner.
@@ -391,17 +208,7 @@ type RunnerConfig struct {
 }
 
 // DefaultRunnerConfig returns a default runner configuration.
-func DefaultRunnerConfig() RunnerConfig {
-	return RunnerConfig{
-		AppName:     "session-demo",
-		AgentName:   "demo-assistant",
-		ModelName:   GetEnvOrDefault("MODEL_NAME", "deepseek-v4-flash"),
-		Instruction: "You are a helpful assistant.",
-		MaxTokens:   0,
-		Temperature: nil,
-		Streaming:   false,
-	}
-}
+func DefaultRunnerConfig() RunnerConfig { _ = "STUB: not implemented"; return *new(RunnerConfig) }
 
 // NewRunner creates a runner with the given session service and
 // configuration.
@@ -409,35 +216,8 @@ func NewRunner(
 	sessionService session.Service,
 	cfg RunnerConfig,
 ) runner.Runner {
-	modelInstance := openai.New(
-		cfg.ModelName,
-		openai.WithVariant(openai.VariantOpenAI),
-	)
-
-	genConfig := model.GenerationConfig{
-		Temperature: cfg.Temperature,
-		Stream:      cfg.Streaming,
-	}
-	if cfg.MaxTokens > 0 {
-		genConfig.MaxTokens = IntPtr(cfg.MaxTokens)
-	}
-
-	agentOpts := []llmagent.Option{
-		llmagent.WithModel(modelInstance),
-		llmagent.WithInstruction(cfg.Instruction),
-		llmagent.WithGenerationConfig(genConfig),
-	}
-	if len(cfg.Tools) > 0 {
-		agentOpts = append(agentOpts, llmagent.WithTools(cfg.Tools))
-	}
-
-	llmAgent := llmagent.New(cfg.AgentName, agentOpts...)
-
-	return runner.NewRunner(
-		cfg.AppName,
-		llmAgent,
-		runner.WithSessionService(sessionService),
-	)
+	_ = "STUB: not implemented"
+	return *new(runner.Runner)
 }
 
 // RunAgent runs the agent with the given message and optionally prints
@@ -450,89 +230,37 @@ func RunAgent(
 	message string,
 	printConversation bool,
 ) (string, error) {
-	msg := model.NewUserMessage(message)
-	requestID := uuid.New().String()
-
-	eventChan, err := r.Run(
-		ctx,
-		userID,
-		sessionID,
-		msg,
-		agent.WithRequestID(requestID),
-	)
-	if err != nil {
-		return "", fmt.Errorf("run agent failed: %w", err)
-	}
-
-	if printConversation {
-		fmt.Printf("│  User: %s\n", Truncate(message, 55))
-	}
-
-	var (
-		response string
-		runErr   error
-	)
-	for evt := range eventChan {
-		if evt.Error != nil && runErr == nil {
-			runErr = fmt.Errorf("event error: %s", evt.Error.Message)
-			continue
-		}
-
-		content := ExtractResponse(evt)
-		if content != "" {
-			response = content
-		}
-	}
-
-	if runErr != nil {
-		return "", runErr
-	}
-
-	if printConversation {
-		fmt.Printf("│  Assistant: %s\n", Truncate(response, 50))
-	}
-
-	return response, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // ExtractResponse extracts the response content from an event.
-func ExtractResponse(evt *event.Event) string {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return ""
-	}
-	return evt.Response.Choices[0].Message.Content
-}
+func ExtractResponse(evt *event.Event) string { _ = "STUB: not implemented"; return "" }
 
 // GetEnvOrDefault retrieves the value of an environment variable or returns a
 // default value if not set.
-func GetEnvOrDefault(key, defaultValue string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return defaultValue
-}
+func GetEnvOrDefault(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }
 
 // Truncate truncates a string to maxLen characters.
-func Truncate(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen] + "..."
-}
+func Truncate(s string, maxLen int) string { _ = "STUB: not implemented"; return "" }
 
 // IntPtr returns a pointer to an int.
 func IntPtr(v int) *int {
-	return &v
+	_ = "STUB: not implemented"
+
+	// FloatPtr returns a pointer to a float64.
+	return nil
 }
 
-// FloatPtr returns a pointer to a float64.
 func FloatPtr(v float64) *float64 {
-	return &v
+	_ = "STUB: not implemented"
+
+	// PrintSessionEvents prints all events for a session in debug mode.
+	// It retrieves the session from the service and prints each event's
+	// role and content.
+	return nil
 }
 
-// PrintSessionEvents prints all events for a session in debug mode.
-// It retrieves the session from the service and prints each event's
-// role and content.
 func PrintSessionEvents(
 	ctx context.Context,
 	svc session.Service,
@@ -540,34 +268,6 @@ func PrintSessionEvents(
 	userID string,
 	sessionID string,
 ) error {
-	key := session.Key{
-		AppName:   appName,
-		UserID:    userID,
-		SessionID: sessionID,
-	}
-
-	sess, err := svc.GetSession(ctx, key)
-	if err != nil {
-		return fmt.Errorf("get session failed: %w", err)
-	}
-	if sess == nil {
-		return fmt.Errorf("session not found")
-	}
-
-	events := sess.GetEvents()
-	fmt.Printf("│\n")
-	fmt.Printf("│  [DEBUG] Session Events: %d\n", len(events))
-
-	for i, evt := range events {
-		role := ""
-		content := ""
-		if evt.Response != nil && len(evt.Response.Choices) > 0 {
-			role = string(evt.Response.Choices[0].Message.Role)
-			content = evt.Response.Choices[0].Message.Content
-		}
-		content = strings.ReplaceAll(content, "\n", " ")
-		fmt.Printf("│    %d. %-9s: %s\n", i+1, role, Truncate(content, 45))
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }

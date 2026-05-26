@@ -15,9 +15,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	coreevaluation "trpc.group/trpc-go/trpc-agent-go/evaluation"
@@ -148,12 +145,6 @@ func main() {
 }
 
 func waitForShutdown(httpServer *http.Server, timeout time.Duration) {
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
-	<-signalCh
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	if err := httpServer.Shutdown(shutdownCtx); err != nil {
-		log.Printf("shutdown HTTP server: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }

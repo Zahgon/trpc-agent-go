@@ -10,15 +10,11 @@
 package rubricknowledgerecall
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"text/template"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/internal/rubrics"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor/internal/content"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -126,61 +122,22 @@ type rubricKnowledgeRecallMessagesConstructor struct {
 
 // New returns a messages constructor for knowledge recall.
 func New() messagesconstructor.MessagesConstructor {
-	return &rubricKnowledgeRecallMessagesConstructor{}
+	_ = "STUB: not implemented"
+	return *new(messagesconstructor.MessagesConstructor)
 }
 
 // ConstructMessages builds judge prompts for knowledge recall evaluation.
 func (e *rubricKnowledgeRecallMessagesConstructor) ConstructMessages(ctx context.Context, actuals, _ []*evalset.Invocation,
 	evalMetric *metric.EvalMetric) ([]model.Message, error) {
-	if len(actuals) == 0 {
-		return nil, fmt.Errorf("actuals is empty")
-	}
-	if evalMetric == nil {
-		return nil, fmt.Errorf("eval metric is nil")
-	}
-	if evalMetric.Criterion == nil || evalMetric.Criterion.LLMJudge == nil {
-		return nil, fmt.Errorf("llm judge criterion is required")
-	}
-	if rubrics.Count(evalMetric) == 0 {
-		return nil, fmt.Errorf("llm judge rubrics are required")
-	}
-	actual := actuals[len(actuals)-1]
-	retrieved, err := content.ExtractKnowledgeRecall(actual.Tools)
-	if err != nil {
-		return nil, fmt.Errorf("extract knowledge recall: %w", err)
-	}
-	if retrieved == "" {
-		retrieved = "No knowledge search results were found."
-	}
-	data := rubricKnowledgeRecallPromptData{
-		UserInput:          content.ExtractTextFromContent(actual.UserContent),
-		RetrievedKnowledge: retrieved,
-		Rubrics:            content.ExtractRubrics(evalMetric.Criterion.LLMJudge.Rubrics),
-	}
-	var buf bytes.Buffer
-	if err := rubricKnowledgeRecallPromptTemplate.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("execute rubric knowledge recall prompt template: %w", err)
-	}
-	return []model.Message{
-		{
-			Role:    model.RoleUser,
-			Content: buf.String(),
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StructuredOutput returns the structured output schema for knowledge recall evaluation.
 func (e *rubricKnowledgeRecallMessagesConstructor) StructuredOutput(ctx context.Context,
 	actuals, expecteds []*evalset.Invocation, evalMetric *metric.EvalMetric) (*model.StructuredOutput, error) {
-	visibleRubrics, err := rubrics.ValidateStructured(evalMetric)
-	if err != nil {
-		return nil, err
-	}
-	return rubrics.ScoresOutput(
-		"rubric_knowledge_recall_scores",
-		"Per-rubric binary scores and reasons for knowledge recall evaluation.",
-		visibleRubrics,
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type rubricKnowledgeRecallPromptData struct {

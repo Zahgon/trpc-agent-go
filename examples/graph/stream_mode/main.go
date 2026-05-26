@@ -17,7 +17,6 @@ import (
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
-	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
@@ -77,25 +76,6 @@ func main() {
 }
 
 func askNode(ctx context.Context, state graph.State) (any, error) {
-	emitter := graph.GetEventEmitter(state)
-	_ = emitter.Emit(&event.Event{
-		Response: &model.Response{
-			Object:  model.ObjectTypeChatCompletionChunk,
-			Choices: []model.Choice{{Delta: model.NewAssistantMessage(chunk1)}},
-		},
-	})
-	_ = emitter.Emit(&event.Event{
-		Response: &model.Response{
-			Object:  model.ObjectTypeChatCompletionChunk,
-			Choices: []model.Choice{{Delta: model.NewAssistantMessage(chunk2)}},
-		},
-	})
-	_ = emitter.Emit(&event.Event{
-		Response: &model.Response{
-			Object:  model.ObjectTypeChatCompletion,
-			Done:    true,
-			Choices: []model.Choice{{Message: model.NewAssistantMessage(finalMsg)}},
-		},
-	})
-	return graph.State{}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }

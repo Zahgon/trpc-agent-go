@@ -11,9 +11,7 @@ package review
 
 import (
 	"context"
-	"fmt"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
@@ -80,125 +78,20 @@ type decisionPayload struct {
 
 // New creates the built-in unsafe intent reviewer backed by a runner.
 func New(r runner.Runner, options ...Option) (Reviewer, error) {
-	if r == nil {
-		return nil, fmt.Errorf("newing unsafe intent reviewer: runner is nil")
-	}
-	opts := newOptions(options...)
-	if opts.userIDSupplier == nil {
-		return nil, fmt.Errorf("newing unsafe intent reviewer: user id supplier is nil")
-	}
-	if opts.sessionIDSupplier == nil {
-		return nil, fmt.Errorf("newing unsafe intent reviewer: session id supplier is nil")
-	}
-	return &guardianReviewer{
-		runner:            r,
-		systemPrompt:      opts.systemPrompt,
-		userIDSupplier:    opts.userIDSupplier,
-		sessionIDSupplier: opts.sessionIDSupplier,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Reviewer), nil
 }
 
 func (r *guardianReviewer) Review(ctx context.Context, req *Request) (*Decision, error) {
-	if req == nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: request is nil")
-	}
-	userID, err := r.userIDSupplier(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: supply user id: %w", err)
-	}
-	if userID == "" {
-		return nil, fmt.Errorf("reviewing unsafe intent request: supplied user id is empty")
-	}
-	sessionID, err := r.sessionIDSupplier(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: supply session id: %w", err)
-	}
-	if sessionID == "" {
-		return nil, fmt.Errorf("reviewing unsafe intent request: supplied session id is empty")
-	}
-	userMessage, err := renderUserMessage(req)
-	if err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: render user message: %w", err)
-	}
-	eventCh, err := r.runner.Run(
-		ctx,
-		userID,
-		sessionID,
-		model.NewUserMessage(userMessage),
-		agent.WithGlobalInstruction(r.systemPrompt),
-		agent.WithStructuredOutputJSON(
-			new(decisionPayload),
-			true,
-			"Return the unsafe intent decision as JSON.",
-		),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: runner run: %w", err)
-	}
-	payload, err := collectDecisionPayload(ctx, eventCh)
-	if err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: collect decision: %w", err)
-	}
-	if err := validateDecisionPayload(payload); err != nil {
-		return nil, fmt.Errorf("reviewing unsafe intent request: %w", err)
-	}
-	return &Decision{
-		Blocked:  payload.Blocked,
-		Category: payload.Category,
-		Reason:   payload.Reason,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func validateDecisionPayload(payload *decisionPayload) error {
-	if payload == nil {
-		return fmt.Errorf("decision payload is nil")
-	}
-	if err := validateCategory(payload.Category); err != nil {
-		return err
-	}
-	if payload.Blocked && payload.Category == "" {
-		return fmt.Errorf("blocked decision category is empty")
-	}
-	return nil
-}
+func validateDecisionPayload(payload *decisionPayload) error { _ = "STUB: not implemented"; return nil }
 
-func validateCategory(category Category) error {
-	switch category {
-	case "", CategoryCyberAbuse, CategoryCredentialTheft, CategoryFraudDeception, CategoryPrivacyAbuse, CategoryPhysicalHarm, CategorySelfHarm, CategorySexualAbuse, CategoryOtherUnsafeIntent:
-		return nil
-	default:
-		return fmt.Errorf("invalid category %q", category)
-	}
-}
+func validateCategory(category Category) error { _ = "STUB: not implemented"; return nil }
 
 func collectDecisionPayload(ctx context.Context, events <-chan *event.Event) (*decisionPayload, error) {
-	if events == nil {
-		return nil, fmt.Errorf("runner returned nil event channel")
-	}
-	var payload *decisionPayload
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case evt, ok := <-events:
-			if !ok {
-				if payload == nil {
-					return nil, fmt.Errorf("missing structured output")
-				}
-				return payload, nil
-			}
-			if evt == nil || evt.StructuredOutput == nil {
-				continue
-			}
-			switch value := evt.StructuredOutput.(type) {
-			case *decisionPayload:
-				payload = value
-			case decisionPayload:
-				copied := value
-				payload = &copied
-			default:
-				return nil, fmt.Errorf("unexpected structured output type %T", evt.StructuredOutput)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }

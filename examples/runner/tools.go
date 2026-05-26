@@ -11,73 +11,29 @@ package main
 
 import (
 	"context"
-	"math"
-	"strings"
-	"time"
 )
 
 // calculate performs basic mathematical operations.
 func (c *multiTurnChat) calculate(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-
-	switch strings.ToLower(args.Operation) {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B != 0 {
-			result = args.A / args.B
-		} else {
-			result = 0 // Handle division by zero.
-		}
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	default:
-		result = 0
-	}
-
-	return calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    result,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
+
+// Handle division by zero.
 
 // getCurrentTime returns current time information.
 func (c *multiTurnChat) getCurrentTime(_ context.Context, args timeArgs) (timeResult, error) {
-	now := time.Now()
-	var t time.Time
-	timezone := args.Timezone
-
-	// Handle timezone conversion.
-	switch strings.ToUpper(args.Timezone) {
-	case "UTC":
-		t = now.UTC()
-	case "EST", "EASTERN":
-		t = now.Add(-5 * time.Hour) // Simplified EST.
-	case "PST", "PACIFIC":
-		t = now.Add(-8 * time.Hour) // Simplified PST.
-	case "CST", "CENTRAL":
-		t = now.Add(-6 * time.Hour) // Simplified CST.
-	case "":
-		t = now
-		timezone = "Local"
-	default:
-		t = now.UTC()
-		timezone = "UTC"
-	}
-
-	return timeResult{
-		Timezone: timezone,
-		Time:     t.Format("15:04:05"),
-		Date:     t.Format("2006-01-02"),
-		Weekday:  t.Weekday().String(),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(timeResult), nil
 }
+
+// Handle timezone conversion.
+
+// Simplified EST.
+
+// Simplified PST.
+
+// Simplified CST.
 
 // calculatorArgs represents arguments for the calculator tool.
 type calculatorArgs struct {
@@ -109,10 +65,6 @@ type timeResult struct {
 
 // Helper functions for creating pointers to primitive types.
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

@@ -11,20 +11,12 @@
 package docx
 
 import (
-	"fmt"
 	"io"
-	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/gonfva/docxlib"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/chunking"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
-	idocument "trpc.group/trpc-go/trpc-agent-go/knowledge/document/internal/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document/reader"
-	itransform "trpc.group/trpc-go/trpc-agent-go/knowledge/internal/transform"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/transform"
 )
 
@@ -48,273 +40,126 @@ type Reader struct {
 // New creates a new DOCX reader with the given options.
 // DOCX reader uses FixedSizeChunking by default.
 func New(opts ...reader.Option) reader.Reader {
+	_ = "STUB: not implemented"
 	// Build config from options
-	config := &reader.Config{
-		Chunk: true,
-	}
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	// Build chunking strategy using the default builder for DOCX
-	strategy := reader.BuildChunkingStrategy(config, buildDefaultChunkingStrategy)
-
-	// Create reader from config
-	return &Reader{
-		chunk:            config.Chunk,
-		chunkingStrategy: strategy,
-		transformers:     config.Transformers,
-	}
+	return *new(reader.Reader)
 }
+
+// Build chunking strategy using the default builder for DOCX
+
+// Create reader from config
 
 // buildDefaultChunkingStrategy builds the default chunking strategy for DOCX reader.
 // DOCX uses FixedSizeChunking with configurable size and overlap.
 func buildDefaultChunkingStrategy(chunkSize, overlap int) chunking.Strategy {
-	var opts []chunking.Option
-	if chunkSize > 0 {
-		opts = append(opts, chunking.WithChunkSize(chunkSize))
-	}
-	if overlap > 0 {
-		opts = append(opts, chunking.WithOverlap(overlap))
-	}
-	return chunking.NewFixedSizeChunking(opts...)
+	_ = "STUB: not implemented"
+	return *new(chunking.Strategy)
 }
 
 // ReadFromReader reads DOCX content from an io.Reader and returns a list of documents.
 func (r *Reader) ReadFromReader(name string, rd io.Reader) ([]*document.Document, error) {
-	return r.readFromReader(rd, name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ReadFromFile reads DOCX content from a file path and returns a list of documents.
 func (r *Reader) ReadFromFile(filePath string) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Open the file.
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %w", err)
-	}
-	defer file.Close()
-
-	// Get file size.
-	stat, err := file.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get file info: %w", err)
-	}
-
-	// Parse the DOCX document.
-	doc, err := docxlib.Parse(file, stat.Size())
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse DOCX: %w", err)
-	}
-
-	// Extract text content.
-	textContent := r.extractTextFromDoc(doc)
-
-	// Get file name without extension.
-	fileName := strings.TrimSuffix(
-		filepath.Base(filePath), filepath.Ext(filePath),
-	)
-
-	// Create document.
-	docResult := idocument.CreateDocument(textContent, fileName)
-
-	// Apply preprocess.
-	docs, err := itransform.ApplyPreprocess([]*document.Document{docResult}, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply preprocess: %w", err)
-	}
-
-	// Apply chunking if enabled.
-	if r.chunk {
-		docs, err = r.chunkDocuments(docs)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Apply postprocess.
-	docs, err = itransform.ApplyPostprocess(docs, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply postprocess: %w", err)
-	}
-
-	return docs, nil
+	return nil, nil
 }
+
+// Get file size.
+
+// Parse the DOCX document.
+
+// Extract text content.
+
+// Get file name without extension.
+
+// Create document.
+
+// Apply preprocess.
+
+// Apply chunking if enabled.
+
+// Apply postprocess.
 
 // ReadFromURL reads DOCX content from a URL and returns a list of documents.
 func (r *Reader) ReadFromURL(urlStr string) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Validate URL to prevent potential security issues.
-	parsedURL, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
-	}
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return nil, fmt.Errorf("invalid URL scheme: %s", urlStr)
-	}
-
-	// Download DOCX from URL.
-	resp, err := http.Get(parsedURL.String())
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	// Get file name from URL.
-	fileName := r.extractFileNameFromURL(urlStr)
-	return r.readFromReader(resp.Body, fileName)
+	return nil, nil
 }
+
+// Download DOCX from URL.
+
+// Get file name from URL.
 
 // readFromReader reads DOCX content from an io.Reader and returns a list of documents.
 func (r *Reader) readFromReader(rd io.Reader, name string) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Read all data from the reader.
-	data, err := io.ReadAll(rd)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read data: %w", err)
-	}
-
-	// Create a temporary file to work with docxlib.
-	tmpFile, err := os.CreateTemp("", "docx_*.docx")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temporary file: %w", err)
-	}
-	defer os.Remove(tmpFile.Name()) // Clean up temporary file.
-
-	// Write data to temporary file.
-	if _, err := tmpFile.Write(data); err != nil {
-		tmpFile.Close()
-		return nil, fmt.Errorf("failed to write to temporary file: %w", err)
-	}
-
-	// Close and reopen for reading.
-	tmpFile.Close()
-	file, err := os.Open(tmpFile.Name())
-	if err != nil {
-		return nil, fmt.Errorf("failed to reopen temporary file: %w", err)
-	}
-	defer file.Close()
-
-	// Get file size.
-	stat, err := file.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get file info: %w", err)
-	}
-
-	// Parse the DOCX document.
-	doc, err := docxlib.Parse(file, stat.Size())
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse DOCX: %w", err)
-	}
-
-	// Extract text content.
-	textContent := r.extractTextFromDoc(doc)
-
-	// Create document.
-	docResult := idocument.CreateDocument(textContent, name)
-
-	// Apply preprocess.
-	docs, err := itransform.ApplyPreprocess([]*document.Document{docResult}, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply preprocess: %w", err)
-	}
-
-	// Apply chunking if enabled.
-	if r.chunk {
-		docs, err = r.chunkDocuments(docs)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Apply postprocess.
-	docs, err = itransform.ApplyPostprocess(docs, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply postprocess: %w", err)
-	}
-
-	return docs, nil
+	return nil, nil
 }
+
+// Create a temporary file to work with docxlib.
+
+// Clean up temporary file.
+
+// Write data to temporary file.
+
+// Close and reopen for reading.
+
+// Get file size.
+
+// Parse the DOCX document.
+
+// Extract text content.
+
+// Create document.
+
+// Apply preprocess.
+
+// Apply chunking if enabled.
+
+// Apply postprocess.
 
 // extractTextFromDoc extracts all text content from a docxlib document.
 func (r *Reader) extractTextFromDoc(doc *docxlib.DocxLib) string {
-	var textContent strings.Builder
-
-	// Get all paragraphs from the document.
-	paragraphs := doc.Paragraphs()
-
-	for _, paragraph := range paragraphs {
-		// Get children (runs, hyperlinks, etc.) from the paragraph.
-		children := paragraph.Children()
-
-		for _, child := range children {
-			// Extract text from runs.
-			if child.Run != nil && child.Run.Text != nil {
-				text := strings.TrimSpace(child.Run.Text.Text)
-				if text != "" {
-					textContent.WriteString(text)
-					textContent.WriteString(" ")
-				}
-			}
-
-			// Extract text from hyperlinks.
-			if child.Link != nil && child.Link.Run.Text != nil {
-				text := strings.TrimSpace(child.Link.Run.Text.Text)
-				if text != "" {
-					textContent.WriteString(text)
-					textContent.WriteString(" ")
-				}
-			}
-		}
-
-		// Add newline after each paragraph.
-		if textContent.Len() > 0 {
-			textContent.WriteString("\n")
-		}
-	}
-
-	return strings.TrimSpace(textContent.String())
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// Get all paragraphs from the document.
+
+// Get children (runs, hyperlinks, etc.) from the paragraph.
+
+// Extract text from runs.
+
+// Extract text from hyperlinks.
+
+// Add newline after each paragraph.
 
 // chunkDocuments applies chunking to documents.
 func (r *Reader) chunkDocuments(docs []*document.Document) ([]*document.Document, error) {
-	if r.chunkingStrategy == nil {
-		r.chunkingStrategy = chunking.NewFixedSizeChunking()
-	}
-
-	var result []*document.Document
-	for _, doc := range docs {
-		chunks, err := r.chunkingStrategy.Chunk(doc)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, chunks...)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // extractFileNameFromURL extracts a file name from a URL.
 func (r *Reader) extractFileNameFromURL(url string) string {
+	_ = "STUB: not implemented"
 	// Extract the last part of the URL as the file name.
-	parts := strings.Split(url, "/")
-	if len(parts) > 0 {
-		fileName := parts[len(parts)-1]
-		// Remove query parameters and fragments.
-		if idx := strings.Index(fileName, "?"); idx != -1 {
-			fileName = fileName[:idx]
-		}
-		if idx := strings.Index(fileName, "#"); idx != -1 {
-			fileName = fileName[:idx]
-		}
-		// Remove file extension.
-		fileName = strings.TrimSuffix(fileName, ".docx")
-		return fileName
-	}
-	return "docx_document"
+	return ""
 }
+
+// Remove query parameters and fragments.
+
+// Remove file extension.
 
 // Name returns the name of this reader.
-func (r *Reader) Name() string {
-	return "DOCXReader"
-}
+func (r *Reader) Name() string { _ = "STUB: not implemented"; return "" }
 
 // SupportedExtensions returns the file extensions this reader supports.
-func (r *Reader) SupportedExtensions() []string {
-	return supportedExtensions
-}
+func (r *Reader) SupportedExtensions() []string { _ = "STUB: not implemented"; return nil }

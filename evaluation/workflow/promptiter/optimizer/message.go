@@ -9,11 +9,7 @@
 package optimizer
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"text/template"
 
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter"
@@ -45,24 +41,7 @@ Request JSON:
 {{ toPrettyJSON . }}
 `
 
-func defaultMessageBuilder() MessageBuilder {
-	tmpl, err := template.New("optimizer_default_message").Funcs(template.FuncMap{
-		"toPrettyJSON": toPrettyJSON,
-	}).Parse(defaultMessageTemplateText)
-	if err != nil {
-		return func(ctx context.Context, request *Request) (*model.Message, error) {
-			return nil, fmt.Errorf("parse default optimization message template: %w", err)
-		}
-	}
-	return func(ctx context.Context, request *Request) (*model.Message, error) {
-		var content bytes.Buffer
-		if err := tmpl.Execute(&content, newPromptData(request)); err != nil {
-			return nil, fmt.Errorf("render optimization message template: %w", err)
-		}
-		message := model.NewUserMessage(content.String())
-		return &message, nil
-	}
-}
+func defaultMessageBuilder() MessageBuilder { _ = "STUB: not implemented"; return *new(MessageBuilder) }
 
 type promptData struct {
 	Surface   promptSurface
@@ -79,34 +58,7 @@ type promptGradient struct {
 	Gradient string
 }
 
-func newPromptData(request *Request) promptData {
-	if request == nil {
-		return promptData{}
-	}
-	data := promptData{}
-	if request.Surface != nil {
-		data.Surface = promptSurface{
-			Type:  request.Surface.Type,
-			Value: request.Surface.Value,
-		}
-	}
-	if request.Gradient != nil {
-		data.Gradients = make([]promptGradient, 0, len(request.Gradient.Gradients))
-		for _, gradient := range request.Gradient.Gradients {
-			data.Gradients = append(data.Gradients, promptGradient{
-				Severity: gradient.Severity,
-				Gradient: gradient.Gradient,
-			})
-		}
-	}
-	return data
-}
+func newPromptData(request *Request) promptData { _ = "STUB: not implemented"; return *new(promptData) }
 
 // toPrettyJSON renders one value as indented JSON for prompts.
-func toPrettyJSON(value any) (string, error) {
-	payloadJSON, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("marshal optimization request: %w", err)
-	}
-	return string(payloadJSON), nil
-}
+func toPrettyJSON(value any) (string, error) { _ = "STUB: not implemented"; return "", nil }

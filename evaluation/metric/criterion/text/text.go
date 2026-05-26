@@ -11,10 +11,6 @@
 package text
 
 import (
-	"fmt"
-	"regexp"
-	"strings"
-
 	clength "trpc.group/trpc-go/trpc-agent-go/evaluation/metric/criterion/length"
 )
 
@@ -52,64 +48,12 @@ const (
 )
 
 // New creates a new TextCriterion with the provided options.
-func New(opt ...Option) *TextCriterion {
-	opts := newOptions(opt...)
-	return &TextCriterion{
-		Ignore:          opts.ignore,
-		CaseInsensitive: opts.caseInsensitive,
-		MatchStrategy:   opts.matchStrategy,
-		Length:          opts.length,
-		CompareName:     opts.compareName,
-		Compare:         opts.compare,
-	}
-}
+func New(opt ...Option) *TextCriterion { _ = "STUB: not implemented"; return nil }
 
 // Match compares source and target using the configured strategy.
 func (t *TextCriterion) Match(source, target string) (bool, error) {
-	if t.Ignore {
-		return true, nil
-	}
-	if t.Compare != nil {
-		return t.Compare(source, target)
-	}
-	if t.Length != nil {
-		ok, err := t.Length.Match(source)
-		if err != nil {
-			return false, fmt.Errorf("length mismatch: %w", err)
-		}
-		if !ok {
-			return false, fmt.Errorf("length mismatch")
-		}
-	}
-	if t.MatchStrategy == TextMatchStrategySkip {
-		return true, nil
-	}
-	if t.CaseInsensitive {
-		source = strings.ToLower(source)
-		target = strings.ToLower(target)
-	}
-	switch t.MatchStrategy {
-	// Default to exact match.
-	case TextMatchStrategyExact, "":
-		if source == target {
-			return true, nil
-		}
-		return false, fmt.Errorf("source %s and target %s do not match", source, target)
-	case TextMatchStrategyContains:
-		if strings.Contains(source, target) {
-			return true, nil
-		}
-		return false, fmt.Errorf("source %s does not contain target %s", source, target)
-	case TextMatchStrategyRegex:
-		re, err := regexp.Compile(target)
-		if err != nil {
-			return false, fmt.Errorf("invalid regex %s: %w", target, err)
-		}
-		if re.MatchString(source) {
-			return true, nil
-		}
-		return false, fmt.Errorf("source %s does not match regex %s", source, target)
-	default:
-		return false, fmt.Errorf("invalid match strategy %s", t.MatchStrategy)
-	}
+	_ = "STUB: not implemented"
+	return false, nil
 }
+
+// Default to exact match.

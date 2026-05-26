@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // EventEmitter is the interface for emitting events from within NodeFunc.
@@ -57,186 +56,82 @@ type EventEmitterOption func(*eventEmitter)
 
 // WithEmitterContext sets the context for the emitter.
 func WithEmitterContext(ctx context.Context) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.ctx = ctx
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // WithEmitterNodeID sets the node ID for the emitter.
 func WithEmitterNodeID(nodeID string) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.nodeID = nodeID
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // WithEmitterInvocationID sets the invocation ID for the emitter.
 func WithEmitterInvocationID(invocationID string) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.invocationID = invocationID
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // WithEmitterStepNumber sets the step number for the emitter.
 func WithEmitterStepNumber(stepNumber int) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.stepNumber = stepNumber
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // WithEmitterBranch sets the branch for the emitter.
 func WithEmitterBranch(branch string) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.branch = branch
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // WithEmitterTimeout sets the timeout for emit operations.
 func WithEmitterTimeout(timeout time.Duration) EventEmitterOption {
-	return func(e *eventEmitter) {
-		e.timeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(EventEmitterOption)
 }
 
 // NewEventEmitter creates a new EventEmitter with the given event channel and options.
 // If eventChan is nil, returns a no-op emitter that safely ignores all emit calls.
 func NewEventEmitter(eventChan chan<- *event.Event, opts ...EventEmitterOption) EventEmitter {
-	if eventChan == nil {
-		return &noopEmitter{}
-	}
-
-	emitter := &eventEmitter{
-		ctx:       context.Background(),
-		eventChan: eventChan,
-		timeout:   event.EmitWithoutTimeout,
-	}
-
-	for _, opt := range opts {
-		opt(emitter)
-	}
-
-	return emitter
+	_ = "STUB: not implemented"
+	return *new(EventEmitter)
 }
 
 // Emit sends a custom event to the event channel.
-func (e *eventEmitter) Emit(evt *event.Event) error {
-	if evt == nil {
-		return nil
-	}
+func (e *eventEmitter) Emit(evt *event.Event) error { _ = "STUB: not implemented"; return nil }
 
-	// Inject context information if not already set
-	if evt.InvocationID == "" {
-		evt.InvocationID = e.invocationID
-	}
-	if evt.Author == "" {
-		evt.Author = e.nodeID
-	}
-	if evt.Branch == "" && e.branch != "" {
-		evt.Branch = e.branch
-	}
-
-	return e.emitWithRecover(evt)
-}
+// Inject context information if not already set
 
 // EmitCustom sends a custom event with the specified event type and payload.
 func (e *eventEmitter) EmitCustom(eventType string, payload any) error {
-	metadata := NodeCustomEventMetadata{
-		EventType:    eventType,
-		Category:     NodeCustomEventCategoryCustom,
-		NodeID:       e.nodeID,
-		InvocationID: e.invocationID,
-		StepNumber:   e.stepNumber,
-		Timestamp:    time.Now(),
-		Payload:      payload,
-	}
-
-	evt := NewGraphEvent(
-		e.invocationID,
-		e.nodeID,
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if e.branch != "" {
-		evt.Branch = e.branch
-	}
-
-	return e.emitWithRecover(evt)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EmitProgress sends a progress event with the specified progress percentage and message.
 func (e *eventEmitter) EmitProgress(progress float64, message string) error {
+	_ = "STUB: not implemented"
 	// Clamp progress to 0-100
-	if progress < 0 {
-		progress = 0
-	}
-	if progress > 100 {
-		progress = 100
-	}
-
-	metadata := NodeCustomEventMetadata{
-		EventType:    "progress",
-		Category:     NodeCustomEventCategoryProgress,
-		NodeID:       e.nodeID,
-		InvocationID: e.invocationID,
-		StepNumber:   e.stepNumber,
-		Timestamp:    time.Now(),
-		Progress:     progress,
-		Message:      message,
-	}
-
-	evt := NewGraphEvent(
-		e.invocationID,
-		e.nodeID,
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if e.branch != "" {
-		evt.Branch = e.branch
-	}
-
-	return e.emitWithRecover(evt)
+	return nil
 }
 
 // EmitText sends a streaming text event.
-func (e *eventEmitter) EmitText(text string) error {
-	metadata := NodeCustomEventMetadata{
-		EventType:    "text",
-		Category:     NodeCustomEventCategoryText,
-		NodeID:       e.nodeID,
-		InvocationID: e.invocationID,
-		StepNumber:   e.stepNumber,
-		Timestamp:    time.Now(),
-		Message:      text,
-	}
-
-	evt := NewGraphEvent(
-		e.invocationID,
-		e.nodeID,
-		ObjectTypeGraphNodeCustom,
-		WithNodeCustomMetadata(metadata),
-	)
-	if e.branch != "" {
-		evt.Branch = e.branch
-	}
-
-	return e.emitWithRecover(evt)
-}
+func (e *eventEmitter) EmitText(text string) error { _ = "STUB: not implemented"; return nil }
 
 // Context returns the context associated with this emitter.
 func (e *eventEmitter) Context() context.Context {
-	return e.ctx
+	_ = "STUB: not implemented"
+
+	// emitWithRecover sends an event to the channel with panic recovery.
+	return *new(context.Context)
 }
 
-// emitWithRecover sends an event to the channel with panic recovery.
 func (e *eventEmitter) emitWithRecover(evt *event.Event) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Errorf("EventEmitter: recovered from panic while emitting event: %v", r)
-			err = nil // Don't propagate panic as error
-		}
-	}()
-
-	return event.EmitEventWithTimeout(e.ctx, e.eventChan, evt, e.timeout)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Don't propagate panic as error
 
 // noopEmitter is a no-op implementation of EventEmitter.
 // It safely ignores all emit calls and is used when EventChan is unavailable.
@@ -244,27 +139,36 @@ type noopEmitter struct{}
 
 // Emit does nothing and returns nil.
 func (n *noopEmitter) Emit(evt *event.Event) error {
+	_ = "STUB: not implemented"
+
+	// EmitCustom does nothing and returns nil.
 	return nil
 }
 
-// EmitCustom does nothing and returns nil.
 func (n *noopEmitter) EmitCustom(eventType string, payload any) error {
+	_ = "STUB: not implemented"
+
+	// EmitProgress does nothing and returns nil.
 	return nil
 }
 
-// EmitProgress does nothing and returns nil.
 func (n *noopEmitter) EmitProgress(progress float64, message string) error {
+	_ = "STUB: not implemented"
+
+	// EmitText does nothing and returns nil.
 	return nil
 }
 
-// EmitText does nothing and returns nil.
 func (n *noopEmitter) EmitText(text string) error {
+	_ = "STUB: not implemented"
+
+	// Context returns a background context.
 	return nil
 }
 
-// Context returns a background context.
 func (n *noopEmitter) Context() context.Context {
-	return context.Background()
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // GetEventEmitter retrieves an EventEmitter from the given State.
@@ -273,34 +177,20 @@ func (n *noopEmitter) Context() context.Context {
 // If the state does not contain a valid ExecutionContext or EventChan,
 // returns a no-op emitter that safely ignores all emit calls.
 func GetEventEmitter(state State) EventEmitter {
-	return GetEventEmitterWithContext(context.Background(), state)
+	_ = "STUB: not implemented"
+	return *new(EventEmitter)
 }
 
 // GetEventEmitterWithContext retrieves an EventEmitter from the given State with a custom context.
 func GetEventEmitterWithContext(ctx context.Context, state State) EventEmitter {
-	if state == nil {
-		return &noopEmitter{}
-	}
-
-	// Get ExecutionContext from state
-	execCtx, ok := GetStateValue[*ExecutionContext](state, StateKeyExecContext)
-	if !ok || execCtx == nil {
-		return &noopEmitter{}
-	}
-
-	// Check if EventChan is available
-	if execCtx.EventChan == nil {
-		return &noopEmitter{}
-	}
-
-	// Get current node ID from state
-	nodeID, _ := GetStateValue[string](state, StateKeyCurrentNodeID)
-
-	// Create EventEmitter with context information
-	return NewEventEmitter(
-		execCtx.EventChan,
-		WithEmitterContext(ctx),
-		WithEmitterNodeID(nodeID),
-		WithEmitterInvocationID(execCtx.InvocationID),
-	)
+	_ = "STUB: not implemented"
+	return *new(EventEmitter)
 }
+
+// Get ExecutionContext from state
+
+// Check if EventChan is available
+
+// Get current node ID from state
+
+// Create EventEmitter with context information

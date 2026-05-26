@@ -10,13 +10,9 @@
 package postgres
 
 import (
-	"errors"
-	"fmt"
-	"maps"
 	"regexp"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/memory/extractor"
 	imemory "trpc.group/trpc-go/trpc-agent-go/memory/internal/memory"
@@ -91,23 +87,9 @@ type ServiceOpts struct {
 	memoryJobTimeout time.Duration
 }
 
-func (o ServiceOpts) clone() ServiceOpts {
-	opts := o
+func (o ServiceOpts) clone() ServiceOpts { _ = "STUB: not implemented"; return *new(ServiceOpts) }
 
-	opts.toolCreators = make(map[string]memory.ToolCreator, len(o.toolCreators))
-	for name, toolCreator := range o.toolCreators {
-		opts.toolCreators[name] = toolCreator
-	}
-
-	opts.enabledTools = maps.Clone(o.enabledTools)
-	opts.toolExposed = maps.Clone(o.toolExposed)
-	opts.toolHidden = maps.Clone(o.toolHidden)
-
-	// Initialize userExplicitlySet map (empty for new clone).
-	opts.userExplicitlySet = make(map[string]struct{})
-
-	return opts
-}
+// Initialize userExplicitlySet map (empty for new clone).
 
 // ServiceOpt is the option for the postgres memory service.
 type ServiceOpt func(*ServiceOpts)
@@ -118,60 +100,34 @@ type ServiceOpt func(*ServiceOpts)
 // Note: WithPostgresClientDSN has the highest priority.
 // If DSN is specified, other connection settings (WithHost, WithPort, etc.) will be ignored.
 func WithPostgresClientDSN(dsn string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.dsn = dsn
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithHost sets the PostgreSQL host.
-func WithHost(host string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.host = host
-	}
-}
+func WithHost(host string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPort sets the PostgreSQL port.
-func WithPort(port int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.port = port
-	}
-}
+func WithPort(port int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithUser sets the username for authentication.
-func WithUser(user string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.user = user
-	}
-}
+func WithUser(user string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.password = password
-	}
-}
+func WithPassword(password string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithDatabase sets the database name.
-func WithDatabase(database string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.database = database
-	}
-}
+func WithDatabase(database string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSSLMode sets the SSL mode for connection.
-func WithSSLMode(sslMode string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sslMode = sslMode
-	}
-}
+func WithSSLMode(sslMode string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPostgresInstance uses a postgres instance from storage.
 // Note: Direct connection settings (WithHost, WithPort, etc.) have higher priority than WithPostgresInstance.
 // If both are specified, direct connection settings will be used.
 func WithPostgresInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithTableName sets the table name for storing memories.
@@ -179,74 +135,33 @@ func WithPostgresInstance(instanceName string) ServiceOpt {
 // Table name must start with a letter or underscore and contain only alphanumeric characters and underscores.
 // Maximum length is 63 characters (PostgreSQL limit).
 // Panics if the table name is invalid.
-func WithTableName(tableName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if err := validateTableName(tableName); err != nil {
-			panic(fmt.Sprintf("invalid table name: %v", err))
-		}
-		opts.tableName = tableName
-	}
-}
+func WithTableName(tableName string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSoftDelete enables or disables soft delete behavior.
 // When enabled, delete operations set deleted_at and queries filter deleted rows.
 // Default is disabled (hard delete).
-func WithSoftDelete(enabled bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.softDelete = enabled
-	}
-}
+func WithSoftDelete(enabled bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryLimit sets the limit of memories per user.
-func WithMemoryLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryLimit = limit
-	}
-}
+func WithMemoryLimit(limit int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMinSearchScore sets the minimum keyword-search score. Scores below
 // this value are filtered out. Default is 0.3.
 func WithMinSearchScore(score float64) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if score < 0 {
-			return
-		}
-		opts.searchMinScore = score
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithMaxResults sets the maximum number of keyword-search results.
 // Default is 10. Use 0 to disable truncation.
-func WithMaxResults(maxResults int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if maxResults < 0 {
-			return
-		}
-		opts.maxSearchResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCustomTool sets a custom memory tool implementation.
 // The tool will be enabled by default.
 // If the tool name is invalid or creator is nil, this option will do nothing.
 func WithCustomTool(toolName string, creator memory.ToolCreator) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) || creator == nil {
-			return
-		}
-		if opts.toolCreators == nil {
-			opts.toolCreators = make(map[string]memory.ToolCreator)
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		opts.toolCreators[toolName] = creator
-		opts.enabledTools[toolName] = struct{}{}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolEnabled sets which tool is enabled.
@@ -254,64 +169,29 @@ func WithCustomTool(toolName string, creator memory.ToolCreator) ServiceOpt {
 // User settings via WithToolEnabled take precedence over auto mode
 // defaults, regardless of option order.
 func WithToolEnabled(toolName string, enabled bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		if enabled {
-			opts.enabledTools[toolName] = struct{}{}
-		} else {
-			delete(opts.enabledTools, toolName)
-		}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAutoMemoryExposedTools exposes enabled tools via Tools() in auto memory
 // mode so the agent can call them directly. Invalid tool names are ignored.
 func WithAutoMemoryExposedTools(toolNames ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		for _, toolName := range toolNames {
-			WithToolExposed(toolName, true)(opts)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolExposed controls whether an enabled memory tool is exposed via
 // Tools(). Use WithAutoMemoryExposedTools for the common auto memory case.
 func WithToolExposed(toolName string, exposed bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if exposed {
-			if opts.toolExposed == nil {
-				opts.toolExposed = make(map[string]struct{})
-			}
-			opts.toolExposed[toolName] = struct{}{}
-			delete(opts.toolHidden, toolName)
-			return
-		}
-		if opts.toolHidden == nil {
-			opts.toolHidden = make(map[string]struct{})
-		}
-		opts.toolHidden[toolName] = struct{}{}
-		delete(opts.toolExposed, toolName)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets the extra options for the postgres memory service.
 // These options will be passed to the PostgreSQL client builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSkipDBInit skips database initialization (table and index creation).
@@ -319,11 +199,7 @@ func WithExtraOptions(extraOptions ...any) ServiceOpt {
 // - User doesn't have DDL permissions
 // - Tables are managed by migration tools
 // - Running in production environment where schema is pre-created
-func WithSkipDBInit(skip bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSchema sets the PostgreSQL schema name where tables will be created.
 // If not set, tables will be created in the default schema (typically "public").
@@ -332,50 +208,28 @@ func WithSkipDBInit(skip bool) ServiceOpt {
 //
 // Note: The schema must already exist in the database before using this option.
 // Security: Uses internal/session/sqldb.ValidateTableName to prevent SQL injection.
-func WithSchema(schema string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if schema != "" {
-			// Use internal/session/sqldb validation.
-			sqldb.MustValidateTableName(schema)
-		}
-		opts.schema = schema
-	}
-}
+func WithSchema(schema string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
+
+// Use internal/session/sqldb validation.
 
 // WithExtractor sets the memory extractor for auto memory mode.
 // When enabled, auto mode defaults are applied to enabledTools,
 // but user settings via WithToolEnabled (before or after) take precedence.
 func WithExtractor(e extractor.MemoryExtractor) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extractor = e
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncMemoryNum sets the number of async memory workers.
-func WithAsyncMemoryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = imemory.DefaultAsyncMemoryNum
-		}
-		opts.asyncMemoryNum = num
-	}
-}
+func WithAsyncMemoryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryQueueSize sets the queue size for memory jobs.
-func WithMemoryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = imemory.DefaultMemoryQueueSize
-		}
-		opts.memoryQueueSize = size
-	}
-}
+func WithMemoryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryJobTimeout sets the timeout for each memory job.
 func WithMemoryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // tableNamePattern is the regex pattern for validating table names.
@@ -388,16 +242,4 @@ var tableNamePattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 // - Contain only alphanumeric characters and underscores.
 // - Not be empty.
 // - Not exceed 63 characters (PostgreSQL limit).
-func validateTableName(tableName string) error {
-	if tableName == "" {
-		return errors.New("table name cannot be empty")
-	}
-	const maxTableNameLength = 63
-	if len(tableName) > maxTableNameLength {
-		return fmt.Errorf("table name too long: %d characters (max %d)", len(tableName), maxTableNameLength)
-	}
-	if !tableNamePattern.MatchString(tableName) {
-		return fmt.Errorf("invalid table name: %s (must start with letter/underscore and contain only alphanumeric characters and underscores)", tableName)
-	}
-	return nil
-}
+func validateTableName(tableName string) error { _ = "STUB: not implemented"; return nil }

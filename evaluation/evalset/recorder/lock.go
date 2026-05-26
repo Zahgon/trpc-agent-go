@@ -22,36 +22,8 @@ type keyedLock struct {
 	refs int
 }
 
-func newKeyedLocker() *keyedLocker {
-	return &keyedLocker{locks: make(map[string]*keyedLock)}
-}
+func newKeyedLocker() *keyedLocker { _ = "STUB: not implemented"; return nil }
 
-func (l *keyedLocker) lock(key string) {
-	l.mu.Lock()
-	entry, ok := l.locks[key]
-	if !ok || entry == nil {
-		entry = &keyedLock{}
-		l.locks[key] = entry
-	}
-	entry.refs++
-	l.mu.Unlock()
-	entry.mu.Lock()
-}
+func (l *keyedLocker) lock(key string) { _ = "STUB: not implemented"; return }
 
-func (l *keyedLocker) unlock(key string) {
-	l.mu.Lock()
-	entry, ok := l.locks[key]
-	if !ok || entry == nil {
-		l.mu.Unlock()
-		return
-	}
-	entry.refs--
-	if entry.refs == 0 {
-		entry.mu.Unlock()
-		delete(l.locks, key)
-		l.mu.Unlock()
-		return
-	}
-	l.mu.Unlock()
-	entry.mu.Unlock()
-}
+func (l *keyedLocker) unlock(key string) { _ = "STUB: not implemented"; return }

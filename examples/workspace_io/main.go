@@ -37,7 +37,6 @@ import (
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	localexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/workspaceio"
 	"trpc.group/trpc-go/trpc-agent-go/event"
@@ -120,30 +119,7 @@ func seedWorkspaceProfile(
 	ctx context.Context,
 	args *agent.BeforeAgentArgs,
 ) (*agent.BeforeAgentResult, error) {
-	ws, ok := workspaceio.WorkspaceFromContext(ctx)
-	if !ok {
-		log.Printf(
-			"Workspace not available; check that " +
-				"WithCodeExecutor is configured",
-		)
-		return nil, nil
-	}
-	skills := []codeexecutor.PutFile{
-		{
-			Path:    "skills/echoer/SKILL.md",
-			Content: []byte("# Echoer\n\nReplies with the same text.\n"),
-		},
-		{
-			Path:    "skills/greeter/SKILL.md",
-			Content: []byte("# Greeter\n\nGreets the user politely.\n"),
-		},
-	}
-	if err := ws.PutFiles(ctx, skills...); err != nil {
-		return nil, fmt.Errorf("seed workspace skills: %w", err)
-	}
-	for _, f := range skills {
-		log.Printf("seeded workspace file: %s (%d bytes)", f.Path, len(f.Content))
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -152,52 +128,17 @@ func seedWorkspaceProfile(
 // pattern is a single Collect plus a sink loop — there is no framework
 // helper involved on purpose.
 func mirrorSkillsAfterAgent(sink *directorySink) agent.AfterAgentCallbackStructured {
-	return func(
-		ctx context.Context, args *agent.AfterAgentArgs,
-	) (*agent.AfterAgentResult, error) {
-		// Skip mirroring when the agent itself failed; the workspace
-		// state is unreliable in that case.
-		if args.Error != nil {
-			return nil, nil
-		}
-		ws, ok := workspaceio.WorkspaceFromContext(ctx)
-		if !ok {
-			return nil, nil
-		}
-		files, err := ws.Collect(ctx, "skills/*/SKILL.md")
-		if err != nil {
-			return nil, fmt.Errorf("collect skills: %w", err)
-		}
-		for _, f := range files {
-			if f.Truncated {
-				return nil, fmt.Errorf(
-					"%s was truncated by the executor (size=%d)",
-					f.Path, f.SizeBytes,
-				)
-			}
-			if err := validateSkillMarkdown(f); err != nil {
-				return nil, err
-			}
-			if err := sink.Save(ctx, args.Invocation, f); err != nil {
-				return nil, fmt.Errorf("sink %s: %w", f.Path, err)
-			}
-		}
-		return nil, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(agent.AfterAgentCallbackStructured)
 }
+
+// Skip mirroring when the agent itself failed; the workspace
+// state is unreliable in that case.
 
 // validateSkillMarkdown rejects empty or heading-less SKILL.md files.
 // A real validator would parse YAML frontmatter, check for required
 // headings, etc.
-func validateSkillMarkdown(file *workspaceio.File) error {
-	if len(file.Data) == 0 {
-		return fmt.Errorf("%s is empty", file.Path)
-	}
-	if !strings.Contains(string(file.Data), "#") {
-		return fmt.Errorf("%s has no markdown heading", file.Path)
-	}
-	return nil
-}
+func validateSkillMarkdown(file *workspaceio.File) error { _ = "STUB: not implemented"; return nil }
 
 // directorySink persists each mirrored workspace file under root/<userID>/<path>,
 // preserving the workspace-relative directory structure.
@@ -205,71 +146,23 @@ type directorySink struct {
 	root string
 }
 
-func newDirectorySink(root string) *directorySink { return &directorySink{root: root} }
+func newDirectorySink(root string) *directorySink { _ = "STUB: not implemented"; return nil }
 
 func (s *directorySink) Save(
 	_ context.Context,
 	inv *agent.Invocation,
 	file *workspaceio.File,
 ) error {
-	userID := "anonymous"
-	if inv != nil && inv.Session != nil {
-		userID = inv.Session.UserID
-	}
-	// Refuse to write outside s.root. file.Path comes from a workspace
-	// collector and should already be workspace-relative, but this example
-	// is copy-paste fodder — keep the containment check explicit so user
-	// code stays safe by default. filepath.IsLocal (Go 1.20+) rejects
-	// absolute paths, "..", and Windows UNC/volume escapes in one shot.
-	rel := filepath.Join(userID, file.Path)
-	if !filepath.IsLocal(rel) {
-		return fmt.Errorf("directorySink: refusing to write outside sink root: %q", rel)
-	}
-	dst := filepath.Join(s.root, rel)
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return err
-	}
-	if err := os.WriteFile(dst, file.Data, 0o644); err != nil {
-		return err
-	}
-	log.Printf("mirrored %s -> %s (%d bytes)", file.Path, dst, len(file.Data))
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func drainEvents(events <-chan *event.Event) {
-	for ev := range events {
-		if ev.Error != nil {
-			log.Printf("agent error: %s", ev.Error.Message)
-		}
-		if len(ev.Response.Choices) > 0 {
-			c := ev.Response.Choices[0]
-			if c.Message.Content != "" {
-				fmt.Printf("[assistant] %s\n", c.Message.Content)
-			}
-		}
-		if ev.Done {
-			return
-		}
-	}
-}
+// Refuse to write outside s.root. file.Path comes from a workspace
+// collector and should already be workspace-relative, but this example
+// is copy-paste fodder — keep the containment check explicit so user
+// code stays safe by default. filepath.IsLocal (Go 1.20+) rejects
+// absolute paths, "..", and Windows UNC/volume escapes in one shot.
 
-func listStore(root string) {
-	err := filepath.WalkDir(root, func(p string, _ os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		info, err := os.Stat(p)
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		rel, _ := filepath.Rel(root, p)
-		fmt.Printf("- %s (%d bytes)\n", rel, info.Size())
-		return nil
-	})
-	if err != nil {
-		log.Printf("walk store: %v", err)
-	}
-}
+func drainEvents(events <-chan *event.Event) { _ = "STUB: not implemented"; return }
+
+func listStore(root string) { _ = "STUB: not implemented"; return }

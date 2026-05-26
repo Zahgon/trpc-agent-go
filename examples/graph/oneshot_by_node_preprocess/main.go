@@ -13,20 +13,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
 const (
@@ -67,86 +59,16 @@ func main() {
 	}
 }
 
-func runOnce(ctx context.Context) error {
-	schema := graph.MessagesStateSchema()
-	mdl := &echoModel{}
-
-	sg := graph.NewStateGraph(schema)
-	sg.
-		AddNode(nodeStart, startNode).
-		AddNode(nodePrep, preprocess).
-		AddLLMNode(nodeLLM1, mdl, "", map[string]tool.Tool{}).
-		AddLLMNode(nodeLLM2, mdl, "", map[string]tool.Tool{}).
-		SetEntryPoint(nodeStart)
-
-	sg.AddEdge(nodeStart, nodePrep)
-	sg.AddEdge(nodePrep, nodeLLM1)
-	sg.AddEdge(nodePrep, nodeLLM2)
-	sg.AddEdge(nodeLLM1, graph.End)
-	sg.AddEdge(nodeLLM2, graph.End)
-
-	g, err := sg.Compile()
-	if err != nil {
-		return fmt.Errorf("compile graph: %w", err)
-	}
-
-	gagent, err := graphagent.New(
-		agentName,
-		g,
-		graphagent.WithDescription(
-			"Prepare one_shot_messages_by_node in one upstream node.",
-		),
-		graphagent.WithInitialState(graph.State{}),
-	)
-	if err != nil {
-		return fmt.Errorf("create graph agent: %w", err)
-	}
-
-	sessionService := inmemory.NewSessionService()
-	r := runner.NewRunner(
-		appName,
-		gagent,
-		runner.WithSessionService(sessionService),
-	)
-	defer r.Close()
-
-	sessionID := fmt.Sprintf("oneshot-by-node-prep-%d", time.Now().Unix())
-	msg := model.NewUserMessage(*userInput)
-
-	ch, err := r.Run(ctx, defaultUserID, sessionID, msg,
-		agent.WithRuntimeState(map[string]any{
-			"user_id": defaultUserID,
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("runner run: %w", err)
-	}
-	for range ch {
-	}
-
-	return printSessionState(ctx, sessionService, defaultUserID, sessionID)
-}
+func runOnce(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func startNode(ctx context.Context, state graph.State) (any, error) {
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func preprocess(ctx context.Context, state graph.State) (any, error) {
-	byNode := map[string][]model.Message{
-		nodeLLM1: {
-			model.NewSystemMessage(
-				"You are llm1. Prefix your reply with LLM1:",
-			),
-			model.NewUserMessage(*q1),
-		},
-		nodeLLM2: {
-			model.NewSystemMessage(
-				"You are llm2. Prefix your reply with LLM2:",
-			),
-			model.NewUserMessage(*q2),
-		},
-	}
-	return graph.SetOneShotMessagesByNode(byNode), nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func printSessionState(
@@ -155,92 +77,28 @@ func printSessionState(
 	userID string,
 	sessionID string,
 ) error {
-	key := session.Key{
-		AppName:   appName,
-		UserID:    userID,
-		SessionID: sessionID,
-	}
-	sess, err := svc.GetSession(ctx, key)
-	if err != nil {
-		return fmt.Errorf("get session: %w", err)
-	}
-
-	var nodeResponses map[string]string
-	if b, ok := sess.State[graph.StateKeyNodeResponses]; ok && len(b) > 0 {
-		if err := json.Unmarshal(b, &nodeResponses); err != nil {
-			return fmt.Errorf("decode node_responses: %w", err)
-		}
-	}
-	fmt.Printf("node_responses: %v\n", nodeResponses)
-
-	var byNode map[string][]model.Message
-	raw, ok := sess.State[graph.StateKeyOneShotMessagesByNode]
-	if ok && len(raw) > 0 {
-		if err := json.Unmarshal(raw, &byNode); err != nil {
-			return fmt.Errorf("decode one_shot_messages_by_node: %w", err)
-		}
-	}
-	fmt.Printf(
-		"one_shot_messages_by_node remaining entries: %d\n",
-		len(byNode),
-	)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 type echoModel struct{}
 
-func (m *echoModel) Info() model.Info {
-	return model.Info{Name: "echo-model"}
-}
+func (m *echoModel) Info() model.Info { _ = "STUB: not implemented"; return *new(model.Info) }
 
 func (m *echoModel) GenerateContent(
 	ctx context.Context,
 	req *model.Request,
 ) (<-chan *model.Response, error) {
-	if req == nil {
-		return nil, fmt.Errorf("request is nil")
-	}
-	sys := firstMessageByRole(req.Messages, model.RoleSystem)
-	user := lastMessageByRole(req.Messages, model.RoleUser)
-	content := fmt.Sprintf("SYS=%q USER=%q", sys, user)
-
-	responseChan := make(chan *model.Response, 1)
-	responseChan <- &model.Response{
-		ID:        "echo-response",
-		Object:    model.ObjectTypeChatCompletion,
-		Created:   time.Now().Unix(),
-		Model:     m.Info().Name,
-		Timestamp: time.Now(),
-		Done:      true,
-		Choices: []model.Choice{
-			{
-				Index: 0,
-				Message: model.Message{
-					Role:    model.RoleAssistant,
-					Content: content,
-				},
-			},
-		},
-	}
-	close(responseChan)
-
-	return responseChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func firstMessageByRole(msgs []model.Message, role model.Role) string {
-	for _, msg := range msgs {
-		if msg.Role == role {
-			return msg.Content
-		}
-	}
+	_ = "STUB: not implemented"
 	return ""
 }
 
 func lastMessageByRole(msgs []model.Message, role model.Role) string {
-	for i := len(msgs) - 1; i >= 0; i-- {
-		if msgs[i].Role == role {
-			return msgs[i].Content
-		}
-	}
+	_ = "STUB: not implemented"
 	return ""
 }

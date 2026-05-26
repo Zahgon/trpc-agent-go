@@ -21,50 +21,28 @@ type SurfacePatch struct {
 }
 
 // SetInstruction sets the instruction surface override.
-func (p *SurfacePatch) SetInstruction(text string) {
-	p.patch.SetInstruction(text)
-}
+func (p *SurfacePatch) SetInstruction(text string) { _ = "STUB: not implemented"; return }
 
 // SetGlobalInstruction sets the global instruction surface override.
-func (p *SurfacePatch) SetGlobalInstruction(text string) {
-	p.patch.SetGlobalInstruction(text)
-}
+func (p *SurfacePatch) SetGlobalInstruction(text string) { _ = "STUB: not implemented"; return }
 
 // SetFewShot sets the few-shot surface override.
-func (p *SurfacePatch) SetFewShot(examples [][]model.Message) {
-	p.patch.SetFewShot(examples)
-}
+func (p *SurfacePatch) SetFewShot(examples [][]model.Message) { _ = "STUB: not implemented"; return }
 
 // SetModel sets the model surface override.
-func (p *SurfacePatch) SetModel(m model.Model) {
-	p.patch.SetModel(m)
-}
+func (p *SurfacePatch) SetModel(m model.Model) { _ = "STUB: not implemented"; return }
 
 // SetTools sets the tool surface override and clears appended tools.
-func (p *SurfacePatch) SetTools(tools []tool.Tool) {
-	p.patch.SetTools(tools)
-}
+func (p *SurfacePatch) SetTools(tools []tool.Tool) { _ = "STUB: not implemented"; return }
 
 // AppendTools appends tools to the node's runtime tool surface.
-func (p *SurfacePatch) AppendTools(tools []tool.Tool) {
-	p.patch.AppendTools(tools)
-}
+func (p *SurfacePatch) AppendTools(tools []tool.Tool) { _ = "STUB: not implemented"; return }
 
 // SetSkillRepository sets the skill repository surface override.
-func (p *SurfacePatch) SetSkillRepository(repo skill.Repository) {
-	p.patch.SetSkillRepository(repo)
-}
+func (p *SurfacePatch) SetSkillRepository(repo skill.Repository) { _ = "STUB: not implemented"; return }
 
 // WithSurfacePatchForNode applies one node's runtime surface overrides to this run.
 func WithSurfacePatchForNode(nodeID string, patch SurfacePatch) RunOption {
-	return func(opts *RunOptions) {
-		if opts == nil || nodeID == "" || patch.patch.IsEmpty() {
-			return
-		}
-		opts.CustomAgentConfigs = surfacepatch.WithPatch(
-			opts.CustomAgentConfigs,
-			nodeID,
-			patch.patch,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }

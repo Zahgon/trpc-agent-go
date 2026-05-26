@@ -53,20 +53,14 @@ type PostToolOption func(*PostToolRequestProcessor)
 // WithPostToolPrompt overrides the default dynamic prompt text.
 // Set to empty string to disable prompt injection entirely.
 func WithPostToolPrompt(prompt string) PostToolOption {
-	return func(p *PostToolRequestProcessor) {
-		p.prompt = prompt
-	}
+	_ = "STUB: not implemented"
+	return *new(PostToolOption)
 }
 
 // NewPostToolRequestProcessor creates a new PostToolRequestProcessor.
 func NewPostToolRequestProcessor(opts ...PostToolOption) *PostToolRequestProcessor {
-	p := &PostToolRequestProcessor{
-		prompt: DefaultPostToolPrompt,
-	}
-	for _, opt := range opts {
-		opt(p)
-	}
-	return p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessRequest implements flow.RequestProcessor.
@@ -79,74 +73,42 @@ func (p *PostToolRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if req == nil || len(req.Messages) == 0 {
-		return
-	}
-
-	if !hasPendingToolResultMessages(req.Messages) &&
-		!hasCompactedToolResultMessages(invocation) {
-		return
-	}
-
-	if p.prompt == "" {
-		return
-	}
-
-	systemMsgIndex := findSystemMessageIndex(req.Messages)
-	if systemMsgIndex >= 0 {
-		req.Messages[systemMsgIndex].Content += "\n\n" + p.prompt
-	} else {
-		// No system message exists; prepend one.
-		req.Messages = append(
-			[]model.Message{{Role: model.RoleSystem, Content: p.prompt}},
-			req.Messages...,
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// No system message exists; prepend one.
 
 // SupportsContextCompactionRebuild reports that post-tool prompting can be
 // safely replayed during the sync-summary rebuild path.
 func (p *PostToolRequestProcessor) SupportsContextCompactionRebuild(
 	_ *agent.Invocation,
 ) bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// RebuildRequestForContextCompaction re-applies post-tool prompting during the
+	// safe sync-summary rebuild path without replaying the full processor chain.
+	return false
 }
 
-// RebuildRequestForContextCompaction re-applies post-tool prompting during the
-// safe sync-summary rebuild path without replaying the full processor chain.
 func (p *PostToolRequestProcessor) RebuildRequestForContextCompaction(
 	ctx context.Context,
 	invocation *agent.Invocation,
 	req *model.Request,
 ) {
-	p.ProcessRequest(ctx, invocation, req, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 // hasPendingToolResultMessages returns true when the latest non-system message
 // in the request is a tool result. Historical tool results that are followed
 // by assistant or user messages do not count as pending.
 func hasPendingToolResultMessages(msgs []model.Message) bool {
-	for i := len(msgs) - 1; i >= 0; i-- {
-		switch msgs[i].Role {
-		case model.RoleSystem:
-			continue
-		case model.RoleTool:
-			return true
-		default:
-			return false
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func hasCompactedToolResultMessages(inv *agent.Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	raw, ok := inv.GetState(contentHasCompactedToolResultsStateKey)
-	if !ok {
-		return false
-	}
-	v, ok := raw.(bool)
-	return ok && v
+	_ = "STUB: not implemented"
+	return false
 }

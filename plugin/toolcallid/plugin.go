@@ -11,9 +11,7 @@ package toolcallid
 
 import (
 	"context"
-	"fmt"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	pluginbase "trpc.group/trpc-go/trpc-agent-go/plugin"
 )
@@ -25,45 +23,20 @@ type plugin struct {
 }
 
 // New creates a ToolCall ID plugin.
-func New() pluginbase.Plugin {
-	return newPlugin()
-}
+func New() pluginbase.Plugin { _ = "STUB: not implemented"; return *new(pluginbase.Plugin) }
 
-func newPlugin() *plugin {
-	return &plugin{name: defaultPluginName}
-}
+func newPlugin() *plugin { _ = "STUB: not implemented"; return nil }
 
 // Name implements plugin.Plugin.
-func (p *plugin) Name() string {
-	if p == nil {
-		return ""
-	}
-	return p.name
-}
+func (p *plugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 // Register implements plugin.Plugin.
-func (p *plugin) Register(r *pluginbase.Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	r.AfterModel(p.afterModel)
-}
+func (p *plugin) Register(r *pluginbase.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *plugin) afterModel(
 	ctx context.Context,
 	args *model.AfterModelArgs,
 ) (*model.AfterModelResult, error) {
-	if args == nil || args.Response == nil {
-		return nil, nil
-	}
-	inv, _ := agent.InvocationFromContext(ctx)
-	canonicalized, err := canonicalizeResponse(inv, args.Response)
-	if err != nil {
-		return nil, fmt.Errorf("canonicalize response: %w", err)
-	}
-	if canonicalized == nil {
-		return nil, nil
-	}
-	*args.Response = *canonicalized
+	_ = "STUB: not implemented"
 	return nil, nil
 }

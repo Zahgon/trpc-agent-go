@@ -11,28 +11,13 @@
 package util
 
 import (
-	"database/sql"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	openaiembedder "trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/memory/extractor"
-	memoryinmemory "trpc.group/trpc-go/trpc-agent-go/memory/inmemory"
-	memorymysql "trpc.group/trpc-go/trpc-agent-go/memory/mysql"
-	memorymysqlvec "trpc.group/trpc-go/trpc-agent-go/memory/mysqlvec"
-	memorypgvector "trpc.group/trpc-go/trpc-agent-go/memory/pgvector"
-	memorypostgres "trpc.group/trpc-go/trpc-agent-go/memory/postgres"
-	memoryredis "trpc.group/trpc-go/trpc-agent-go/memory/redis"
-	memorysqlite "trpc.group/trpc-go/trpc-agent-go/memory/sqlite"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 )
 
 // MemoryType defines the type of memory service.
@@ -74,17 +59,7 @@ type RunnerConfig struct {
 }
 
 // DefaultRunnerConfig returns a default runner configuration.
-func DefaultRunnerConfig() RunnerConfig {
-	return RunnerConfig{
-		AppName:     "memory-chat",
-		AgentName:   "memory-assistant",
-		ModelName:   GetEnvOrDefault("MODEL_NAME", "deepseek-v4-flash"),
-		Instruction: "You are a helpful AI assistant with memory capabilities.",
-		MaxTokens:   2000,
-		Temperature: 0.7,
-		Streaming:   true,
-	}
-}
+func DefaultRunnerConfig() RunnerConfig { _ = "STUB: not implemented"; return *new(RunnerConfig) }
 
 // NewMemoryServiceByType creates a memory service based on the specified type.
 //
@@ -112,26 +87,8 @@ func DefaultRunnerConfig() RunnerConfig {
 //	mysql:      MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 //	mysqlvec:   MYSQLVEC_HOST, MYSQLVEC_PORT, MYSQLVEC_USER, MYSQLVEC_PASSWORD, MYSQLVEC_DATABASE, MYSQLVEC_EMBEDDER_MODEL
 func NewMemoryServiceByType(memoryType MemoryType, cfg MemoryServiceConfig) (memory.Service, error) {
-	switch memoryType {
-	case MemorySQLite:
-		return newSQLiteMemoryService(cfg)
-	case MemorySQLiteVec:
-		return newSQLiteVecMemoryService(cfg)
-	case MemoryRedis:
-		return newRedisMemoryService(cfg)
-	case MemoryPostgres:
-		return newPostgresMemoryService(cfg)
-	case MemoryPGVector:
-		return newPGVectorMemoryService(cfg)
-	case MemoryMySQL:
-		return newMySQLMemoryService(cfg)
-	case MemoryMySQLVec:
-		return newMySQLVecMemoryService(cfg)
-	case MemoryInMemory:
-		fallthrough
-	default:
-		return newInMemoryMemoryService(cfg), nil
-	}
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
 
 const (
@@ -143,47 +100,8 @@ const (
 )
 
 func newSQLiteMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	dsn := GetEnvOrDefault(sqliteMemoryDSNEnvKey, defaultSQLiteMemoryDBDSN)
-	db, err := sql.Open(sqliteDriverName, dsn)
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(defaultSQLiteMaxOpenConns)
-	db.SetMaxIdleConns(defaultSQLiteMaxIdleConns)
-
-	opts := []memorysqlite.ServiceOpt{
-		memorysqlite.WithSoftDelete(cfg.SoftDelete),
-	}
-
-	if cfg.Extractor != nil {
-		opts = append(opts, memorysqlite.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(
-				opts,
-				memorysqlite.WithAsyncMemoryNum(cfg.AsyncMemoryNum),
-			)
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(
-				opts,
-				memorysqlite.WithMemoryQueueSize(cfg.MemoryQueueSize),
-			)
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(
-				opts,
-				memorysqlite.WithMemoryJobTimeout(cfg.MemoryJobTimeout),
-			)
-		}
-	}
-
-	svc, err := memorysqlite.NewService(db, opts...)
-	if err != nil {
-		_ = db.Close()
-		return nil, err
-	}
-
-	return svc, nil
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
 
 const (
@@ -197,84 +115,32 @@ const (
 	openAIEmbeddingModelEnvKey   = "OPENAI_EMBEDDING_MODEL"
 )
 
-func getEmbeddingModel(defaultModel string) string {
-	if env := os.Getenv(openAIEmbeddingModelEnvKey); env != "" {
-		return env
-	}
-	return defaultModel
-}
+func getEmbeddingModel(defaultModel string) string { _ = "STUB: not implemented"; return "" }
 
 func newOpenAIEmbedder(defaultModel string) *openaiembedder.Embedder {
-	modelName := getEmbeddingModel(defaultModel)
-	opts := []openaiembedder.Option{
-		openaiembedder.WithModel(modelName),
-	}
-
-	if apiKey := os.Getenv(openAIEmbeddingAPIKeyEnvKey); apiKey != "" {
-		opts = append(opts, openaiembedder.WithAPIKey(apiKey))
-	}
-
-	baseURL := os.Getenv(openAIEmbeddingBaseURLEnvKey)
-	if baseURL == "" {
-		baseURL = os.Getenv("OPENAI_BASE_URL")
-	}
-	if baseURL != "" {
-		opts = append(opts, openaiembedder.WithBaseURL(baseURL))
-	}
-
-	return openaiembedder.New(opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // newInMemoryMemoryService creates an in-memory memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
 func newInMemoryMemoryService(cfg MemoryServiceConfig) memory.Service {
-	opts := []memoryinmemory.ServiceOpt{}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memoryinmemory.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memoryinmemory.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memoryinmemory.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memoryinmemory.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memoryinmemory.NewMemoryService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service)
 }
+
+// Configure extractor for auto memory mode if provided.
 
 // newRedisMemoryService creates a Redis memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
 // Environment variables:
 //   - REDIS_ADDR: Redis server address (default: localhost:6379)
 func newRedisMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	addr := GetEnvOrDefault("REDIS_ADDR", "localhost:6379")
-	redisURL := fmt.Sprintf("redis://%s", addr)
-
-	opts := []memoryredis.ServiceOpt{
-		memoryredis.WithRedisClientURL(redisURL),
-	}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memoryredis.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memoryredis.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memoryredis.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memoryredis.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memoryredis.NewService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
+
+// Configure extractor for auto memory mode if provided.
 
 // newPostgresMemoryService creates a PostgreSQL memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
@@ -285,43 +151,11 @@ func newRedisMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
 //   - PG_PASSWORD: PostgreSQL password (default: empty)
 //   - PG_DATABASE: PostgreSQL database (default: trpc-agent-go-pgmemory)
 func newPostgresMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	host := GetEnvOrDefault("PG_HOST", "localhost")
-	portStr := GetEnvOrDefault("PG_PORT", "5432")
-	port := 5432
-	if portStr != "" {
-		if p, err := strconv.Atoi(portStr); err == nil {
-			port = p
-		}
-	}
-	user := GetEnvOrDefault("PG_USER", "postgres")
-	password := GetEnvOrDefault("PG_PASSWORD", "")
-	database := GetEnvOrDefault("PG_DATABASE", "trpc-agent-go-pgmemory")
-
-	opts := []memorypostgres.ServiceOpt{
-		memorypostgres.WithHost(host),
-		memorypostgres.WithPort(port),
-		memorypostgres.WithUser(user),
-		memorypostgres.WithPassword(password),
-		memorypostgres.WithDatabase(database),
-		memorypostgres.WithSoftDelete(cfg.SoftDelete),
-	}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memorypostgres.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memorypostgres.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memorypostgres.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memorypostgres.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memorypostgres.NewService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
+
+// Configure extractor for auto memory mode if provided.
 
 // newPGVectorMemoryService creates a pgvector memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
@@ -333,48 +167,13 @@ func newPostgresMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
 //   - PGVECTOR_DATABASE: PostgreSQL database (default: trpc-agent-go-pgmemory)
 //   - PGVECTOR_EMBEDDER_MODEL: Embedder model name (default: text-embedding-3-small)
 func newPGVectorMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	host := GetEnvOrDefault("PGVECTOR_HOST", "localhost")
-	portStr := GetEnvOrDefault("PGVECTOR_PORT", "5432")
-	port := 5432
-	if portStr != "" {
-		if p, err := strconv.Atoi(portStr); err == nil {
-			port = p
-		}
-	}
-	user := GetEnvOrDefault("PGVECTOR_USER", "postgres")
-	password := GetEnvOrDefault("PGVECTOR_PASSWORD", "")
-	database := GetEnvOrDefault("PGVECTOR_DATABASE", "trpc-agent-go-pgmemory")
-	embedderModel := GetEnvOrDefault("PGVECTOR_EMBEDDER_MODEL", "text-embedding-3-small")
-
-	// Create embedder - for simplicity, we'll use OpenAI embedder
-	embedder := newOpenAIEmbedder(embedderModel)
-
-	opts := []memorypgvector.ServiceOpt{
-		memorypgvector.WithHost(host),
-		memorypgvector.WithPort(port),
-		memorypgvector.WithUser(user),
-		memorypgvector.WithPassword(password),
-		memorypgvector.WithDatabase(database),
-		memorypgvector.WithEmbedder(embedder),
-		memorypgvector.WithSoftDelete(cfg.SoftDelete),
-	}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memorypgvector.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memorypgvector.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memorypgvector.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memorypgvector.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memorypgvector.NewService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
+
+// Create embedder - for simplicity, we'll use OpenAI embedder
+
+// Configure extractor for auto memory mode if provided.
 
 // newMySQLMemoryService creates a MySQL memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
@@ -385,36 +184,11 @@ func newPGVectorMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
 //   - MYSQL_PASSWORD: MySQL password (default: empty)
 //   - MYSQL_DATABASE: MySQL database (default: trpc_agent_go)
 func newMySQLMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	host := GetEnvOrDefault("MYSQL_HOST", "localhost")
-	port := GetEnvOrDefault("MYSQL_PORT", "3306")
-	user := GetEnvOrDefault("MYSQL_USER", "root")
-	password := GetEnvOrDefault("MYSQL_PASSWORD", "")
-	database := GetEnvOrDefault("MYSQL_DATABASE", "trpc_agent_go")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4",
-		user, password, host, port, database)
-
-	opts := []memorymysql.ServiceOpt{
-		memorymysql.WithMySQLClientDSN(dsn),
-		memorymysql.WithSoftDelete(cfg.SoftDelete),
-	}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memorymysql.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memorymysql.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memorymysql.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memorymysql.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memorymysql.NewService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
+
+// Configure extractor for auto memory mode if provided.
 
 // newMySQLVecMemoryService creates a MySQL vector memory service.
 // Supports both manual mode (cfg.Extractor == nil) and auto mode (cfg.Extractor != nil).
@@ -426,174 +200,43 @@ func newMySQLMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
 //   - MYSQLVEC_DATABASE: MySQL database (default: trpc_agent_go)
 //   - MYSQLVEC_EMBEDDER_MODEL: Embedder model name (default: text-embedding-3-small)
 func newMySQLVecMemoryService(cfg MemoryServiceConfig) (memory.Service, error) {
-	host := GetEnvOrDefault("MYSQLVEC_HOST", "localhost")
-	port := GetEnvOrDefault("MYSQLVEC_PORT", "3306")
-	user := GetEnvOrDefault("MYSQLVEC_USER", "root")
-	password := GetEnvOrDefault("MYSQLVEC_PASSWORD", "")
-	database := GetEnvOrDefault("MYSQLVEC_DATABASE", "trpc_agent_go")
-	embedderModel := GetEnvOrDefault("MYSQLVEC_EMBEDDER_MODEL", "text-embedding-3-small")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4",
-		user, password, host, port, database)
-
-	embedder := newOpenAIEmbedder(embedderModel)
-
-	opts := []memorymysqlvec.ServiceOpt{
-		memorymysqlvec.WithMySQLClientDSN(dsn),
-		memorymysqlvec.WithEmbedder(embedder),
-		memorymysqlvec.WithSoftDelete(cfg.SoftDelete),
-	}
-
-	// Configure extractor for auto memory mode if provided.
-	if cfg.Extractor != nil {
-		opts = append(opts, memorymysqlvec.WithExtractor(cfg.Extractor))
-		if cfg.AsyncMemoryNum > 0 {
-			opts = append(opts, memorymysqlvec.WithAsyncMemoryNum(cfg.AsyncMemoryNum))
-		}
-		if cfg.MemoryQueueSize > 0 {
-			opts = append(opts, memorymysqlvec.WithMemoryQueueSize(cfg.MemoryQueueSize))
-		}
-		if cfg.MemoryJobTimeout > 0 {
-			opts = append(opts, memorymysqlvec.WithMemoryJobTimeout(cfg.MemoryJobTimeout))
-		}
-	}
-
-	return memorymysqlvec.NewService(opts...)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
+
+// Configure extractor for auto memory mode if provided.
 
 // NewRunner creates a runner with the given memory service and configuration.
 func NewRunner(memoryService memory.Service, cfg RunnerConfig) runner.Runner {
-	modelInstance := openai.New(cfg.ModelName)
-
-	genConfig := model.GenerationConfig{
-		MaxTokens:   IntPtr(cfg.MaxTokens),
-		Temperature: FloatPtr(cfg.Temperature),
-		Stream:      cfg.Streaming,
-	}
-
-	agentOpts := []llmagent.Option{
-		llmagent.WithModel(modelInstance),
-		llmagent.WithInstruction(cfg.Instruction),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools(memoryService.Tools()),
-	}
-
-	llmAgent := llmagent.New(cfg.AgentName, agentOpts...)
-
-	return runner.NewRunner(
-		cfg.AppName,
-		llmAgent,
-		runner.WithSessionService(sessioninmemory.NewSessionService()),
-		runner.WithMemoryService(memoryService),
-	)
+	_ = "STUB: not implemented"
+	return *new(runner.Runner)
 }
 
 // GetEnvOrDefault retrieves the value of an environment variable or returns a default value if not set.
-func GetEnvOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
+func GetEnvOrDefault(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }
 
 // IntPtr returns a pointer to an int.
 func IntPtr(v int) *int {
-	return &v
+	_ = "STUB: not implemented"
+
+	// FloatPtr returns a pointer to a float64.
+	return nil
 }
 
-// FloatPtr returns a pointer to a float64.
 func FloatPtr(v float64) *float64 {
-	return &v
+	_ = "STUB: not implemented"
+
+	// PrintMemoryInfo prints memory service information based on type.
+	return nil
 }
 
-// PrintMemoryInfo prints memory service information based on type.
-func PrintMemoryInfo(memoryType MemoryType, softDelete bool) {
-	switch memoryType {
-	case MemorySQLite:
-		dsn := GetEnvOrDefault(sqliteMemoryDSNEnvKey, defaultSQLiteMemoryDBDSN)
-		fmt.Printf("SQLite: %s\n", dsn)
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	case MemorySQLiteVec:
-		dsn := GetEnvOrDefault(
-			sqliteVecMemoryDSNEnvKey,
-			defaultSQLiteVecMemoryDBDSN,
-		)
-		embedderModel := GetEnvOrDefault(
-			sqliteVecEmbedderModelEnvKey,
-			openaiembedder.DefaultModel,
-		)
-		fmt.Printf("SQLiteVec: %s\n", dsn)
-		fmt.Printf("Embedder model: %s\n", getEmbeddingModel(embedderModel))
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	case MemoryRedis:
-		addr := GetEnvOrDefault("REDIS_ADDR", "localhost:6379")
-		fmt.Printf("Redis: %s\n", addr)
-	case MemoryPostgres:
-		host := GetEnvOrDefault("PG_HOST", "localhost")
-		port := GetEnvOrDefault("PG_PORT", "5432")
-		database := GetEnvOrDefault("PG_DATABASE", "trpc-agent-go-pgmemory")
-		fmt.Printf("PostgreSQL: %s:%s/%s\n", host, port, database)
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	case MemoryPGVector:
-		host := GetEnvOrDefault("PGVECTOR_HOST", "localhost")
-		port := GetEnvOrDefault("PGVECTOR_PORT", "5432")
-		database := GetEnvOrDefault("PGVECTOR_DATABASE", "trpc-agent-go-pgmemory")
-		embedderModel := GetEnvOrDefault(
-			"PGVECTOR_EMBEDDER_MODEL",
-			"text-embedding-3-small",
-		)
-		fmt.Printf("pgvector: %s:%s/%s\n", host, port, database)
-		fmt.Printf("Embedder model: %s\n", getEmbeddingModel(embedderModel))
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	case MemoryMySQL:
-		host := GetEnvOrDefault("MYSQL_HOST", "localhost")
-		port := GetEnvOrDefault("MYSQL_PORT", "3306")
-		database := GetEnvOrDefault("MYSQL_DATABASE", "trpc_agent_go")
-		fmt.Printf("MySQL: %s:%s/%s\n", host, port, database)
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	case MemoryMySQLVec:
-		host := GetEnvOrDefault("MYSQLVEC_HOST", "localhost")
-		port := GetEnvOrDefault("MYSQLVEC_PORT", "3306")
-		database := GetEnvOrDefault("MYSQLVEC_DATABASE", "trpc_agent_go")
-		embedderModel := GetEnvOrDefault(
-			"MYSQLVEC_EMBEDDER_MODEL",
-			"text-embedding-3-small",
-		)
-		fmt.Printf("MySQL Vector: %s:%s/%s\n", host, port, database)
-		fmt.Printf("Embedder model: %s\n", getEmbeddingModel(embedderModel))
-		fmt.Printf("Soft delete: %t\n", softDelete)
-	default:
-		fmt.Printf("In-memory\n")
-	}
-}
+func PrintMemoryInfo(memoryType MemoryType, softDelete bool) { _ = "STUB: not implemented"; return }
 
 // GetAvailableToolsString returns a string describing available memory tools.
-func GetAvailableToolsString() string {
-	return "memory_add, memory_update, memory_search, memory_load\n" +
-		"(memory_delete, memory_clear disabled by default, can be enabled or customized)"
-}
+func GetAvailableToolsString() string { _ = "STUB: not implemented"; return "" }
 
 // FormatToolCalls formats tool calls for display.
-func FormatToolCalls(toolCalls []model.ToolCall) string {
-	var builder strings.Builder
-	for _, toolCall := range toolCalls {
-		fmt.Fprintf(&builder, "   • %s (ID: %s)\n", toolCall.Function.Name, toolCall.ID)
-		if len(toolCall.Function.Arguments) > 0 {
-			fmt.Fprintf(&builder, "     Args: %s\n", string(toolCall.Function.Arguments))
-		}
-	}
-	return builder.String()
-}
+func FormatToolCalls(toolCalls []model.ToolCall) string { _ = "STUB: not implemented"; return "" }
 
 // FormatToolResponses formats tool responses for display.
-func FormatToolResponses(choices []model.Choice) string {
-	var builder strings.Builder
-	for _, choice := range choices {
-		if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-			fmt.Fprintf(&builder, "✅ Memory tool response (ID: %s): %s\n",
-				choice.Message.ToolID,
-				strings.TrimSpace(choice.Message.Content))
-		}
-	}
-	return builder.String()
-}
+func FormatToolResponses(choices []model.Choice) string { _ = "STUB: not implemented"; return "" }

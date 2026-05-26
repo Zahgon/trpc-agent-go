@@ -31,10 +31,8 @@ type Factory func(ctx context.Context, opt ...Option) Aggregator
 
 // New creates a new aggregator with the given options.
 func New(ctx context.Context, opt ...Option) Aggregator {
-	opts := newOptions(opt...)
-	return &aggregator{
-		enabled: opts.enabled,
-	}
+	_ = "STUB: not implemented"
+	return *new(Aggregator)
 }
 
 // aggregator merges adjacent text, reasoning, and tool-call argument events before persistence.
@@ -57,95 +55,31 @@ const (
 
 // Append aggregates adjacent content events with the same message or tool call ID.
 func (a *aggregator) Append(_ context.Context, event aguievents.Event) ([]aguievents.Event, error) {
-	if !a.enabled {
-		return []aguievents.Event{event}, nil
-	}
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	switch e := event.(type) {
-	case *aguievents.TextMessageContentEvent:
-		return a.handleTextContent(e), nil
-	case *aguievents.ReasoningMessageContentEvent:
-		return a.handleReasoningContent(e), nil
-	case *aguievents.ToolCallArgsEvent:
-		return a.handleToolArgs(e), nil
-	default:
-		events := a.flush()
-		events = append(events, event)
-		return events, nil
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Flush flushes any buffered text and reasoning content.
 func (a *aggregator) Flush(context.Context) ([]aguievents.Event, error) {
-	if !a.enabled {
-		return nil, nil
-	}
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	return a.flush(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // handleTextContent merges content when message ID matches the buffer; otherwise flushes first.
 func (a *aggregator) handleTextContent(event *aguievents.TextMessageContentEvent) []aguievents.Event {
-	if a.lastID == event.MessageID && a.lastType == bufferTypeText {
-		a.buffer.WriteString(event.Delta)
-		return nil
-	}
-	events := a.flush()
-	a.lastID = event.MessageID
-	a.lastType = bufferTypeText
-	a.buffer.Reset()
-	a.buffer.WriteString(event.Delta)
-	return events
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *aggregator) handleReasoningContent(event *aguievents.ReasoningMessageContentEvent) []aguievents.Event {
-	if a.lastID == event.MessageID && a.lastType == bufferTypeReasoning {
-		a.buffer.WriteString(event.Delta)
-		return nil
-	}
-	events := a.flush()
-	a.lastID = event.MessageID
-	a.lastType = bufferTypeReasoning
-	a.buffer.Reset()
-	a.buffer.WriteString(event.Delta)
-	return events
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *aggregator) handleToolArgs(event *aguievents.ToolCallArgsEvent) []aguievents.Event {
-	if a.lastID == event.ToolCallID && a.lastType == bufferTypeToolArgs {
-		a.buffer.WriteString(event.Delta)
-		return nil
-	}
-	events := a.flush()
-	a.lastID = event.ToolCallID
-	a.lastType = bufferTypeToolArgs
-	a.buffer.Reset()
-	a.buffer.WriteString(event.Delta)
-	return events
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // flush emits the buffered content as one event and clears internal state.
-func (a *aggregator) flush() []aguievents.Event {
-	if a.buffer.Len() == 0 {
-		return nil
-	}
-	content := a.buffer.String()
-	var event aguievents.Event
-	switch a.lastType {
-	case bufferTypeText:
-		event = aguievents.NewTextMessageContentEvent(a.lastID, content)
-	case bufferTypeReasoning:
-		event = aguievents.NewReasoningMessageContentEvent(a.lastID, content)
-	case bufferTypeToolArgs:
-		event = aguievents.NewToolCallArgsEvent(a.lastID, content)
-	default:
-		a.buffer.Reset()
-		return nil
-	}
-	a.buffer.Reset()
-	a.lastID = ""
-	a.lastType = bufferTypeUnknown
-	return []aguievents.Event{event}
-}
+func (a *aggregator) flush() []aguievents.Event { _ = "STUB: not implemented"; return nil }

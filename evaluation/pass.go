@@ -9,11 +9,6 @@
 
 package evaluation
 
-import (
-	"fmt"
-	"math"
-)
-
 // PassAtK computes the pass@k metric used in LLM / agent evaluation.
 //
 // pass@k measures the probability that at least one correct solution
@@ -94,49 +89,26 @@ import (
 //	  - Each run is a fresh stochastic sample
 //
 // Otherwise pass@k will be systematically overestimated.
-func PassAtK(n, c, k int) (float64, error) {
-	if n < 0 {
-		return 0.0, fmt.Errorf("n must be >= 0")
-	}
-	if k <= 0 {
-		return 0.0, fmt.Errorf("k must be >= 1")
-	}
-	if c < 0 {
-		return 0.0, fmt.Errorf("c must be >= 0")
-	}
-	if c > n {
-		return 0.0, fmt.Errorf("c cannot exceed n")
-	}
-	if k > n {
-		return 0.0, fmt.Errorf("k cannot exceed n")
-	}
-	// No successes observed.
-	if c == 0 {
-		return 0.0, nil
-	}
-	// Fewer than k failures exist -> at least one success guaranteed.
-	if n-c < k {
-		return 1.0, nil
-	}
-	nf := float64(n)
-	cf := float64(c)
-	kf := float64(k)
-	// log((n-c)!)
-	a, _ := math.Lgamma(nf - cf + 1)
-	// log((n-k)!)
-	b, _ := math.Lgamma(nf - kf + 1)
-	// log((n-c-k)!)
-	d, _ := math.Lgamma(nf - cf - kf + 1)
-	// log(n!)
-	e, _ := math.Lgamma(nf + 1)
-	// log probability of drawing k failures
-	logP := a + b - d - e
-	// pass@k = 1 - exp(logP)
-	//
-	// Use Expm1 for better precision when logP is close to zero:
-	//   1 - exp(x) == -expm1(x)
-	return -math.Expm1(logP), nil
-}
+func PassAtK(n, c, k int) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
+
+// No successes observed.
+
+// Fewer than k failures exist -> at least one success guaranteed.
+
+// log((n-c)!)
+
+// log((n-k)!)
+
+// log((n-c-k)!)
+
+// log(n!)
+
+// log probability of drawing k failures
+
+// pass@k = 1 - exp(logP)
+//
+// Use Expm1 for better precision when logP is close to zero:
+//   1 - exp(x) == -expm1(x)
 
 // PassHatK computes the pass^k metric used in LLM / agent reliability evaluation.
 //
@@ -214,46 +186,16 @@ func PassAtK(n, c, k int) (float64, error) {
 //
 //   - If c == 0, returns 0
 //   - If c == n, returns 1
-func PassHatK(n, c, k int) (float64, error) {
-	if n <= 0 {
-		return 0.0, fmt.Errorf("n must be > 0")
-	}
-	if k <= 0 {
-		return 0.0, fmt.Errorf("k must be >= 1")
-	}
-	if c < 0 {
-		return 0.0, fmt.Errorf("c must be >= 0")
-	}
-	if c > n {
-		return 0.0, fmt.Errorf("c cannot exceed n")
-	}
+func PassHatK(n, c, k int) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
 
-	// No successes observed.
-	if c == 0 {
-		return 0.0, nil
-	}
-	// All runs successful.
-	if c == n {
-		return 1.0, nil
-	}
-	p := float64(c) / float64(n)
-	// Compute p^k in log-space for numerical stability: p^k = exp(k * log(p))
-	return math.Exp(float64(k) * math.Log(p)), nil
-}
+// No successes observed.
+
+// All runs successful.
+
+// Compute p^k in log-space for numerical stability: p^k = exp(k * log(p))
 
 // ParsePassNC extracts (n, c) from an EvaluationResult for pass@k / pass^k calculations.
 func ParsePassNC(result *EvaluationResult) (n, c int, err error) {
-	if result == nil {
-		return 0, 0, fmt.Errorf("evaluation result is nil")
-	}
-	if result.EvalResult == nil {
-		return 0, 0, fmt.Errorf("eval set result is nil")
-	}
-	if result.EvalResult.Summary == nil {
-		return 0, 0, fmt.Errorf("eval set result summary is nil")
-	}
-	if result.EvalResult.Summary.RunStatusCounts == nil {
-		return 0, 0, fmt.Errorf("run status counts is nil")
-	}
-	return result.EvalResult.Summary.NumRuns, result.EvalResult.Summary.RunStatusCounts.Passed, nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }

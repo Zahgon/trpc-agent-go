@@ -8,14 +8,11 @@
 
 package a2a
 
-import ia2a "trpc.group/trpc-go/trpc-agent-go/internal/a2a"
-
 // EncodeStateDeltaMetadata converts Event.StateDelta into A2A metadata.
 func EncodeStateDeltaMetadata(stateDelta map[string][]byte) map[string]any {
-	return ia2a.EncodeStateDeltaMetadata(stateDelta)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DecodeStateDeltaMetadata restores Event.StateDelta from encoded A2A metadata.
-func DecodeStateDeltaMetadata(raw any) map[string][]byte {
-	return ia2a.DecodeStateDeltaMetadata(raw)
-}
+func DecodeStateDeltaMetadata(raw any) map[string][]byte { _ = "STUB: not implemented"; return nil }

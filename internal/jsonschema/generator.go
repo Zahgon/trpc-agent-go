@@ -15,8 +15,6 @@ package jsonschema
 
 import (
 	"reflect"
-	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -38,30 +36,13 @@ type Generator struct {
 }
 
 // New returns a new Generator instance.
-func New(optionFns ...Option) *Generator {
-	generatorOptions := newOptions(optionFns...)
-	return &Generator{
-		strict:     generatorOptions.strict,
-		visited:    make(map[reflect.Type]string),
-		defs:       make(map[string]map[string]any),
-		processing: make(map[reflect.Type]bool),
-		referenced: make(map[reflect.Type]bool),
-	}
-}
+func New(optionFns ...Option) *Generator { _ = "STUB: not implemented"; return nil }
 
 // Generate returns a JSON schema for the provided type. The returned
 // schema may include a $defs section when needed.
-func (g *Generator) Generate(t reflect.Type) map[string]any {
-	for t.Kind() == reflect.Pointer {
-		t = t.Elem()
-	}
-	root := g.toSchema(t)
-	if len(g.defs) > 0 {
-		// Attach $defs at the root.
-		root["$defs"] = g.defs
-	}
-	return root
-}
+func (g *Generator) Generate(t reflect.Type) map[string]any { _ = "STUB: not implemented"; return nil }
+
+// Attach $defs at the root.
 
 // kindToJSONType maps simple Go kinds to their JSON Schema type.
 var kindToJSONType = map[reflect.Kind]string{
@@ -82,217 +63,60 @@ var kindToJSONType = map[reflect.Kind]string{
 }
 
 func (g *Generator) toSchema(t reflect.Type) map[string]any {
+	_ = "STUB: not implemented"
 	// Handle pointers by unwrapping to element type.
-	for t.Kind() == reflect.Pointer {
-		t = t.Elem()
-	}
-
-	// Special-case time.Time => string with date-time format.
-	if t.PkgPath() == "time" && t.Name() == "Time" {
-		return map[string]any{"type": "string", "format": "date-time"}
-	}
-
-	if typeName, ok := kindToJSONType[t.Kind()]; ok {
-		return map[string]any{"type": typeName}
-	}
-
-	if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
-		return g.schemaForArray(t)
-	}
-
-	if t.Kind() == reflect.Map {
-		return g.schemaForMap(t)
-	}
-
-	if t.Kind() == reflect.Struct {
-		return g.schemaForStruct(t)
-	}
-
-	return map[string]any{"type": "string"}
+	return nil
 }
 
+// Special-case time.Time => string with date-time format.
+
 func (g *Generator) schemaForArray(t reflect.Type) map[string]any {
-	return map[string]any{
-		"type":  "array",
-		"items": g.toSchema(t.Elem()),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (g *Generator) schemaForMap(t reflect.Type) map[string]any {
-	if t.Key().Kind() == reflect.String {
-		return map[string]any{
-			"type":                 "object",
-			"additionalProperties": g.toSchema(t.Elem()),
-		}
-	}
-	// Fallback: represent as array of key-value pairs.
-	return map[string]any{
-		"type":  "array",
-		"items": map[string]any{"type": "object"},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Fallback: represent as array of key-value pairs.
 
 func (g *Generator) schemaForStruct(t reflect.Type) map[string]any {
+	_ = "STUB: not implemented"
 	// If currently processing this type, return a $ref and mark referenced.
-	if g.processing[t] {
-		defKey, ok := g.visited[t]
-		if !ok {
-			defKey = g.definitionName(t)
-			g.visited[t] = defKey
-		}
-		g.referenced[t] = true
-		return map[string]any{"$ref": "#/$defs/" + defKey}
-	}
-
-	// Ensure a defKey exists for potential recursion.
-	defKey, ok := g.visited[t]
-	if !ok {
-		defKey = g.definitionName(t)
-		g.visited[t] = defKey
-	}
-
-	g.processing[t] = true
-	props := map[string]any{}
-	required := make([]string, 0)
-	n := t.NumField()
-	for i := 0; i < n; i++ {
-		f := t.Field(i)
-		if !f.IsExported() {
-			continue
-		}
-		jsonTag := f.Tag.Get("json")
-		if jsonTag == "-" {
-			continue
-		}
-		name := fieldJSONName(f)
-		if name == "-" || name == "" {
-			continue
-		}
-		fieldSchema := g.toSchema(f.Type)
-		applyFieldTags(fieldSchema, f)
-		if g.strict && (isOmitEmpty(jsonTag) || isPointerLike(f.Type)) {
-			fieldSchema = makeNullable(fieldSchema)
-		}
-		props[name] = fieldSchema
-		if g.strict || (!isOmitEmpty(jsonTag) && !isPointerLike(f.Type)) {
-			required = append(required, name)
-		}
-	}
-	g.processing[t] = false
-
-	obj := map[string]any{
-		"type":                 "object",
-		"properties":           props,
-		"additionalProperties": false,
-	}
-	if len(required) > 0 {
-		obj["required"] = required
-	}
-	// If this type was referenced via $ref, materialize its definition.
-	if g.referenced[t] {
-		g.defs[defKey] = obj
-	}
-	return obj
+	return nil
 }
 
-func makeNullable(schema map[string]any) map[string]any {
-	if schema == nil {
-		return map[string]any{"type": "null"}
-	}
-	if hasNullableAnyOf(schema) {
-		return schema
-	}
-	return map[string]any{
-		"anyOf": []any{
-			schema,
-			map[string]any{"type": "null"},
-		},
-	}
-}
+// Ensure a defKey exists for potential recursion.
 
-func hasNullableAnyOf(schema map[string]any) bool {
-	anyOf, ok := schema["anyOf"].([]any)
-	if !ok {
-		return false
-	}
-	for _, item := range anyOf {
-		itemMap, ok := item.(map[string]any)
-		if !ok {
-			continue
-		}
-		if itemMap["type"] == "null" {
-			return true
-		}
-	}
-	return false
-}
+// If this type was referenced via $ref, materialize its definition.
+
+func makeNullable(schema map[string]any) map[string]any { _ = "STUB: not implemented"; return nil }
+
+func hasNullableAnyOf(schema map[string]any) bool { _ = "STUB: not implemented"; return false }
 
 func applyFieldTags(fieldSchema map[string]any, f reflect.StructField) {
-	if desc := strings.TrimSpace(f.Tag.Get("description")); desc != "" {
-		fieldSchema["description"] = desc
-	}
-	if enumTag := strings.TrimSpace(f.Tag.Get("enum")); enumTag != "" {
-		parts := strings.Split(enumTag, ",")
-		enums := make([]any, 0, len(parts))
-		for _, p := range parts {
-			enums = append(enums, strings.TrimSpace(p))
-		}
-		fieldSchema["enum"] = enums
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (g *Generator) definitionName(t reflect.Type) string {
+	_ = "STUB: not implemented"
 	// Prefer package-qualified name when available, else synthesize.
-	if t.Name() != "" {
-		if t.PkgPath() != "" {
-			return sanitizeRefName(t.PkgPath() + "." + t.Name())
-		}
-		return sanitizeRefName(t.Name())
-	}
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	g.seq++
-	return sanitizeRefName("Type" + strconv.Itoa(g.seq))
+	return ""
 }
 
 func sanitizeRefName(s string) string {
+	_ = "STUB: not implemented"
 	// Replace characters that are not friendly in JSON Pointer segments.
-	s = strings.ReplaceAll(s, "/", "_")
-	s = strings.ReplaceAll(s, " ", "_")
-	return s
+	return ""
 }
 
-func fieldJSONName(f reflect.StructField) string {
-	tag := f.Tag.Get("json")
-	if tag == "" {
-		return f.Name
-	}
-	// Keep name before comma.
-	parts := strings.Split(tag, ",")
-	if parts[0] == "" {
-		return f.Name
-	}
-	return parts[0]
-}
+func fieldJSONName(f reflect.StructField) string { _ = "STUB: not implemented"; return "" }
 
-func isOmitEmpty(tag string) bool {
-	if tag == "" {
-		return false
-	}
-	parts := strings.Split(tag, ",")
-	for _, p := range parts[1:] {
-		if strings.TrimSpace(p) == "omitempty" {
-			return true
-		}
-	}
-	return false
-}
+// Keep name before comma.
 
-func isPointerLike(t reflect.Type) bool {
-	switch t.Kind() {
-	case reflect.Pointer, reflect.Slice, reflect.Map:
-		return true
-	default:
-		return false
-	}
-}
+func isOmitEmpty(tag string) bool { _ = "STUB: not implemented"; return false }
+
+func isPointerLike(t reflect.Type) bool { _ = "STUB: not implemented"; return false }

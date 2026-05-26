@@ -11,7 +11,6 @@
 package epochtime
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -26,20 +25,7 @@ const (
 type EpochTime struct{ time.Time }
 
 // MarshalJSON implements json.Marshaler to encode time as unix seconds (float).
-func (t EpochTime) MarshalJSON() ([]byte, error) {
-	if t.Time.IsZero() {
-		return []byte(zeroEpochLiteral), nil
-	}
-	unixSeconds := float64(t.Time.UnixNano()) / nanosecondsPerSecond
-	return json.Marshal(unixSeconds)
-}
+func (t EpochTime) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // UnmarshalJSON implements json.Unmarshaler to decode unix seconds (float).
-func (t *EpochTime) UnmarshalJSON(b []byte) error {
-	var unixSeconds float64
-	if err := json.Unmarshal(b, &unixSeconds); err != nil {
-		return err
-	}
-	t.Time = time.Unix(0, int64(unixSeconds*nanosecondsPerSecond)).UTC()
-	return nil
-}
+func (t *EpochTime) UnmarshalJSON(b []byte) error { _ = "STUB: not implemented"; return nil }

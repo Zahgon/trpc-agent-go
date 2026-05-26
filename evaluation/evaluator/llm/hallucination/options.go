@@ -10,13 +10,9 @@ package hallucination
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/invocationsaggregator"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/invocationsaggregator/average"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor"
-	hmessagesconstructor "trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/messagesconstructor/hallucination"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/responsescorer"
-	hresponsescorer "trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/responsescorer/hallucination"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/samplesaggregator"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/samplesaggregator/majorityvote"
 )
 
 type options struct {
@@ -26,46 +22,31 @@ type options struct {
 	invocationsAggregator invocationsaggregator.InvocationsAggregator
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		messagesConstructor:   hmessagesconstructor.New(),
-		responsescorer:        hresponsescorer.New(),
-		samplesAggregator:     majorityvote.New(),
-		invocationsAggregator: average.New(),
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option customizes Hallucination evaluator dependencies.
 type Option func(*options)
 
 // WithMessagesConstructor sets the prompt builder for hallucination evaluation.
 func WithMessagesConstructor(messagesConstructor messagesconstructor.MessagesConstructor) Option {
-	return func(o *options) {
-		o.messagesConstructor = messagesConstructor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithResponsescorer sets the response scorer implementation.
 func WithResponsescorer(responsescorer responsescorer.ResponseScorer) Option {
-	return func(o *options) {
-		o.responsescorer = responsescorer
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSamplesAggregator sets how multiple judge samples are reduced.
 func WithSamplesAggregator(samplesAggregator samplesaggregator.SamplesAggregator) Option {
-	return func(o *options) {
-		o.samplesAggregator = samplesAggregator
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithInvocationsAggregator sets how per-invocation scores are aggregated.
 func WithInvocationsAggregator(invocationsAggregator invocationsaggregator.InvocationsAggregator) Option {
-	return func(o *options) {
-		o.invocationsAggregator = invocationsAggregator
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

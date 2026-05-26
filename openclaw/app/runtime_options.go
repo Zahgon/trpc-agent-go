@@ -27,25 +27,16 @@ func WithRuntimeProfileResolver(
 	resolver runtimeprofile.Resolver,
 	required bool,
 ) RuntimeOption {
-	return func(opts *runtimeOptions) {
-		if resolver == nil {
-			return
-		}
-		opts.runtimeProfileResolver = resolver
-		opts.runtimeProfileRequired = required
-	}
+	_ = "STUB: not implemented"
+	return *new(RuntimeOption)
 }
 
 // WithRuntimeProfileCatalog injects profile metadata for cleanup/catalog use.
 func WithRuntimeProfileCatalog(
 	catalog runtimeprofile.Catalog,
 ) RuntimeOption {
-	return func(opts *runtimeOptions) {
-		if catalog == nil {
-			return
-		}
-		opts.runtimeProfileCatalog = catalog
-	}
+	_ = "STUB: not implemented"
+	return *new(RuntimeOption)
 }
 
 // WithRuntimeProfileStore injects a reloadable runtime profile store.
@@ -56,24 +47,11 @@ func WithRuntimeProfileStore(
 	store runtimeprofile.Store,
 	required bool,
 ) RuntimeOption {
-	return func(opts *runtimeOptions) {
-		resolver := runtimeprofile.NewCachedResolver(store)
-		if resolver == nil {
-			return
-		}
-		opts.runtimeProfileResolver = resolver
-		opts.runtimeProfileCatalog = resolver
-		opts.runtimeProfileRequired = required
-	}
+	_ = "STUB: not implemented"
+	return *new(RuntimeOption)
 }
 
 func buildRuntimeOptions(options []RuntimeOption) runtimeOptions {
-	var opts runtimeOptions
-	for _, option := range options {
-		if option == nil {
-			continue
-		}
-		option(&opts)
-	}
-	return opts
+	_ = "STUB: not implemented"
+	return *new(runtimeOptions)
 }

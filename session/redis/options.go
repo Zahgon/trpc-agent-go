@@ -115,153 +115,109 @@ var (
 )
 
 func (opts ServiceOpts) shouldCascadeFullSessionSummary() bool {
-	if opts.cascadeFullSessionSummary == nil {
-		return true
-	}
-	return *opts.cascadeFullSessionSummary
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithSessionEventLimit sets the limit of events in a session.
 func WithSessionEventLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionEventLimit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithRedisClientURL creates a redis client from URL and sets it to the service.
-func WithRedisClientURL(url string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.url = url
-	}
-}
+func WithRedisClientURL(url string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithRedisInstance uses a redis instance from storage.
 // Note: WithRedisClientURL has higher priority than WithRedisInstance.
 // If both are specified, WithRedisClientURL will be used.
 func WithRedisInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets the extra options for the redis session service.
 // this option mainly used for the customized redis client builder, it will be passed to the builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSessionTTL sets the TTL for session state and event list.
 // Default is 0 (no expiration). TTL is refreshed on write operations
 // (CreateSession, AppendEvent) but not on reads (GetSession).
 func WithSessionTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.sessionTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppStateTTL sets the TTL for app state.
 // If not set, app state will not expire.
 func WithAppStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithUserStateTTL sets the TTL for user state.
 // If not set, user state will not expire.
 func WithUserStateTTL(ttl time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.userStateTTL = ttl
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEnableAsyncPersist enables async persistence for session state and event list.
 // if not set, default is false.
 func WithEnableAsyncPersist(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.enableAsyncPersist = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncPersisterNum sets the number of workers for async persistence.
-func WithAsyncPersisterNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncPersisterNum
-		}
-		opts.asyncPersisterNum = num
-	}
-}
+func WithAsyncPersisterNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummarizer injects a summarizer for LLM-based summaries.
 func WithSummarizer(s summary.SessionSummarizer) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summarizer = s
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncSummaryNum sets the number of workers for async summary processing.
-func WithAsyncSummaryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncSummaryNum
-		}
-		opts.asyncSummaryNum = num
-	}
-}
+func WithAsyncSummaryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryQueueSize sets the size of the summary job queue.
-func WithSummaryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = defaultSummaryQueueSize
-		}
-		opts.summaryQueueSize = size
-	}
-}
+func WithSummaryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryJobTimeout sets the timeout for processing a single summary job.
 // If not set, a sensible default will be applied.
 func WithSummaryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if timeout <= 0 {
-			return
-		}
-		opts.summaryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummaryFilterAllowlist restricts which non-empty filterKeys may trigger
 // branch summaries. Keys use the same exact format as event filter keys.
 func WithSummaryFilterAllowlist(filterKeys ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.summaryFilterAllowlist = append([]string{}, filterKeys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCascadeFullSessionSummary controls whether an allowed branch summary also
 // refreshes the full-session summary keyed by SummaryFilterKeyAllContents.
 func WithCascadeFullSessionSummary(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		enabled := enable
-		opts.cascadeFullSessionSummary = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppendEventHook adds AppendEvent hooks.
 func WithAppendEventHook(hooks ...session.AppendEventHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.appendEventHooks = append(opts.appendEventHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithGetSessionHook adds GetSession hooks.
 func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.getSessionHooks = append(opts.getSessionHooks, hooks...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCompatMode sets the zset/hashidx compatibility mode.
@@ -277,11 +233,7 @@ func WithGetSessionHook(hooks ...session.GetSessionHook) ServiceOpt {
 //  3. zset TTL expired: WithCompatMode(CompatModeNone) - pure hashidx mode
 //
 // Default: CompatModeLegacy (safe for most scenarios where zset data may still exist).
-func WithCompatMode(mode CompatMode) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.compatMode = mode
-	}
-}
+func WithCompatMode(mode CompatMode) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithKeyPrefix sets the key prefix for all Redis keys.
 // Both zset and hashidx keys will use this prefix:
@@ -289,18 +241,10 @@ func WithCompatMode(mode CompatMode) ServiceOpt {
 //   - hashidx: prefix:hashidx:meta:app:{user}:sess, prefix:hashidx:evtdata:app:{user}:sess, etc.
 //
 // This is typically used to namespace keys when multiple applications share the same Redis instance.
-func WithKeyPrefix(prefix string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.keyPrefix = prefix
-	}
-}
+func WithKeyPrefix(prefix string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithEnableTracing enables OpenTelemetry tracing for redis session operations.
-func WithEnableTracing(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.enableTracing = enable
-	}
-}
+func WithEnableTracing(enable bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithEnableUserSessionIndex enables the per-user session index Hash for HashIdx storage.
 // When enabled:
@@ -313,7 +257,6 @@ func WithEnableTracing(enable bool) ServiceOpt {
 //   - ListSessions falls back to SCAN on session meta keys
 //   - No additional Redis overhead
 func WithEnableUserSessionIndex(enable bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.enableUserSessionIndex = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }

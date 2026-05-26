@@ -43,9 +43,7 @@ type serviceOpts struct {
 	memoryJobTimeout time.Duration
 }
 
-func (o serviceOpts) clone() serviceOpts {
-	return o
-}
+func (o serviceOpts) clone() serviceOpts { _ = "STUB: not implemented"; return *new(serviceOpts) }
 
 var defaultOptions = serviceOpts{
 	host:             defaultHost,
@@ -61,97 +59,48 @@ var defaultOptions = serviceOpts{
 type ServiceOpt func(*serviceOpts)
 
 // WithHost sets the mem0 API host or base URL.
-func WithHost(host string) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if host != "" {
-			opts.host = host
-		}
-	}
-}
+func WithHost(host string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithAPIKey sets the mem0 API key used for all requests.
-func WithAPIKey(apiKey string) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if apiKey != "" {
-			opts.apiKey = apiKey
-		}
-	}
-}
+func WithAPIKey(apiKey string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithOrgProject sets optional mem0 organization and project identifiers.
 func WithOrgProject(orgID, projectID string) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.orgID = orgID
-		opts.projectID = projectID
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncMode controls whether mem0 ingest requests are async.
-func WithAsyncMode(async bool) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.asyncMode = async
-	}
-}
+func WithAsyncMode(async bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithVersion sets the mem0 ingestion API version for create requests.
-func WithVersion(version string) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if version != "" {
-			opts.version = version
-		}
-	}
-}
+func WithVersion(version string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithTimeout sets the HTTP timeout for mem0 requests.
 func WithTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if timeout > 0 {
-			opts.timeout = timeout
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithHTTPClient injects a custom HTTP client for mem0 requests.
-func WithHTTPClient(c *http.Client) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if c != nil {
-			opts.client = c
-		}
-	}
-}
+func WithHTTPClient(c *http.Client) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithLoadToolEnabled controls whether memory_load is exposed in Tools().
 func WithLoadToolEnabled(enabled bool) ServiceOpt {
-	return func(opts *serviceOpts) {
-		opts.loadToolEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncMemoryNum sets the number of async mem0 ingestion workers.
-func WithAsyncMemoryNum(num int) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if num > 0 {
-			opts.asyncMemoryNum = num
-		}
-	}
-}
+func WithAsyncMemoryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryQueueSize sets the queue size for async mem0 ingestion jobs.
-func WithMemoryQueueSize(size int) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if size > 0 {
-			opts.memoryQueueSize = size
-		}
-	}
-}
+func WithMemoryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryJobTimeout sets the timeout applied to each ingest job. This
 // governs both queued async worker jobs and the synchronous fallback path
 // when the queue is full.
 func WithMemoryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *serviceOpts) {
-		if timeout > 0 {
-			opts.memoryJobTimeout = timeout
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }

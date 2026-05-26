@@ -10,72 +10,30 @@
 
 package skill
 
-import (
-	"net/url"
-	"strings"
-)
-
 const stateKeyScopeDelimiter = "/"
 
-func escapeScopeSegment(value string) string {
-	if strings.Contains(value, stateKeyScopeDelimiter) {
-		return url.PathEscape(value)
-	}
-	return value
-}
+func escapeScopeSegment(value string) string { _ = "STUB: not implemented"; return "" }
 
 // LoadedKey returns the session state key used to mark a skill as loaded for
 // a specific agent.
 //
 // When agentName is empty, it falls back to the legacy unscoped key.
-func LoadedKey(agentName string, skillName string) string {
-	agentName = strings.TrimSpace(agentName)
-	skillName = strings.TrimSpace(skillName)
-	if agentName == "" {
-		return StateKeyLoadedPrefix + skillName
-	}
-	agentName = escapeScopeSegment(agentName)
-	return StateKeyLoadedByAgentPrefix + agentName +
-		stateKeyScopeDelimiter + skillName
-}
+func LoadedKey(agentName string, skillName string) string { _ = "STUB: not implemented"; return "" }
 
 // DocsKey returns the session state key used to store doc selection for a
 // specific agent.
 //
 // When agentName is empty, it falls back to the legacy unscoped key.
-func DocsKey(agentName string, skillName string) string {
-	agentName = strings.TrimSpace(agentName)
-	skillName = strings.TrimSpace(skillName)
-	if agentName == "" {
-		return StateKeyDocsPrefix + skillName
-	}
-	agentName = escapeScopeSegment(agentName)
-	return StateKeyDocsByAgentPrefix + agentName +
-		stateKeyScopeDelimiter + skillName
-}
+func DocsKey(agentName string, skillName string) string { _ = "STUB: not implemented"; return "" }
 
 // LoadedPrefix returns the prefix used to scan loaded-skill keys for the
 // provided agentName.
 //
 // When agentName is empty, it returns the legacy prefix.
-func LoadedPrefix(agentName string) string {
-	agentName = strings.TrimSpace(agentName)
-	if agentName == "" {
-		return StateKeyLoadedPrefix
-	}
-	agentName = escapeScopeSegment(agentName)
-	return StateKeyLoadedByAgentPrefix + agentName + stateKeyScopeDelimiter
-}
+func LoadedPrefix(agentName string) string { _ = "STUB: not implemented"; return "" }
 
 // DocsPrefix returns the prefix used to scan doc-selection keys for the
 // provided agentName.
 //
 // When agentName is empty, it returns the legacy prefix.
-func DocsPrefix(agentName string) string {
-	agentName = strings.TrimSpace(agentName)
-	if agentName == "" {
-		return StateKeyDocsPrefix
-	}
-	agentName = escapeScopeSegment(agentName)
-	return StateKeyDocsByAgentPrefix + agentName + stateKeyScopeDelimiter
-}
+func DocsPrefix(agentName string) string { _ = "STUB: not implemented"; return "" }

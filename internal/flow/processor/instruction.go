@@ -11,14 +11,9 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	promptstate "trpc.group/trpc-go/trpc-agent-go/internal/prompt/adapter/state"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -86,17 +81,15 @@ type InstructionRequestProcessorOption func(*InstructionRequestProcessor)
 
 // WithOutputSchema adds the output schema to the instruction request processor.
 func WithOutputSchema(outputSchema map[string]any) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.OutputSchema = outputSchema
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // WithStructuredOutputSchema adds the structured output schema to the instruction request processor.
 // This is used as a fallback when the model provider does not natively enforce JSON Schema.
 func WithStructuredOutputSchema(schema map[string]any) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.StructuredOutputSchema = schema
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // WithInstructionResolver configures a dynamic resolver for instruction
@@ -104,18 +97,16 @@ func WithStructuredOutputSchema(schema map[string]any) InstructionRequestProcess
 func WithInstructionResolver(
 	resolver func(*agent.Invocation) string,
 ) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.InstructionResolver = resolver
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // WithInstructionGetter configures a dynamic getter for instruction content.
 // When provided, this getter is called for every request, allowing callers to
 // update the instruction at runtime without reconstructing the processor/agent.
 func WithInstructionGetter(getter func() string) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.InstructionGetter = getter
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // WithSystemPromptResolver configures a dynamic resolver for system prompt
@@ -123,18 +114,16 @@ func WithInstructionGetter(getter func() string) InstructionRequestProcessorOpti
 func WithSystemPromptResolver(
 	resolver func(*agent.Invocation) string,
 ) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.SystemPromptResolver = resolver
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // WithSystemPromptGetter configures a dynamic getter for system prompt content.
 // When provided, this getter is called for every request, allowing callers to
 // update the system prompt at runtime without reconstructing the processor/agent.
 func WithSystemPromptGetter(getter func() string) InstructionRequestProcessorOption {
-	return func(p *InstructionRequestProcessor) {
-		p.SystemPromptGetter = getter
-	}
+	_ = "STUB: not implemented"
+	return *new(InstructionRequestProcessorOption)
 }
 
 // NewInstructionRequestProcessor creates a new instruction request processor.
@@ -142,14 +131,8 @@ func NewInstructionRequestProcessor(
 	instruction, systemPrompt string,
 	opts ...InstructionRequestProcessorOption,
 ) *InstructionRequestProcessor {
-	p := &InstructionRequestProcessor{
-		Instruction:  instruction,
-		SystemPrompt: systemPrompt,
-	}
-	for _, opt := range opts {
-		opt(p)
-	}
-	return p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessRequest implements the flow.RequestProcessor interface.
@@ -161,39 +144,15 @@ func (p *InstructionRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if invocation == nil {
-		return
-	}
-	if req == nil {
-		log.ErrorfContext(
-			ctx,
-			"Instruction request processor: request is nil",
-		)
-		return
-	}
-
-	agentName := invocation.AgentName
-	log.DebugfContext(
-		ctx,
-		"Instruction request processor: processing request for agent %s",
-		agentName,
-	)
-
-	// Process instruction and system prompt with state injection.
-	processedInstruction, processedSystemPrompt := p.processInstructionsWithState(
-		ctx,
-		invocation,
-	)
-	if processedInstruction == "" && processedSystemPrompt == "" {
-		return
-	}
-
-	// Update the request messages with processed instructions.
-	p.updateRequestMessages(req, processedInstruction, processedSystemPrompt)
-
-	// Send a preprocessing event.
-	p.sendPreprocessingEvent(ctx, invocation, ch)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Process instruction and system prompt with state injection.
+
+// Update the request messages with processed instructions.
+
+// Send a preprocessing event.
 
 // processInstructionsWithState resolves instruction and system prompt content,
 // renders prompt placeholders, and then appends structured-output instructions.
@@ -201,85 +160,19 @@ func (p *InstructionRequestProcessor) processInstructionsWithState(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (string, string) {
+	_ = "STUB: not implemented"
 	// Prefer invocation-based resolvers, then dynamic getters, then static
 	// fields.
-	var processedInstruction string
-	if p.InstructionResolver != nil {
-		processedInstruction = p.InstructionResolver(invocation)
-	} else if p.InstructionGetter != nil {
-		processedInstruction = p.InstructionGetter()
-	} else {
-		processedInstruction = p.Instruction
-	}
-
-	var processedSystemPrompt string
-	if p.SystemPromptResolver != nil {
-		processedSystemPrompt = p.SystemPromptResolver(invocation)
-	} else if p.SystemPromptGetter != nil {
-		processedSystemPrompt = p.SystemPromptGetter()
-	} else {
-		processedSystemPrompt = p.SystemPrompt
-	}
-
-	if invocation != nil &&
-		p.InstructionResolver == nil &&
-		p.InstructionGetter == nil &&
-		invocation.RunOptions.Instruction != "" {
-		processedInstruction = invocation.RunOptions.Instruction
-	}
-	if invocation != nil &&
-		p.SystemPromptResolver == nil &&
-		p.SystemPromptGetter == nil &&
-		invocation.RunOptions.GlobalInstruction != "" {
-		processedSystemPrompt = invocation.RunOptions.GlobalInstruction
-	}
-
-	if invocation != nil {
-		processedInstruction = p.injectStateIntoContent(
-			ctx,
-			invocation,
-			processedInstruction,
-			"instruction",
-		)
-		processedSystemPrompt = p.injectStateIntoContent(
-			ctx,
-			invocation,
-			processedSystemPrompt,
-			"system prompt",
-		)
-	}
-
-	// Automatically inject JSON output instructions after prompt rendering so
-	// literal schema braces are never interpreted as placeholders.
-	// Precedence: invocation.StructuredOutputSchema > StructuredOutputSchema > OutputSchema.
-	if structuredOutputSchema := p.resolveStructuredOutputSchema(invocation); structuredOutputSchema != nil {
-		jsonInstructions := p.generateStructuredOutputJSONInstructions(
-			invocation,
-			structuredOutputSchema,
-		)
-		processedInstruction = p.combineInstructions(
-			processedInstruction,
-			jsonInstructions,
-		)
-	} else if p.OutputSchema != nil {
-		jsonInstructions := p.generateJSONInstructions(p.OutputSchema)
-		processedInstruction = p.combineInstructions(
-			processedInstruction,
-			jsonInstructions,
-		)
-	}
-
-	return processedInstruction, processedSystemPrompt
+	return "", ""
 }
 
+// Automatically inject JSON output instructions after prompt rendering so
+// literal schema braces are never interpreted as placeholders.
+// Precedence: invocation.StructuredOutputSchema > StructuredOutputSchema > OutputSchema.
+
 func (p *InstructionRequestProcessor) resolveStructuredOutputSchema(invocation *agent.Invocation) map[string]any {
-	if invocation != nil &&
-		invocation.StructuredOutput != nil &&
-		invocation.StructuredOutput.JSONSchema != nil &&
-		invocation.StructuredOutput.JSONSchema.Schema != nil {
-		return invocation.StructuredOutput.JSONSchema.Schema
-	}
-	return p.StructuredOutputSchema
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // combineInstructions combines existing instruction with new JSON
@@ -287,10 +180,8 @@ func (p *InstructionRequestProcessor) resolveStructuredOutputSchema(invocation *
 func (p *InstructionRequestProcessor) combineInstructions(
 	existingInstruction, jsonInstructions string,
 ) string {
-	if existingInstruction != "" {
-		return existingInstruction + "\n\n" + jsonInstructions
-	}
-	return jsonInstructions
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // injectStateIntoContent injects session state into the given content.
@@ -299,89 +190,36 @@ func (p *InstructionRequestProcessor) injectStateIntoContent(
 	invocation *agent.Invocation,
 	content, contentType string,
 ) string {
-	if content == "" {
-		return content
-	}
-
-	processedContent, err := promptstate.Render(content, invocation)
-	if err != nil {
-		log.ErrorfContext(
-			ctx,
-			"Failed to inject session state into %s: %v",
-			contentType,
-			err,
-		)
-		return content
-	}
-	return processedContent
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // updateRequestMessages updates the request messages with processed instructions.
 func (p *InstructionRequestProcessor) updateRequestMessages(req *model.Request, processedInstruction, processedSystemPrompt string) {
-	systemMsgIndex := findSystemMessageIndex(req.Messages)
-
-	if systemMsgIndex >= 0 {
-		p.updateExistingSystemMessage(req, systemMsgIndex, processedInstruction, processedSystemPrompt)
-	} else {
-		p.createNewSystemMessage(req, processedInstruction, processedSystemPrompt)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // updateExistingSystemMessage updates an existing system message with new instructions.
 func (p *InstructionRequestProcessor) updateExistingSystemMessage(
 	req *model.Request, systemMsgIndex int, processedInstruction, processedSystemPrompt string,
 ) {
-	systemMsg := &req.Messages[systemMsgIndex]
-
-	if processedInstruction != "" && !containsInstruction(systemMsg.Content, processedInstruction) {
-		systemMsg.Content += "\n\n" + processedInstruction
-		log.Debugf(
-			"Instruction request processor: appended instruction to " +
-				"existing system message",
-		)
-	}
-
-	if processedSystemPrompt != "" && !containsInstruction(systemMsg.Content, processedSystemPrompt) {
-		systemMsg.Content = processedSystemPrompt + "\n\n" + systemMsg.Content
-		log.Debugf(
-			"Instruction request processor: prepended system prompt to " +
-				"existing system message",
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // createNewSystemMessage creates a new system message with combined instructions.
 func (p *InstructionRequestProcessor) createNewSystemMessage(
 	req *model.Request, processedInstruction, processedSystemPrompt string,
 ) {
-	systemContent := p.buildSystemContent(processedInstruction, processedSystemPrompt)
-
-	if systemContent != "" {
-		systemMsg := model.NewSystemMessage(systemContent)
-		req.Messages = append([]model.Message{systemMsg}, req.Messages...)
-		log.Debugf(
-			"Instruction request processor: added combined system message",
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // buildSystemContent builds the content for a new system message.
 func (p *InstructionRequestProcessor) buildSystemContent(processedInstruction, processedSystemPrompt string) string {
-	var systemContent string
-
-	if processedSystemPrompt != "" {
-		systemContent = processedSystemPrompt
-	}
-
-	if processedInstruction != "" {
-		if systemContent != "" {
-			systemContent += "\n\n" + processedInstruction
-		} else {
-			systemContent = processedInstruction
-		}
-	}
-
-	return systemContent
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // sendPreprocessingEvent sends a preprocessing event if invocation is available.
@@ -390,105 +228,54 @@ func (p *InstructionRequestProcessor) sendPreprocessingEvent(
 	invocation *agent.Invocation,
 	ch chan<- *event.Event,
 ) {
-	if invocation == nil {
-		return
-	}
-
-	log.DebugfContext(
-		ctx,
-		"Instruction request processor: sent preprocessing event",
-	)
-
-	if err := agent.EmitEvent(ctx, invocation, ch, event.New(
-		invocation.InvocationID,
-		invocation.AgentName,
-		event.WithObject(model.ObjectTypePreprocessingInstruction),
-	)); err != nil {
-		log.DebugfContext(
-			ctx,
-			"Instruction request processor: context cancelled",
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // findSystemMessageIndex finds the index of the first system message in the messages slice.
 // Returns -1 if no system message is found.
-func findSystemMessageIndex(messages []model.Message) int {
-	for i, msg := range messages {
-		if msg.Role == model.RoleSystem {
-			return i
-		}
-	}
-	return -1
-}
+func findSystemMessageIndex(messages []model.Message) int { _ = "STUB: not implemented"; return 0 }
 
-func findLastSystemMessageIndex(messages []model.Message) int {
-	for i := len(messages) - 1; i >= 0; i-- {
-		if messages[i].Role == model.RoleSystem {
-			return i
-		}
-	}
-	return -1
-}
+func findLastSystemMessageIndex(messages []model.Message) int { _ = "STUB: not implemented"; return 0 }
 
 // containsInstruction checks if the given content already contains the instruction.
 func containsInstruction(content, instruction string) bool {
+	_ = "STUB: not implemented"
 	// strings.Contains handles both exact match and substring cases
-	return strings.Contains(content, instruction)
+	return false
 }
 
-func invocationHasTools(invocation *agent.Invocation) bool {
-	if invocation == nil || invocation.Agent == nil {
-		return false
-	}
-	return len(invocation.Agent.Tools()) > 0
-}
+func invocationHasTools(invocation *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 func (p *InstructionRequestProcessor) generateStructuredOutputJSONInstructions(
 	invocation *agent.Invocation,
 	schema map[string]any,
 ) string {
-	if schema == nil {
-		return ""
-	}
-	if invocationHasTools(invocation) {
-		return p.generateJSONInstructionsWithTemplate(
-			schema,
-			jsonInstructionsToolsTemplate,
-		)
-	}
-	return p.generateJSONInstructions(schema)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // generateJSONInstructions generates JSON output instructions based on a schema.
 func (p *InstructionRequestProcessor) generateJSONInstructions(schema map[string]any) string {
-	if schema == nil {
-		return ""
-	}
-
-	return p.generateJSONInstructionsWithTemplate(
-		schema,
-		jsonInstructionsStrictTemplate,
-	)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (p *InstructionRequestProcessor) generateJSONInstructionsWithTemplate(
 	schema map[string]any,
 	template string,
 ) string {
+	_ = "STUB: not implemented"
 	// Convert schema to a readable format for the instruction.
-	schemaStr := p.formatSchemaForInstruction(schema)
-	return fmt.Sprintf(template, schemaStr)
+	return ""
 }
 
 // formatSchemaForInstruction formats the schema for inclusion in instructions.
 func (p *InstructionRequestProcessor) formatSchemaForInstruction(schema map[string]any) string {
+	_ = "STUB: not implemented"
 	// For now, we'll create a simple JSON representation.
 	// In a more sophisticated implementation, we could parse the schema more intelligently.
-	jsonBytes, err := json.MarshalIndent(schema, "", "  ")
-	if err != nil {
-		// Fallback to a simple string representation.
-		return fmt.Sprintf("%v", schema)
-	}
-	return string(jsonBytes)
+	return ""
 }
+
+// Fallback to a simple string representation.

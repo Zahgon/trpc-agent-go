@@ -108,122 +108,51 @@ var defaultOptions = options{
 type Option func(*options)
 
 // WithHost sets the Qdrant server host.
-func WithHost(host string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, qdrantstorage.WithHost(host))
-	}
-}
+func WithHost(host string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPort sets the Qdrant server gRPC port.
-func WithPort(port int) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, qdrantstorage.WithPort(port))
-	}
-}
+func WithPort(port int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAPIKey sets the API key for Qdrant Cloud authentication.
-func WithAPIKey(apiKey string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, qdrantstorage.WithAPIKey(apiKey))
-	}
-}
+func WithAPIKey(apiKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTLS enables TLS for secure connections (required for Qdrant Cloud).
-func WithTLS(enabled bool) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, qdrantstorage.WithTLS(enabled))
-	}
-}
+func WithTLS(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCollectionName sets the collection name.
-func WithCollectionName(name string) Option {
-	return func(o *options) {
-		if name != "" {
-			o.collectionName = name
-		}
-	}
-}
+func WithCollectionName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDimension sets the vector dimension. Must be positive.
-func WithDimension(dim int) Option {
-	return func(o *options) {
-		if dim > 0 {
-			o.dimension = dim
-		}
-	}
-}
+func WithDimension(dim int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDistance sets the distance metric for similarity search.
-func WithDistance(d Distance) Option {
-	return func(o *options) { o.distance = d }
-}
+func WithDistance(d Distance) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHNSWConfig sets HNSW index parameters.
-func WithHNSWConfig(m, efConstruct int) Option {
-	return func(o *options) {
-		if m > 0 {
-			o.hnswM = m
-		}
-		if efConstruct > 0 {
-			o.hnswEfConstruct = efConstruct
-		}
-	}
-}
+func WithHNSWConfig(m, efConstruct int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOnDiskVectors enables on-disk vector storage for large datasets.
-func WithOnDiskVectors(enabled bool) Option {
-	return func(o *options) { o.onDiskVectors = enabled }
-}
+func WithOnDiskVectors(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOnDiskPayload enables on-disk payload storage.
-func WithOnDiskPayload(enabled bool) Option {
-	return func(o *options) { o.onDiskPayload = enabled }
-}
+func WithOnDiskPayload(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxResults sets the default maximum number of search results.
-func WithMaxResults(max int) Option {
-	return func(o *options) {
-		if max > 0 {
-			o.maxResults = max
-		}
-	}
-}
+func WithMaxResults(max int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxRetries sets the maximum retry attempts for transient errors.
-func WithMaxRetries(retries int) Option {
-	return func(o *options) {
-		if retries >= 0 {
-			o.maxRetries = retries
-		}
-	}
-}
+func WithMaxRetries(retries int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseRetryDelay sets the initial delay before the first retry.
-func WithBaseRetryDelay(delay time.Duration) Option {
-	return func(o *options) {
-		if delay > 0 {
-			o.baseRetryDelay = delay
-		}
-	}
-}
+func WithBaseRetryDelay(delay time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxRetryDelay sets the maximum delay between retries.
-func WithMaxRetryDelay(delay time.Duration) Option {
-	return func(o *options) {
-		if delay > 0 {
-			o.maxRetryDelay = delay
-		}
-	}
-}
+func WithMaxRetryDelay(delay time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClient sets a pre-created Qdrant client.
 // When provided, connection options (WithHost, WithPort, WithAPIKey, WithTLS) are ignored.
 // The caller retains ownership and must close the client separately.
-func WithClient(client qdrantstorage.Client) Option {
-	return func(o *options) {
-		o.client = client
-	}
-}
+func WithClient(client qdrantstorage.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBM25 enables BM25 sparse vectors for keyword and hybrid search.
 // This creates a sparse vector index using Qdrant's native BM25 implementation
@@ -236,28 +165,14 @@ func WithClient(client qdrantstorage.Client) Option {
 //   - SearchModeHybrid combines dense vector + BM25 with RRF fusion
 //
 // Note: Requires Qdrant Cloud or Qdrant with inference enabled.
-func WithBM25(enabled bool) Option {
-	return func(o *options) {
-		o.bm25Enabled = enabled
-	}
-}
+func WithBM25(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPrefetchMultiplier sets the multiplier for hybrid search prefetch limit.
 // In hybrid search, each sub-query (dense + BM25) prefetches limit × multiplier
 // results before RRF fusion. Higher values improve fusion quality at the cost
 // of increased latency and memory usage. Default is 2.
-func WithPrefetchMultiplier(multiplier int) Option {
-	return func(o *options) {
-		if multiplier > 0 {
-			o.prefetchMultiplier = multiplier
-		}
-	}
-}
+func WithPrefetchMultiplier(multiplier int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLogger sets the logger for operational messages.
 // Used for logging warnings such as hybrid search fallback when BM25 is not enabled.
-func WithLogger(logger log.Logger) Option {
-	return func(o *options) {
-		o.logger = logger
-	}
-}
+func WithLogger(logger log.Logger) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -16,16 +16,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
-	"os"
 	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	openaiembedder "trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
-	memorysqlite "trpc.group/trpc-go/trpc-agent-go/memory/sqlite"
-	memorysqlitevec "trpc.group/trpc-go/trpc-agent-go/memory/sqlitevec"
 )
 
 const (
@@ -171,11 +167,8 @@ func mustSeed(
 	userKey memory.UserKey,
 	seeds []memorySeed,
 ) {
-	for _, s := range seeds {
-		if err := svc.AddMemory(ctx, userKey, s.text, s.topics); err != nil {
-			log.Fatalf("seed memory: %v", err)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func containsExpected(
@@ -183,122 +176,29 @@ func containsExpected(
 	expected string,
 	k int,
 ) bool {
-	if k <= 0 {
-		return false
-	}
-	if len(entries) < k {
-		k = len(entries)
-	}
-	for i := 0; i < k; i++ {
-		if entries[i] == nil || entries[i].Memory == nil {
-			continue
-		}
-		if entries[i].Memory.Memory == expected {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func mustCreateSQLiteService(
 	ctx context.Context,
 ) (memory.Service, func()) {
-	db, path, err := openTempSQLiteDB(sqliteTempDBPattern)
-	mustNoErr(err, "open sqlite db")
-
-	svc, err := memorysqlite.NewService(db)
-	if err != nil {
-		_ = db.Close()
-		_ = os.Remove(path)
-		log.Fatalf("create sqlite service: %v", err)
-	}
-	_ = ctx
-
-	cleanup := func() {
-		_ = svc.Close()
-		_ = os.Remove(path)
-	}
-	return svc, cleanup
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
 
 func mustCreateSQLiteVecService(
 	ctx context.Context,
 ) (memory.Service, func()) {
-	db, path, err := openTempSQLiteDB(sqliteVecTempDBPattern)
-	mustNoErr(err, "open sqlitevec db")
-
-	emb := newOpenAIEmbedderFromEnv()
-	svc, err := memorysqlitevec.NewService(
-		db,
-		memorysqlitevec.WithEmbedder(emb),
-	)
-	if err != nil {
-		_ = db.Close()
-		_ = os.Remove(path)
-		log.Fatalf("create sqlitevec service: %v", err)
-	}
-	_ = ctx
-
-	cleanup := func() {
-		_ = svc.Close()
-		_ = os.Remove(path)
-	}
-	return svc, cleanup
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }
 
 func openTempSQLiteDB(pattern string) (*sql.DB, string, error) {
-	f, err := os.CreateTemp("", pattern)
-	if err != nil {
-		return nil, "", err
-	}
-	if err := f.Close(); err != nil {
-		_ = os.Remove(f.Name())
-		return nil, "", err
-	}
-
-	db, err := sql.Open(sqliteDriverName, f.Name())
-	if err != nil {
-		_ = os.Remove(f.Name())
-		return nil, "", err
-	}
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
-
-	return db, f.Name(), nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
-func newOpenAIEmbedderFromEnv() *openaiembedder.Embedder {
-	modelName := openaiembedder.DefaultModel
-	if env := os.Getenv(envOpenAIEmbeddingModel); env != "" {
-		modelName = env
-	}
+func newOpenAIEmbedderFromEnv() *openaiembedder.Embedder { _ = "STUB: not implemented"; return nil }
 
-	opts := []openaiembedder.Option{
-		openaiembedder.WithModel(modelName),
-	}
-
-	apiKey := os.Getenv(envOpenAIEmbeddingAPIKey)
-	if apiKey == "" {
-		apiKey = os.Getenv(envOpenAIAPIKey)
-	}
-	if apiKey != "" {
-		opts = append(opts, openaiembedder.WithAPIKey(apiKey))
-	}
-
-	baseURL := os.Getenv(envOpenAIEmbeddingBaseURL)
-	if baseURL == "" {
-		baseURL = os.Getenv(envOpenAIBaseURL)
-	}
-	if baseURL != "" {
-		opts = append(opts, openaiembedder.WithBaseURL(baseURL))
-	}
-
-	return openaiembedder.New(opts...)
-}
-
-func mustNoErr(err error, action string) {
-	if err == nil {
-		return
-	}
-	log.Fatalf("%s: %v", action, err)
-}
+func mustNoErr(err error, action string) { _ = "STUB: not implemented"; return }

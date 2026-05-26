@@ -12,11 +12,8 @@ package rubricresponse
 
 import (
 	"context"
-	"fmt"
 	"regexp"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalresult"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/responsescorer"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
@@ -39,65 +36,15 @@ type rubricResponseScorer struct {
 
 // New returns a response scorer for rubric responses.
 func New() responsescorer.ResponseScorer {
-	return &rubricResponseScorer{}
+	_ = "STUB: not implemented"
+	return *new(responsescorer.ResponseScorer)
 }
 
 // ScoreBasedOnResponse scores rubric responses.
 func (e *rubricResponseScorer) ScoreBasedOnResponse(ctx context.Context, response *model.Response,
 	evalMetric *metric.EvalMetric) (*evaluator.ScoreResult, error) {
-	if response == nil {
-		return nil, fmt.Errorf("response is nil")
-	}
-	if len(response.Choices) == 0 {
-		return nil, fmt.Errorf("no choices in response")
-	}
-	content := response.Choices[0].Message.Content
-	matches := rubricBlockRegex.FindAllStringSubmatch(content, -1)
-	if len(matches) == 0 {
-		return nil, fmt.Errorf("no rubric blocks found in response")
-	}
-	expectedRubrics := configuredRubricCount(evalMetric)
-	if expectedRubrics > 0 && len(matches) != expectedRubrics {
-		return nil, fmt.Errorf("parsed rubric blocks count %d does not match configured rubric count %d",
-			len(matches), expectedRubrics)
-	}
-	averageScore := 0.0
-	reasons := make([]string, 0, len(matches))
-	result := &evaluator.ScoreResult{}
-	for _, match := range matches {
-		rubricID := strings.TrimSpace(match[1])
-		reason := strings.TrimSpace(match[4])
-		verdict := strings.ToLower(strings.TrimSpace(match[5]))
-		var score float64
-		if verdict == passedVerdict {
-			score = 1.0
-		} else {
-			score = 0.0
-		}
-		result.RubricScores = append(result.RubricScores, &evalresult.RubricScore{
-			ID:     rubricID,
-			Reason: reason,
-			Score:  score,
-		})
-		averageScore += score
-		reasons = append(reasons, reason)
-	}
-	averageScore /= float64(len(matches))
-	result.Score = averageScore
-	result.Reason = strings.Join(reasons, "\n")
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func configuredRubricCount(evalMetric *metric.EvalMetric) int {
-	if evalMetric == nil || evalMetric.Criterion == nil || evalMetric.Criterion.LLMJudge == nil {
-		return 0
-	}
-	count := 0
-	for _, rubric := range evalMetric.Criterion.LLMJudge.Rubrics {
-		if rubric == nil || rubric.Content == nil {
-			continue
-		}
-		count++
-	}
-	return count
-}
+func configuredRubricCount(evalMetric *metric.EvalMetric) int { _ = "STUB: not implemented"; return 0 }

@@ -12,23 +12,15 @@ package gateway
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
-	"math"
-	"mime"
 	"net"
 	"net/http"
 	"net/netip"
 	"net/url"
-	"path"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/gwproto"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/conversationscope"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/debugrecorder"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/uploads"
 )
 
@@ -83,141 +75,26 @@ func (p partURLPolicy) Validate(
 	ctx context.Context,
 	u *url.URL,
 ) error {
-	if u == nil {
-		return errors.New("nil url")
-	}
-
-	scheme := strings.ToLower(strings.TrimSpace(u.Scheme))
-	if scheme != "http" && scheme != "https" {
-		return errors.New("unsupported url scheme")
-	}
-	host := strings.TrimSpace(u.Hostname())
-	if host == "" {
-		return errors.New("missing url host")
-	}
-
-	if len(p.allowedPatterns) > 0 &&
-		!matchesAnyPattern(u, p.allowedPatterns) {
-		return errors.New("url does not match any allowed pattern")
-	}
-	if p.allowPrivate {
-		return nil
-	}
-	return validatePublicHost(ctx, host, p.resolver)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func matchesAnyPattern(u *url.URL, patterns []string) bool {
-	for _, pattern := range patterns {
-		pattern = strings.TrimSpace(pattern)
-		if pattern == "" {
-			continue
-		}
-		if matchPattern(u, pattern) {
-			return true
-		}
-	}
-	return false
-}
+func matchesAnyPattern(u *url.URL, patterns []string) bool { _ = "STUB: not implemented"; return false }
 
-func matchPattern(u *url.URL, pattern string) bool {
-	var host, prefix string
-	if idx := strings.Index(pattern, "/"); idx != -1 {
-		host = pattern[:idx]
-		prefix = pattern[idx:]
-	} else {
-		host = pattern
-	}
+func matchPattern(u *url.URL, pattern string) bool { _ = "STUB: not implemented"; return false }
 
-	if !matchHost(u.Hostname(), host) {
-		return false
-	}
-	if prefix == "" {
-		return true
-	}
-	uPath := u.Path
-	if uPath == "" {
-		uPath = "/"
-	}
-	if !strings.HasPrefix(uPath, "/") {
-		uPath = "/" + uPath
-	}
-	if !strings.HasPrefix(uPath, prefix) {
-		return false
-	}
-	if len(uPath) == len(prefix) {
-		return true
-	}
-	if strings.HasSuffix(prefix, "/") {
-		return true
-	}
-	return uPath[len(prefix)] == '/'
-}
-
-func matchHost(hostname, target string) bool {
-	hostname = strings.ToLower(strings.TrimSpace(hostname))
-	target = strings.ToLower(strings.TrimSpace(target))
-	if hostname == "" || target == "" {
-		return false
-	}
-	if hostname == target {
-		return true
-	}
-	return strings.HasSuffix(hostname, "."+target)
-}
+func matchHost(hostname, target string) bool { _ = "STUB: not implemented"; return false }
 
 func validatePublicHost(
 	ctx context.Context,
 	host string,
 	resolver hostResolver,
 ) error {
-	if strings.EqualFold(host, "localhost") {
-		return errors.New("url host resolves to private address")
-	}
-	ip, err := netip.ParseAddr(host)
-	if err == nil {
-		if isPrivateOrLocalIP(ip) {
-			return fmt.Errorf(
-				"url host resolves to private address: %s",
-				host,
-			)
-		}
-		return nil
-	}
-
-	if resolver == nil {
-		resolver = net.DefaultResolver
-	}
-	addrs, err := resolver.LookupIPAddr(ctx, host)
-	if err != nil {
-		return fmt.Errorf("resolve host: %w", err)
-	}
-	if len(addrs) == 0 {
-		return errors.New("resolve host: no addresses")
-	}
-	for _, addr := range addrs {
-		parsed, ok := netip.AddrFromSlice(addr.IP)
-		if !ok {
-			continue
-		}
-		if isPrivateOrLocalIP(parsed) {
-			return fmt.Errorf(
-				"url host resolves to private address: %s",
-				host,
-			)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func isPrivateOrLocalIP(addr netip.Addr) bool {
-	return addr.IsLoopback() ||
-		addr.IsPrivate() ||
-		addr.IsLinkLocalUnicast() ||
-		addr.IsLinkLocalMulticast() ||
-		addr.IsInterfaceLocalMulticast() ||
-		addr.IsMulticast() ||
-		addr.IsUnspecified()
-}
+func isPrivateOrLocalIP(addr netip.Addr) bool { _ = "STUB: not implemented"; return false }
 
 type validatingFetcher struct {
 	next   partFetcher
@@ -229,17 +106,8 @@ func (f validatingFetcher) Fetch(
 	rawURL string,
 	maxBytes int64,
 ) (fetched, error) {
-	if f.next == nil {
-		return fetched{}, errors.New("missing fetcher")
-	}
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
-		return fetched{}, fmt.Errorf("parse url: %w", err)
-	}
-	if err := f.policy.Validate(ctx, parsed); err != nil {
-		return fetched{}, err
-	}
-	return f.next.Fetch(ctx, rawURL, maxBytes)
+	_ = "STUB: not implemented"
+	return *new(fetched), nil
 }
 
 type urlPartFetcher struct {
@@ -248,226 +116,54 @@ type urlPartFetcher struct {
 	policy       partURLPolicy
 }
 
-func newURLPartFetcher(policy partURLPolicy) *urlPartFetcher {
-	return &urlPartFetcher{
-		client: &http.Client{
-			Timeout: defaultContentPartTimeout,
-		},
-		maxRedirects: defaultMaxRedirects,
-		policy:       policy,
-	}
-}
+func newURLPartFetcher(policy partURLPolicy) *urlPartFetcher { _ = "STUB: not implemented"; return nil }
 
 func (f *urlPartFetcher) Fetch(
 	ctx context.Context,
 	rawURL string,
 	maxBytes int64,
 ) (fetched, error) {
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
-		return fetched{}, fmt.Errorf("parse url: %w", err)
-	}
-	if err := f.policy.Validate(ctx, parsed); err != nil {
-		return fetched{}, err
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		rawURL,
-		nil,
-	)
-	if err != nil {
-		return fetched{}, fmt.Errorf("new request: %w", err)
-	}
-	req.Header.Set(headerUserAgent, contentPartUserAgent)
-
-	c := f.client
-	if c == nil {
-		c = http.DefaultClient
-	}
-
-	copied := *c
-	copied.CheckRedirect = func(
-		req *http.Request,
-		via []*http.Request,
-	) error {
-		if len(via) > f.maxRedirects {
-			return errors.New("too many redirects")
-		}
-		return f.policy.Validate(req.Context(), req.URL)
-	}
-
-	resp, err := copied.Do(req)
-	if err != nil {
-		return fetched{}, fmt.Errorf("fetch: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < http.StatusOK ||
-		resp.StatusCode >= http.StatusMultipleChoices {
-		return fetched{}, fmt.Errorf("unexpected status: %d", resp.StatusCode)
-	}
-
-	body, err := readLimited(resp.Body, maxBytes)
-	if err != nil {
-		return fetched{}, err
-	}
-
-	contentType := normalizeContentType(resp.Header.Get(headerContentType))
-	filename := filenameFromHeaders(resp, parsed)
-	return fetched{
-		Data:        body,
-		ContentType: contentType,
-		Filename:    filename,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fetched), nil
 }
 
-func normalizeContentType(raw string) string {
-	if strings.TrimSpace(raw) == "" {
-		return ""
-	}
-	mediaType := strings.Split(raw, ";")[0]
-	return strings.TrimSpace(mediaType)
-}
+func normalizeContentType(raw string) string { _ = "STUB: not implemented"; return "" }
 
 func filenameFromHeaders(resp *http.Response, u *url.URL) string {
-	if resp == nil || u == nil {
-		return ""
-	}
-	_, params, err := mime.ParseMediaType(
-		resp.Header.Get("Content-Disposition"),
-	)
-	if err == nil {
-		name := strings.TrimSpace(params["filename"])
-		if name != "" {
-			return name
-		}
-	}
-	name := strings.TrimSpace(path.Base(u.Path))
-	if name == "." || name == "/" {
-		return ""
-	}
-	return name
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func readLimited(r io.Reader, maxBytes int64) ([]byte, error) {
-	if r == nil {
-		return nil, errors.New("nil reader")
-	}
-	if maxBytes <= 0 {
-		return nil, errors.New("invalid max bytes")
-	}
-	limit := maxBytes
-	if maxBytes < math.MaxInt64 {
-		limit = maxBytes + 1
-	}
-	limited := io.LimitReader(r, limit)
-	body, err := io.ReadAll(limited)
-	if err != nil {
-		return nil, fmt.Errorf("read body: %w", err)
-	}
-	if int64(len(body)) > maxBytes {
-		return nil, errors.New(errContentPartTooLarge)
-	}
-	return body, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func inboundFromRequest(
 	req gwproto.MessageRequest,
 	text string,
 ) InboundMessage {
-	channel := strings.TrimSpace(req.Channel)
-	if channel == "" {
-		channel = defaultChannelName
-	}
-	return InboundMessage{
-		Channel:   channel,
-		From:      strings.TrimSpace(req.From),
-		To:        strings.TrimSpace(req.To),
-		Thread:    strings.TrimSpace(req.Thread),
-		MessageID: strings.TrimSpace(req.MessageID),
-		Text:      strings.TrimSpace(text),
-	}
+	_ = "STUB: not implemented"
+	return *new(InboundMessage)
 }
 
 func (s *Server) normalizeUserMessage(
 	ctx context.Context,
 	req gwproto.MessageRequest,
 ) (model.Message, string, error) {
-	text := strings.TrimSpace(req.Text)
-	scope := uploadScopeFromRequest(req)
-	parts, partsText, err := s.normalizeContentParts(
-		ctx,
-		req.ContentParts,
-		scope,
-	)
-	if err != nil {
-		return model.Message{}, "", err
-	}
-
-	text, parts, transcriptText, transcriptMention := s.rewriteAudioMessage(
-		ctx,
-		strings.TrimSpace(req.Channel),
-		text,
-		parts,
-	)
-	mentionText := strings.TrimSpace(joinText(text, partsText))
-	mentionText = strings.TrimSpace(
-		joinText(mentionText, transcriptMention),
-	)
-	if text == "" && len(parts) == 0 {
-		return model.Message{}, "", errors.New("missing text")
-	}
-	return model.Message{
-		Role:         model.RoleUser,
-		Content:      strings.TrimSpace(joinText(text, transcriptText)),
-		ContentParts: parts,
-	}, mentionText, nil
+	_ = "STUB: not implemented"
+	return *new(model.Message), "", nil
 }
 
-func joinText(a, b string) string {
-	a = strings.TrimSpace(a)
-	b = strings.TrimSpace(b)
-	if a == "" {
-		return b
-	}
-	if b == "" {
-		return a
-	}
-	return a + "\n" + b
-}
+func joinText(a, b string) string { _ = "STUB: not implemented"; return "" }
 
 func (s *Server) normalizeContentParts(
 	ctx context.Context,
 	parts []gwproto.ContentPart,
 	scopes ...uploads.Scope,
 ) ([]model.ContentPart, string, error) {
-	if len(parts) == 0 {
-		return nil, "", nil
-	}
-	scope := firstUploadScope(scopes...)
-	out := make([]model.ContentPart, 0, len(parts))
-	textParts := make([]string, 0, len(parts))
-
-	for i, part := range parts {
-		normalized, text, err := s.normalizeContentPart(
-			ctx,
-			part,
-			scope,
-		)
-		if err != nil {
-			return nil, "", fmt.Errorf("content_parts[%d]: %w", i, err)
-		}
-		if normalized == nil {
-			continue
-		}
-		out = append(out, *normalized)
-		if text != "" {
-			textParts = append(textParts, text)
-		}
-	}
-	return out, strings.Join(textParts, "\n"), nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) rewriteAudioMessage(
@@ -476,52 +172,16 @@ func (s *Server) rewriteAudioMessage(
 	text string,
 	parts []model.ContentPart,
 ) (string, []model.ContentPart, string, string) {
-	if s == nil || s.audioTranscriber == nil ||
-		!strings.EqualFold(channel, telegramChannelName) {
-		return text, parts, "", ""
-	}
-
-	transcripts, rewritten := s.transcribeAudioParts(ctx, parts)
-	if len(transcripts) == 0 {
-		return text, parts, "", ""
-	}
-
-	plainText := strings.Join(transcripts, "\n")
-	if strings.TrimSpace(text) == "" && len(transcripts) == 1 {
-		return plainText, rewritten, "", ""
-	}
-	return text,
-		rewritten,
-		formatAudioTranscriptText(transcripts),
-		plainText
+	_ = "STUB: not implemented"
+	return "", nil, "", ""
 }
 
 func (s *Server) transcribeAudioParts(
 	ctx context.Context,
 	parts []model.ContentPart,
 ) ([]string, []model.ContentPart) {
-	if len(parts) == 0 {
-		return nil, parts
-	}
-
-	transcripts := make([]string, 0, len(parts))
-	rewritten := make([]model.ContentPart, 0, len(parts))
-
-	for i := range parts {
-		part := parts[i]
-		if part.Type != model.ContentTypeAudio || part.Audio == nil {
-			rewritten = append(rewritten, part)
-			continue
-		}
-
-		transcript, err := s.transcribeAudioPart(ctx, i, part.Audio)
-		if err != nil {
-			rewritten = append(rewritten, part)
-			continue
-		}
-		transcripts = append(transcripts, transcript)
-	}
-	return transcripts, rewritten
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *Server) transcribeAudioPart(
@@ -529,60 +189,11 @@ func (s *Server) transcribeAudioPart(
 	index int,
 	audio *model.Audio,
 ) (string, error) {
-	if s == nil || s.audioTranscriber == nil {
-		return "", errors.New("missing audio transcriber")
-	}
-
-	transcribeCtx, cancel := context.WithTimeout(
-		ctx,
-		defaultAudioTranscriptionTimeout,
-	)
-	defer cancel()
-
-	transcript, err := s.audioTranscriber.Transcribe(
-		transcribeCtx,
-		audio,
-	)
-	traceAudioTranscription(
-		ctx,
-		index,
-		audio,
-		transcript,
-		err,
-	)
-	if err != nil {
-		return "", err
-	}
-	transcript = strings.TrimSpace(transcript)
-	if transcript == "" {
-		return "", errors.New("empty audio transcript")
-	}
-	return transcript, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func formatAudioTranscriptText(transcripts []string) string {
-	if len(transcripts) == 0 {
-		return ""
-	}
-	if len(transcripts) == 1 {
-		return strings.TrimSpace(
-			"Audio transcript:\n" + transcripts[0],
-		)
-	}
-
-	parts := make([]string, 0, len(transcripts))
-	for i := range transcripts {
-		text := strings.TrimSpace(transcripts[i])
-		if text == "" {
-			continue
-		}
-		parts = append(
-			parts,
-			fmt.Sprintf(audioTranscriptLabelFmt, i+1)+"\n"+text,
-		)
-	}
-	return strings.Join(parts, audioTranscriptSeparator)
-}
+func formatAudioTranscriptText(transcripts []string) string { _ = "STUB: not implemented"; return "" }
 
 func traceAudioTranscription(
 	ctx context.Context,
@@ -591,26 +202,8 @@ func traceAudioTranscription(
 	transcript string,
 	err error,
 ) {
-	trace := debugrecorder.TraceFromContext(ctx)
-	if trace == nil {
-		return
-	}
-
-	payload := map[string]any{
-		"index":             index,
-		"format":            "",
-		"bytes":             0,
-		"transcript":        transcript,
-		"transcript_length": len(transcript),
-	}
-	if audio != nil {
-		payload["format"] = strings.TrimSpace(audio.Format)
-		payload["bytes"] = len(audio.Data)
-	}
-	if err != nil {
-		payload["error"] = err.Error()
-	}
-	_ = trace.Record(kindGatewayAudioTranscript, payload)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) normalizeContentPart(
@@ -618,213 +211,56 @@ func (s *Server) normalizeContentPart(
 	part gwproto.ContentPart,
 	scopes ...uploads.Scope,
 ) (*model.ContentPart, string, error) {
-	maxBytes := s.maxPartBytes
-	if maxBytes <= 0 {
-		maxBytes = defaultMaxContentPartBytes
-	}
-	scope := firstUploadScope(scopes...)
-
-	switch part.Type {
-	case gwproto.PartTypeText:
-		return normalizeTextPart(part)
-	case gwproto.PartTypeImage:
-		if part.Image != nil &&
-			len(part.Image.Data) > 0 &&
-			int64(len(part.Image.Data)) > maxBytes {
-			return nil, "", errors.New(errContentPartTooLarge)
-		}
-		return normalizeImagePart(part)
-	case gwproto.PartTypeAudio, gwproto.PartTypeVoice:
-		if part.Audio != nil &&
-			len(part.Audio.Data) > 0 &&
-			int64(len(part.Audio.Data)) > maxBytes {
-			return nil, "", errors.New(errContentPartTooLarge)
-		}
-		return s.normalizeAudioPart(ctx, part)
-	case gwproto.PartTypeFile, gwproto.PartTypeVideo:
-		if part.File != nil &&
-			len(part.File.Data) > 0 &&
-			int64(len(part.File.Data)) > maxBytes {
-			return nil, "", errors.New(errContentPartTooLarge)
-		}
-		return s.normalizeFilePart(ctx, part, scope)
-	case gwproto.PartTypeLink:
-		return normalizeLinkPart(part)
-	case gwproto.PartTypeLocation:
-		return normalizeLocationPart(part)
-	default:
-		return nil, "", errors.New("unsupported content part type")
-	}
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func normalizeTextPart(
 	part gwproto.ContentPart,
 ) (*model.ContentPart, string, error) {
-	if part.Text == nil {
-		return nil, "", errors.New("missing text")
-	}
-	text := strings.TrimSpace(*part.Text)
-	if text == "" {
-		return nil, "", errors.New("empty text")
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeText,
-		Text: &text,
-	}, text, nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func normalizeImagePart(
 	part gwproto.ContentPart,
 ) (*model.ContentPart, string, error) {
-	if part.Image == nil {
-		return nil, "", errors.New("missing image")
-	}
-	detail := strings.TrimSpace(part.Image.Detail)
-	if detail == "" {
-		detail = imageDetailAuto
-	}
-
-	if strings.TrimSpace(part.Image.URL) != "" {
-		return &model.ContentPart{
-			Type: model.ContentTypeImage,
-			Image: &model.Image{
-				URL:    strings.TrimSpace(part.Image.URL),
-				Detail: detail,
-			},
-		}, "", nil
-	}
-
-	if len(part.Image.Data) == 0 {
-		return nil, "", errors.New("missing image url or data")
-	}
-	format := strings.TrimSpace(part.Image.Format)
-	if format == "" {
-		return nil, "", errors.New("missing image format")
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeImage,
-		Image: &model.Image{
-			Data:   part.Image.Data,
-			Detail: detail,
-			Format: format,
-		},
-	}, "", nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) normalizeAudioPart(
 	ctx context.Context,
 	part gwproto.ContentPart,
 ) (*model.ContentPart, string, error) {
-	if part.Audio == nil {
-		return nil, "", errors.New("missing audio")
-	}
-
-	if strings.TrimSpace(part.Audio.URL) != "" {
-		return s.normalizeAudioURL(ctx, part.Audio)
-	}
-	if len(part.Audio.Data) == 0 {
-		return nil, "", errors.New("missing audio url or data")
-	}
-	format := strings.TrimSpace(part.Audio.Format)
-	if format == "" {
-		return nil, "", errors.New("missing audio format")
-	}
-	if !isSupportedAudioFormat(format) {
-		return nil, "", errors.New("unsupported audio format")
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeAudio,
-		Audio: &model.Audio{
-			Data:   part.Audio.Data,
-			Format: format,
-		},
-	}, "", nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) normalizeAudioURL(
 	ctx context.Context,
 	audio *gwproto.AudioPart,
 ) (*model.ContentPart, string, error) {
-	f, err := s.fetchContentPart(ctx, audio.URL)
-	if err != nil {
-		return nil, "", err
-	}
-	format := strings.TrimSpace(audio.Format)
-	if format == "" {
-		format = inferAudioFormat(f)
-	}
-	if format == "" {
-		return nil, "", errors.New("missing audio format")
-	}
-	if !isSupportedAudioFormat(format) {
-		return nil, "", errors.New("unsupported audio format")
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeAudio,
-		Audio: &model.Audio{
-			Data:   f.Data,
-			Format: format,
-		},
-	}, "", nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
-func inferAudioFormat(f fetched) string {
-	ext := strings.ToLower(path.Ext(f.Filename))
-	switch ext {
-	case ".wav":
-		return audioFormatWAV
-	case ".mp3":
-		return audioFormatMP3
-	}
-	switch normalizeContentType(f.ContentType) {
-	case "audio/wav", "audio/x-wav":
-		return audioFormatWAV
-	case "audio/mpeg", "audio/mp3":
-		return audioFormatMP3
-	}
-	return ""
-}
+func inferAudioFormat(f fetched) string { _ = "STUB: not implemented"; return "" }
 
-func isSupportedAudioFormat(format string) bool {
-	switch format {
-	case audioFormatWAV, audioFormatMP3:
-		return true
-	default:
-		return false
-	}
-}
+func isSupportedAudioFormat(format string) bool { _ = "STUB: not implemented"; return false }
 
 func (s *Server) normalizeFilePart(
 	ctx context.Context,
 	part gwproto.ContentPart,
 	scope uploads.Scope,
 ) (*model.ContentPart, string, error) {
-	if part.File == nil {
-		return nil, "", errors.New("missing file")
-	}
-
-	if strings.TrimSpace(part.File.FileID) != "" {
-		return normalizeFileID(part.File), "", nil
-	}
-	if strings.TrimSpace(part.File.URL) != "" {
-		return s.normalizeFileURL(ctx, part.File, scope)
-	}
-	if len(part.File.Data) == 0 {
-		return nil, "", errors.New("missing file url, data, or file_id")
-	}
-	return s.normalizeFileData(ctx, part.File, scope)
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func normalizeFileID(file *gwproto.FilePart) *model.ContentPart {
-	name := strings.TrimSpace(file.Filename)
-	id := strings.TrimSpace(file.FileID)
-	return &model.ContentPart{
-		Type: model.ContentTypeFile,
-		File: &model.File{
-			Name:   name,
-			FileID: id,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *Server) normalizeFileURL(
@@ -832,28 +268,8 @@ func (s *Server) normalizeFileURL(
 	file *gwproto.FilePart,
 	scope uploads.Scope,
 ) (*model.ContentPart, string, error) {
-	f, err := s.fetchContentPart(ctx, file.URL)
-	if err != nil {
-		return nil, "", err
-	}
-	name := strings.TrimSpace(file.Filename)
-	if name == "" {
-		name = strings.TrimSpace(f.Filename)
-	}
-	if name == "" {
-		name = "attachment"
-	}
-	mimeType := normalizeContentType(file.Format)
-	if mimeType == "" {
-		mimeType = normalizeContentType(f.ContentType)
-	}
-	if mimeType == "" {
-		mimeType = inferMimeTypeFromName(name)
-	}
-	if mimeType == "" {
-		mimeType = mimeOctetStream
-	}
-	return s.persistNormalizedFile(ctx, scope, name, mimeType, f.Data)
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) normalizeFileData(
@@ -861,18 +277,8 @@ func (s *Server) normalizeFileData(
 	file *gwproto.FilePart,
 	scope uploads.Scope,
 ) (*model.ContentPart, string, error) {
-	name := strings.TrimSpace(file.Filename)
-	if name == "" {
-		return nil, "", errors.New("missing filename")
-	}
-	mimeType := normalizeContentType(file.Format)
-	if mimeType == "" {
-		mimeType = inferMimeTypeFromName(name)
-	}
-	if mimeType == "" {
-		mimeType = mimeOctetStream
-	}
-	return s.persistNormalizedFile(ctx, scope, name, mimeType, file.Data)
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) persistNormalizedFile(
@@ -882,145 +288,40 @@ func (s *Server) persistNormalizedFile(
 	mimeType string,
 	data []byte,
 ) (*model.ContentPart, string, error) {
-	if s == nil || s.uploads == nil {
-		return &model.ContentPart{
-			Type: model.ContentTypeFile,
-			File: &model.File{
-				Name:     name,
-				Data:     data,
-				MimeType: mimeType,
-			},
-		}, "", nil
-	}
-
-	saved, err := s.uploads.SaveWithInfo(
-		ctx,
-		scope,
-		name,
-		uploads.FileMetadata{
-			MimeType: mimeType,
-			Source:   uploads.SourceInbound,
-		},
-		data,
-	)
-	if err != nil {
-		return nil, "", err
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeFile,
-		File: &model.File{
-			Name:     saved.Name,
-			FileID:   saved.HostRef,
-			MimeType: mimeType,
-		},
-	}, "", nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func uploadScopeFromRequest(req gwproto.MessageRequest) uploads.Scope {
-	channel := strings.TrimSpace(req.Channel)
-	if channel == "" {
-		channel = defaultChannelName
-	}
-	userID := strings.TrimSpace(req.UserID)
-	if userID == "" {
-		userID = strings.TrimSpace(req.From)
-	}
-	sessionID := strings.TrimSpace(req.SessionID)
-	if sessionID == "" {
-		if resolved, err := DefaultSessionID(
-			inboundFromRequest(req, req.Text),
-		); err == nil {
-			sessionID = resolved
-		}
-	}
-	if resolvedUserID, err := conversationscope.ResolveStorageUserID(
-		req.Extensions,
-		userID,
-	); err == nil {
-		userID = resolvedUserID
-	}
-	return uploads.Scope{
-		Channel:   channel,
-		UserID:    userID,
-		SessionID: sessionID,
-	}
+	_ = "STUB: not implemented"
+	return *new(uploads.Scope)
 }
 
 func firstUploadScope(scopes ...uploads.Scope) uploads.Scope {
-	if len(scopes) == 0 {
-		return uploads.Scope{}
-	}
-	return scopes[0]
+	_ = "STUB: not implemented"
+	return *new(uploads.Scope)
 }
 
-func inferMimeTypeFromName(name string) string {
-	ext := strings.ToLower(path.Ext(name))
-	if ext == "" {
-		return ""
-	}
-	mimeType := mime.TypeByExtension(ext)
-	if mimeType == "" {
-		return ""
-	}
-	return normalizeContentType(mimeType)
-}
+func inferMimeTypeFromName(name string) string { _ = "STUB: not implemented"; return "" }
 
 func normalizeLinkPart(
 	part gwproto.ContentPart,
 ) (*model.ContentPart, string, error) {
-	if part.Link == nil {
-		return nil, "", errors.New("missing link")
-	}
-	linkURL := strings.TrimSpace(part.Link.URL)
-	if linkURL == "" {
-		return nil, "", errors.New("missing link url")
-	}
-	title := strings.TrimSpace(part.Link.Title)
-	text := strings.TrimSpace(joinText(title, linkURL))
-	if text == "" {
-		return nil, "", errors.New("empty link")
-	}
-	return &model.ContentPart{
-		Type: model.ContentTypeText,
-		Text: &text,
-	}, text, nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func normalizeLocationPart(
 	part gwproto.ContentPart,
 ) (*model.ContentPart, string, error) {
-	if part.Location == nil {
-		return nil, "", errors.New("missing location")
-	}
-	name := strings.TrimSpace(part.Location.Name)
-	location := fmt.Sprintf(
-		"%s\nlatitude=%v\nlongitude=%v",
-		name,
-		part.Location.Latitude,
-		part.Location.Longitude,
-	)
-	location = strings.TrimSpace(location)
-	return &model.ContentPart{
-		Type: model.ContentTypeText,
-		Text: &location,
-	}, location, nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func (s *Server) fetchContentPart(
 	ctx context.Context,
 	rawURL string,
 ) (fetched, error) {
-	fetcher := s.partFetcher
-	if fetcher == nil {
-		fetcher = newURLPartFetcher(partURLPolicy{})
-	}
-	maxBytes := s.maxPartBytes
-	if maxBytes <= 0 {
-		maxBytes = defaultMaxContentPartBytes
-	}
-	rawURL = strings.TrimSpace(rawURL)
-	if rawURL == "" {
-		return fetched{}, errors.New("missing url")
-	}
-	return fetcher.Fetch(ctx, rawURL, maxBytes)
+	_ = "STUB: not implemented"
+	return *new(fetched), nil
 }

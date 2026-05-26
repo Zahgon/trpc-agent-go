@@ -22,32 +22,15 @@ import (
 type Option func(*Source)
 
 // WithName sets a custom name for the file source.
-func WithName(name string) Option {
-	return func(s *Source) {
-		s.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadata sets additional metadata for the source.
-func WithMetadata(metadata map[string]any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		for k, v := range metadata {
-			s.metadata[k] = v
-		}
-	}
-}
+func WithMetadata(metadata map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataValue adds a single metadata key-value pair.
 func WithMetadataValue(key string, value any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		s.metadata[key] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCustomChunkingStrategy sets a custom chunking strategy for document splitting.
@@ -55,31 +38,21 @@ func WithMetadataValue(key string, value any) Option {
 // For example: WithCustomChunkingStrategy(chunking.NewRecursiveChunking())
 // Note: Most readers have their own optimal chunking strategy (JSON->JSONChunking, Markdown->MarkdownChunking, etc.)
 func WithCustomChunkingStrategy(strategy chunking.Strategy) Option {
-	return func(s *Source) {
-		s.customChunkingStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChunkSize sets the chunk size for the reader's default chunking strategy.
 // Each reader will use its own optimal chunking strategy with this size parameter.
-func WithChunkSize(size int) Option {
-	return func(s *Source) {
-		s.chunkSize = size
-	}
-}
+func WithChunkSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChunkOverlap sets the chunk overlap for the reader's default chunking strategy.
-func WithChunkOverlap(overlap int) Option {
-	return func(s *Source) {
-		s.chunkOverlap = overlap
-	}
-}
+func WithChunkOverlap(overlap int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOCRExtractor sets an OCR extractor for processing images in documents (e.g., PDFs).
 func WithOCRExtractor(extractor ocr.Extractor) Option {
-	return func(s *Source) {
-		s.ocrExtractor = extractor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTransformers sets transformers for document processing.
@@ -92,9 +65,8 @@ func WithOCRExtractor(extractor ocr.Extractor) Option {
 //	    transform.NewCharDedup(" "),
 //	))
 func WithTransformers(transformers ...transform.Transformer) Option {
-	return func(s *Source) {
-		s.transformers = append(s.transformers, transformers...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFileReaderType overrides the automatic file type detection and forces using the specified file type.
@@ -105,9 +77,8 @@ func WithTransformers(transformers ...transform.Transformer) Option {
 //
 //	source := file.New([]string{"data.txt"}, file.WithFileReaderType(source.FileReaderTypeJSON))
 func WithFileReaderType(fileType source.FileReaderType) Option {
-	return func(s *Source) {
-		s.fileReaderType = fileType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExtractor sets a content extractor for handling complex or unsupported formats.
@@ -118,8 +89,4 @@ func WithFileReaderType(fileType source.FileReaderType) Option {
 // Example:
 //
 //	source := file.New(paths, file.WithExtractor(myVisionExtractor))
-func WithExtractor(e extractor.Extractor) Option {
-	return func(s *Source) {
-		s.contentExtractor = e
-	}
-}
+func WithExtractor(e extractor.Extractor) Option { _ = "STUB: not implemented"; return *new(Option) }

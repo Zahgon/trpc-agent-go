@@ -25,15 +25,13 @@ type ClientBuilderOpts struct {
 
 // WithClientBuilderDSN sets the mongodb connection URI for clientBuilder.
 func WithClientBuilderDSN(uri string) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.URI = uri
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets the mongodb client extra options for clientBuilder.
 // This option is mainly used for customized mongodb client builders.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ExtraOptions = append(opts.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }

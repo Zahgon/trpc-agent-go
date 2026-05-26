@@ -12,7 +12,6 @@ package chunking
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/internal/encoding"
 )
 
 // RecursiveChunking implements a recursive chunking strategy that uses a hierarchy of separators.
@@ -27,150 +26,66 @@ type RecursiveOption func(*RecursiveChunking)
 
 // WithRecursiveChunkSize sets the maximum size of each chunk in characters.
 func WithRecursiveChunkSize(size int) RecursiveOption {
-	return func(rc *RecursiveChunking) {
-		rc.chunkSize = size
-	}
+	_ = "STUB: not implemented"
+	return *new(RecursiveOption)
 }
 
 // WithRecursiveOverlap sets the number of characters to overlap between chunks.
 func WithRecursiveOverlap(overlap int) RecursiveOption {
-	return func(rc *RecursiveChunking) {
-		rc.overlap = overlap
-	}
+	_ = "STUB: not implemented"
+	return *new(RecursiveOption)
 }
 
 // WithRecursiveSeparators sets the separators to use in priority order.
 func WithRecursiveSeparators(separators []string) RecursiveOption {
-	return func(rc *RecursiveChunking) {
-		rc.separators = separators
-	}
+	_ = "STUB: not implemented"
+	return *new(RecursiveOption)
 }
 
 // NewRecursiveChunking creates a new recursive chunking strategy with options.
 func NewRecursiveChunking(opts ...RecursiveOption) *RecursiveChunking {
-	rc := &RecursiveChunking{
-		chunkSize:  defaultChunkSize,
-		overlap:    defaultOverlap,
-		separators: []string{"\n\n", "\n", " ", ""}, // Default separators in priority order.
-	}
-	// Apply options.
-	for _, opt := range opts {
-		opt(rc)
-	}
-	// Validate parameters.
-	if rc.overlap >= rc.chunkSize {
-		rc.overlap = min(defaultOverlap, rc.chunkSize-1)
-	}
-	return rc
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Default separators in priority order.
+
+// Apply options.
+
+// Validate parameters.
 
 // Chunk splits the document using true recursive logic with separator hierarchy.
 func (r *RecursiveChunking) Chunk(doc *document.Document) ([]*document.Document, error) {
-	if doc == nil {
-		return nil, ErrNilDocument
-	}
-
-	if doc.IsEmpty() {
-		return nil, ErrEmptyDocument
-	}
-
-	content := cleanText(doc.Content)
-	chunks := r.recursiveSplit(content, r.separators, doc, 1)
-
-	// Apply overlap if specified.
-	if r.overlap > 0 {
-		chunks = r.applyOverlap(chunks)
-	}
-	return chunks, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Apply overlap if specified.
 
 // recursiveSplit is the core recursive function that splits text using separator hierarchy.
 func (r *RecursiveChunking) recursiveSplit(
 	text string, separators []string, originalDoc *document.Document, startChunkNumber int,
 ) []*document.Document {
-	if encoding.RuneCount(text) <= r.chunkSize {
-		chunk := createChunk(originalDoc, text, startChunkNumber)
-		return []*document.Document{chunk}
-	}
-
-	if len(separators) == 0 {
-		// No more separators, force split at chunk size.
-		chunk := createChunk(originalDoc, text[:r.chunkSize], startChunkNumber)
-		return []*document.Document{chunk}
-	}
-
-	// Try current separator.
-	separator := separators[0]
-	var splits []string
-
-	if separator == "" {
-		// Empty separator means split by character (runes).
-		splits = encoding.SafeSplitBySeparator(text, "")
-	} else {
-		splits = encoding.SafeSplitBySeparator(text, separator)
-	}
-
-	var chunks []*document.Document
-	chunkNumber := startChunkNumber
-
-	for _, split := range splits {
-		if len(split) == 0 {
-			continue
-		}
-
-		if encoding.RuneCount(split) <= r.chunkSize {
-			// Split is small enough, create chunk.
-			chunk := createChunk(originalDoc, split, chunkNumber)
-			chunks = append(chunks, chunk)
-			chunkNumber++
-		} else {
-			// Split is too large, recursively try next separator.
-			if len(separators) > 1 {
-				subChunks := r.recursiveSplit(split, separators[1:], originalDoc, chunkNumber)
-				chunks = append(chunks, subChunks...)
-				chunkNumber += len(subChunks)
-			} else {
-				// No more separators, force split at chunk size with UTF-8 safety.
-				forceChunks := encoding.SafeSplitBySize(split, r.chunkSize)
-				for _, chunkText := range forceChunks {
-					chunk := createChunk(originalDoc, chunkText, chunkNumber)
-					chunks = append(chunks, chunk)
-					chunkNumber++
-				}
-			}
-		}
-	}
-	return chunks
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// No more separators, force split at chunk size.
+
+// Try current separator.
+
+// Empty separator means split by character (runes).
+
+// Split is small enough, create chunk.
+
+// Split is too large, recursively try next separator.
+
+// No more separators, force split at chunk size with UTF-8 safety.
 
 // applyOverlap applies overlap between consecutive chunks.
 func (r *RecursiveChunking) applyOverlap(chunks []*document.Document) []*document.Document {
-	if len(chunks) <= 1 {
-		return chunks
-	}
-	overlappedChunks := []*document.Document{chunks[0]}
-	for i := 1; i < len(chunks); i++ {
-		prevText := chunks[i-1].Content
-		if encoding.RuneCount(prevText) > r.overlap {
-			prevText = encoding.SafeOverlap(prevText, r.overlap)
-		}
-
-		// Create new metadata for overlapped chunk.
-		metadata := make(map[string]any)
-		for k, v := range chunks[i].Metadata {
-			metadata[k] = v
-		}
-
-		overlappedContent := prevText + chunks[i].Content
-		overlappedChunk := &document.Document{
-			ID:        chunks[i].ID,
-			Name:      chunks[i].Name,
-			Content:   overlappedContent,
-			Metadata:  metadata,
-			CreatedAt: chunks[i].CreatedAt,
-			UpdatedAt: chunks[i].UpdatedAt,
-		}
-		overlappedChunks = append(overlappedChunks, overlappedChunk)
-	}
-	return overlappedChunks
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Create new metadata for overlapped chunk.

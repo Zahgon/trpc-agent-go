@@ -12,11 +12,7 @@ package inmemory
 
 import (
 	"context"
-	"fmt"
-	"slices"
-	"sort"
 	"sync"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	imemory "trpc.group/trpc-go/trpc-agent-go/memory/internal/memory"
@@ -33,11 +29,7 @@ type appMemories struct {
 }
 
 // newAppMemories creates a new app memories instance.
-func newAppMemories() *appMemories {
-	return &appMemories{
-		memories: make(map[string]map[string]*memory.Entry),
-	}
-}
+func newAppMemories() *appMemories { _ = "STUB: not implemented"; return nil }
 
 // MemoryService is an in-memory implementation of memory.Service.
 type MemoryService struct {
@@ -56,74 +48,24 @@ type MemoryService struct {
 }
 
 // NewMemoryService creates a new in-memory memory service.
-func NewMemoryService(options ...ServiceOpt) *MemoryService {
-	opts := defaultOptions.clone()
-	// Apply user options.
-	for _, option := range options {
-		option(&opts)
-	}
+func NewMemoryService(options ...ServiceOpt) *MemoryService { _ = "STUB: not implemented"; return nil }
 
-	// Apply auto mode defaults after all options are applied.
-	// User settings via WithToolEnabled take precedence regardless of option order.
-	if opts.extractor != nil {
-		imemory.ApplyAutoModeDefaults(opts.enabledTools, opts.userExplicitlySet)
-	}
+// Apply user options.
 
-	svc := &MemoryService{
-		apps:        make(map[string]*appMemories),
-		opts:        opts,
-		cachedTools: make(map[string]tool.Tool),
-	}
+// Apply auto mode defaults after all options are applied.
+// User settings via WithToolEnabled take precedence regardless of option order.
 
-	// Pre-compute tools list to avoid lock contention in Tools() method.
-	svc.precomputedTools = imemory.BuildToolsList(
-		opts.extractor,
-		opts.toolCreators,
-		opts.enabledTools,
-		opts.toolExposed,
-		opts.toolHidden,
-		svc.cachedTools,
-	)
+// Pre-compute tools list to avoid lock contention in Tools() method.
 
-	// Initialize auto memory worker if extractor is configured.
-	if opts.extractor != nil {
-		imemory.ConfigureExtractorEnabledTools(
-			opts.extractor, opts.enabledTools,
-		)
-		config := imemory.AutoMemoryConfig{
-			Extractor:        opts.extractor,
-			AsyncMemoryNum:   opts.asyncMemoryNum,
-			MemoryQueueSize:  opts.memoryQueueSize,
-			MemoryJobTimeout: opts.memoryJobTimeout,
-			EnabledTools:     opts.enabledTools,
-		}
-		svc.autoMemoryWorker = imemory.NewAutoMemoryWorker(config, svc)
-		svc.autoMemoryWorker.Start()
-	}
-
-	return svc
-}
+// Initialize auto memory worker if extractor is configured.
 
 // getAppMemories gets or creates app memories for the given app name.
 func (s *MemoryService) getAppMemories(appName string) *appMemories {
-	s.mu.RLock()
-	app, ok := s.apps[appName]
-	if ok {
-		s.mu.RUnlock()
-		return app
-	}
-	s.mu.RUnlock()
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	// Double check after acquiring write lock.
-	if app, ok = s.apps[appName]; ok {
-		return app
-	}
-	app = newAppMemories()
-	s.apps[appName] = app
-	return app
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Double check after acquiring write lock.
 
 // createMemoryEntry creates a new MemoryEntry from memory data.
 func createMemoryEntry(
@@ -131,208 +73,65 @@ func createMemoryEntry(
 	topics []string,
 	ep *memory.Metadata,
 ) *memory.Entry {
-	now := time.Now()
+	_ = "STUB: not implemented"
 
 	// Create Memory object.
-	memoryObj := &memory.Memory{
-		Memory:      memoryStr,
-		Topics:      topics,
-		LastUpdated: &now,
-	}
-	imemory.ApplyMetadata(memoryObj, ep)
-
-	return &memory.Entry{
-		ID:        imemory.GenerateMemoryID(memoryObj, appName, userID), // Generate ID.
-		AppName:   appName,
-		UserID:    userID,
-		Memory:    memoryObj,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	return nil
 }
+
+// Generate ID.
 
 // AddMemory adds or updates a memory for a user (idempotent).
 func (s *MemoryService) AddMemory(ctx context.Context, userKey memory.UserKey, memoryStr string,
 	topics []string, opts ...memory.AddOption) error {
-	if err := userKey.CheckUserKey(); err != nil {
-		return err
-	}
-
-	app := s.getAppMemories(userKey.AppName)
-
-	ep := memory.ResolveAddOptions(opts)
-	// Create memory entry with provided topics.
-	memoryEntry := createMemoryEntry(
-		userKey.AppName, userKey.UserID, memoryStr, topics, ep,
-	)
-
-	app.mu.Lock()
-	defer app.mu.Unlock()
-
-	// Check memory limit.
-	if len(app.memories[userKey.UserID]) >= s.opts.memoryLimit {
-		return fmt.Errorf("memory limit exceeded for user %s, limit: %d, current: %d",
-			userKey.UserID, s.opts.memoryLimit, len(app.memories[userKey.UserID]))
-	}
-
-	// Initialize user map if not exists.
-	if app.memories[userKey.UserID] == nil {
-		app.memories[userKey.UserID] = make(map[string]*memory.Entry)
-	}
-
-	app.memories[userKey.UserID][memoryEntry.ID] = memoryEntry
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Create memory entry with provided topics.
+
+// Check memory limit.
+
+// Initialize user map if not exists.
 
 // UpdateMemory updates an existing memory for a user.
 func (s *MemoryService) UpdateMemory(ctx context.Context, memoryKey memory.Key, memoryStr string,
 	topics []string, opts ...memory.UpdateOption) error {
-	if err := memoryKey.CheckMemoryKey(); err != nil {
-		return err
-	}
-
-	app := s.getAppMemories(memoryKey.AppName)
-	app.mu.Lock()
-	defer app.mu.Unlock()
-
-	if app.memories[memoryKey.UserID] == nil {
-		return fmt.Errorf("user %s not found", memoryKey.UserID)
-	}
-	userMemories := app.memories[memoryKey.UserID]
-	memoryEntry, exists := userMemories[memoryKey.MemoryID]
-	if !exists {
-		return fmt.Errorf("memory with id %s not found", memoryKey.MemoryID)
-	}
-
-	now := time.Now()
-	ep := memory.ResolveUpdateOptions(opts)
-	newID := imemory.ApplyMemoryUpdate(
-		memoryEntry,
-		memoryKey.AppName,
-		memoryKey.UserID,
-		memoryStr,
-		topics,
-		ep,
-		now,
-	)
-	if newID != memoryKey.MemoryID {
-		if _, conflict := userMemories[newID]; conflict {
-			return fmt.Errorf("memory with id %s already exists", newID)
-		}
-		delete(userMemories, memoryKey.MemoryID)
-	}
-	userMemories[newID] = memoryEntry
-	if result := memory.ResolveUpdateResult(opts); result != nil {
-		result.MemoryID = newID
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // DeleteMemory deletes a memory for a user.
 func (s *MemoryService) DeleteMemory(ctx context.Context, memoryKey memory.Key) error {
-	if err := memoryKey.CheckMemoryKey(); err != nil {
-		return err
-	}
-
-	app := s.getAppMemories(memoryKey.AppName)
-
-	app.mu.Lock()
-	defer app.mu.Unlock()
-
-	// Check if user exists.
-	if app.memories[memoryKey.UserID] == nil {
-		return fmt.Errorf("user %s not found", memoryKey.UserID)
-	}
-
-	if _, exists := app.memories[memoryKey.UserID][memoryKey.MemoryID]; !exists {
-		return fmt.Errorf("memory with id %s not found", memoryKey.MemoryID)
-	}
-
-	delete(app.memories[memoryKey.UserID], memoryKey.MemoryID)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Check if user exists.
 
 // ClearMemories clears all memories for a user.
 func (s *MemoryService) ClearMemories(ctx context.Context, userKey memory.UserKey) error {
-	if err := userKey.CheckUserKey(); err != nil {
-		return err
-	}
-
-	app := s.getAppMemories(userKey.AppName)
-
-	app.mu.Lock()
-	defer app.mu.Unlock()
-
-	// Remove all memories for the specific user.
-	delete(app.memories, userKey.UserID)
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Remove all memories for the specific user.
+
 // ReadMemories reads memories for a user.
 func (s *MemoryService) ReadMemories(ctx context.Context, userKey memory.UserKey, limit int) ([]*memory.Entry, error) {
-	if err := userKey.CheckUserKey(); err != nil {
-		return nil, err
-	}
-
-	app := s.getAppMemories(userKey.AppName)
-
-	app.mu.RLock()
-	defer app.mu.RUnlock()
-
-	var memories []*memory.Entry
-	userMemories := app.memories[userKey.UserID]
-	if userMemories == nil {
-		return memories, nil
-	}
-
-	for _, memoryEntry := range userMemories {
-		memories = append(memories, memoryEntry)
-	}
-
-	// Sort by updated time (newest first), tie-breaker by created time.
-	sort.Slice(memories, func(i, j int) bool {
-		if memories[i].UpdatedAt.Equal(memories[j].UpdatedAt) {
-			return memories[i].CreatedAt.After(memories[j].CreatedAt)
-		}
-		return memories[i].UpdatedAt.After(memories[j].UpdatedAt)
-	})
-
-	// Apply limit if specified.
-	if limit > 0 && len(memories) > limit {
-		memories = memories[:limit]
-	}
-
-	return memories, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Sort by updated time (newest first), tie-breaker by created time.
+
+// Apply limit if specified.
 
 // SearchMemories searches memories for a user.
 func (s *MemoryService) SearchMemories(ctx context.Context, userKey memory.UserKey,
 	query string, opts ...memory.SearchOption) ([]*memory.Entry, error) {
-	if err := userKey.CheckUserKey(); err != nil {
-		return nil, err
-	}
-
-	app := s.getAppMemories(userKey.AppName)
-
-	app.mu.RLock()
-	defer app.mu.RUnlock()
-
-	userMemories := app.memories[userKey.UserID]
-	entries := make([]*memory.Entry, 0, len(userMemories))
-	if userMemories == nil {
-		return entries, nil
-	}
-
-	for _, memoryEntry := range userMemories {
-		entries = append(entries, memoryEntry)
-	}
-
-	return imemory.SearchEntries(
-		entries,
-		memory.ResolveSearchOptions(query, opts),
-		s.opts.searchMinScore,
-		s.opts.maxSearchResults,
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Tools returns the list of available memory tools.
@@ -341,24 +140,15 @@ func (s *MemoryService) SearchMemories(ctx context.Context, userKey memory.UserK
 // unless explicitly exposed.
 // Without an extractor, enabled tools are exposed directly.
 // The tools list is pre-computed at service creation time.
-func (s *MemoryService) Tools() []tool.Tool {
-	return slices.Clone(s.precomputedTools)
-}
+func (s *MemoryService) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 // EnqueueAutoMemoryJob enqueues an auto memory extraction job for async
 // processing. The session contains the full transcript and state for
 // incremental extraction.
 func (s *MemoryService) EnqueueAutoMemoryJob(ctx context.Context, sess *session.Session) error {
-	if s.autoMemoryWorker == nil {
-		return nil
-	}
-	return s.autoMemoryWorker.EnqueueJob(ctx, sess)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Close stops the async memory workers and cleans up resources.
-func (s *MemoryService) Close() error {
-	if s.autoMemoryWorker != nil {
-		s.autoMemoryWorker.Stop()
-	}
-	return nil
-}
+func (s *MemoryService) Close() error { _ = "STUB: not implemented"; return nil }

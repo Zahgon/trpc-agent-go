@@ -21,41 +21,19 @@ type options struct {
 }
 
 // newOptions applies functional options to build a scoring configuration.
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures ROUGE scoring.
 type Option func(*options)
 
 // WithRougeTypes sets the ROUGE types to compute.
-func WithRougeTypes(rougeTypes ...string) Option {
-	return func(o *options) {
-		o.rougeTypes = append([]string(nil), rougeTypes...)
-	}
-}
+func WithRougeTypes(rougeTypes ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStemmer enables or disables Porter stemming in the tokenizer.
-func WithStemmer(useStemmer bool) Option {
-	return func(o *options) {
-		o.useStemmer = useStemmer
-	}
-}
+func WithStemmer(useStemmer bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSplitSummaries splits summaries into sentences for rougeLsum.
-func WithSplitSummaries(splitSummaries bool) Option {
-	return func(o *options) {
-		o.splitSummaries = splitSummaries
-	}
-}
+func WithSplitSummaries(splitSummaries bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenizer overrides the built-in tokenizer when provided.
-func WithTokenizer(tokenizer Tokenizer) Option {
-	return func(o *options) {
-		o.tokenizer = tokenizer
-	}
-}
+func WithTokenizer(tokenizer Tokenizer) Option { _ = "STUB: not implemented"; return *new(Option) }

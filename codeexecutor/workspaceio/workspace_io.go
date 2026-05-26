@@ -29,13 +29,8 @@ package workspaceio
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strconv"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
-	"trpc.group/trpc-go/trpc-agent-go/internal/fileref"
-	"trpc.group/trpc-go/trpc-agent-go/internal/workspacefacade"
 	"trpc.group/trpc-go/trpc-agent-go/internal/workspacesession"
 )
 
@@ -134,13 +129,8 @@ func New(
 	exec codeexecutor.CodeExecutor,
 	reg *codeexecutor.WorkspaceRegistry,
 ) *Workspace {
-	if exec == nil {
-		return nil
-	}
-	return &Workspace{
-		exec:     exec,
-		resolver: workspacesession.NewResolver(exec, reg),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SaveArtifactOptions controls Workspace.SaveArtifact behavior.
@@ -157,7 +147,8 @@ type SaveArtifactOption func(*SaveArtifactOptions)
 // itself, not just a post-check. Files larger than this cap are
 // rejected by the backend.
 func WithSaveArtifactMaxBytes(n int64) SaveArtifactOption {
-	return func(o *SaveArtifactOptions) { o.MaxBytes = n }
+	_ = "STUB: not implemented"
+	return *new(SaveArtifactOption)
 }
 
 // Collect reads every workspace file that matches one of the supplied
@@ -173,25 +164,8 @@ func (w *Workspace) Collect(
 	ctx context.Context,
 	patterns ...string,
 ) ([]*File, error) {
-	if w == nil {
-		return nil, errors.New("workspaceio: workspace is nil")
-	}
-	if len(patterns) == 0 {
-		return []*File{}, nil
-	}
-	eng, ws, err := w.bindWorkspace(ctx)
-	if err != nil {
-		return nil, err
-	}
-	raw, err := eng.FS().Collect(ctx, ws, patterns)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*File, len(raw))
-	for i := range raw {
-		out[i] = toFile(raw[i])
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PutFiles writes a batch of workspace files in one engine call. Each
@@ -207,17 +181,8 @@ func (w *Workspace) PutFiles(
 	ctx context.Context,
 	files ...codeexecutor.PutFile,
 ) error {
-	if w == nil {
-		return errors.New("workspaceio: workspace is nil")
-	}
-	if len(files) == 0 {
-		return nil
-	}
-	eng, ws, err := w.bindWorkspace(ctx)
-	if err != nil {
-		return err
-	}
-	return eng.FS().PutFiles(ctx, ws, files)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SaveArtifact persists an existing workspace file as an artifact via
@@ -229,75 +194,15 @@ func (w *Workspace) SaveArtifact(
 	relPath string,
 	opts ...SaveArtifactOption,
 ) (*ArtifactRef, error) {
-	if w == nil {
-		return nil, errors.New("workspaceio: workspace is nil")
-	}
-	rel, err := workspacefacade.NormalizeArtifactPath(relPath)
-	if err != nil {
-		return nil, err
-	}
-	if reason := workspacefacade.ArtifactSaveSkipReason(ctx); reason != "" {
-		return nil, fmt.Errorf(
-			"workspaceio: artifact persistence requires artifact service and session: %s",
-			reason,
-		)
-	}
-	cfg := SaveArtifactOptions{MaxBytes: workspacefacade.DefaultArtifactMaxBytes}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&cfg)
-		}
-	}
-	if cfg.MaxBytes <= 0 {
-		cfg.MaxBytes = workspacefacade.DefaultArtifactMaxBytes
-	}
-	ctxIO := workspacefacade.WithArtifactContext(ctx)
-	eng, ws, err := w.bindWorkspace(ctxIO)
-	if err != nil {
-		return nil, err
-	}
-	manifest, err := eng.FS().CollectOutputs(ctxIO, ws, codeexecutor.OutputSpec{
-		Globs:         []string{rel},
-		MaxFiles:      1,
-		MaxFileBytes:  cfg.MaxBytes,
-		MaxTotalBytes: cfg.MaxBytes,
-		Save:          true,
-		Inline:        false,
-	})
-	// ErrPartialOutputCommit means the artifact already landed in the
-	// service but some non-fatal post-commit work failed (e.g. cleanup
-	// or secondary inline read). Mirror tool/workspaceexec.SaveArtifact
-	// and continue so the caller still gets the persisted ref. Any
-	// other error is fatal.
-	if err != nil && !errors.Is(err, codeexecutor.ErrPartialOutputCommit) {
-		return nil, err
-	}
-	if len(manifest.Files) == 0 {
-		return nil, fmt.Errorf(
-			"workspaceio: artifact file not found: %s", rel,
-		)
-	}
-	if len(manifest.Files) > 1 {
-		return nil, fmt.Errorf(
-			"workspaceio: artifact path matched %d files: %s",
-			len(manifest.Files), rel,
-		)
-	}
-	ref := manifest.Files[0]
-	if ref.SavedAs == "" {
-		return nil, fmt.Errorf(
-			"workspaceio: artifact was not persisted: %s", rel,
-		)
-	}
-	return &ArtifactRef{
-		SavedAs:   ref.SavedAs,
-		Version:   ref.Version,
-		Ref:       fileref.ArtifactPrefix + ref.SavedAs + "@" + strconv.Itoa(ref.Version),
-		MIMEType:  ref.MIMEType,
-		SizeBytes: ref.SizeBytes,
-		Path:      rel,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// ErrPartialOutputCommit means the artifact already landed in the
+// service but some non-fatal post-commit work failed (e.g. cleanup
+// or secondary inline read). Mirror tool/workspaceexec.SaveArtifact
+// and continue so the caller still gets the persisted ref. Any
+// other error is fatal.
 
 // StageInputs maps external inputs (artifact://, host://, workspace://,
 // skill://) into the workspace using the engine's StageInputs primitive.
@@ -310,18 +215,8 @@ func (w *Workspace) StageInputs(
 	ctx context.Context,
 	specs []codeexecutor.InputSpec,
 ) error {
-	if w == nil {
-		return errors.New("workspaceio: workspace is nil")
-	}
-	if len(specs) == 0 {
-		return nil
-	}
-	ctxIO := workspacefacade.WithArtifactContext(ctx)
-	eng, ws, err := w.bindWorkspace(ctxIO)
-	if err != nil {
-		return err
-	}
-	return eng.FS().StageInputs(ctxIO, ws, specs)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunProgram executes a program inside the current invocation's
@@ -340,70 +235,26 @@ func (w *Workspace) RunProgram(
 	ctx context.Context,
 	spec codeexecutor.RunProgramSpec,
 ) (codeexecutor.RunResult, error) {
-	if w == nil {
-		return codeexecutor.RunResult{}, errors.New(
-			"workspaceio: workspace is nil",
-		)
-	}
-	// Normalize Cwd through the same containment policy used by the
-	// workspace_exec LLM tool so the godoc claim "cannot escape the
-	// workspace" is actually enforced, not left to each backend. The
-	// local runtime in particular happily joins ws.Path with
-	// filepath.Clean(spec.Cwd) and would otherwise let "../.." run
-	// outside the workspace.
-	cwd, err := workspacefacade.NormalizeWorkspaceCWD(spec.Cwd)
-	if err != nil {
-		return codeexecutor.RunResult{}, err
-	}
-	spec.Cwd = cwd
-	eng, ws, err := w.bindWorkspace(ctx)
-	if err != nil {
-		return codeexecutor.RunResult{}, err
-	}
-	runner := eng.Runner()
-	if runner == nil {
-		return codeexecutor.RunResult{}, errors.New(
-			"workspaceio: executor does not expose a program runner",
-		)
-	}
-	return runner.RunProgram(ctx, ws, spec)
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.RunResult), nil
 }
+
+// Normalize Cwd through the same containment policy used by the
+// workspace_exec LLM tool so the godoc claim "cannot escape the
+// workspace" is actually enforced, not left to each backend. The
+// local runtime in particular happily joins ws.Path with
+// filepath.Clean(spec.Cwd) and would otherwise let "../.." run
+// outside the workspace.
 
 // bindWorkspace resolves the engine and acquires the invocation workspace.
 func (w *Workspace) bindWorkspace(
 	ctx context.Context,
 ) (codeexecutor.Engine, codeexecutor.Workspace, error) {
-	if w == nil || w.resolver == nil {
-		return nil, codeexecutor.Workspace{}, errors.New(
-			"workspaceio: workspace is not initialized",
-		)
-	}
-	eng := w.resolver.EnsureEngine()
-	if eng == nil || eng.FS() == nil || eng.Manager() == nil {
-		return nil, codeexecutor.Workspace{}, errors.New(
-			"workspaceio: executor does not expose a live workspace engine",
-		)
-	}
-	ws, err := w.resolver.CreateWorkspace(ctx, eng, "workspace")
-	if err != nil {
-		return nil, codeexecutor.Workspace{}, err
-	}
-	return eng, ws, nil
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.Engine), *new(codeexecutor.Workspace), nil
 }
 
 // toFile converts a codeexecutor.File into the public File type.
 // The Truncated flag is forwarded as-is so callers can decide whether
 // to retry, fail, or accept the partial bytes.
-func toFile(in codeexecutor.File) *File {
-	size := in.SizeBytes
-	if size <= 0 {
-		size = int64(len(in.Content))
-	}
-	return &File{
-		Path:      in.Name,
-		Data:      []byte(in.Content),
-		MIMEType:  in.MIMEType,
-		SizeBytes: size,
-		Truncated: in.Truncated,
-	}
-}
+func toFile(in codeexecutor.File) *File { _ = "STUB: not implemented"; return nil }

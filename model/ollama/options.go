@@ -115,141 +115,74 @@ var (
 type Option func(*options)
 
 // WithHost sets the host URL for the Ollama server.
-func WithHost(host string) Option {
-	return func(o *options) {
-		o.host = host
-	}
-}
+func WithHost(host string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // withHttpClient sets the HTTP client to use.
 // The site is temporarily not open to the public, as we may implement injection of an internal http client.
-func withHttpClient(client *http.Client) Option {
-	return func(o *options) {
-		o.httpClient = client
-	}
-}
+func withHttpClient(client *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the channel buffer size for the Ollama client, 256 by default.
-func WithChannelBufferSize(size int) Option {
-	return func(o *options) {
-		if size <= 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChatRequestCallback sets the function to be called before sending a
 // chat request. The callback runs synchronously in GenerateContent before
 // the response goroutine starts. Start your own goroutine in the callback
 // if asynchronous behavior is needed.
 func WithChatRequestCallback(fn ChatRequestCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatRequestCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatResponseCallback sets the function to be called after receiving a chat response.
 func WithChatResponseCallback(fn ChatResponseCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatResponseCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatChunkCallback sets the function to be called after receiving a chat chunk.
 func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatChunkCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatStreamCompleteCallback sets the function to be called when
 // streaming is completed. The callback runs synchronously before the
 // terminal streaming result is surfaced to the caller.
 func WithChatStreamCompleteCallback(fn ChatStreamCompleteCallbackFunc) Option {
-	return func(opts *options) {
-		opts.chatStreamCompleteCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnableTokenTailoring enables automatic token tailoring based on model context window.
-func WithEnableTokenTailoring(enabled bool) Option {
-	return func(opts *options) {
-		opts.enableTokenTailoring = enabled
-	}
-}
+func WithEnableTokenTailoring(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxInputTokens sets only the input token limit for token tailoring.
-func WithMaxInputTokens(limit int) Option {
-	return func(opts *options) {
-		opts.maxInputTokens = limit
-	}
-}
+func WithMaxInputTokens(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for this
 // model instance.
-func WithContextWindow(tokens int) Option {
-	return func(opts *options) {
-		if tokens > 0 {
-			opts.contextWindow = tokens
-			opts.contextWindowConfigured = true
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenCounter sets the TokenCounter used for token tailoring.
 func WithTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *options) {
-		if counter == nil {
-			return
-		}
-		opts.tokenCounter = counter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTailoringStrategy sets the TailoringStrategy used for token tailoring.
 func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
-	return func(opts *options) {
-		opts.tailoringStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTokenTailoringConfig sets custom token tailoring budget parameters.
 func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
-	return func(opts *options) {
-		if config == nil {
-			return
-		}
-		if config.ProtocolOverheadTokens <= 0 {
-			config.ProtocolOverheadTokens = imodel.DefaultProtocolOverheadTokens
-		}
-		if config.ReserveOutputTokens <= 0 {
-			config.ReserveOutputTokens = imodel.DefaultReserveOutputTokens
-		}
-		if config.SafetyMarginRatio <= 0 {
-			config.SafetyMarginRatio = imodel.DefaultSafetyMarginRatio
-		}
-		if config.InputTokensFloor <= 0 {
-			config.InputTokensFloor = imodel.DefaultInputTokensFloor
-		}
-		if config.MaxInputTokensRatio <= 0 {
-			config.MaxInputTokensRatio = imodel.DefaultMaxInputTokensRatio
-		}
-		opts.tokenTailoringConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOptions sets additional options for Ollama API.
-func WithOptions(opt map[string]any) Option {
-	return func(opts *options) {
-		opts.options = opt
-	}
-}
+func WithOptions(opt map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithKeepAlive sets the keep alive duration for the Ollama API.
-func WithKeepAlive(duration time.Duration) Option {
-	return func(opts *options) {
-		d := api.Duration{Duration: duration}
-		opts.keepAlive = &d
-	}
-}
+func WithKeepAlive(duration time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -11,20 +11,11 @@ package cron
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
-	"text/template"
 	"time"
 
-	"github.com/google/uuid"
-
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/debugrecorder"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/outbound"
@@ -115,34 +106,23 @@ type Option func(*Service)
 
 // WithTickInterval overrides the scheduler poll interval.
 func WithTickInterval(interval time.Duration) Option {
-	return func(s *Service) {
-		if interval > 0 {
-			s.tickInterval = interval
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithClock overrides time.Now in tests.
-func WithClock(fn func() time.Time) Option {
-	return func(s *Service) {
-		if fn != nil {
-			s.clock = fn
-		}
-	}
-}
+func WithClock(fn func() time.Time) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRuntimeProfileResolver resolves captured scheduled-job profile refs.
 func WithRuntimeProfileResolver(resolver runtimeprofile.Resolver) Option {
-	return func(s *Service) {
-		s.profiles = resolver
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithDebugRecorder records scheduled runs into the runtime debug dir.
 func WithDebugRecorder(recorder *debugrecorder.Recorder) Option {
-	return func(s *Service) {
-		s.recorder = recorder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // NewService creates a new scheduler backed by the given state dir.
@@ -152,130 +132,29 @@ func NewService(
 	router *outbound.Router,
 	opts ...Option,
 ) (*Service, error) {
-	if r == nil {
-		return nil, fmt.Errorf("cron: nil runner")
-	}
-
-	path := filepath.Join(stateDir, defaultCronDir, defaultJobsFile)
-	loaded, err := loadJobs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	svc := &Service{
-		path:         path,
-		runner:       r,
-		router:       router,
-		tickInterval: defaultTickInterval,
-		clock:        time.Now,
-		jobs:         make(map[string]*Job),
-		running:      make(map[string]*jobRun),
-		done:         make(chan struct{}),
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(svc)
-		}
-	}
-
-	now := svc.clock()
-	for _, job := range loaded {
-		if job == nil || strings.TrimSpace(job.ID) == "" {
-			continue
-		}
-		normalized, err := normalizeLoadedJob(job, now)
-		if err != nil {
-			log.Warnf("cron: skip invalid job %q: %v", job.ID, err)
-			continue
-		}
-		svc.jobs[normalized.ID] = normalized
-	}
-	return svc, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Start begins the background scheduler loop.
-func (s *Service) Start(ctx context.Context) {
-	if s == nil {
-		return
-	}
-	s.startOnce.Do(func() {
-		runCtx, cancel := context.WithCancel(ctx)
-		s.cancel = cancel
-		s.wg.Add(1)
-		go func() {
-			defer s.wg.Done()
-			defer close(s.done)
-			s.loop(runCtx)
-		}()
-	})
-}
+func (s *Service) Start(ctx context.Context) { _ = "STUB: not implemented"; return }
 
 // Close stops the scheduler and persists current state.
-func (s *Service) Close() error {
-	if s == nil {
-		return nil
-	}
-	s.stopAllRuns(true)
-	if s.cancel != nil {
-		s.cancel()
-	}
-	select {
-	case <-s.done:
-	default:
-	}
-	s.wg.Wait()
-	return s.persist()
-}
+func (s *Service) Close() error { _ = "STUB: not implemented"; return nil }
 
 // Status returns a scheduler summary.
-func (s *Service) Status() map[string]any {
-	if s == nil {
-		return map[string]any{"running": false}
-	}
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return map[string]any{
-		"running":      s.cancel != nil,
-		"jobs":         len(s.jobs),
-		"jobs_running": len(s.running),
-		"channels":     s.channelsLocked(),
-	}
-}
+func (s *Service) Status() map[string]any { _ = "STUB: not implemented"; return nil }
 
 // List returns a sorted snapshot of current jobs.
-func (s *Service) List() []*Job {
-	if s == nil {
-		return nil
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return sortedJobs(cloneJobs(mapJobs(s.jobs)))
-}
+func (s *Service) List() []*Job { _ = "STUB: not implemented"; return nil }
 
 // ListForUser returns current jobs owned by a specific user.
 func (s *Service) ListForUser(
 	userID string,
 	delivery outbound.DeliveryTarget,
 ) []*Job {
-	if s == nil {
-		return nil
-	}
-
-	userID = strings.TrimSpace(userID)
-	filter := normalizeDeliveryFilter(delivery)
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	jobs := make([]*Job, 0, len(s.jobs))
-	for _, job := range s.jobs {
-		if !matchesJobScope(job, userID, filter) {
-			continue
-		}
-		jobs = append(jobs, job.clone())
-	}
-	return sortedJobs(jobs)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveForUser deletes scoped jobs owned by a specific user.
@@ -283,249 +162,34 @@ func (s *Service) RemoveForUser(
 	userID string,
 	delivery outbound.DeliveryTarget,
 ) (int, error) {
-	if s == nil {
-		return 0, fmt.Errorf("cron: nil service")
-	}
-
-	userID = strings.TrimSpace(userID)
-	filter := normalizeDeliveryFilter(delivery)
-
-	s.mu.Lock()
-	removed := 0
-	for id, job := range s.jobs {
-		if !matchesJobScope(job, userID, filter) {
-			continue
-		}
-		s.removeJobLocked(id, true)
-		removed++
-	}
-	s.mu.Unlock()
-
-	if removed == 0 {
-		return 0, nil
-	}
-	if err := s.persist(); err != nil {
-		return 0, err
-	}
-	return removed, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // Get returns one job snapshot by id.
-func (s *Service) Get(jobID string) *Job {
-	if s == nil {
-		return nil
-	}
-
-	id := strings.TrimSpace(jobID)
-	if id == "" {
-		return nil
-	}
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	job := s.jobs[id]
-	if job == nil {
-		return nil
-	}
-	return job.clone()
-}
+func (s *Service) Get(jobID string) *Job { _ = "STUB: not implemented"; return nil }
 
 // Add registers a new job.
-func (s *Service) Add(job *Job) (*Job, error) {
-	if s == nil {
-		return nil, fmt.Errorf("cron: nil service")
-	}
-
-	now := s.clock()
-	normalized, err := normalizeNewJob(job, now)
-	if err != nil {
-		return nil, err
-	}
-	normalized.ID = uuid.NewString()
-
-	s.mu.Lock()
-	s.jobs[normalized.ID] = normalized
-	s.mu.Unlock()
-
-	if err := s.persist(); err != nil {
-		return nil, err
-	}
-	return normalized.clone(), nil
-}
+func (s *Service) Add(job *Job) (*Job, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // Update mutates an existing job.
 func (s *Service) Update(
 	jobID string,
 	patch Patch,
 ) (*Job, error) {
-	if s == nil {
-		return nil, fmt.Errorf("cron: nil service")
-	}
-
-	now := s.clock()
-	id := strings.TrimSpace(jobID)
-	if id == "" {
-		return nil, fmt.Errorf("cron: job id is required")
-	}
-
-	s.mu.Lock()
-	current := s.jobs[id]
-	if current == nil {
-		s.mu.Unlock()
-		return nil, fmt.Errorf("cron: unknown job: %s", id)
-	}
-	next := current.clone()
-	s.mu.Unlock()
-
-	if err := applyPatch(next, patch, now); err != nil {
-		return nil, err
-	}
-
-	s.mu.Lock()
-	s.jobs[id] = next
-	if !next.Enabled {
-		s.suppressRunLocked(id)
-	}
-	s.mu.Unlock()
-	if err := s.persist(); err != nil {
-		return nil, err
-	}
-	return next.clone(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Remove deletes a job.
-func (s *Service) Remove(jobID string) error {
-	if s == nil {
-		return fmt.Errorf("cron: nil service")
-	}
-	id := strings.TrimSpace(jobID)
-	if id == "" {
-		return fmt.Errorf("cron: job id is required")
-	}
-
-	s.mu.Lock()
-	if _, ok := s.jobs[id]; !ok {
-		s.mu.Unlock()
-		return fmt.Errorf("cron: unknown job: %s", id)
-	}
-	s.removeJobLocked(id, true)
-	s.mu.Unlock()
-	return s.persist()
-}
+func (s *Service) Remove(jobID string) error { _ = "STUB: not implemented"; return nil }
 
 // RunNow triggers a job immediately.
-func (s *Service) RunNow(jobID string) (*Job, error) {
-	if s == nil {
-		return nil, fmt.Errorf("cron: nil service")
-	}
-	id := strings.TrimSpace(jobID)
-	if id == "" {
-		return nil, fmt.Errorf("cron: job id is required")
-	}
+func (s *Service) RunNow(jobID string) (*Job, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	job, runCtx, runToken, err := s.markRunning(
-		id,
-		context.Background(),
-	)
-	if err != nil {
-		return nil, err
-	}
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
-		s.executeJob(
-			runCtx,
-			job,
-			runToken,
-			false,
-			time.Time{},
-		)
-	}()
-	return job.clone(), nil
-}
+func (s *Service) loop(ctx context.Context) { _ = "STUB: not implemented"; return }
 
-func (s *Service) loop(ctx context.Context) {
-	ticker := time.NewTicker(s.tickInterval)
-	defer ticker.Stop()
-
-	for {
-		s.triggerDue(ctx)
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-		}
-	}
-}
-
-func (s *Service) triggerDue(ctx context.Context) {
-	now := s.clock()
-	runs := make([]queuedRun, 0)
-	needsPersist := false
-
-	s.mu.Lock()
-	for _, job := range s.jobs {
-		if job == nil || !job.Enabled {
-			continue
-		}
-		if retireJobLocked(job, now) {
-			needsPersist = true
-			continue
-		}
-		if job.NextRunAt == nil || job.NextRunAt.After(now) {
-			continue
-		}
-		if _, busy := s.running[job.ID]; busy {
-			switch effectiveOverlapPolicy(job.Policy) {
-			case OverlapPolicyReplace:
-				s.cancelRunLocked(job.ID)
-			default:
-				continue
-			}
-		}
-		runCtx, cancel := s.newRunContext(ctx)
-		runToken := uuid.NewString()
-		s.running[job.ID] = &jobRun{
-			token:     runToken,
-			cancel:    cancel,
-			startedAt: now,
-		}
-		job.Stats.RunCount++
-		job.LastStatus = StatusRunning
-		job.LastError = ""
-		job.UpdatedAt = now
-		runs = append(runs, queuedRun{
-			job:         job.clone(),
-			runCtx:      runCtx,
-			runToken:    runToken,
-			scheduledAt: scheduledRunBase(job, now),
-		})
-		needsPersist = true
-	}
-	s.mu.Unlock()
-
-	if len(runs) == 0 && !needsPersist {
-		return
-	}
-	if err := s.persist(); err != nil {
-		log.Warnf("cron: persist running state: %v", err)
-	}
-
-	for _, run := range runs {
-		run := run
-		s.wg.Add(1)
-		go func() {
-			defer s.wg.Done()
-			s.executeJob(
-				run.runCtx,
-				run.job,
-				run.runToken,
-				true,
-				run.scheduledAt,
-			)
-		}()
-	}
-}
+func (s *Service) triggerDue(ctx context.Context) { _ = "STUB: not implemented"; return }
 
 func (s *Service) executeJob(
 	ctx context.Context,
@@ -534,145 +198,8 @@ func (s *Service) executeJob(
 	reschedule bool,
 	scheduledAt time.Time,
 ) {
-	now := s.clock()
-	runCtx := ctx
-	if job.TimeoutSec > 0 {
-		var cancel context.CancelFunc
-		runCtx, cancel = context.WithTimeout(
-			ctx,
-			time.Duration(job.TimeoutSec)*time.Second,
-		)
-		defer cancel()
-	}
-
-	sentTextRecorder := outbound.NewSentTextRecorder()
-	runCtx = outbound.WithSentTextRecorder(runCtx, sentTextRecorder)
-	runtimeState := scheduledRunRuntimeState(job)
-	runOpts := make([]agent.RunOption, 0, 3)
-	if runtimeState != nil {
-		runOpts = append(runOpts, agent.WithRuntimeState(runtimeState))
-	}
-	requestID := freshRequestID(job.ID, now)
-	runOpts = append(
-		runOpts,
-		agent.WithRequestID(requestID),
-		agent.WithInjectedContextMessages([]model.Message{
-			model.NewSystemMessage(runContextPrompt),
-		}),
-	)
-
-	sessionID := freshRunSessionID(job.ID, now)
-	s.setRunMetadata(job.ID, runToken, sessionID, requestID)
-	var runErr error
-	var deliveryErr error
-	trace, traceStartedAt := s.startDebugTrace(
-		runCtx,
-		job,
-		sessionID,
-		requestID,
-		scheduledAt,
-		reschedule,
-	)
-	if trace != nil {
-		runCtx = debugrecorder.WithTrace(runCtx, trace)
-		defer func() {
-			closeCronDebugTrace(
-				trace,
-				traceStartedAt,
-				runErr,
-				deliveryErr,
-			)
-		}()
-	}
-
-	profile, err := s.resolveRuntimeProfile(runCtx, job)
-	if err != nil {
-		runErr = err
-		s.finishRun(
-			job.ID,
-			runToken,
-			scheduledAt,
-			now,
-			"",
-			err,
-			nil,
-			reschedule,
-		)
-		return
-	}
-	if runtimeprofile.HasProfile(profile) {
-		runCtx = runtimeprofile.WithProfile(runCtx, profile)
-		runOpts = append(runOpts, runtimeprofile.RunOptions(profile)...)
-	}
-	events, err := s.runner.Run(
-		runCtx,
-		job.UserID,
-		sessionID,
-		model.NewUserMessage(buildScheduledRunMessage(job)),
-		runOpts...,
-	)
-	runErr = err
-
-	result := cronReplyAccumulator{}
-	if runErr == nil {
-		for evt := range events {
-			if trace != nil && evt != nil {
-				_ = trace.Record(debugrecorder.KindRunnerEvent, evt)
-			}
-			result.consume(evt)
-		}
-		if result.err != nil {
-			runErr = result.err
-		}
-	}
-	if trace != nil && runErr != nil {
-		_ = trace.RecordError(runErr)
-	}
-
-	output := sanitizeStoredOutput(result.text)
-	if trace != nil && output != "" {
-		_ = trace.RecordText(output)
-	}
-	deliveryAttempted := false
-	deliverySkipReason := ""
-	if runErr == nil &&
-		s.deliveryAllowed(job.ID, runToken) &&
-		job.Delivery.Channel != "" &&
-		job.Delivery.Target != "" &&
-		strings.TrimSpace(result.text) != "" {
-		if sentTextRecorder.ContainsTarget(job.Delivery) {
-			deliverySkipReason = cronDeliverySkipMessageToolTarget
-		} else {
-			deliveryAttempted = true
-			if s.router == nil {
-				deliveryErr = fmt.Errorf("cron: nil outbound router")
-			} else {
-				deliveryErr = s.router.SendText(
-					runCtx,
-					job.Delivery,
-					result.text,
-				)
-			}
-		}
-	}
-	recordCronDeliveryTrace(
-		trace,
-		job,
-		deliveryAttempted,
-		deliverySkipReason,
-		deliveryErr,
-	)
-
-	s.finishRun(
-		job.ID,
-		runToken,
-		scheduledAt,
-		now,
-		output,
-		runErr,
-		deliveryErr,
-		reschedule,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) startDebugTrace(
@@ -683,33 +210,8 @@ func (s *Service) startDebugTrace(
 	scheduledAt time.Time,
 	reschedule bool,
 ) (*debugrecorder.Trace, time.Time) {
-	recorder := s.recorder
-	if recorder == nil {
-		recorder = debugrecorder.RecorderFromContext(ctx)
-	}
-	if recorder == nil || job == nil {
-		return nil, time.Time{}
-	}
-
-	startedAt := time.Now()
-	trace, err := recorder.Start(debugrecorder.TraceStart{
-		Channel:   job.Delivery.Channel,
-		UserID:    job.UserID,
-		SessionID: sessionID,
-		Thread:    job.Delivery.Target,
-		RequestID: requestID,
-		Source:    debugTraceSourceCron,
-	})
-	if err != nil {
-		log.Warnf("cron: start debug trace: %v", err)
-		return nil, time.Time{}
-	}
-
-	_ = trace.Record(
-		debugrecorder.KindCronRun,
-		cronDebugRunRecord(job, scheduledAt, reschedule),
-	)
-	return trace, startedAt
+	_ = "STUB: not implemented"
+	return nil, *new(time.Time)
 }
 
 func cronDebugRunRecord(
@@ -717,26 +219,8 @@ func cronDebugRunRecord(
 	scheduledAt time.Time,
 	reschedule bool,
 ) map[string]any {
-	record := map[string]any{
-		"job_id":           strings.TrimSpace(job.ID),
-		"job_name":         strings.TrimSpace(job.Name),
-		"schedule":         ScheduleSummary(job.Schedule),
-		"reschedule":       reschedule,
-		"delivery_channel": strings.TrimSpace(job.Delivery.Channel),
-		"delivery_target":  strings.TrimSpace(job.Delivery.Target),
-		"timeout_sec":      job.TimeoutSec,
-		"message":          strings.TrimSpace(job.Message),
-	}
-	runContext := scheduledRunContext(job)
-	record["run_index"] = runContext.RunIndex
-	record["has_max_runs"] = runContext.HasMaxRuns
-	record["max_runs"] = runContext.MaxRuns
-	record["remaining_runs"] = runContext.RemainingRuns
-	record["is_final_run"] = runContext.IsFinalRun
-	if !scheduledAt.IsZero() {
-		record["scheduled_at"] = scheduledAt
-	}
-	return record
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func recordCronDeliveryTrace(
@@ -746,21 +230,8 @@ func recordCronDeliveryTrace(
 	skipReason string,
 	err error,
 ) {
-	if trace == nil || job == nil {
-		return
-	}
-	record := map[string]any{
-		"attempted": attempted,
-		"channel":   strings.TrimSpace(job.Delivery.Channel),
-		"target":    strings.TrimSpace(job.Delivery.Target),
-	}
-	if err != nil {
-		record["error"] = err.Error()
-	}
-	if skipReason != "" {
-		record["skip_reason"] = skipReason
-	}
-	_ = trace.Record(debugrecorder.KindCronDelivery, record)
+	_ = "STUB: not implemented"
+	return
 }
 
 func closeCronDebugTrace(
@@ -769,98 +240,34 @@ func closeCronDebugTrace(
 	runErr error,
 	deliveryErr error,
 ) {
-	if trace == nil {
-		return
-	}
-	end := debugrecorder.TraceEnd{
-		Duration: time.Since(startedAt),
-		Status:   cronDebugTraceStatus(runErr, deliveryErr),
-		Error:    cronDebugTraceError(runErr, deliveryErr),
-	}
-	_ = trace.Close(end)
+	_ = "STUB: not implemented"
+	return
 }
 
 func cronDebugTraceStatus(runErr error, deliveryErr error) string {
-	switch {
-	case runErr != nil:
-		return StatusFailed
-	case deliveryErr != nil:
-		return StatusDeliveryFailed
-	default:
-		return StatusSucceeded
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func cronDebugTraceError(runErr error, deliveryErr error) string {
-	switch {
-	case runErr != nil:
-		return runErr.Error()
-	case deliveryErr != nil:
-		return deliveryErr.Error()
-	default:
-		return ""
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (s *Service) resolveRuntimeProfile(
 	ctx context.Context,
 	job *Job,
 ) (runtimeprofile.Profile, error) {
-	if job == nil || !job.Profile.hasProfile() {
-		return runtimeprofile.Profile{}, nil
-	}
-	if strings.TrimSpace(job.Profile.ID) == "" {
-		return job.Profile.profile(), nil
-	}
-	if s == nil || s.profiles == nil {
-		return runtimeprofile.Profile{}, fmt.Errorf(
-			"cron: runtime profile resolver is not configured",
-		)
-	}
-	req := runtimeprofile.Request{
-		Channel:   job.Profile.Channel,
-		ProfileID: job.Profile.ID,
-		TenantID:  job.Profile.TenantID,
-		UserID:    job.UserID,
-		SessionID: job.Profile.SessionID,
-	}
-	if strings.TrimSpace(req.Channel) == "" {
-		req.Channel = job.Delivery.Channel
-	}
-	profile, err := s.profiles.Resolve(ctx, req)
-	if err != nil {
-		return runtimeprofile.Profile{}, err
-	}
-	if !runtimeprofile.HasProfile(profile) {
-		return runtimeprofile.Profile{}, runtimeprofile.ErrProfileNotFound
-	}
-	if err := checkRuntimeProfileVersion(job.Profile, profile); err != nil {
-		return runtimeprofile.Profile{}, err
-	}
-	return profile, nil
+	_ = "STUB: not implemented"
+	return *new(runtimeprofile.Profile), nil
 }
 
 func checkRuntimeProfileVersion(
 	ref *RuntimeProfileRef,
 	profile runtimeprofile.Profile,
 ) error {
-	if ref == nil {
-		return nil
-	}
-	want := strings.TrimSpace(ref.Version)
-	if want == "" {
-		return nil
-	}
-	got := strings.TrimSpace(profile.Version)
-	if got == want {
-		return nil
-	}
-	return fmt.Errorf(
-		"cron: runtime profile version mismatch for %s: want %s, got %s",
-		strings.TrimSpace(ref.ID),
-		want,
-		got,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *Service) finishRun(
@@ -873,126 +280,23 @@ func (s *Service) finishRun(
 	deliveryErr error,
 	reschedule bool,
 ) {
-	s.mu.Lock()
-	job := s.jobs[jobID]
-	if job == nil {
-		delete(s.running, jobID)
-		s.mu.Unlock()
-		return
-	}
-
-	current := s.running[jobID]
-	if current == nil || current.token != runToken {
-		s.mu.Unlock()
-		return
-	}
-
-	delete(s.running, jobID)
-	job.LastRunAt = &now
-	job.LastOutput = output
-	job.UpdatedAt = now
-
-	switch {
-	case runErr != nil:
-		job.Stats.FailureCount++
-		job.LastStatus = StatusFailed
-		job.LastError = runErr.Error()
-	case deliveryErr != nil:
-		job.Stats.DeliveryFailureCount++
-		job.LastStatus = StatusDeliveryFailed
-		job.LastError = deliveryErr.Error()
-	default:
-		job.Stats.SuccessCount++
-		job.LastStatus = StatusSucceeded
-		job.LastError = ""
-	}
-
-	if reschedule {
-		nextBase := scheduledRunBase(job, scheduledAt)
-		next, err := computeNextAfterRun(job.Schedule, nextBase, now)
-		if err != nil {
-			job.Enabled = false
-			job.NextRunAt = nil
-			job.LastStatus = StatusFailed
-			job.LastError = err.Error()
-		} else {
-			applyNextRunPolicy(job, next, now)
-		}
-	} else {
-		applyNextRunPolicy(job, cloneTimePtr(job.NextRunAt), now)
-	}
-	s.mu.Unlock()
-
-	if err := s.persist(); err != nil {
-		log.Warnf("cron: persist finished state: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) markRunning(
 	jobID string,
 	parent context.Context,
 ) (*Job, context.Context, string, error) {
-	s.mu.Lock()
-	job := s.jobs[jobID]
-	if job == nil {
-		s.mu.Unlock()
-		return nil, nil, "", fmt.Errorf(
-			"cron: unknown job: %s",
-			jobID,
-		)
-	}
-	if _, busy := s.running[jobID]; busy {
-		s.mu.Unlock()
-		return nil, nil, "", fmt.Errorf(
-			"cron: job is already running",
-		)
-	}
-	if retireJobLocked(job, s.clock()) {
-		s.mu.Unlock()
-		return nil, nil, "", fmt.Errorf(
-			"cron: job is no longer schedulable",
-		)
-	}
-	runCtx, cancel := s.newRunContext(parent)
-	now := s.clock()
-	runToken := uuid.NewString()
-	s.running[jobID] = &jobRun{
-		token:     runToken,
-		cancel:    cancel,
-		startedAt: now,
-	}
-	job.Stats.RunCount++
-	job.LastStatus = StatusRunning
-	job.LastError = ""
-	job.UpdatedAt = now
-	clone := job.clone()
-	s.mu.Unlock()
-
-	if err := s.persist(); err != nil {
-		cancel()
-		s.mu.Lock()
-		delete(s.running, jobID)
-		if current := s.jobs[jobID]; current != nil {
-			current.LastStatus = StatusIdle
-			current.LastError = ""
-			current.UpdatedAt = now
-			if current.Stats.RunCount > 0 {
-				current.Stats.RunCount--
-			}
-		}
-		s.mu.Unlock()
-		return nil, nil, "", err
-	}
-	return clone, runCtx, runToken, nil
+	_ = "STUB: not implemented"
+	return nil, *new(context.Context), "", nil
 }
 
 func (s *Service) newRunContext(
 	parent context.Context,
 ) (context.Context, context.CancelFunc) {
-	if parent == nil {
-		parent = context.Background()
-	}
-	return context.WithCancel(parent)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 func (s *Service) setRunMetadata(
@@ -1001,133 +305,35 @@ func (s *Service) setRunMetadata(
 	sessionID string,
 	requestID string,
 ) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	run := s.running[jobID]
-	if run == nil || run.token != runToken {
-		return
-	}
-	run.sessionID = sessionID
-	run.requestID = requestID
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) deliveryAllowed(jobID string, runToken string) bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	run := s.running[jobID]
-	if run == nil || run.token != runToken {
-		return false
-	}
-	return !run.suppressDelivery
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (s *Service) suppressRunLocked(jobID string) {
-	run := s.running[jobID]
-	if run == nil {
-		return
-	}
-	run.suppressDelivery = true
-}
+func (s *Service) suppressRunLocked(jobID string) { _ = "STUB: not implemented"; return }
 
-func (s *Service) cancelRunLocked(jobID string) {
-	run := s.running[jobID]
-	if run == nil {
-		return
-	}
-	run.suppressDelivery = true
-	if run.cancel != nil {
-		run.cancel()
-	}
-}
+func (s *Service) cancelRunLocked(jobID string) { _ = "STUB: not implemented"; return }
 
-func (s *Service) removeJobLocked(jobID string, cancel bool) {
-	if cancel {
-		s.cancelRunLocked(jobID)
-	} else if _, ok := s.running[jobID]; ok {
-		s.suppressRunLocked(jobID)
-	} else {
-		delete(s.running, jobID)
-	}
-	delete(s.jobs, jobID)
-}
+func (s *Service) removeJobLocked(jobID string, cancel bool) { _ = "STUB: not implemented"; return }
 
-func (s *Service) stopAllRuns(cancel bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *Service) stopAllRuns(cancel bool) { _ = "STUB: not implemented"; return }
 
-	for _, run := range s.running {
-		if run == nil {
-			continue
-		}
-		run.suppressDelivery = true
-		if cancel && run.cancel != nil {
-			run.cancel()
-		}
-	}
-}
+func (s *Service) persist() error { _ = "STUB: not implemented"; return nil }
 
-func (s *Service) persist() error {
-	if s == nil {
-		return nil
-	}
-	s.persistMu.Lock()
-	defer s.persistMu.Unlock()
-
-	s.mu.Lock()
-	jobs := mapJobs(s.jobs)
-	s.mu.Unlock()
-	return saveJobs(s.path, jobs)
-}
-
-func (s *Service) channelsLocked() []string {
-	if s.router == nil {
-		return nil
-	}
-	return s.router.Channels()
-}
+func (s *Service) channelsLocked() []string { _ = "STUB: not implemented"; return nil }
 
 func normalizeLoadedJob(job *Job, now time.Time) (*Job, error) {
-	next := job.clone()
-	if next == nil {
-		return nil, fmt.Errorf("cron: nil job")
-	}
-	if strings.TrimSpace(next.ID) == "" {
-		return nil, fmt.Errorf("cron: empty job id")
-	}
-	if err := normalizeFields(next, false, now); err != nil {
-		return nil, err
-	}
-	if next.Enabled {
-		if next.NextRunAt == nil || next.NextRunAt.IsZero() {
-			runAt, err := computeInitialNextRun(next.Schedule, now)
-			if err != nil {
-				return nil, err
-			}
-			applyNextRunPolicy(next, runAt, now)
-		} else {
-			applyNextRunPolicy(
-				next,
-				cloneTimePtr(next.NextRunAt),
-				now,
-			)
-		}
-	} else {
-		next.NextRunAt = nil
-	}
-	retireJobLocked(next, now)
-	return next, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeNewJob(job *Job, now time.Time) (*Job, error) {
-	next := &Job{}
-	if job != nil {
-		*next = *job
-	}
-	next.CreatedAt = now
-	next.UpdatedAt = now
-	return normalizeCommon(next, true, now)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeCommon(
@@ -1135,20 +341,8 @@ func normalizeCommon(
 	defaultEnabled bool,
 	now time.Time,
 ) (*Job, error) {
-	if err := normalizeFields(job, defaultEnabled, now); err != nil {
-		return nil, err
-	}
-
-	next, err := computeInitialNextRun(job.Schedule, now)
-	if err != nil {
-		return nil, err
-	}
-	if !job.Enabled {
-		job.NextRunAt = nil
-		return job, nil
-	}
-	applyNextRunPolicy(job, next, now)
-	return job, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeFields(
@@ -1156,100 +350,21 @@ func normalizeFields(
 	defaultEnabled bool,
 	now time.Time,
 ) error {
-	if job == nil {
-		return fmt.Errorf("cron: nil job")
-	}
-	job.Name = strings.TrimSpace(job.Name)
-	job.Message = strings.TrimSpace(job.Message)
-	job.UserID = strings.TrimSpace(job.UserID)
-	job.Delivery = outbound.DeliveryTarget{
-		Channel: strings.TrimSpace(job.Delivery.Channel),
-		Target:  strings.TrimSpace(job.Delivery.Target),
-	}
-	if job.Policy.EndsAt != nil && job.Policy.EndsAt.IsZero() {
-		job.Policy.EndsAt = nil
-	}
-	overlap, err := normalizeOverlapPolicy(job.Policy.OverlapPolicy)
-	if err != nil {
-		return err
-	}
-	job.Policy.OverlapPolicy = overlap
-
-	if job.Message == "" {
-		return fmt.Errorf("cron: message is required")
-	}
-	if job.UserID == "" {
-		return fmt.Errorf("cron: user id is required")
-	}
-	if job.Policy.MaxRuns < 0 {
-		return fmt.Errorf("cron: max_runs must be non-negative")
-	}
-	if job.Stats.RunCount < 0 ||
-		job.Stats.SuccessCount < 0 ||
-		job.Stats.FailureCount < 0 ||
-		job.Stats.DeliveryFailureCount < 0 {
-		return fmt.Errorf("cron: execution stats must be non-negative")
-	}
-	if job.CreatedAt.IsZero() {
-		job.CreatedAt = now
-	}
-	if !job.Enabled && defaultEnabled {
-		job.Enabled = true
-	}
-	if job.LastStatus == "" || job.LastStatus == StatusRunning {
-		job.LastStatus = StatusIdle
-	}
-	if _, err := computeNextRun(job.Schedule, now); err != nil {
-		return err
-	}
-	job.UpdatedAt = now
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func effectiveOverlapPolicy(policy ExecutionPolicy) string {
-	value, err := normalizeOverlapPolicy(policy.OverlapPolicy)
-	if err != nil {
-		return OverlapPolicySkip
-	}
-	return value
-}
+func effectiveOverlapPolicy(policy ExecutionPolicy) string { _ = "STUB: not implemented"; return "" }
 
-func retireJobLocked(job *Job, now time.Time) bool {
-	if job == nil || !job.Enabled {
-		return false
-	}
-	if executionLimitReached(job) || executionWindowClosed(job, now) {
-		job.Enabled = false
-		job.NextRunAt = nil
-		job.UpdatedAt = now
-		return true
-	}
-	return false
-}
+func retireJobLocked(job *Job, now time.Time) bool { _ = "STUB: not implemented"; return false }
 
-func executionLimitReached(job *Job) bool {
-	if job == nil {
-		return false
-	}
-	return job.Policy.MaxRuns > 0 &&
-		job.Stats.RunCount >= job.Policy.MaxRuns
-}
+func executionLimitReached(job *Job) bool { _ = "STUB: not implemented"; return false }
 
-func executionWindowClosed(job *Job, now time.Time) bool {
-	if job == nil || job.Policy.EndsAt == nil {
-		return false
-	}
-	return !job.Policy.EndsAt.After(now)
-}
+func executionWindowClosed(job *Job, now time.Time) bool { _ = "STUB: not implemented"; return false }
 
 func nextRunAllowed(job *Job, next *time.Time, now time.Time) bool {
-	if executionLimitReached(job) || executionWindowClosed(job, now) {
-		return false
-	}
-	if next == nil || job == nil || job.Policy.EndsAt == nil {
-		return true
-	}
-	return next.Before(*job.Policy.EndsAt)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func applyNextRunPolicy(
@@ -1257,48 +372,19 @@ func applyNextRunPolicy(
 	next *time.Time,
 	now time.Time,
 ) {
-	if job == nil {
-		return
-	}
-	if !nextRunAllowed(job, next, now) {
-		job.Enabled = false
-		job.NextRunAt = nil
-		return
-	}
-	job.NextRunAt = next
-	if next == nil {
-		job.Enabled = false
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func mapJobs(items map[string]*Job) []*Job {
-	if len(items) == 0 {
-		return nil
-	}
-	out := make([]*Job, 0, len(items))
-	for _, job := range items {
-		if job == nil {
-			continue
-		}
-		out = append(out, job.clone())
-	}
-	return out
-}
+func mapJobs(items map[string]*Job) []*Job { _ = "STUB: not implemented"; return nil }
 
-func sortedJobs(jobs []*Job) []*Job {
-	sort.Slice(jobs, func(i, j int) bool {
-		return jobs[i].ID < jobs[j].ID
-	})
-	return jobs
-}
+func sortedJobs(jobs []*Job) []*Job { _ = "STUB: not implemented"; return nil }
 
 func normalizeDeliveryFilter(
 	target outbound.DeliveryTarget,
 ) outbound.DeliveryTarget {
-	return outbound.DeliveryTarget{
-		Channel: strings.TrimSpace(target.Channel),
-		Target:  strings.TrimSpace(target.Target),
-	}
+	_ = "STUB: not implemented"
+	return *new(outbound.DeliveryTarget)
 }
 
 func matchesJobScope(
@@ -1306,103 +392,25 @@ func matchesJobScope(
 	userID string,
 	delivery outbound.DeliveryTarget,
 ) bool {
-	if job == nil || strings.TrimSpace(job.UserID) != userID {
-		return false
-	}
-	if delivery.Channel != "" &&
-		job.Delivery.Channel != delivery.Channel {
-		return false
-	}
-	if delivery.Target != "" &&
-		job.Delivery.Target != delivery.Target {
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func scheduledRunBase(job *Job, fallback time.Time) time.Time {
-	if job != nil && job.NextRunAt != nil && !job.NextRunAt.IsZero() {
-		return *job.NextRunAt
-	}
-	return fallback
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
-func scheduledRunRuntimeState(job *Job) map[string]any {
-	runtimeState := outbound.RuntimeStateForTarget(job.Delivery)
-	if runtimeState == nil {
-		runtimeState = make(map[string]any, 7)
-	}
-	runContext := scheduledRunContext(job)
-	runtimeState[runtimeStateScheduledRun] = true
-	runtimeState[runtimeStateJobID] = strings.TrimSpace(job.ID)
-	runtimeState[runtimeStateRunIndex] = runContext.RunIndex
-	runtimeState[runtimeStateHasMaxRuns] = runContext.HasMaxRuns
-	runtimeState[runtimeStateMaxRuns] = runContext.MaxRuns
-	runtimeState[runtimeStateRemaining] = runContext.RemainingRuns
-	runtimeState[runtimeStateIsFinalRun] = runContext.IsFinalRun
-	return runtimeState
-}
+func scheduledRunRuntimeState(job *Job) map[string]any { _ = "STUB: not implemented"; return nil }
 
-func buildScheduledRunMessage(job *Job) string {
-	runContext := scheduledRunContext(job)
-	task := ""
-	if job != nil {
-		task = strings.TrimSpace(job.Message)
-	}
-	renderedTask := renderScheduledRunTask(task, runContext)
-
-	var builder strings.Builder
-	builder.WriteString(scheduledRunMessagePrefix)
-	builder.WriteString(scheduledRunContextPrefix)
-	fmt.Fprintf(&builder, "- run_index: %d\n", runContext.RunIndex)
-	fmt.Fprintf(
-		&builder,
-		"- has_max_runs: %t\n",
-		runContext.HasMaxRuns,
-	)
-	fmt.Fprintf(&builder, "- max_runs: %d\n", runContext.MaxRuns)
-	fmt.Fprintf(
-		&builder,
-		"- remaining_runs: %d\n",
-		runContext.RemainingRuns,
-	)
-	fmt.Fprintf(
-		&builder,
-		"- is_final_run: %t\n",
-		runContext.IsFinalRun,
-	)
-	builder.WriteString(scheduledRunTaskPrefix)
-	builder.WriteString(renderedTask)
-	return builder.String()
-}
+func buildScheduledRunMessage(job *Job) string { _ = "STUB: not implemented"; return "" }
 
 func renderScheduledRunTask(
 	task string,
 	runContext cronRunTemplateData,
 ) string {
-	trimmedTask := strings.TrimSpace(task)
-	if trimmedTask == "" {
-		return ""
-	}
-	if !strings.Contains(trimmedTask, scheduledRunTemplateMarker) {
-		return trimmedTask
-	}
-
-	tmpl, err := template.New("cron_task").
-		Option("missingkey=error").
-		Parse(trimmedTask)
-	if err != nil {
-		log.Warnf("cron: parse task template failed: %v", err)
-		return trimmedTask
-	}
-
-	data := scheduledRunTemplateData{Cron: runContext}
-	var builder strings.Builder
-	if err := tmpl.Execute(&builder, data); err != nil {
-		log.Warnf("cron: execute task template failed: %v", err)
-		return trimmedTask
-	}
-	return strings.TrimSpace(builder.String())
+	_ = "STUB: not implemented"
+	return ""
 }
 
 type cronReplyAccumulator struct {
@@ -1412,46 +420,8 @@ type cronReplyAccumulator struct {
 	err      error
 }
 
-func (a *cronReplyAccumulator) consume(evt *event.Event) {
-	if evt == nil {
-		return
-	}
-	if evt.Error != nil {
-		a.err = errors.New(evt.Error.Message)
-		return
-	}
-	if evt.Response == nil {
-		return
-	}
-	switch evt.Object {
-	case model.ObjectTypeChatCompletion:
-		a.consumeFull(evt.Response)
-	case model.ObjectTypeChatCompletionChunk:
-		a.consumeDelta(evt.Response)
-	}
-}
+func (a *cronReplyAccumulator) consume(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-func (a *cronReplyAccumulator) consumeFull(rsp *model.Response) {
-	if rsp == nil || len(rsp.Choices) == 0 {
-		return
-	}
-	content := rsp.Choices[0].Message.Content
-	if content == "" {
-		return
-	}
-	a.text = content
-	a.seenFull = true
-}
+func (a *cronReplyAccumulator) consumeFull(rsp *model.Response) { _ = "STUB: not implemented"; return }
 
-func (a *cronReplyAccumulator) consumeDelta(rsp *model.Response) {
-	if rsp == nil || a.seenFull {
-		return
-	}
-	for _, choice := range rsp.Choices {
-		if choice.Delta.Content == "" {
-			continue
-		}
-		a.builder.WriteString(choice.Delta.Content)
-	}
-	a.text = a.builder.String()
-}
+func (a *cronReplyAccumulator) consumeDelta(rsp *model.Response) { _ = "STUB: not implemented"; return }

@@ -13,8 +13,6 @@ package graph
 import (
 	"context"
 	"io"
-
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 )
 
 // OpenStreamWriter opens an invocation-scoped stream writer by name.
@@ -24,7 +22,8 @@ func OpenStreamWriter(
 	ctx context.Context,
 	streamName string,
 ) (io.WriteCloser, error) {
-	return agent.OpenStreamWriter(ctx, streamName)
+	_ = "STUB: not implemented"
+	return *new(io.WriteCloser), nil
 }
 
 // OpenStreamReader opens an invocation-scoped stream reader by name.
@@ -34,5 +33,6 @@ func OpenStreamReader(
 	ctx context.Context,
 	streamName string,
 ) (io.ReadCloser, error) {
-	return agent.OpenStreamReader(ctx, streamName)
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }

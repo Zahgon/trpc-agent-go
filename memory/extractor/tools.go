@@ -30,16 +30,8 @@ func filterTools(
 	all map[string]tool.Tool,
 	enabled map[string]struct{},
 ) map[string]tool.Tool {
-	if enabled == nil {
-		return all
-	}
-	filtered := make(map[string]tool.Tool, len(all))
-	for name, t := range all {
-		if _, ok := enabled[name]; ok {
-			filtered[name] = t
-		}
-	}
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // backgroundTools is the pre-built map of background tools for model request.
@@ -60,10 +52,12 @@ type declarationOnlyTool struct {
 
 // Declaration returns the tool declaration.
 func (t *declarationOnlyTool) Declaration() *tool.Declaration {
-	return t.decl
+	_ = "STUB: not implemented"
+
+	// Argument keys for tool calls.
+	return nil
 }
 
-// Argument keys for tool calls.
 const (
 	argKeyMemory       = "memory"
 	argKeyMemoryID     = "memory_id"
@@ -76,88 +70,13 @@ const (
 
 // parseToolCallArgs parses tool call arguments and returns a memory operation.
 func parseToolCallArgs(toolName string, args map[string]any) *Operation {
-	switch toolName {
-	case memory.AddToolName:
-		mem, _ := args[argKeyMemory].(string)
-		if mem == "" {
-			return nil
-		}
-		op := &Operation{
-			Type:   OperationAdd,
-			Memory: mem,
-			Topics: toStringSlice(args[argKeyTopics]),
-		}
-		parseEpisodicArgs(op, args)
-		return op
-
-	case memory.UpdateToolName:
-		id, _ := args[argKeyMemoryID].(string)
-		mem, _ := args[argKeyMemory].(string)
-		if id == "" || mem == "" {
-			return nil
-		}
-		op := &Operation{
-			Type:     OperationUpdate,
-			MemoryID: id,
-			Memory:   mem,
-			Topics:   toStringSlice(args[argKeyTopics]),
-		}
-		parseEpisodicArgs(op, args)
-		return op
-
-	case memory.DeleteToolName:
-		id, _ := args[argKeyMemoryID].(string)
-		if id == "" {
-			return nil
-		}
-		return &Operation{
-			Type:     OperationDelete,
-			MemoryID: id,
-		}
-
-	case memory.ClearToolName:
-		return &Operation{
-			Type: OperationClear,
-		}
-
-	default:
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // parseEpisodicArgs extracts episodic memory fields from tool call arguments.
-func parseEpisodicArgs(op *Operation, args map[string]any) {
-	if kind, _ := args[argKeyMemoryKind].(string); kind == string(memory.KindEpisode) {
-		op.MemoryKind = memory.KindEpisode
-	} else {
-		op.MemoryKind = memory.KindFact
-	}
-
-	if t, _ := args[argKeyEventTime].(string); t != "" {
-		op.EventTime = memorytool.ParseFlexibleTime(t)
-	}
-
-	op.Participants = toStringSlice(args[argKeyParticipants])
-	if loc, _ := args[argKeyLocation].(string); loc != "" {
-		op.Location = loc
-	}
-}
+func parseEpisodicArgs(op *Operation, args map[string]any) { _ = "STUB: not implemented"; return }
 
 // toStringSlice converts an any value to []string.
 // Always returns an empty slice instead of nil for consistent downstream handling.
-func toStringSlice(v any) []string {
-	if v == nil {
-		return []string{}
-	}
-	arr, ok := v.([]any)
-	if !ok {
-		return []string{}
-	}
-	result := make([]string, 0, len(arr))
-	for _, item := range arr {
-		if s, ok := item.(string); ok {
-			result = append(result, s)
-		}
-	}
-	return result
-}
+func toStringSlice(v any) []string { _ = "STUB: not implemented"; return nil }

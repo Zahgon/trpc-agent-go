@@ -14,14 +14,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"reflect"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	checkpointinmemory "trpc.group/trpc-go/trpc-agent-go/graph/checkpoint/inmemory"
@@ -110,39 +107,7 @@ func main() {
 	fmt.Printf("Final order: %v\n", order)
 }
 
-func buildGraph() (*graph.Graph, error) {
-	schema := graph.NewStateSchema().AddField(stateKeyOrder, graph.StateField{
-		Type:    reflect.TypeOf([]string{}),
-		Reducer: graph.StringSliceReducer,
-		Default: func() any { return []string{} },
-	})
-
-	sg := graph.NewStateGraph(schema)
-
-	sg.AddNode(nodeStart, func(ctx context.Context, state graph.State) (any, error) {
-		return graph.State{stateKeyOrder: []string{nodeStart}}, nil
-	})
-
-	sg.AddNode(
-		nodeMiddle,
-		func(ctx context.Context, state graph.State) (any, error) {
-			return graph.State{stateKeyOrder: []string{nodeMiddle}}, nil
-		},
-		graph.WithInterruptBefore(),
-		graph.WithInterruptAfter(),
-	)
-
-	sg.AddNode(nodeEnd, func(ctx context.Context, state graph.State) (any, error) {
-		return graph.State{stateKeyOrder: []string{nodeEnd}}, nil
-	})
-
-	sg.SetEntryPoint(nodeStart)
-	sg.AddEdge(nodeStart, nodeMiddle)
-	sg.AddEdge(nodeMiddle, nodeEnd)
-	sg.SetFinishPoint(nodeEnd)
-
-	return sg.Compile()
-}
+func buildGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func runOnce(
 	ctx context.Context,
@@ -150,70 +115,13 @@ func runOnce(
 	lineageID string,
 	checkpointID string,
 ) (*interruptMeta, *event.Event, error) {
-	st := graph.State{graph.CfgKeyLineageID: lineageID}
-	if checkpointID != "" {
-		st[graph.CfgKeyCheckpointID] = checkpointID
-	}
-
-	inv := &agent.Invocation{
-		InvocationID: fmt.Sprintf("%s-%d", lineageID, time.Now().UnixNano()),
-	}
-	ch, err := exec.Execute(ctx, st, inv)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var done *event.Event
-	for evt := range ch {
-		if evt == nil {
-			continue
-		}
-		if evt.Done {
-			done = evt
-			break
-		}
-		if meta := extractInterruptMeta(evt); meta != nil {
-			return meta, nil, nil
-		}
-	}
-	return nil, done, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
-func extractInterruptMeta(evt *event.Event) *interruptMeta {
-	if evt == nil || evt.Object != graph.ObjectTypeGraphPregelStep {
-		return nil
-	}
-	if evt.StateDelta == nil {
-		return nil
-	}
-	raw, ok := evt.StateDelta[graph.MetadataKeyPregel]
-	if !ok {
-		return nil
-	}
-
-	var meta interruptMeta
-	if err := json.Unmarshal(raw, &meta); err != nil {
-		return nil
-	}
-	if meta.InterruptKey == "" || meta.CheckpointID == "" {
-		return nil
-	}
-	return &meta
-}
+func extractInterruptMeta(evt *event.Event) *interruptMeta { _ = "STUB: not implemented"; return nil }
 
 func finalOrder(doneEvent *event.Event) ([]string, error) {
-	if doneEvent == nil || doneEvent.StateDelta == nil {
-		return nil, fmt.Errorf("missing done event or state delta")
-	}
-
-	raw, ok := doneEvent.StateDelta[stateKeyOrder]
-	if !ok {
-		return nil, fmt.Errorf("state delta missing %q", stateKeyOrder)
-	}
-
-	var order []string
-	if err := json.Unmarshal(raw, &order); err != nil {
-		return nil, fmt.Errorf("decode %q: %w", stateKeyOrder, err)
-	}
-	return order, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

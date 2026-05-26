@@ -34,66 +34,46 @@ type Config struct {
 type Option func(*Config)
 
 // WithChunk enables or disables document chunking.
-func WithChunk(enabled bool) Option {
-	return func(c *Config) {
-		c.Chunk = enabled
-	}
-}
+func WithChunk(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChunkSize sets the chunk size for chunking strategies that support it.
 // This will be passed to the reader's default chunking strategy builder.
-func WithChunkSize(size int) Option {
-	return func(c *Config) {
-		c.ChunkSize = size
-		c.Chunk = true
-	}
-}
+func WithChunkSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChunkOverlap sets the chunk overlap for chunking strategies that support it.
 // This will be passed to the reader's default chunking strategy builder.
-func WithChunkOverlap(overlap int) Option {
-	return func(c *Config) {
-		c.ChunkOverlap = overlap
-		c.Chunk = true
-	}
-}
+func WithChunkOverlap(overlap int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCustomChunkingStrategy sets a custom chunking strategy, overriding the reader's default.
 // Use this when you need full control over the chunking behavior.
 func WithCustomChunkingStrategy(strategy chunking.Strategy) Option {
-	return func(c *Config) {
-		c.CustomChunkingStrategy = strategy
-		c.Chunk = true
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOCRExtractor sets the OCR extractor (primarily for PDF reader).
 func WithOCRExtractor(extractor ocr.Extractor) Option {
-	return func(c *Config) {
-		c.OCRExtractor = extractor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTransformers sets the transformers for document processing.
 // Transformers are applied to documents before and after chunking.
 func WithTransformers(transformers ...transform.Transformer) Option {
-	return func(c *Config) {
-		c.Transformers = append(c.Transformers, transformers...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // BuildChunkingStrategy builds a chunking strategy from config.
 // If a custom strategy is set, it returns that.
 // Otherwise, it calls the provided default builder with chunk size/overlap parameters.
 func BuildChunkingStrategy(config *Config, defaultBuilder func(chunkSize, overlap int) chunking.Strategy) chunking.Strategy {
+	_ = "STUB: not implemented"
 	// If custom strategy is provided, use it
-	if config.CustomChunkingStrategy != nil {
-		return config.CustomChunkingStrategy
-	}
-
-	// Otherwise, use the default builder with size/overlap parameters
-	return defaultBuilder(config.ChunkSize, config.ChunkOverlap)
+	return *new(chunking.Strategy)
 }
+
+// Otherwise, use the default builder with size/overlap parameters
 
 // Reader interface for different document readers.
 type Reader interface {

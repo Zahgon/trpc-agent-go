@@ -50,11 +50,7 @@ type Option func(*options)
 //	m := bedrock.New("anthropic.claude-3-sonnet-20240229-v1:0",
 //	    bedrock.WithAWSConfig(cfg),
 //	)
-func WithAWSConfig(cfg aws.Config) Option {
-	return func(o *options) {
-		o.awsConfig = cfg
-	}
-}
+func WithAWSConfig(cfg aws.Config) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBedrockOptions sets additional options for the Bedrock client.
 // These options are passed when creating the Bedrock Runtime client.
@@ -68,26 +64,14 @@ func WithAWSConfig(cfg aws.Config) Option {
 //	    }),
 //	)
 func WithBedrockOptions(opts ...func(*bedrockruntime.Options)) Option {
-	return func(o *options) {
-		o.bedrockOptions = append(o.bedrockOptions, opts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithClient sets a custom Bedrock client.
 // When a custom client is provided, WithAWSConfig and WithBedrockOptions are ignored.
 // Primarily used for testing and mock scenarios.
-func WithClient(client BedrockClient) Option {
-	return func(o *options) {
-		o.client = client
-	}
-}
+func WithClient(client BedrockClient) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the buffer size of the response channel, defaults to 256.
-func WithChannelBufferSize(size int) Option {
-	return func(o *options) {
-		if size <= 0 {
-			size = defaultChannelBufferSize
-		}
-		o.channelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -152,33 +152,16 @@ const (
 
 // GetADKMetadataKey returns the ADK-compatible metadata key with "adk_" prefix.
 // For example, GetADKMetadataKey("app_name") returns "adk_app_name".
-func GetADKMetadataKey(key string) string {
-	if key == "" {
-		return ""
-	}
-	return ADKMetadataKeyPrefix + key
-}
+func GetADKMetadataKey(key string) string { _ = "STUB: not implemented"; return "" }
 
 // GetDataPartType retrieves the type from DataPart metadata with correct precedence.
 // It checks "adk_type" first (ADK compatibility), then falls back to "type".
 // This matches the behavior in ADK's part_converter.py.
-func GetDataPartType(metadata map[string]any) string {
-	if metadata == nil {
-		return ""
-	}
+func GetDataPartType(metadata map[string]any) string { _ = "STUB: not implemented"; return "" }
 
-	// Check for ADK-compatible key first ("adk_type")
-	if typeVal, ok := metadata[GetADKMetadataKey(DataPartMetadataTypeKey)].(string); ok {
-		return typeVal
-	}
+// Check for ADK-compatible key first ("adk_type")
 
-	// Fall back to standard key ("type")
-	if typeVal, ok := metadata[DataPartMetadataTypeKey].(string); ok {
-		return typeVal
-	}
-
-	return ""
-}
+// Fall back to standard key ("type")
 
 // WithResponseErrorMetadata writes structured ResponseError fields to A2A
 // message metadata.
@@ -186,26 +169,8 @@ func WithResponseErrorMetadata(
 	metadata map[string]any,
 	err *model.ResponseError,
 ) map[string]any {
-	if err == nil {
-		return metadata
-	}
-	if metadata == nil {
-		metadata = make(map[string]any)
-	}
-	metadata[MessageMetadataObjectTypeKey] = model.ObjectTypeError
-	if err.Type != "" {
-		metadata[MessageMetadataErrorTypeKey] = err.Type
-	}
-	if err.Message != "" {
-		metadata[MessageMetadataErrorMessageKey] = err.Message
-	}
-	if err.Code != nil && *err.Code != "" {
-		metadata[MessageMetadataErrorCodeKey] = *err.Code
-	}
-	if err.Param != nil && *err.Param != "" {
-		metadata[MessageMetadataErrorParamKey] = *err.Param
-	}
-	return metadata
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ResponseErrorFromMetadata reconstructs a ResponseError from A2A metadata.
@@ -214,66 +179,14 @@ func ResponseErrorFromMetadata(
 	fallbackMessage string,
 	fallbackType string,
 ) *model.ResponseError {
-	if metadata == nil && fallbackMessage == "" {
-		return nil
-	}
-
-	objectType := metadataStringValue(
-		metadata,
-		MessageMetadataObjectTypeKey,
-	)
-	errorType := metadataStringValue(
-		metadata,
-		MessageMetadataErrorTypeKey,
-	)
-	message := metadataStringValue(
-		metadata,
-		MessageMetadataErrorMessageKey,
-	)
-	hasStructuredError := objectType == model.ObjectTypeError ||
-		errorType != "" ||
-		message != "" ||
-		metadataStringValue(metadata, MessageMetadataErrorCodeKey) != "" ||
-		metadataStringValue(metadata, MessageMetadataErrorParamKey) != ""
-	if !hasStructuredError {
-		return nil
-	}
-
-	if message == "" {
-		message = fallbackMessage
-	}
-	if errorType == "" {
-		errorType = fallbackType
-	}
-	respErr := &model.ResponseError{
-		Type:    errorType,
-		Message: message,
-	}
-	if code := metadataStringValue(
-		metadata,
-		MessageMetadataErrorCodeKey,
-	); code != "" {
-		respErr.Code = &code
-	}
-	if param := metadataStringValue(
-		metadata,
-		MessageMetadataErrorParamKey,
-	); param != "" {
-		respErr.Param = &param
-	}
-	return respErr
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func metadataStringValue(
 	metadata map[string]any,
 	key string,
 ) string {
-	if metadata == nil {
-		return ""
-	}
-	value, ok := metadata[key].(string)
-	if !ok {
-		return ""
-	}
-	return value
+	_ = "STUB: not implemented"
+	return ""
 }

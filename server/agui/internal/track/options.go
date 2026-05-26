@@ -26,37 +26,22 @@ type options struct {
 }
 
 // newOptions creates a new options instance.
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		aggregatorFactory: aggregator.New,
-		flushInterval:     DefaultFlushInterval,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures the tracker options.
 type Option func(*options)
 
 // WithAggregatorFactory sets the aggregator factory for the tracker.
 func WithAggregatorFactory(factory aggregator.Factory) Option {
-	return func(o *options) {
-		o.aggregatorFactory = factory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAggregationOption appends aggregator options for tracker-created aggregators.
 func WithAggregationOption(option ...aggregator.Option) Option {
-	return func(o *options) {
-		o.aggregationOption = append(o.aggregationOption, option...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFlushInterval sets the flush interval for the tracker.
-func WithFlushInterval(d time.Duration) Option {
-	return func(o *options) {
-		o.flushInterval = d
-	}
-}
+func WithFlushInterval(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

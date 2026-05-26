@@ -11,16 +11,8 @@
 package memory
 
 import (
-	"crypto/sha256"
-	"fmt"
-	"math"
-	"slices"
-	"sort"
-	"strings"
 	"sync"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/go-ego/gse"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
@@ -35,26 +27,12 @@ var (
 	segErr  error
 )
 
-func getSegmenter() (*gse.Segmenter, error) {
-	segOnce.Do(func() {
-		segErr = seg.LoadDict()
-	})
-	if segErr != nil {
-		return nil, fmt.Errorf(
-			"load segmenter dict failed: %w", segErr,
-		)
-	}
-	return &seg, nil
-}
+func getSegmenter() (*gse.Segmenter, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // resetSegmenter resets the segmenter state so that the next
 // getSegmenter call re-initialises. This is only intended for
 // testing error paths.
-func resetSegmenter() {
-	segOnce = sync.Once{}
-	segErr = nil
-	seg = gse.Segmenter{}
-}
+func resetSegmenter() { _ = "STUB: not implemented"; return }
 
 const (
 	// DefaultMemoryLimit is the default limit of memories per user.
@@ -86,106 +64,30 @@ const (
 // identity, while event metadata is included so distinct episodes with
 // the same text do not collapse into a single upsert key.
 func GenerateMemoryID(mem *memory.Memory, appName, userID string) string {
-	var builder strings.Builder
-	builder.WriteString("memory:")
-	builder.WriteString(mem.Memory)
-
-	// Include app name and user ID to prevent cross-user conflicts.
-	builder.WriteString("|app:")
-	builder.WriteString(appName)
-	builder.WriteString("|user:")
-	builder.WriteString(userID)
-
-	if kind := metadataIdentityKind(mem); kind != "" {
-		builder.WriteString("|kind:")
-		builder.WriteString(string(kind))
-	}
-	if mem != nil && mem.EventTime != nil {
-		builder.WriteString("|event_time:")
-		builder.WriteString(mem.EventTime.UTC().Format("2006-01-02T15:04:05Z07:00"))
-	}
-	if participants := metadataIdentityParticipants(mem); len(participants) > 0 {
-		builder.WriteString("|participants:")
-		builder.WriteString(strings.Join(participants, ","))
-	}
-	if location := metadataIdentityLocation(mem); location != "" {
-		builder.WriteString("|location:")
-		builder.WriteString(location)
-	}
-
-	hash := sha256.Sum256([]byte(builder.String()))
-	return fmt.Sprintf("%x", hash)
+	_ = "STUB: not implemented"
+	return ""
 }
 
+// Include app name and user ID to prevent cross-user conflicts.
+
 func metadataIdentityKind(mem *memory.Memory) memory.Kind {
-	if mem == nil {
-		return ""
-	}
-	hasEventMetadata := mem.EventTime != nil || len(mem.Participants) > 0 ||
-		strings.TrimSpace(mem.Location) != ""
-	if mem.Kind != "" && mem.Kind != memory.KindFact {
-		return mem.Kind
-	}
-	if hasEventMetadata {
-		return memory.KindFact
-	}
-	return ""
+	_ = "STUB: not implemented"
+	return *new(memory.Kind)
 }
 
 // EffectiveKind returns the runtime memory kind. Legacy records that did not
 // persist kind explicitly are treated as facts.
 func EffectiveKind(mem *memory.Memory) memory.Kind {
-	if mem == nil {
-		return ""
-	}
-	if mem.Kind != "" {
-		return mem.Kind
-	}
-	return memory.KindFact
+	_ = "STUB: not implemented"
+	return *new(memory.Kind)
 }
 
 func metadataIdentityParticipants(mem *memory.Memory) []string {
-	if mem == nil {
-		return nil
-	}
-	participants := make([]string, 0, len(mem.Participants))
-	for _, participant := range mem.Participants {
-		participant = strings.TrimSpace(participant)
-		if participant == "" {
-			continue
-		}
-		participants = append(participants, participant)
-	}
-	if len(participants) == 0 {
-		return nil
-	}
-	sort.Slice(participants, func(i, j int) bool {
-		li := strings.ToLower(participants[i])
-		lj := strings.ToLower(participants[j])
-		if li != lj {
-			return li < lj
-		}
-		return participants[i] < participants[j]
-	})
-	out := make([]string, 0, len(participants))
-	var prevFold string
-	for _, participant := range participants {
-		folded := strings.ToLower(participant)
-		if len(out) > 0 && folded == prevFold {
-			continue
-		}
-		out = append(out, participant)
-		prevFold = folded
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func metadataIdentityLocation(mem *memory.Memory) string {
-	if mem == nil {
-		return ""
-	}
-	return strings.TrimSpace(mem.Location)
-}
+func metadataIdentityLocation(mem *memory.Memory) string { _ = "STUB: not implemented"; return "" }
 
 // AllToolCreators contains creators for all valid memory tools.
 // This is shared between different memory service implementations.
@@ -218,10 +120,7 @@ var validToolNames = map[string]struct{}{
 }
 
 // IsValidToolName checks if the given tool name is valid.
-func IsValidToolName(toolName string) bool {
-	_, ok := validToolNames[toolName]
-	return ok
-}
+func IsValidToolName(toolName string) bool { _ = "STUB: not implemented"; return false }
 
 // autoModeDefaultEnabledTools defines default enabled tools for auto memory mode.
 // When extractor is configured, these defaults are applied to enabledTools.
@@ -251,23 +150,14 @@ func ApplyAutoModeDefaults(
 	enabledTools map[string]struct{},
 	userExplicitlySet map[string]struct{},
 ) {
-	if enabledTools == nil {
-		return
-	}
-	// Apply auto mode defaults only for tools not explicitly set
-	// by user.
-	for toolName, defaultEnabled := range autoModeDefaultEnabledTools {
-		if _, ok := userExplicitlySet[toolName]; ok {
-			// User explicitly set this tool, don't override.
-			continue
-		}
-		if defaultEnabled {
-			enabledTools[toolName] = struct{}{}
-		} else {
-			delete(enabledTools, toolName)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Apply auto mode defaults only for tools not explicitly set
+// by user.
+
+// User explicitly set this tool, don't override.
 
 // BuildToolsList builds the tools list based on configuration.
 // This is a shared implementation for all memory service backends.
@@ -286,24 +176,9 @@ func BuildToolsList(
 	hiddenTools map[string]struct{},
 	cachedTools map[string]tool.Tool,
 ) []tool.Tool {
+	_ = "STUB: not implemented"
 	// Collect tool names and sort for stable order.
-	names := make([]string, 0, len(toolCreators))
-	for name := range toolCreators {
-		if !shouldIncludeTool(name, ext, enabledTools, exposedTools, hiddenTools) {
-			continue
-		}
-		names = append(names, name)
-	}
-	slices.Sort(names)
-
-	tools := make([]tool.Tool, 0, len(names))
-	for _, name := range names {
-		if _, ok := cachedTools[name]; !ok {
-			cachedTools[name] = toolCreators[name]()
-		}
-		tools = append(tools, cachedTools[name])
-	}
-	return tools
+	return nil
 }
 
 // shouldIncludeTool determines if a tool should be included based on mode and settings.
@@ -314,12 +189,9 @@ func shouldIncludeTool(
 	exposedTools map[string]struct{},
 	hiddenTools map[string]struct{},
 ) bool {
+	_ = "STUB: not implemented"
 	// In auto memory mode, handle auto memory tools with special logic.
-	if ext != nil {
-		return shouldIncludeAutoMemoryTool(name, enabledTools, exposedTools, hiddenTools)
-	}
-
-	return shouldIncludeAgenticTool(name, enabledTools, exposedTools, hiddenTools)
+	return false
 }
 
 // shouldIncludeAgenticTool checks whether a tool should be exposed to the
@@ -330,17 +202,8 @@ func shouldIncludeAgenticTool(
 	exposedTools map[string]struct{},
 	hiddenTools map[string]struct{},
 ) bool {
-	_, ok := enabledTools[name]
-	if !ok {
-		return false
-	}
-	if _, ok := hiddenTools[name]; ok {
-		return false
-	}
-	if _, ok := exposedTools[name]; ok {
-		return true
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // autoModeExposedTools defines the default auto-mode tools exposed to the
@@ -360,18 +223,9 @@ func shouldIncludeAutoMemoryTool(
 	exposedTools map[string]struct{},
 	hiddenTools map[string]struct{},
 ) bool {
+	_ = "STUB: not implemented"
 	// The tool must be enabled before it can be exposed.
-	if _, ok := enabledTools[name]; !ok {
-		return false
-	}
-	if _, ok := hiddenTools[name]; ok {
-		return false
-	}
-	if _, ok := exposedTools[name]; ok {
-		return true
-	}
-	_, ok := autoModeExposedTools[name]
-	return ok
+	return false
 }
 
 type tokenOptions struct {
@@ -394,29 +248,13 @@ type fieldSearchStats struct {
 // BuildSearchTokens builds the primary lexical tokens for keyword search.
 // CJK text uses gse word segmentation when available, and mixed-language
 // text always keeps Latin word tokens.
-func BuildSearchTokens(query string) []string {
-	q := strings.TrimSpace(strings.ToLower(query))
-	if q == "" {
-		return nil
-	}
-	return tokenizePrimarySearchText(q, tokenOptions{
-		deduplicate:       true,
-		keepSingleCJKRune: shouldKeepSingleCJKToken(q),
-	})
-}
+func BuildSearchTokens(query string) []string { _ = "STUB: not implemented"; return nil }
 
 // isCJK reports if the rune belongs to a CJK script family.
-func isCJK(r rune) bool {
-	return unicode.Is(unicode.Han, r) ||
-		unicode.Is(unicode.Hiragana, r) ||
-		unicode.Is(unicode.Katakana, r) ||
-		unicode.Is(unicode.Hangul, r)
-}
+func isCJK(r rune) bool { _ = "STUB: not implemented"; return false }
 
 // isHan reports if the rune is a Han character.
-func isHan(r rune) bool {
-	return unicode.Is(unicode.Han, r)
-}
+func isHan(r rune) bool { _ = "STUB: not implemented"; return false }
 
 // cjkStopwords contains high-frequency CJK tokens that usually carry low
 // retrieval value for memory search.
@@ -431,364 +269,76 @@ var cjkStopwords = map[string]struct{}{
 	"所以": {}, "然后": {}, "用户": {},
 }
 
-func isCJKStopword(w string) bool {
-	if w == "" {
-		return false
-	}
-	if _, ok := cjkStopwords[w]; ok {
-		return true
-	}
-	if !isCJKToken(w) {
-		return false
-	}
-	for _, r := range w {
-		if _, ok := cjkStopwords[string(r)]; !ok {
-			return false
-		}
-	}
-	return true
-}
+func isCJKStopword(w string) bool { _ = "STUB: not implemented"; return false }
 
 // isPunct reports if the rune is punctuation or symbol.
-func isPunct(r rune) bool {
-	return unicode.IsPunct(r) || unicode.IsSymbol(r)
-}
+func isPunct(r rune) bool { _ = "STUB: not implemented"; return false }
 
 // isPunctToken reports if the string consists entirely of punctuation or
 // symbol runes.
-func isPunctToken(s string) bool {
-	if s == "" {
-		return true
-	}
-	for _, r := range s {
-		if !isPunct(r) {
-			return false
-		}
-	}
-	return true
-}
+func isPunctToken(s string) bool { _ = "STUB: not implemented"; return false }
 
-func shouldKeepSingleCJKToken(text string) bool {
-	var kept rune
-	count := 0
-	for _, r := range strings.TrimSpace(text) {
-		if unicode.IsSpace(r) || isPunct(r) {
-			continue
-		}
-		count++
-		kept = r
-		if count > 1 {
-			return false
-		}
-	}
-	return count == 1 && isCJK(kept)
-}
+func shouldKeepSingleCJKToken(text string) bool { _ = "STUB: not implemented"; return false }
 
 func tokenizePrimarySearchText(text string, opts tokenOptions) []string {
-	text = strings.TrimSpace(strings.ToLower(text))
-	if text == "" {
-		return nil
-	}
-	tokens := make([]string, 0, 8)
-	if containsHan(text) {
-		if segTokens := segmentCJKTokens(text, opts.keepSingleCJKRune); len(segTokens) > 0 {
-			tokens = append(tokens, segTokens...)
-		}
-	} else if containsCJKText(text) {
-		tokens = append(tokens,
-			collectRawCJKSegments(text, opts.keepSingleCJKRune)...)
-	}
-	tokens = append(tokens, collectEnglishTokens(text)...)
-	if opts.deduplicate {
-		return dedupStrings(tokens)
-	}
-	return tokens
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // containsHan reports whether the text contains any Han (Chinese)
 // character. Short-circuits on the first match.
-func containsHan(text string) bool {
-	for _, r := range text {
-		if isHan(r) {
-			return true
-		}
-	}
-	return false
-}
+func containsHan(text string) bool { _ = "STUB: not implemented"; return false }
 
 // containsCJKText reports whether the text contains any CJK-family
 // character (Han / Hiragana / Katakana / Hangul). Short-circuits.
-func containsCJKText(text string) bool {
-	for _, r := range text {
-		if isCJK(r) {
-			return true
-		}
-	}
-	return false
-}
+func containsCJKText(text string) bool { _ = "STUB: not implemented"; return false }
 
 func segmentCJKTokens(text string, keepSingleCJKRune bool) []string {
-	s, err := getSegmenter()
-	if err != nil {
-		return collectRawCJKSegments(text, keepSingleCJKRune)
-	}
-	words := s.CutSearch(text, true)
-	tokens := make([]string, 0, len(words))
-	for _, word := range words {
-		token := normalizeSegmentToken(word)
-		if token == "" || isPunctToken(token) {
-			continue
-		}
-		if isASCIIAlnumToken(token) {
-			// Latin tokens inside mixed Han/Latin text are emitted by
-			// collectEnglishTokens later in tokenizePrimarySearchText.
-			// Skipping them here prevents double-counting in the
-			// deduplicate=false scoring paths (buildFieldSearchStats),
-			// which would otherwise inflate BM25 term frequencies and
-			// document lengths for mixed-language memories.
-			continue
-		}
-		if isCJKToken(token) {
-			if !keepSingleCJKRune &&
-				utf8.RuneCountInString(token) < minCJKTokenLen {
-				continue
-			}
-			if isCJKStopword(token) {
-				continue
-			}
-		}
-		tokens = append(tokens, token)
-	}
-	return tokens
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func normalizeSegmentToken(token string) string {
-	token = strings.TrimSpace(strings.ToLower(token))
-	if token == "" {
-		return ""
-	}
-	if isASCIIAlnumToken(token) {
-		return token
-	}
-	if isCJKToken(token) {
-		return token
-	}
-	var builder strings.Builder
-	for _, r := range token {
-		switch {
-		case isCJK(r):
-			builder.WriteRune(r)
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
-			builder.WriteRune(r)
-		}
-	}
-	return builder.String()
-}
+// Latin tokens inside mixed Han/Latin text are emitted by
+// collectEnglishTokens later in tokenizePrimarySearchText.
+// Skipping them here prevents double-counting in the
+// deduplicate=false scoring paths (buildFieldSearchStats),
+// which would otherwise inflate BM25 term frequencies and
+// document lengths for mixed-language memories.
 
-func collectEnglishTokens(text string) []string {
-	var (
-		builder strings.Builder
-		tokens  []string
-	)
-	flush := func() {
-		if builder.Len() == 0 {
-			return
-		}
-		token := builder.String()
-		builder.Reset()
-		if len(token) < minEnglishTokenLen || isStopword(token) {
-			return
-		}
-		tokens = append(tokens, token)
-	}
-	for _, r := range text {
-		switch {
-		case isCJK(r):
-			flush()
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
-			builder.WriteRune(r)
-		default:
-			flush()
-		}
-	}
-	flush()
-	return tokens
-}
+func normalizeSegmentToken(token string) string { _ = "STUB: not implemented"; return "" }
+
+func collectEnglishTokens(text string) []string { _ = "STUB: not implemented"; return nil }
 
 func collectRawCJKSegments(
 	text string,
 	keepSingleCJKRune bool,
 ) []string {
-	segments := collectCJKSegments(text)
-	tokens := make([]string, 0, len(segments))
-	for _, segment := range segments {
-		if !keepSingleCJKRune &&
-			utf8.RuneCountInString(segment) < minCJKTokenLen {
-			continue
-		}
-		if isCJKStopword(segment) {
-			continue
-		}
-		tokens = append(tokens, segment)
-	}
-	return tokens
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func collectCJKSegments(text string) []string {
-	segments := make([]string, 0, 4)
-	var builder strings.Builder
-	flush := func() {
-		if builder.Len() == 0 {
-			return
-		}
-		segments = append(segments, builder.String())
-		builder.Reset()
-	}
-	for _, r := range strings.ToLower(text) {
-		if isCJK(r) {
-			builder.WriteRune(r)
-			continue
-		}
-		flush()
-	}
-	flush()
-	return segments
-}
+func collectCJKSegments(text string) []string { _ = "STUB: not implemented"; return nil }
 
-func buildFallbackCJKTrigrams(text string) []string {
-	segments := collectCJKSegments(strings.ToLower(text))
-	ngrams := make([]string, 0, len(segments)*2)
-	for _, segment := range segments {
-		runes := []rune(segment)
-		if len(runes) < cjkFallbackGramLen {
-			continue
-		}
-		for i := 0; i <= len(runes)-cjkFallbackGramLen; i++ {
-			token := string(runes[i : i+cjkFallbackGramLen])
-			if isCJKStopword(token) {
-				continue
-			}
-			ngrams = append(ngrams, token)
-		}
-	}
-	return ngrams
-}
+func buildFallbackCJKTrigrams(text string) []string { _ = "STUB: not implemented"; return nil }
 
 func buildWeightedQueryTokens(query string) []weightedQueryToken {
-	primaryTokens := BuildSearchTokens(query)
-	weighted := make([]weightedQueryToken, 0, len(primaryTokens)+4)
-	weights := make(map[string]float64, len(primaryTokens)+4)
-	add := func(token string, weight float64) {
-		if token == "" {
-			return
-		}
-		if existing, ok := weights[token]; ok {
-			if weight > existing {
-				weights[token] = weight
-			}
-			return
-		}
-		weights[token] = weight
-		weighted = append(weighted, weightedQueryToken{
-			text:   token,
-			weight: weight,
-		})
-	}
-	for _, token := range primaryTokens {
-		add(token, queryTokenWeight)
-	}
-	for _, token := range buildFallbackCJKTrigrams(query) {
-		if _, ok := weights[token]; ok {
-			continue
-		}
-		add(token, cjkTrigramTokenWeight)
-	}
-	return weighted
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildFieldSearchStats(text string) fieldSearchStats {
-	primaryTokens := tokenizePrimarySearchText(text, tokenOptions{
-		deduplicate:       false,
-		keepSingleCJKRune: false,
-	})
-	termFreq := make(map[string]int, len(primaryTokens))
-	for _, token := range primaryTokens {
-		termFreq[token]++
-	}
-	length := len(primaryTokens)
-	for _, token := range buildFallbackCJKTrigrams(text) {
-		if termFreq[token] > 0 {
-			continue
-		}
-		termFreq[token]++
-		length++
-	}
-	return fieldSearchStats{
-		tokens:         primaryTokens,
-		termFreq:       termFreq,
-		length:         length,
-		normalizedText: normalizePhraseText(text),
-	}
+	_ = "STUB: not implemented"
+	return *new(fieldSearchStats)
 }
 
-func normalizePhraseText(text string) string {
-	if text == "" {
-		return ""
-	}
-	var builder strings.Builder
-	for _, r := range strings.ToLower(text) {
-		switch {
-		case isCJK(r):
-			builder.WriteRune(r)
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
-			builder.WriteRune(r)
-		default:
-			builder.WriteRune(' ')
-		}
-	}
-	return strings.Join(strings.Fields(builder.String()), " ")
-}
+func normalizePhraseText(text string) string { _ = "STUB: not implemented"; return "" }
 
-func isASCIIAlnumToken(token string) bool {
-	if token == "" {
-		return false
-	}
-	for _, r := range token {
-		if isCJK(r) || !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			return false
-		}
-	}
-	return true
-}
+func isASCIIAlnumToken(token string) bool { _ = "STUB: not implemented"; return false }
 
-func isCJKToken(token string) bool {
-	if token == "" {
-		return false
-	}
-	for _, r := range token {
-		if !isCJK(r) {
-			return false
-		}
-	}
-	return true
-}
+func isCJKToken(token string) bool { _ = "STUB: not implemented"; return false }
 
 // dedupStrings returns a deduplicated copy of the input slice.
-func dedupStrings(in []string) []string {
-	seen := make(map[string]struct{}, len(in))
-	out := make([]string, 0, len(in))
-	for _, s := range in {
-		if s == "" {
-			continue
-		}
-		if _, ok := seen[s]; ok {
-			continue
-		}
-		seen[s] = struct{}{}
-		out = append(out, s)
-	}
-	return out
-}
+func dedupStrings(in []string) []string { _ = "STUB: not implemented"; return nil }
 
 var englishStopwords = map[string]struct{}{
 	"a": {}, "an": {}, "the": {}, "and": {}, "or": {},
@@ -799,10 +349,7 @@ var englishStopwords = map[string]struct{}{
 }
 
 // isStopword returns true for a lightweight set of English stopwords.
-func isStopword(s string) bool {
-	_, ok := englishStopwords[s]
-	return ok
-}
+func isStopword(s string) bool { _ = "STUB: not implemented"; return false }
 
 // ApplyMetadata populates episodic metadata on a Memory
 // object. This is used by JSON-based backends (mysql,
@@ -810,94 +357,28 @@ func isStopword(s string) bool {
 // serialized as JSON and the episodic fields are already
 // part of the struct definition.
 // If ep is nil, no fields are modified.
-func ApplyMetadata(mem *memory.Memory, ep *memory.Metadata) {
-	if mem == nil {
-		return
-	}
-	if ep != nil {
-		ep = normalizeAddMetadata(ep)
-		if ep.Kind != "" {
-			mem.Kind = ep.Kind
-		}
-		mem.EventTime = ep.EventTime
-		mem.Participants = ep.Participants
-		mem.Location = ep.Location
-	}
-	NormalizeMemory(mem)
-}
+func ApplyMetadata(mem *memory.Memory, ep *memory.Metadata) { _ = "STUB: not implemented"; return }
 
 // ApplyMetadataPatch updates only the metadata fields that are explicitly
 // present on ep. Zero values are treated as "not provided" so update paths
 // preserve stored metadata unless the caller supplied a replacement value.
-func ApplyMetadataPatch(mem *memory.Memory, ep *memory.Metadata) {
-	if mem == nil {
-		return
-	}
-	if ep != nil {
-		ep = normalizeUpdateMetadata(ep)
-		if ep.Kind != "" {
-			mem.Kind = ep.Kind
-		}
-		if ep.EventTime != nil {
-			mem.EventTime = ep.EventTime
-		}
-		if len(ep.Participants) > 0 {
-			mem.Participants = ep.Participants
-		}
-		if ep.Location != "" {
-			mem.Location = ep.Location
-		}
-	}
-	NormalizeMemory(mem)
-}
+func ApplyMetadataPatch(mem *memory.Memory, ep *memory.Metadata) { _ = "STUB: not implemented"; return }
 
 func normalizeAddMetadata(ep *memory.Metadata) *memory.Metadata {
-	if ep == nil {
-		return nil
-	}
-	normalized := &memory.Metadata{
-		Kind:         ep.Kind,
-		EventTime:    ep.EventTime,
-		Participants: metadataIdentityParticipants(&memory.Memory{Participants: ep.Participants}),
-		Location:     strings.TrimSpace(ep.Location),
-	}
-	if normalized.Kind == "" && (normalized.EventTime != nil ||
-		len(normalized.Participants) > 0 ||
-		normalized.Location != "") {
-		normalized.Kind = memory.KindFact
-	}
-	return normalized
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func normalizeUpdateMetadata(ep *memory.Metadata) *memory.Metadata {
-	if ep == nil {
-		return nil
-	}
-	return &memory.Metadata{
-		Kind:         ep.Kind,
-		EventTime:    ep.EventTime,
-		Participants: metadataIdentityParticipants(&memory.Memory{Participants: ep.Participants}),
-		Location:     strings.TrimSpace(ep.Location),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NormalizeMemory canonicalizes memory metadata for runtime use and new writes.
-func NormalizeMemory(mem *memory.Memory) {
-	if mem == nil {
-		return
-	}
-	mem.Kind = EffectiveKind(mem)
-	mem.Participants = metadataIdentityParticipants(mem)
-	mem.Location = strings.TrimSpace(mem.Location)
-}
+func NormalizeMemory(mem *memory.Memory) { _ = "STUB: not implemented"; return }
 
 // NormalizeEntry canonicalizes the in-memory representation of an entry.
-func NormalizeEntry(entry *memory.Entry) {
-	if entry == nil {
-		return
-	}
-	NormalizeMemory(entry.Memory)
-}
+func NormalizeEntry(entry *memory.Entry) { _ = "STUB: not implemented"; return }
 
 // ApplyMemoryUpdate applies an update patch in-place and returns the effective
 // canonical memory ID after the updated content and metadata are normalized.
@@ -908,42 +389,24 @@ func ApplyMemoryUpdate(
 	ep *memory.Metadata,
 	now time.Time,
 ) string {
-	if entry == nil {
-		return ""
-	}
-	if entry.Memory == nil {
-		entry.Memory = &memory.Memory{}
-	}
-	entry.AppName = appName
-	entry.UserID = userID
-	entry.Memory.Memory = memoryStr
-	entry.Memory.Topics = topics
-	entry.Memory.LastUpdated = &now
-	ApplyMetadataPatch(entry.Memory, ep)
-	entry.UpdatedAt = now
-	entry.ID = GenerateMemoryID(entry.Memory, appName, userID)
-	return entry.ID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // MatchMemoryEntry checks if a memory entry matches the given query.
 // Kept for backward compatibility; returns true when the relevance
 // score is greater than zero.
 func MatchMemoryEntry(entry *memory.Entry, query string) bool {
-	return ScoreMemoryEntry(entry, query) > 0
+	_ = "STUB: not implemented"
+	return false
 }
 
 // ScoreMemoryEntry returns a normalized keyword relevance score in [0, 1].
 // The score combines BM25-style weighting, query coverage, and an ordered
 // phrase bonus.
 func ScoreMemoryEntry(entry *memory.Entry, query string) float64 {
-	if entry == nil || entry.Memory == nil {
-		return 0
-	}
-	scorer := newKeywordSearchScorer([]*memory.Entry{entry}, query)
-	if len(scorer.docs) == 0 {
-		return 0
-	}
-	return scorer.scoreDoc(scorer.docs[0])
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // SearchOptions controls score filtering and result truncation for
@@ -974,10 +437,8 @@ func SearchMemoryEntries(
 	query string,
 	opts SearchOptions,
 ) []*memory.Entry {
-	return SearchEntries(entries, memory.SearchOptions{
-		Query:      query,
-		MaxResults: opts.MaxResults,
-	}, opts.MinScore, opts.MaxResults)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type scoredEntry struct {
@@ -1007,56 +468,8 @@ func newKeywordSearchScorer(
 	entries []*memory.Entry,
 	query string,
 ) *keywordSearchScorer {
-	query = strings.TrimSpace(query)
-	scorer := &keywordSearchScorer{
-		query:          query,
-		primaryTokens:  BuildSearchTokens(query),
-		weightedTokens: buildWeightedQueryTokens(query),
-		idf:            make(map[string]float64),
-	}
-	if query == "" {
-		return scorer
-	}
-
-	scorer.docs = make([]entrySearchStats, 0, len(entries))
-	docFreq := make(map[string]int, len(scorer.weightedTokens))
-	var totalContentLen float64
-	var totalTopicLen float64
-	for _, entry := range entries {
-		if entry == nil || entry.Memory == nil {
-			continue
-		}
-		doc := entrySearchStats{
-			entry:   entry,
-			content: buildFieldSearchStats(entry.Memory.Memory),
-			topics: buildFieldSearchStats(strings.Join(
-				entry.Memory.Topics, " ",
-			)),
-		}
-		scorer.docs = append(scorer.docs, doc)
-		totalContentLen += float64(doc.content.length)
-		totalTopicLen += float64(doc.topics.length)
-		incrementDocumentFrequency(docFreq, scorer.weightedTokens, doc)
-	}
-	if len(scorer.docs) > 0 {
-		scorer.avgContentLen = math.Max(
-			totalContentLen/float64(len(scorer.docs)),
-			1,
-		)
-		scorer.avgTopicLen = math.Max(
-			totalTopicLen/float64(len(scorer.docs)),
-			1,
-		)
-	}
-	for _, token := range scorer.weightedTokens {
-		scorer.totalWeight += token.weight
-		scorer.idf[token.text] = inverseDocumentFrequency(
-			len(scorer.docs),
-			docFreq[token.text],
-		)
-		scorer.totalIDFWeight += token.weight * scorer.idf[token.text]
-	}
-	return scorer
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func incrementDocumentFrequency(
@@ -1064,189 +477,46 @@ func incrementDocumentFrequency(
 	tokens []weightedQueryToken,
 	doc entrySearchStats,
 ) {
-	seen := make(map[string]struct{}, len(tokens))
-	for _, token := range tokens {
-		if _, ok := seen[token.text]; ok {
-			continue
-		}
-		if doc.content.termFreq[token.text] > 0 ||
-			doc.topics.termFreq[token.text] > 0 {
-			docFreq[token.text]++
-			seen[token.text] = struct{}{}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func inverseDocumentFrequency(docCount int, docFreq int) float64 {
-	if docCount <= 0 {
-		return 0
-	}
-	numerator := float64(docCount-docFreq) + 0.5
-	denominator := float64(docFreq) + 0.5
-	return math.Log1p(numerator / denominator)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func bm25TermScore(tf int, docLen int, avgDocLen float64) float64 {
-	if tf <= 0 || docLen <= 0 || avgDocLen <= 0 {
-		return 0
-	}
-	normalizer := keywordBM25K1 * (1 - keywordBM25B +
-		keywordBM25B*float64(docLen)/avgDocLen)
-	return float64(tf) * (keywordBM25K1 + 1) /
-		(float64(tf) + normalizer)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (s *keywordSearchScorer) scoreDoc(doc entrySearchStats) float64 {
-	if doc.entry == nil || doc.entry.Memory == nil || s.query == "" {
-		return 0
-	}
-	if len(s.weightedTokens) == 0 {
-		return fallbackPhraseScore(doc, s.query)
-	}
-
-	var raw float64
-	var matchedPotential float64
-	var matchedWeight float64
-	var matchedIDFWeight float64
-	for _, token := range s.weightedTokens {
-		idf := s.idf[token.text]
-		if idf <= 0 {
-			continue
-		}
-		contentScore := bm25TermScore(
-			doc.content.termFreq[token.text],
-			doc.content.length,
-			s.avgContentLen,
-		)
-		topicScore := bm25TermScore(
-			doc.topics.termFreq[token.text],
-			doc.topics.length,
-			s.avgTopicLen,
-		)
-		termScore := token.weight * idf *
-			(contentFieldWeight*contentScore +
-				topicFieldWeight*topicScore)
-		if termScore > 0 {
-			raw += termScore
-			matchedWeight += token.weight
-			matchedIDFWeight += token.weight * idf
-			matchedPotential += token.weight * idf *
-				contentFieldWeight * (keywordBM25K1 + 1)
-		}
-	}
-	if matchedWeight == 0 {
-		return fallbackPhraseScore(doc, s.query)
-	}
-
-	var strengthScore float64
-	if matchedPotential > 0 {
-		strengthScore = math.Min(raw/matchedPotential, 1)
-	}
-	coverage := matchedWeight / math.Max(s.totalWeight, 1)
-	rarityCoverage := matchedIDFWeight / math.Max(s.totalIDFWeight, 1)
-	phraseBonus := orderedPhraseBonus(doc, s.primaryTokens)
-	score := keywordCoverageWeight*coverage +
-		keywordRarityWeight*rarityCoverage +
-		keywordStrengthWeight*strengthScore +
-		keywordPhraseWeight*phraseBonus
-	return math.Min(score, 1)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func orderedPhraseBonus(
 	doc entrySearchStats,
 	queryTokens []string,
 ) float64 {
-	if len(queryTokens) < 2 {
-		return 0
-	}
-	switch {
-	case containsOrderedTokens(doc.content.tokens, queryTokens):
-		return 1
-	case containsOrderedTokens(doc.topics.tokens, queryTokens):
-		return 0.8
-	default:
-		return 0
-	}
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func containsOrderedTokens(docTokens, queryTokens []string) bool {
-	if len(docTokens) == 0 || len(queryTokens) == 0 {
-		return false
-	}
-	idx := 0
-	for _, token := range docTokens {
-		if token != queryTokens[idx] {
-			continue
-		}
-		idx++
-		if idx == len(queryTokens) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func fallbackPhraseScore(doc entrySearchStats, query string) float64 {
-	rawQuery := strings.TrimSpace(query)
-	if shouldAllowRawExactFallback(rawQuery) {
-		lowerRawQuery := strings.ToLower(rawQuery)
-		if strings.Contains(
-			strings.ToLower(doc.entry.Memory.Memory),
-			lowerRawQuery,
-		) {
-			return exactPhraseFallbackScore
-		}
-		if strings.Contains(
-			strings.ToLower(strings.Join(doc.entry.Memory.Topics, " ")),
-			lowerRawQuery,
-		) {
-			return exactPhraseFallbackScore * topicFieldWeight
-		}
-	}
-	if !shouldAllowExactFallback(query) {
-		return 0
-	}
-	normalizedQuery := normalizePhraseText(query)
-	if normalizedQuery == "" {
-		return 0
-	}
-	if strings.Contains(doc.content.normalizedText, normalizedQuery) {
-		return exactPhraseFallbackScore
-	}
-	if strings.Contains(doc.topics.normalizedText, normalizedQuery) {
-		return exactPhraseFallbackScore * topicFieldWeight
-	}
+	_ = "STUB: not implemented"
 	return 0
 }
 
-func shouldAllowExactFallback(query string) bool {
-	normalized := normalizePhraseText(query)
-	if normalized == "" {
-		return false
-	}
-	fields := strings.Fields(normalized)
-	if len(fields) == 1 && isASCIIAlnumToken(fields[0]) {
-		return false
-	}
-	return true
-}
+func shouldAllowExactFallback(query string) bool { _ = "STUB: not implemented"; return false }
 
-func shouldAllowRawExactFallback(query string) bool {
-	if query == "" || len(BuildSearchTokens(query)) > 0 {
-		return false
-	}
-	var hasAlnum bool
-	var hasSpecial bool
-	for _, r := range query {
-		switch {
-		case unicode.IsLetter(r) || unicode.IsNumber(r):
-			hasAlnum = true
-		case !unicode.IsSpace(r):
-			hasSpecial = true
-		}
-	}
-	return hasAlnum && hasSpecial
-}
+func shouldAllowRawExactFallback(query string) bool { _ = "STUB: not implemented"; return false }
 
 // SearchEntries applies keyword ranking together with public episodic-aware
 // search options. This is used by non-vector backends after they materialize
@@ -1257,41 +527,8 @@ func SearchEntries(
 	minScore float64,
 	defaultMaxResults int,
 ) []*memory.Entry {
-	query := strings.TrimSpace(opts.Query)
-	if query == "" {
-		return []*memory.Entry{}
-	}
-
-	limit := defaultMaxResults
-	if opts.MaxResults > 0 {
-		limit = opts.MaxResults
-	}
-
-	threshold := minScore
-	if opts.SimilarityThreshold > 0 {
-		threshold = opts.SimilarityThreshold
-	}
-
-	candidates := scoreEntries(entries, query, threshold)
-	filtered := filterAndSortEntries(candidates, opts)
-	results := cloneScoredEntries(filtered)
-
-	if opts.Kind != "" && opts.KindFallback &&
-		len(results) < MinKindFallbackResults {
-		fallbackOpts := opts
-		fallbackOpts.Kind = ""
-		fallbackOpts.KindFallback = false
-		fallback := cloneScoredEntries(filterAndSortEntries(candidates, fallbackOpts))
-		results = MergeSearchResults(results, fallback, opts.Kind, limit)
-	}
-
-	if opts.Deduplicate && len(results) > 1 {
-		results = DeduplicateResults(results)
-	}
-	if limit > 0 && len(results) > limit {
-		results = results[:limit]
-	}
-	return results
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func scoreEntries(
@@ -1299,43 +536,16 @@ func scoreEntries(
 	query string,
 	minScore float64,
 ) []scoredEntry {
-	scorer := newKeywordSearchScorer(entries, query)
-	candidates := make([]scoredEntry, 0, len(scorer.docs))
-	for _, doc := range scorer.docs {
-		score := scorer.scoreDoc(doc)
-		if !passesMinScore(score, minScore) {
-			continue
-		}
-		candidates = append(candidates, scoredEntry{
-			entry: doc.entry,
-			score: score,
-		})
-	}
-	return candidates
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func filterAndSortEntries(
 	candidates []scoredEntry,
 	opts memory.SearchOptions,
 ) []scoredEntry {
-	filtered := make([]scoredEntry, 0, len(candidates))
-	for _, candidate := range candidates {
-		if !matchesSearchFilters(candidate.entry, opts) {
-			continue
-		}
-		filtered = append(filtered, candidate)
-	}
-
-	sort.Slice(filtered, func(i, j int) bool {
-		return lessSearchEntry(
-			filtered[i].entry,
-			filtered[j].entry,
-			filtered[i].score,
-			filtered[j].score,
-			opts.OrderByEventTime,
-		)
-	})
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func lessSearchEntry(
@@ -1345,96 +555,27 @@ func lessSearchEntry(
 	rightScore float64,
 	orderByEventTime bool,
 ) bool {
-	switch {
-	case left == nil && right == nil:
-		return false
-	case left == nil:
-		return false
-	case right == nil:
-		return true
-	}
-	if leftScore != rightScore {
-		return leftScore > rightScore
-	}
-	if orderByEventTime {
-		ti := entryEventTime(left)
-		tj := entryEventTime(right)
-		switch {
-		case ti == nil && tj != nil:
-			return false
-		case ti != nil && tj == nil:
-			return true
-		case ti != nil && tj != nil && !ti.Equal(*tj):
-			return ti.Before(*tj)
-		}
-	}
-	if !left.UpdatedAt.Equal(right.UpdatedAt) {
-		return left.UpdatedAt.After(right.UpdatedAt)
-	}
-	if !left.CreatedAt.Equal(right.CreatedAt) {
-		return left.CreatedAt.After(right.CreatedAt)
-	}
-	return left.ID < right.ID
+	_ = "STUB: not implemented"
+	return false
 }
 
 func matchesSearchFilters(entry *memory.Entry, opts memory.SearchOptions) bool {
-	if entry == nil || entry.Memory == nil {
-		return false
-	}
-	if opts.Kind != "" && EffectiveKind(entry.Memory) != opts.Kind {
-		return false
-	}
-	if opts.TimeAfter != nil && entry.Memory.EventTime != nil &&
-		entry.Memory.EventTime.Before(*opts.TimeAfter) {
-		return false
-	}
-	if opts.TimeBefore != nil && entry.Memory.EventTime != nil &&
-		entry.Memory.EventTime.After(*opts.TimeBefore) {
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
-func entryEventTime(entry *memory.Entry) *time.Time {
-	if entry == nil || entry.Memory == nil {
-		return nil
-	}
-	return entry.Memory.EventTime
-}
+func entryEventTime(entry *memory.Entry) *time.Time { _ = "STUB: not implemented"; return nil }
 
 func cloneScoredEntries(candidates []scoredEntry) []*memory.Entry {
-	results := make([]*memory.Entry, 0, len(candidates))
-	for _, candidate := range candidates {
-		if candidate.entry == nil {
-			continue
-		}
-		cloned := *candidate.entry
-		cloned.Score = candidate.score
-		results = append(results, &cloned)
-	}
-	return results
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SortSearchResults sorts scored memory entries by relevance first and then
 // applies event_time as a tie-breaker when requested.
 func SortSearchResults(results []*memory.Entry, orderByEventTime bool) {
-	sort.SliceStable(results, func(i, j int) bool {
-		var leftScore float64
-		if results[i] != nil {
-			leftScore = results[i].Score
-		}
-		var rightScore float64
-		if results[j] != nil {
-			rightScore = results[j].Score
-		}
-		return lessSearchEntry(
-			results[i],
-			results[j],
-			leftScore,
-			rightScore,
-			orderByEventTime,
-		)
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 // SortSearchResultsWithKindPriority sorts results within preferred and fallback
@@ -1444,23 +585,8 @@ func SortSearchResultsWithKindPriority(
 	preferredKind memory.Kind,
 	orderByEventTime bool,
 ) {
-	if preferredKind == "" || len(results) < 2 {
-		SortSearchResults(results, orderByEventTime)
-		return
-	}
-	preferred := make([]*memory.Entry, 0, len(results))
-	fallback := make([]*memory.Entry, 0, len(results))
-	for _, entry := range results {
-		if entry != nil && EffectiveKind(entry.Memory) == preferredKind {
-			preferred = append(preferred, entry)
-			continue
-		}
-		fallback = append(fallback, entry)
-	}
-	SortSearchResults(preferred, orderByEventTime)
-	SortSearchResults(fallback, orderByEventTime)
-	pos := copy(results, preferred)
-	copy(results[pos:], fallback)
+	_ = "STUB: not implemented"
+	return
 }
 
 // MergeSearchResults merges kind-filtered results with fallback results.
@@ -1471,32 +597,8 @@ func MergeSearchResults(
 	preferredKind memory.Kind,
 	maxResults int,
 ) []*memory.Entry {
-	seen := make(map[string]struct{}, len(primary))
-	for _, e := range primary {
-		seen[e.ID] = struct{}{}
-	}
-
-	var kindMatch, kindOther []*memory.Entry
-	for _, e := range fallback {
-		if _, ok := seen[e.ID]; ok {
-			continue
-		}
-		if EffectiveKind(e.Memory) == preferredKind {
-			kindMatch = append(kindMatch, e)
-		} else {
-			kindOther = append(kindOther, e)
-		}
-	}
-
-	merged := make([]*memory.Entry, 0, len(primary)+len(kindMatch)+len(kindOther))
-	merged = append(merged, primary...)
-	merged = append(merged, kindMatch...)
-	merged = append(merged, kindOther...)
-
-	if maxResults > 0 && len(merged) > maxResults {
-		merged = merged[:maxResults]
-	}
-	return merged
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MergeHybridResults combines ranked result lists using Reciprocal Rank Fusion.
@@ -1507,46 +609,8 @@ func MergeHybridResults(
 	k int,
 	maxResults int,
 ) []*memory.Entry {
-	if k <= 0 {
-		k = DefaultHybridRRFK
-	}
-
-	type rrfEntry struct {
-		entry *memory.Entry
-		score float64
-	}
-
-	scores := make(map[string]*rrfEntry, len(primary)+len(secondary))
-	accumulate := func(results []*memory.Entry) {
-		for rank, entry := range results {
-			if entry == nil || entry.ID == "" {
-				continue
-			}
-			rrfScore := 1.0 / float64(k+rank+1)
-			if existing, ok := scores[entry.ID]; ok {
-				existing.score += rrfScore
-				continue
-			}
-			cloned := *entry
-			scores[entry.ID] = &rrfEntry{
-				entry: &cloned,
-				score: rrfScore,
-			}
-		}
-	}
-	accumulate(primary)
-	accumulate(secondary)
-
-	merged := make([]*memory.Entry, 0, len(scores))
-	for _, scored := range scores {
-		scored.entry.Score = scored.score
-		merged = append(merged, scored.entry)
-	}
-	SortSearchResults(merged, false)
-	if maxResults > 0 && len(merged) > maxResults {
-		merged = merged[:maxResults]
-	}
-	return merged
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DeduplicateResults removes near-duplicate memories based on word-level
@@ -1564,122 +628,45 @@ func MergeHybridResults(
 //     hold: a chain such as A~B, B~C, A!~C still drops C because C has
 //     a higher-scored near-duplicate (B) in the input.
 func DeduplicateResults(results []*memory.Entry) []*memory.Entry {
-	const jaccardThreshold = 0.80
-	if len(results) < 2 {
-		return results
-	}
-
-	// Build token sets once per entry; reused across all comparisons.
-	sets := make([]map[string]struct{}, len(results))
-	for i, r := range results {
-		sets[i] = entryTokenSet(r)
-	}
-
-	// Visit indices in score-descending order so that the first
-	// representative we pick for any duplicate cluster is the one
-	// with the highest score. Stable ordering on ties keeps behavior
-	// deterministic for equal-scored near-duplicates.
-	order := make([]int, len(results))
-	for i := range order {
-		order[i] = i
-	}
-	// Treat nil entries as having the lowest possible score so they
-	// sort last instead of panicking in the comparator. The Jaccard
-	// pass below is already nil-safe via entryTokenSet, so keeping
-	// nils at the tail is enough to preserve overall safety.
-	entryScore := func(e *memory.Entry) float64 {
-		if e == nil {
-			return math.Inf(-1)
-		}
-		return e.Score
-	}
-	sort.SliceStable(order, func(a, b int) bool {
-		return entryScore(results[order[a]]) > entryScore(results[order[b]])
-	})
-
-	// Compare each candidate against every already-visited index, not
-	// just survivors. Without this, a chain A~B and B~C (with A not
-	// similar to C) can leave both A and C in the output, which would
-	// contradict the documented pairwise semantics: every dropped
-	// entry must have at least one higher-scored near-duplicate in
-	// the final output *or* in the set of already-dropped duplicates.
-	// Comparing against all higher-scored entries (via the prefix of
-	// the sorted order) preserves that invariant.
-	kept := make([]bool, len(results))
-	kept[order[0]] = true
-	for pos := 1; pos < len(order); pos++ {
-		idx := order[pos]
-		isDup := false
-		for prev := 0; prev < pos; prev++ {
-			k := order[prev]
-			if jaccardAtLeast(sets[idx], sets[k], jaccardThreshold) {
-				isDup = true
-				break
-			}
-		}
-		if isDup {
-			continue
-		}
-		kept[idx] = true
-	}
-
-	// Emit survivors in the original input order so callers relying on
-	// the historical ordering semantics keep working.
-	deduped := make([]*memory.Entry, 0, len(results))
-	for i, r := range results {
-		if kept[i] {
-			deduped = append(deduped, r)
-		}
-	}
-	return deduped
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Build token sets once per entry; reused across all comparisons.
+
+// Visit indices in score-descending order so that the first
+// representative we pick for any duplicate cluster is the one
+// with the highest score. Stable ordering on ties keeps behavior
+// deterministic for equal-scored near-duplicates.
+
+// Treat nil entries as having the lowest possible score so they
+// sort last instead of panicking in the comparator. The Jaccard
+// pass below is already nil-safe via entryTokenSet, so keeping
+// nils at the tail is enough to preserve overall safety.
+
+// Compare each candidate against every already-visited index, not
+// just survivors. Without this, a chain A~B and B~C (with A not
+// similar to C) can leave both A and C in the output, which would
+// contradict the documented pairwise semantics: every dropped
+// entry must have at least one higher-scored near-duplicate in
+// the final output *or* in the set of already-dropped duplicates.
+// Comparing against all higher-scored entries (via the prefix of
+// the sorted order) preserves that invariant.
+
+// Emit survivors in the original input order so callers relying on
+// the historical ordering semantics keep working.
 
 // entryTokenSet builds a Jaccard-friendly token set from an entry's
 // memory content. Returns an empty set for nil / empty entries.
-func entryTokenSet(e *memory.Entry) map[string]struct{} {
-	if e == nil || e.Memory == nil {
-		return map[string]struct{}{}
-	}
-	// Pre-size the map to avoid rehashing; the typical short memory
-	// has ~10-30 unique tokens after dedup.
-	set := make(map[string]struct{}, 16)
-	for _, w := range BuildSearchTokens(e.Memory.Memory) {
-		set[w] = struct{}{}
-	}
-	for _, w := range buildFallbackCJKTrigrams(e.Memory.Memory) {
-		set[w] = struct{}{}
-	}
-	return set
-}
+func entryTokenSet(e *memory.Entry) map[string]struct{} { _ = "STUB: not implemented"; return nil }
 
-func jaccardSimilarity(a, b map[string]struct{}) float64 {
-	la, lb := len(a), len(b)
-	if la == 0 && lb == 0 {
-		return 1.0
-	}
-	if la == 0 || lb == 0 {
-		return 0
-	}
-	// Iterate over the smaller set to minimize probe count, and look
-	// up in the larger one.
-	small, large := a, b
-	ls, ll := la, lb
-	if lb < la {
-		small, large = b, a
-		ls, ll = lb, la
-	}
-	intersection := 0
-	for w := range small {
-		if _, ok := large[w]; ok {
-			intersection++
-		}
-	}
-	union := ls + ll - intersection
-	if union == 0 {
-		return 0
-	}
-	return float64(intersection) / float64(union)
-}
+// Pre-size the map to avoid rehashing; the typical short memory
+// has ~10-30 unique tokens after dedup.
+
+func jaccardSimilarity(a, b map[string]struct{}) float64 { _ = "STUB: not implemented"; return 0 }
+
+// Iterate over the smaller set to minimize probe count, and look
+// up in the larger one.
 
 // jaccardAtLeast reports whether Jaccard(a, b) >= threshold, doing as
 // little work as possible. It returns early on size mismatch (the
@@ -1695,48 +682,19 @@ func jaccardSimilarity(a, b map[string]struct{}) float64 {
 // a pair of such unrelated entries would be collapsed purely because
 // neither produced any lexical evidence.
 func jaccardAtLeast(a, b map[string]struct{}, threshold float64) bool {
-	la, lb := len(a), len(b)
-	if la == 0 || lb == 0 {
-		return false
-	}
-	small, large := a, b
-	ls, ll := la, lb
-	if lb < la {
-		small, large = b, a
-		ls, ll = lb, la
-	}
-	// Upper bound on Jaccard given only set sizes: |small| / |large|.
-	// If even that cannot hit the threshold, skip the probe entirely.
-	if float64(ls)/float64(ll) < threshold {
-		return false
-	}
-	// Minimum intersection count that satisfies
-	// |I| / (|a| + |b| - |I|) >= T, solved for |I|:
-	//   |I| >= T * (|a| + |b|) / (1 + T)
-	needed := int(math.Ceil(threshold * float64(la+lb) / (1 + threshold)))
-	inter := 0
-	// maxPossible tracks how many matches are still reachable; stop
-	// early when even matching every remaining small-set token cannot
-	// reach the needed count.
-	remaining := ls
-	for w := range small {
-		if _, ok := large[w]; ok {
-			inter++
-			if inter >= needed {
-				return true
-			}
-		}
-		remaining--
-		if inter+remaining < needed {
-			return false
-		}
-	}
-	return inter >= needed
+	_ = "STUB: not implemented"
+	return false
 }
 
-func passesMinScore(score float64, minScore float64) bool {
-	if minScore > 0 {
-		return score >= minScore
-	}
-	return score > 0
-}
+// Upper bound on Jaccard given only set sizes: |small| / |large|.
+// If even that cannot hit the threshold, skip the probe entirely.
+
+// Minimum intersection count that satisfies
+// |I| / (|a| + |b| - |I|) >= T, solved for |I|:
+//   |I| >= T * (|a| + |b|) / (1 + T)
+
+// maxPossible tracks how many matches are still reachable; stop
+// early when even matching every remaining small-set token cannot
+// reach the needed count.
+
+func passesMinScore(score float64, minScore float64) bool { _ = "STUB: not implemented"; return false }

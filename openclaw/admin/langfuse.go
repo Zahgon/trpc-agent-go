@@ -9,8 +9,6 @@
 
 package admin
 
-import "strings"
-
 const langfuseTraceIDPlaceholder = "{{trace_id}}"
 
 // LangfuseStatus describes the current Langfuse integration state that the
@@ -24,34 +22,8 @@ type LangfuseStatus struct {
 }
 
 func normalizeLangfuseStatus(raw LangfuseStatus) LangfuseStatus {
-	raw.Error = strings.TrimSpace(raw.Error)
-	raw.UIBaseURL = strings.TrimRight(
-		strings.TrimSpace(raw.UIBaseURL),
-		"/",
-	)
-	raw.TraceURLTemplate = strings.TrimSpace(raw.TraceURLTemplate)
-	return raw
+	_ = "STUB: not implemented"
+	return *new(LangfuseStatus)
 }
 
-func (s *Service) langfuseTraceURL(traceID string) string {
-	traceID = strings.TrimSpace(traceID)
-	if traceID == "" || s == nil {
-		return ""
-	}
-	status := normalizeLangfuseStatus(s.cfg.Langfuse)
-	if !status.Enabled || !status.Ready ||
-		status.TraceURLTemplate == "" {
-		return ""
-	}
-	if !strings.Contains(
-		status.TraceURLTemplate,
-		langfuseTraceIDPlaceholder,
-	) {
-		return ""
-	}
-	return strings.ReplaceAll(
-		status.TraceURLTemplate,
-		langfuseTraceIDPlaceholder,
-		traceID,
-	)
-}
+func (s *Service) langfuseTraceURL(traceID string) string { _ = "STUB: not implemented"; return "" }

@@ -11,13 +11,9 @@ package processor
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -35,37 +31,18 @@ type TimeRequestProcessor struct {
 type TimeOption func(*TimeRequestProcessor)
 
 // WithAddCurrentTime enables or disables adding current time to the system prompt.
-func WithAddCurrentTime(add bool) TimeOption {
-	return func(p *TimeRequestProcessor) {
-		p.AddCurrentTime = add
-	}
-}
+func WithAddCurrentTime(add bool) TimeOption { _ = "STUB: not implemented"; return *new(TimeOption) }
 
 // WithTimezone sets the timezone for time display.
-func WithTimezone(tz string) TimeOption {
-	return func(p *TimeRequestProcessor) {
-		p.Timezone = tz
-	}
-}
+func WithTimezone(tz string) TimeOption { _ = "STUB: not implemented"; return *new(TimeOption) }
 
 // WithTimeFormat sets the format for time display.
-func WithTimeFormat(format string) TimeOption {
-	return func(p *TimeRequestProcessor) {
-		p.TimeFormat = format
-	}
-}
+func WithTimeFormat(format string) TimeOption { _ = "STUB: not implemented"; return *new(TimeOption) }
 
 // NewTimeRequestProcessor creates a new time request processor.
 func NewTimeRequestProcessor(opts ...TimeOption) *TimeRequestProcessor {
-	p := &TimeRequestProcessor{
-		AddCurrentTime: false,
-		Timezone:       "",
-		TimeFormat:     "2006-01-02 15:04:05 MST",
-	}
-	for _, opt := range opts {
-		opt(p)
-	}
-	return p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessRequest implements the flow.RequestProcessor interface.
@@ -76,104 +53,54 @@ func (p *TimeRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if !p.AddCurrentTime {
-		return
-	}
-
-	if req == nil {
-		log.ErrorfContext(
-			ctx,
-			"Time request processor: request is nil",
-		)
-		return
-	}
-
-	agentName := ""
-	if invocation != nil {
-		agentName = invocation.AgentName
-	}
-	log.DebugfContext(
-		ctx,
-		"Time request processor: processing request for agent %s",
-		agentName,
-	)
-
-	// Get current time with timezone support.
-	currentTime := p.getCurrentTime()
-	timeContent := fmt.Sprintf("The current time is: %s", currentTime)
-
-	// Add time information to the system message.
-	p.addTimeToSystemMessage(req, timeContent)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Get current time with timezone support.
+
+// Add time information to the system message.
 
 // SupportsContextCompactionRebuild reports that time decoration can be safely
 // replayed during the sync-summary rebuild path.
 func (p *TimeRequestProcessor) SupportsContextCompactionRebuild(
 	_ *agent.Invocation,
 ) bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// RebuildRequestForContextCompaction re-applies time decoration during the
+	// safe sync-summary rebuild path without replaying the full processor chain.
+	return false
 }
 
-// RebuildRequestForContextCompaction re-applies time decoration during the
-// safe sync-summary rebuild path without replaying the full processor chain.
 func (p *TimeRequestProcessor) RebuildRequestForContextCompaction(
 	ctx context.Context,
 	invocation *agent.Invocation,
 	req *model.Request,
 ) {
-	p.ProcessRequest(ctx, invocation, req, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 // getCurrentTime returns the current time string with timezone support.
-func (p *TimeRequestProcessor) getCurrentTime() string {
-	var loc *time.Location
-	var err error
-
-	if p.Timezone != "" {
-		loc, err = time.LoadLocation(p.Timezone)
-		if err != nil {
-			log.Warnf("Invalid timezone '%s', falling back to UTC: %v", p.Timezone, err)
-			loc = time.UTC
-		}
-	} else {
-		loc = time.Local
-	}
-
-	now := time.Now().In(loc)
-	format := p.TimeFormat
-	if format == "" {
-		format = "2006-01-02 15:04:05 MST"
-	}
-
-	return now.Format(format)
-}
+func (p *TimeRequestProcessor) getCurrentTime() string { _ = "STUB: not implemented"; return "" }
 
 // addTimeToSystemMessage adds time information to the system message.
 func (p *TimeRequestProcessor) addTimeToSystemMessage(req *model.Request, timeContent string) {
+	_ = "STUB: not implemented"
 	// Find existing system message or create new one.
-	systemMsgIndex := findLastSystemMessageIndex(req.Messages)
-
-	if systemMsgIndex >= 0 {
-		// There's already a system message, check if it contains time info.
-		if !containsTimeInfo(req.Messages[systemMsgIndex].Content, timeContent) {
-			// Append time info to existing system message.
-			if req.Messages[systemMsgIndex].Content == "" {
-				req.Messages[systemMsgIndex].Content = timeContent
-			} else {
-				req.Messages[systemMsgIndex].Content += "\n\n" +
-					timeContent
-			}
-		}
-	} else {
-		// No existing system message, create new one.
-		timeMsg := model.NewSystemMessage(timeContent)
-		req.Messages = append([]model.Message{timeMsg}, req.Messages...)
-	}
+	return
 }
+
+// There's already a system message, check if it contains time info.
+
+// Append time info to existing system message.
+
+// No existing system message, create new one.
 
 // containsTimeInfo checks if the given content already contains the time information.
 func containsTimeInfo(content, timeInfo string) bool {
+	_ = "STUB: not implemented"
 	// Extract just the time part for comparison.
-	timePart := strings.TrimPrefix(timeInfo, "The current time is: ")
-	return strings.Contains(content, timePart)
+	return false
 }

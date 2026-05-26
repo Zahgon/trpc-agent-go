@@ -10,8 +10,6 @@ package a2ui
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -33,61 +31,18 @@ type a2uiPlanner struct {
 }
 
 // New creates a new A2UI planner.
-func New(opts ...Option) planner.Planner {
-	o := newOptions(opts...)
-	return &a2uiPlanner{
-		instruction:                       o.instruction,
-		clientCapabilitiesSchema:          o.clientCapabilitiesSchema,
-		catalogDescriptionSchema:          o.catalogDescriptionSchema,
-		clientToServer:                    o.clientToServer,
-		serverToClient:                    o.serverToClient,
-		serverToClientWithStandardCatalog: o.serverToClientWithStandardCatalog,
-		standardCatalogDefinition:         o.standardCatalogDefinition,
-	}
-}
+func New(opts ...Option) planner.Planner { _ = "STUB: not implemented"; return *new(planner.Planner) }
 
 // BuildPlanningInstruction injects A2UI protocol constraints.
 func (p *a2uiPlanner) BuildPlanningInstruction(ctx context.Context, invocation *agent.Invocation,
 	llmRequest *model.Request) string {
-	instructions := make([]string, 0)
-	if p.instruction != "" {
-		instructions = append(instructions, p.instruction)
-	}
-	if p.serverToClientWithStandardCatalog != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Server-to-client-with-standard-catalog payload schema: %s", p.serverToClientWithStandardCatalog),
-		)
-	}
-	if p.clientToServer != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Client-to-server payload schema: %s", p.clientToServer),
-		)
-	}
-	if p.clientCapabilitiesSchema != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Client capabilities schema: %s", p.clientCapabilitiesSchema),
-		)
-	}
-	if p.serverToClient != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Server-to-client payload schema: %s", p.serverToClient),
-		)
-	}
-	if p.standardCatalogDefinition != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Standard catalog definition: %s", p.standardCatalogDefinition),
-		)
-	}
-	if p.catalogDescriptionSchema != "" {
-		instructions = append(instructions,
-			fmt.Sprintf("Catalog description schema: %s", p.catalogDescriptionSchema),
-		)
-	}
-	return strings.Join(instructions, "\n\n")
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // ProcessPlanningResponse returns nil to indicate that no planning-specific response processing is needed.
 func (p *a2uiPlanner) ProcessPlanningResponse(ctx context.Context, invocation *agent.Invocation,
 	response *model.Response) *model.Response {
+	_ = "STUB: not implemented"
 	return nil
 }

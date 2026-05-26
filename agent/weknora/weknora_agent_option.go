@@ -21,64 +21,31 @@ import (
 type Option func(*WeKnoraAgent)
 
 // WithBaseUrl sets the base URL of the WeKnora service
-func WithBaseUrl(baseUrl string) Option {
-	return func(a *WeKnoraAgent) {
-		a.baseUrl = baseUrl
-	}
-}
+func WithBaseUrl(baseUrl string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithToken sets the authentication token for WeKnora service
-func WithToken(token string) Option {
-	return func(a *WeKnoraAgent) {
-		a.token = token
-	}
-}
+func WithToken(token string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithName sets the name of agent
-func WithName(name string) Option {
-	return func(a *WeKnoraAgent) {
-		a.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDescription sets the agent description
-func WithDescription(description string) Option {
-	return func(a *WeKnoraAgent) {
-		a.description = description
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentID sets the custom agent ID for WeKnora
-func WithAgentID(agentID string) Option {
-	return func(a *WeKnoraAgent) {
-		a.agentID = agentID
-	}
-}
+func WithAgentID(agentID string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithKnowledgeBaseIDs sets the knowledge base IDs for WeKnora
-func WithKnowledgeBaseIDs(ids []string) Option {
-	return func(a *WeKnoraAgent) {
-		a.knowledgeBaseIDs = ids
-	}
-}
+func WithKnowledgeBaseIDs(ids []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithWebSearchEnabled sets whether to enable web search
-func WithWebSearchEnabled(enabled bool) Option {
-	return func(a *WeKnoraAgent) {
-		a.webSearchEnabled = enabled
-	}
-}
+func WithWebSearchEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the timeout for WeKnora requests
-func WithTimeout(timeout time.Duration) Option {
-	return func(a *WeKnoraAgent) {
-		a.timeout = timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGetWeKnoraClientFunc sets a custom function to create WeKnora client for each invocation.
 func WithGetWeKnoraClientFunc(fn func(*agent.Invocation) (*client.Client, error)) Option {
-	return func(a *WeKnoraAgent) {
-		a.getWeKnoraClientFunc = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

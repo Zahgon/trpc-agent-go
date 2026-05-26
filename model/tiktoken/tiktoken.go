@@ -13,7 +13,6 @@ package tiktoken
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/tiktoken-go/tokenizer"
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -34,128 +33,39 @@ type Counter struct {
 //
 // Returns:
 // - *Counter on success; error if codec initialization fails.
-func New(modelName string) (*Counter, error) {
-	enc, err := tokenizer.ForModel(tokenizer.Model(modelName))
-	if err != nil {
-		// Fallback to cl100k_base for broad compatibility.
-		enc, err = tokenizer.Get(tokenizer.Cl100kBase)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get fallback tokenizer: %w", err)
-		}
-	}
-	return &Counter{encoding: enc}, nil
-}
+func New(modelName string) (*Counter, error) { _ = "STUB: not implemented"; return nil, nil }
+
+// Fallback to cl100k_base for broad compatibility.
 
 // CountTokens returns the token count for a single message using tiktoken-go.
 // It encodes Message.Content, Message.ReasoningContent, text ContentParts, and ToolCalls.
 func (c *Counter) CountTokens(_ context.Context, message model.Message) (int, error) {
-	total := 0
-
-	if message.Content != "" {
-		toks, _, err := c.encoding.Encode(message.Content)
-		if err != nil {
-			return 0, fmt.Errorf("encode content failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	if message.ReasoningContent != "" {
-		toks, _, err := c.encoding.Encode(message.ReasoningContent)
-		if err != nil {
-			return 0, fmt.Errorf("encode reasoning failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	for _, part := range message.ContentParts {
-		if part.Text != nil {
-			toks, _, err := c.encoding.Encode(*part.Text)
-			if err != nil {
-				return 0, fmt.Errorf("encode text part failed: %w", err)
-			}
-			total += len(toks)
-		}
-	}
-
-	// Count tokens for tool calls.
-	for _, toolCall := range message.ToolCalls {
-		toolCallTokens, err := c.countToolCallTokens(toolCall)
-		if err != nil {
-			return 0, fmt.Errorf("encode tool call failed: %w", err)
-		}
-		total += toolCallTokens
-	}
-
-	return total, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
+
+// Count tokens for tool calls.
 
 // countToolCallTokens calculates the token count for a single tool call.
 // It encodes the tool call's type, ID, function name, description, and arguments.
 func (c *Counter) countToolCallTokens(toolCall model.ToolCall) (int, error) {
-	total := 0
+	_ = "STUB: not implemented"
 
 	// Count tokens for tool call type (e.g., "function").
-	if toolCall.Type != "" {
-		toks, _, err := c.encoding.Encode(toolCall.Type)
-		if err != nil {
-			return 0, fmt.Errorf("encode tool call type failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	// Count tokens for tool call ID.
-	if toolCall.ID != "" {
-		toks, _, err := c.encoding.Encode(toolCall.ID)
-		if err != nil {
-			return 0, fmt.Errorf("encode tool call ID failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	// Count tokens for function name.
-	if toolCall.Function.Name != "" {
-		toks, _, err := c.encoding.Encode(toolCall.Function.Name)
-		if err != nil {
-			return 0, fmt.Errorf("encode function name failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	// Count tokens for function description.
-	if toolCall.Function.Description != "" {
-		toks, _, err := c.encoding.Encode(toolCall.Function.Description)
-		if err != nil {
-			return 0, fmt.Errorf("encode function description failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	// Count tokens for function arguments (JSON string).
-	if len(toolCall.Function.Arguments) > 0 {
-		toks, _, err := c.encoding.Encode(string(toolCall.Function.Arguments))
-		if err != nil {
-			return 0, fmt.Errorf("encode function arguments failed: %w", err)
-		}
-		total += len(toks)
-	}
-
-	return total, nil
+	return 0, nil
 }
+
+// Count tokens for tool call ID.
+
+// Count tokens for function name.
+
+// Count tokens for function description.
+
+// Count tokens for function arguments (JSON string).
 
 // CountTokensRange returns the token count for a range of messages using tiktoken-go.
 // This is more efficient than calling CountTokens multiple times.
 func (c *Counter) CountTokensRange(ctx context.Context, messages []model.Message, start, end int) (int, error) {
-	if start < 0 || end > len(messages) || start >= end {
-		return 0, fmt.Errorf("invalid range: start=%d, end=%d, len=%d", start, end, len(messages))
-	}
-
-	total := 0
-	for i := start; i < end; i++ {
-		tokens, err := c.CountTokens(ctx, messages[i])
-		if err != nil {
-			return 0, fmt.Errorf("count tokens for message %d failed: %w", i, err)
-		}
-		total += tokens
-	}
-	return total, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }

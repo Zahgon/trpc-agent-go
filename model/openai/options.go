@@ -159,61 +159,42 @@ var (
 type Option func(*options)
 
 // WithAPIKey sets the API key for the OpenAI client.
-func WithAPIKey(key string) Option {
-	return func(opts *options) {
-		opts.APIKey = key
-	}
-}
+func WithAPIKey(key string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseURL sets the base URL for the OpenAI client.
-func WithBaseURL(url string) Option {
-	return func(opts *options) {
-		opts.BaseURL = url
-	}
-}
+func WithBaseURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the channel buffer size for the OpenAI client.
-func WithChannelBufferSize(size int) Option {
-	return func(opts *options) {
-		if size <= 0 {
-			size = defaultChannelBufferSize
-		}
-		opts.ChannelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChatRequestCallback sets the function to be called before sending a
 // chat request. The callback runs synchronously in GenerateContent before
 // the response goroutine starts. Start your own goroutine in the callback
 // if asynchronous behavior is needed.
 func WithChatRequestCallback(fn ChatRequestCallbackFunc) Option {
-	return func(opts *options) {
-		opts.ChatRequestCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatRequestJSONCallback sets the function to be called with the
 // marshaled chat request JSON before sending the request.
 func WithChatRequestJSONCallback(fn ChatRequestJSONCallbackFunc) Option {
-	return func(opts *options) {
-		opts.ChatRequestJSONCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatResponseCallback sets the function to be called after receiving a chat response.
 // Used for non-streaming responses.
 func WithChatResponseCallback(fn ChatResponseCallbackFunc) Option {
-	return func(opts *options) {
-		opts.ChatResponseCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatChunkCallback sets the function to be called after receiving a chat chunk.
 // Used for streaming responses.
 func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
-	return func(opts *options) {
-		opts.ChatChunkCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatStreamCompleteCallback sets the function to be called when
@@ -221,9 +202,8 @@ func WithChatChunkCallback(fn ChatChunkCallbackFunc) Option {
 // terminal streaming result is surfaced to the caller.
 // Called for both successful and failed streaming completions.
 func WithChatStreamCompleteCallback(fn ChatStreamCompleteCallbackFunc) Option {
-	return func(opts *options) {
-		opts.ChatStreamCompleteCallback = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChatTelemetry enables chat trace and metric reporting for direct
@@ -233,26 +213,19 @@ func WithChatStreamCompleteCallback(fn ChatStreamCompleteCallbackFunc) Option {
 // Model.GenerateContentIter directly. The recommended runner + agent path
 // already reports chat telemetry from llmflow. Reusing a model with this
 // option enabled inside runner + agent may report duplicate chat telemetry.
-func WithChatTelemetry(enabled bool) Option {
-	return func(opts *options) {
-		opts.ChatTelemetry = enabled
-	}
-}
+func WithChatTelemetry(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReasoningContentBackfill enables replay-time reasoning_content backfill
 // for assistant messages that have no reasoning text.
 func WithReasoningContentBackfill(enabled bool) Option {
-	return func(opts *options) {
-		opts.ReasoningContentBackfill = enabled
-		opts.reasoningContentBackfillSet = true
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHTTPClientOptions sets the HTTP client options for the OpenAI client.
 func WithHTTPClientOptions(httpOpts ...HTTPClientOption) Option {
-	return func(opts *options) {
-		opts.HTTPClientOptions = httpOpts
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOpenAIOptions sets the OpenAI options for the OpenAI client.
@@ -270,22 +243,12 @@ func WithHTTPClientOptions(httpOpts ...HTTPClientOption) Option {
 //		}
 //	)))
 func WithOpenAIOptions(openaiOpts ...openaiopt.RequestOption) Option {
-	return func(opts *options) {
-		opts.OpenAIOptions = append(opts.OpenAIOptions, openaiOpts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHeaders appends static HTTP headers to all OpenAI requests.
-func WithHeaders(headers map[string]string) Option {
-	return func(opts *options) {
-		if len(headers) == 0 {
-			return
-		}
-		for k, v := range headers {
-			opts.OpenAIOptions = append(opts.OpenAIOptions, openaiopt.WithHeader(k, v))
-		}
-	}
-}
+func WithHeaders(headers map[string]string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraFields sets extra fields to be added to the HTTP request body.
 // These fields will be included in every chat completion request.
@@ -299,160 +262,89 @@ func WithHeaders(headers map[string]string) Option {
 //
 // and "session_id" : "abc" will be added to the HTTP request json body.
 func WithExtraFields(extraFields map[string]any) Option {
-	return func(opts *options) {
-		if opts.ExtraFields == nil {
-			opts.ExtraFields = make(map[string]any)
-		}
-		for k, v := range extraFields {
-			opts.ExtraFields[k] = v
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithVariant sets the model variant for specific behavior.
 // The default variant is VariantOpenAI.
 // Optional variants are:
 // - VariantHunyuan: Hunyuan variant with specific file handling.
-func WithVariant(variant Variant) Option {
-	return func(opts *options) {
-		opts.Variant = variant
-		opts.variantSet = true
-	}
-}
+func WithVariant(variant Variant) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOmitFileContentParts controls whether file content parts are removed
 // from requests sent to the model provider.
-func WithOmitFileContentParts(omit bool) Option {
-	return func(opts *options) {
-		opts.OmitFileContentParts = omit
-	}
-}
+func WithOmitFileContentParts(omit bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBatchCompletionWindow sets the batch completion window.
 func WithBatchCompletionWindow(window openai.BatchNewParamsCompletionWindow) Option {
-	return func(opts *options) {
-		if window == "" {
-			window = defaultBatchCompletionWindow
-		}
-		opts.BatchCompletionWindow = window
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithBatchMetadata sets the batch metadata.
 func WithBatchMetadata(metadata map[string]string) Option {
-	return func(opts *options) {
-		opts.BatchMetadata = metadata
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithBatchBaseURL sets a base URL override for batch requests (batches/files).
 // When set, batch operations will use this base URL via per-request override.
-func WithBatchBaseURL(url string) Option {
-	return func(opts *options) {
-		opts.BatchBaseURL = url
-	}
-}
+func WithBatchBaseURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableTokenTailoring enables automatic token tailoring based on model context window.
 // When enabled, the system will automatically calculate max input tokens using the model's
 // context window minus reserved tokens and protocol overhead.
-func WithEnableTokenTailoring(enabled bool) Option {
-	return func(opts *options) {
-		opts.EnableTokenTailoring = enabled
-	}
-}
+func WithEnableTokenTailoring(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxInputTokens sets only the input token limit for token tailoring.
 // The counter/strategy will be lazily initialized if not provided.
 // Defaults to SimpleTokenCounter and MiddleOutStrategy.
-func WithMaxInputTokens(limit int) Option {
-	return func(opts *options) {
-		opts.MaxInputTokens = limit
-	}
-}
+func WithMaxInputTokens(limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for this
 // model instance.
-func WithContextWindow(tokens int) Option {
-	return func(opts *options) {
-		if tokens > 0 {
-			opts.ContextWindow = tokens
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // AccumulateChunkUsage is the function type for accumulating chunk usage.
 type AccumulateChunkUsage func(u model.Usage, delta model.Usage) model.Usage
 
 // WithAccumulateChunkTokenUsage sets the function to be called to accumulate chunk token usage.
 func WithAccumulateChunkTokenUsage(a AccumulateChunkUsage) Option {
-	return func(opts *options) {
-		opts.accumulateChunkUsage = a
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // inverseOpenAISDKAddChunkUsage calculates the inverse of OPENAISKDAddChunkUsage, related to the current openai sdk version
 func inverseOpenAISDKAddChunkUsage(u model.Usage, delta model.Usage) model.Usage {
-	return model.Usage{
-		PromptTokens:     u.PromptTokens - delta.PromptTokens,
-		CompletionTokens: u.CompletionTokens - delta.CompletionTokens,
-		TotalTokens:      u.TotalTokens - delta.TotalTokens,
-		PromptTokensDetails: model.PromptTokensDetails{
-			CachedTokens: int(u.PromptTokensDetails.CachedTokens - delta.PromptTokensDetails.CachedTokens),
-		},
-		CompletionTokensDetails: model.CompletionTokensDetails{
-			ReasoningTokens: int(u.CompletionTokensDetails.ReasoningTokens - delta.CompletionTokensDetails.ReasoningTokens),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(model.Usage)
 }
 
 // completionUsageToModelUsage converts openai.CompletionUsage to model.Usage.
 func completionUsageToModelUsage(usage openai.CompletionUsage) model.Usage {
-	return model.Usage{
-		PromptTokens:     int(usage.PromptTokens),
-		CompletionTokens: int(usage.CompletionTokens),
-		TotalTokens:      int(usage.TotalTokens),
-		PromptTokensDetails: model.PromptTokensDetails{
-			CachedTokens: int(usage.PromptTokensDetails.CachedTokens),
-		},
-		CompletionTokensDetails: model.CompletionTokensDetails{
-			ReasoningTokens: int(usage.CompletionTokensDetails.ReasoningTokens),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(model.Usage)
 }
 
 // modelUsageToCompletionUsage converts model.Usage to openai.CompletionUsage.
 func modelUsageToCompletionUsage(usage model.Usage) openai.CompletionUsage {
-	return openai.CompletionUsage{
-		PromptTokens:     int64(usage.PromptTokens),
-		CompletionTokens: int64(usage.CompletionTokens),
-		TotalTokens:      int64(usage.TotalTokens),
-		PromptTokensDetails: openai.CompletionUsagePromptTokensDetails{
-			CachedTokens: int64(usage.PromptTokensDetails.CachedTokens),
-		},
-		CompletionTokensDetails: openai.CompletionUsageCompletionTokensDetails{
-			ReasoningTokens: int64(usage.CompletionTokensDetails.ReasoningTokens),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(openai.CompletionUsage)
 }
 
 // WithTokenCounter sets the TokenCounter used for token tailoring.
 // If not provided and token limit is enabled, a SimpleTokenCounter will be used.
 func WithTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *options) {
-		if counter == nil {
-			return
-		}
-		opts.TokenCounter = counter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTailoringStrategy sets the TailoringStrategy used for token tailoring.
 // If not provided and token limit is enabled, a MiddleOutStrategy will be used.
 func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
-	return func(opts *options) {
-		opts.TailoringStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTokenTailoringConfig sets custom token tailoring budget parameters.
@@ -469,38 +361,15 @@ func WithTailoringStrategy(strategy model.TailoringStrategy) Option {
 // Note: It is recommended to use the default values unless you have specific
 // requirements.
 func WithTokenTailoringConfig(config *model.TokenTailoringConfig) Option {
-	return func(opts *options) {
-		if config == nil {
-			return
-		}
-		if config.ProtocolOverheadTokens <= 0 {
-			config.ProtocolOverheadTokens = imodel.DefaultProtocolOverheadTokens
-		}
-		if config.ReserveOutputTokens <= 0 {
-			config.ReserveOutputTokens = imodel.DefaultReserveOutputTokens
-		}
-		if config.SafetyMarginRatio <= 0 {
-			config.SafetyMarginRatio = imodel.DefaultSafetyMarginRatio
-		}
-		if config.InputTokensFloor <= 0 {
-			config.InputTokensFloor = imodel.DefaultInputTokensFloor
-		}
-		if config.MaxInputTokensRatio <= 0 {
-			config.MaxInputTokensRatio = imodel.DefaultMaxInputTokensRatio
-		}
-		opts.TokenTailoringConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithShowToolCallDelta controls whether to expose tool call
 // deltas in streaming responses. When enabled, the model will
 // forward provider tool_call chunks via Delta.ToolCalls so
 // callers can reconstruct arguments incrementally.
-func WithShowToolCallDelta(show bool) Option {
-	return func(opts *options) {
-		opts.ShowToolCallDelta = show
-	}
-}
+func WithShowToolCallDelta(show bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOptimizeForCache controls whether to optimize message structure for prompt caching.
 // When enabled, system messages will be moved to the front of the message list
@@ -525,9 +394,4 @@ func WithShowToolCallDelta(show bool) Option {
 //	model := openai.New("gpt-4o",
 //	    openai.WithOptimizeForCache(false),  // Disable cache optimization
 //	)
-func WithOptimizeForCache(optimize bool) Option {
-	return func(opts *options) {
-		opts.OptimizeForCache = optimize
-		opts.optimizeForCacheSet = true
-	}
-}
+func WithOptimizeForCache(optimize bool) Option { _ = "STUB: not implemented"; return *new(Option) }

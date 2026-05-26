@@ -11,16 +11,10 @@ package optimizer
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter"
-	idecode "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/decode"
-	irunner "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/runner"
-	isurface "trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/internal/surface"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -65,164 +59,22 @@ type optimizer struct {
 
 // New creates an Optimizer instance bound to the provided runner.
 func New(ctx context.Context, runner runner.Runner, opt ...Option) (Optimizer, error) {
-	if runner == nil {
-		return nil, errors.New("runner is nil")
-	}
-	opts := newOptions(opt...)
-	if opts.messageBuilder == nil {
-		return nil, errors.New("message builder is nil")
-	}
-	if opts.userIDSupplier == nil {
-		return nil, errors.New("user id supplier is nil")
-	}
-	if opts.sessionIDSupplier == nil {
-		return nil, errors.New("session id supplier is nil")
-	}
-	return &optimizer{
-		runner:            runner,
-		runOptions:        opts.runOptions,
-		messageBuilder:    opts.messageBuilder,
-		userIDSupplier:    opts.userIDSupplier,
-		sessionIDSupplier: opts.sessionIDSupplier,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Optimizer), nil
 }
 
 // Optimize runs optimization logic and returns one patch proposal.
 func (o *optimizer) Optimize(ctx context.Context, request *Request) (*Result, error) {
-	if o.runner == nil {
-		return nil, errors.New("runner is nil")
-	}
-	if o.messageBuilder == nil {
-		return nil, errors.New("message builder is nil")
-	}
-	if o.userIDSupplier == nil {
-		return nil, errors.New("user id supplier is nil")
-	}
-	if o.sessionIDSupplier == nil {
-		return nil, errors.New("session id supplier is nil")
-	}
-	normalizedRequest, err := normalizeRequest(request)
-	if err != nil {
-		return nil, fmt.Errorf("normalize optimization request: %w", err)
-	}
-	message, err := o.messageBuilder(ctx, normalizedRequest)
-	if err != nil {
-		return nil, fmt.Errorf("build optimization message: %w", err)
-	}
-	if message == nil {
-		return nil, errors.New("message is nil")
-	}
-	userID := o.userIDSupplier(ctx)
-	if userID == "" {
-		return nil, errors.New("user id is empty")
-	}
-	sessionID := o.sessionIDSupplier(ctx)
-	if sessionID == "" {
-		return nil, errors.New("session id is empty")
-	}
-	events, err := o.runner.Run(
-		ctx,
-		userID,
-		sessionID,
-		*message,
-		o.runOptions...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("runner run: %w", err)
-	}
-	output, err := irunner.CaptureOutput(events)
-	if err != nil {
-		return nil, fmt.Errorf("capture runner output: %w", err)
-	}
-	proposal, err := idecode.DecodeOutputJSON[surfacePatchProposal](output)
-	if err != nil {
-		return nil, fmt.Errorf("decode surface patch proposal: %w", err)
-	}
-	if proposal == nil {
-		return nil, errors.New("surface patch proposal is empty")
-	}
-	patch, err := sanitizePatchProposal(normalizedRequest, proposal)
-	if err != nil {
-		return nil, fmt.Errorf("sanitize surface patch proposal: %w", err)
-	}
-	return &Result{Patch: patch}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeRequest(request *Request) (*Request, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
-	}
-	if request.Surface == nil {
-		return nil, errors.New("surface is nil")
-	}
-	if request.Gradient == nil {
-		return nil, errors.New("aggregated gradient is nil")
-	}
-	surface := request.Surface
-	gradient := request.Gradient
-	if surface.SurfaceID == "" {
-		return nil, errors.New("surface id is empty")
-	}
-	if surface.NodeID == "" {
-		return nil, errors.New("node id is empty")
-	}
-	if !isurface.IsSupportedType(surface.Type) {
-		return nil, fmt.Errorf("surface type %q is invalid", surface.Type)
-	}
-	if gradient.SurfaceID == "" {
-		return nil, errors.New("aggregated gradient surface id is empty")
-	}
-	if gradient.SurfaceID != surface.SurfaceID {
-		return nil, fmt.Errorf(
-			"aggregated gradient surface id %q does not match surface id %q",
-			gradient.SurfaceID,
-			surface.SurfaceID,
-		)
-	}
-	if gradient.NodeID == "" {
-		return nil, errors.New("aggregated gradient node id is empty")
-	}
-	if gradient.NodeID != surface.NodeID {
-		return nil, fmt.Errorf(
-			"aggregated gradient node id %q does not match surface node id %q",
-			gradient.NodeID,
-			surface.NodeID,
-		)
-	}
-	if gradient.Type != surface.Type {
-		return nil, fmt.Errorf(
-			"aggregated gradient surface type %q does not match surface type %q",
-			gradient.Type,
-			surface.Type,
-		)
-	}
-	if len(gradient.Gradients) == 0 {
-		return nil, errors.New("aggregated gradients are empty")
-	}
-	return request, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func sanitizePatchProposal(request *Request, proposal *surfacePatchProposal) (*promptiter.SurfacePatch, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
-	}
-	if request.Surface == nil {
-		return nil, errors.New("surface is nil")
-	}
-	if proposal == nil {
-		return nil, errors.New("surface patch proposal is nil")
-	}
-	reason := strings.TrimSpace(proposal.Reason)
-	if reason == "" {
-		return nil, errors.New("patch reason is empty")
-	}
-	value, err := isurface.SanitizeValue(request.Surface.Type, proposal.Value)
-	if err != nil {
-		return nil, fmt.Errorf("sanitize patch value: %w", err)
-	}
-	return &promptiter.SurfacePatch{
-		SurfaceID: request.Surface.SurfaceID,
-		Value:     value,
-		Reason:    reason,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -12,12 +12,6 @@ package telegram
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"path"
-	"strconv"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/gwclient"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/gwproto"
@@ -71,14 +65,9 @@ type userError struct {
 	err         error
 }
 
-func (e *userError) Error() string {
-	if e == nil || e.err == nil {
-		return ""
-	}
-	return e.err.Error()
-}
+func (e *userError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *userError) Unwrap() error { return e.err }
+func (e *userError) Unwrap() error { _ = "STUB: not implemented"; return nil }
 
 func (c *Channel) buildGatewayRequest(
 	ctx context.Context,
@@ -88,48 +77,8 @@ func (c *Channel) buildGatewayRequest(
 	requestID string,
 	msg tgapi.Message,
 ) (gwclient.MessageRequest, error) {
-	maxBytes := c.maxDownloadBytes
-	if maxBytes <= 0 {
-		maxBytes = defaultMaxDownloadBytes
-	}
-
-	text := joinMessageText(msg.Text, msg.Caption)
-
-	req := gwclient.MessageRequest{
-		Channel:   channelID,
-		From:      fromID,
-		Thread:    thread,
-		MessageID: strconv.Itoa(msg.MessageID),
-		Text:      text,
-		UserID:    fromID,
-		SessionID: sessionID,
-		RequestID: requestID,
-	}
-
-	parts := make([]gwproto.ContentPart, 0, 4)
-	var err error
-
-	parts, err = c.appendMessageParts(ctx, parts, &msg, maxBytes)
-	if err != nil {
-		return gwclient.MessageRequest{}, err
-	}
-	if len(parts) == 0 && hasTelegramAttachments(msg.ReplyToMessage) {
-		parts, err = c.appendMessageParts(
-			ctx,
-			parts,
-			msg.ReplyToMessage,
-			maxBytes,
-		)
-		if err != nil {
-			return gwclient.MessageRequest{}, err
-		}
-	}
-
-	req.ContentParts = parts
-	if strings.TrimSpace(req.Text) == "" && len(req.ContentParts) == 0 {
-		return gwclient.MessageRequest{}, errors.New("telegram: empty message")
-	}
-	return req, nil
+	_ = "STUB: not implemented"
+	return *new(gwclient.MessageRequest), nil
 }
 
 func (c *Channel) appendMessageParts(
@@ -138,112 +87,29 @@ func (c *Channel) appendMessageParts(
 	msg *tgapi.Message,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if msg == nil {
-		return parts, nil
-	}
-
-	var err error
-
-	parts, err = c.appendPhotoPart(ctx, parts, msg.Photo, maxBytes)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendDocumentPart(ctx, parts, msg.Document, maxBytes)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendVideoPart(ctx, parts, msg.Video, maxBytes)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendAnimationPart(
-		ctx,
-		parts,
-		msg.Animation,
-		maxBytes,
-	)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendVideoNotePart(
-		ctx,
-		parts,
-		msg.VideoNote,
-		maxBytes,
-	)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendVoicePart(ctx, parts, msg.Voice, maxBytes)
-	if err != nil {
-		return nil, err
-	}
-	parts, err = c.appendAudioPart(ctx, parts, msg.Audio, maxBytes)
-	if err != nil {
-		return nil, err
-	}
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func hasTelegramAttachments(msg *tgapi.Message) bool {
-	if msg == nil {
-		return false
-	}
-	return len(msg.Photo) > 0 ||
-		msg.Document != nil ||
-		msg.Audio != nil ||
-		msg.Voice != nil ||
-		msg.Video != nil ||
-		msg.Animation != nil ||
-		msg.VideoNote != nil
-}
+func hasTelegramAttachments(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasPhoto(msg *tgapi.Message) bool {
-	return msg != nil && len(msg.Photo) > 0
-}
+func replyHasPhoto(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasDocument(msg *tgapi.Message) bool {
-	return msg != nil && msg.Document != nil
-}
+func replyHasDocument(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasAudio(msg *tgapi.Message) bool {
-	return msg != nil && msg.Audio != nil
-}
+func replyHasAudio(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasVoice(msg *tgapi.Message) bool {
-	return msg != nil && msg.Voice != nil
-}
+func replyHasVoice(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasVideo(msg *tgapi.Message) bool {
-	return msg != nil && msg.Video != nil
-}
+func replyHasVideo(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasAnimation(msg *tgapi.Message) bool {
-	return msg != nil && msg.Animation != nil
-}
+func replyHasAnimation(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func replyHasVideoNote(msg *tgapi.Message) bool {
-	return msg != nil && msg.VideoNote != nil
-}
+func replyHasVideoNote(msg *tgapi.Message) bool { _ = "STUB: not implemented"; return false }
 
-func incomingReplyTo(msg tgapi.Message) int {
-	if msg.ReplyToMessage == nil {
-		return 0
-	}
-	return msg.ReplyToMessage.MessageID
-}
+func incomingReplyTo(msg tgapi.Message) int { _ = "STUB: not implemented"; return 0 }
 
-func joinMessageText(a, b string) string {
-	a = strings.TrimSpace(a)
-	b = strings.TrimSpace(b)
-	if a == "" {
-		return b
-	}
-	if b == "" {
-		return a
-	}
-	return a + "\n" + b
-}
+func joinMessageText(a, b string) string { _ = "STUB: not implemented"; return "" }
 
 func (c *Channel) appendPhotoPart(
 	ctx context.Context,
@@ -251,86 +117,8 @@ func (c *Channel) appendPhotoPart(
 	photos []tgapi.PhotoSize,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if len(photos) == 0 {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	p := photos[len(photos)-1]
-	fileID := strings.TrimSpace(p.FileID)
-	if fileID == "" {
-		return parts, nil
-	}
-	if p.FileSize > maxBytes && p.FileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindPhoto,
-			FileID:       fileID,
-			ReportedSize: p.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindPhoto,
-			FileID:       fileID,
-			ReportedSize: p.FileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	format := inferImageFormat(file.FilePath, data)
-	if format == "" {
-		uerr := &userError{
-			userMessage: unsupportedMediaMsg,
-			err:         errors.New("telegram: empty image format"),
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindPhoto,
-			FileID:       fileID,
-			ReportedSize: p.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	name := defaultPhotoName + "." + format
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         attachmentKindPhoto,
-		FileID:       fileID,
-		Name:         name,
-		Format:       format,
-		ReportedSize: p.FileSize,
-		Blob:         ref,
-	})
-
-	parts = append(parts, gwproto.ContentPart{
-		Type: gwproto.PartTypeImage,
-		Image: &gwproto.ImagePart{
-			Data:   data,
-			Format: format,
-		},
-	})
-	parts = appendStoredFilePart(
-		parts,
-		name,
-		mimeTypeForImageFormat(format),
-		data,
-	)
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendDocumentPart(
@@ -339,125 +127,8 @@ func (c *Channel) appendDocumentPart(
 	doc *tgapi.Document,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if doc == nil {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	fileID := strings.TrimSpace(doc.FileID)
-	if fileID == "" {
-		return parts, nil
-	}
-	if doc.FileSize > maxBytes && doc.FileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindDocument,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(doc.FileName),
-			MimeType:     strings.TrimSpace(doc.MimeType),
-			ReportedSize: doc.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindDocument,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(doc.FileName),
-			MimeType:     strings.TrimSpace(doc.MimeType),
-			ReportedSize: doc.FileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	name := fallbackDocumentFilename(
-		doc.FileName,
-		file.FilePath,
-		strings.TrimSpace(doc.MimeType),
-	)
-	mimeType := normalizeMediaMIME(
-		name,
-		file.FilePath,
-		doc.MimeType,
-	)
-
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         attachmentKindDocument,
-		FileID:       fileID,
-		Name:         name,
-		MimeType:     mimeType,
-		ReportedSize: doc.FileSize,
-		Blob:         ref,
-	})
-
-	if imageFormat := inferImageFormat(name, data); imageFormat != "" {
-		parts = append(parts, gwproto.ContentPart{
-			Type: gwproto.PartTypeImage,
-			Image: &gwproto.ImagePart{
-				Data:   data,
-				Format: imageFormat,
-			},
-		})
-		parts = appendStoredFilePart(
-			parts,
-			name,
-			normalizeMediaMIME(
-				name,
-				file.FilePath,
-				mimeTypeForImageFormat(imageFormat),
-			),
-			data,
-		)
-		return parts, nil
-	}
-
-	if audioPart := c.audioModelPart(
-		ctx,
-		name,
-		file.FilePath,
-		mimeType,
-		data,
-	); audioPart != nil {
-		parts = append(parts, *audioPart)
-		parts = appendStoredFilePart(
-			parts,
-			name,
-			normalizeMediaMIME(
-				name,
-				file.FilePath,
-				mimeType,
-			),
-			data,
-		)
-		return parts, nil
-	}
-
-	if isVideoMedia(name, file.FilePath, mimeType) {
-		parts = append(parts, gwproto.ContentPart{
-			Type: gwproto.PartTypeVideo,
-			File: &gwproto.FilePart{
-				Filename: name,
-				Data:     data,
-				Format:   mimeType,
-			},
-		})
-		return parts, nil
-	}
-
-	parts = appendStoredFilePart(parts, name, mimeType, data)
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendVideoPart(
@@ -466,79 +137,8 @@ func (c *Channel) appendVideoPart(
 	video *tgapi.Video,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if video == nil {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	fileID := strings.TrimSpace(video.FileID)
-	if fileID == "" {
-		return parts, nil
-	}
-	if video.FileSize > maxBytes && video.FileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindVideo,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(video.FileName),
-			MimeType:     strings.TrimSpace(video.MimeType),
-			ReportedSize: video.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindVideo,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(video.FileName),
-			MimeType:     strings.TrimSpace(video.MimeType),
-			ReportedSize: video.FileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	mimeType := normalizeMediaMIME(
-		video.FileName,
-		file.FilePath,
-		video.MimeType,
-	)
-	name := fallbackMediaFilename(
-		video.FileName,
-		file.FilePath,
-		defaultVideoName,
-		mimeType,
-	)
-
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         attachmentKindVideo,
-		FileID:       fileID,
-		Name:         name,
-		MimeType:     mimeType,
-		ReportedSize: video.FileSize,
-		Blob:         ref,
-	})
-
-	parts = append(parts, gwproto.ContentPart{
-		Type: gwproto.PartTypeVideo,
-		File: &gwproto.FilePart{
-			Filename: name,
-			Data:     data,
-			Format:   mimeType,
-		},
-	})
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendAnimationPart(
@@ -547,20 +147,8 @@ func (c *Channel) appendAnimationPart(
 	animation *tgapi.Animation,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if animation == nil {
-		return parts, nil
-	}
-	return c.appendNamedVideoLikePart(
-		ctx,
-		parts,
-		attachmentKindAnimation,
-		strings.TrimSpace(animation.FileID),
-		strings.TrimSpace(animation.FileName),
-		strings.TrimSpace(animation.MimeType),
-		animation.FileSize,
-		defaultAnimationName,
-		maxBytes,
-	)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendVideoNotePart(
@@ -569,20 +157,8 @@ func (c *Channel) appendVideoNotePart(
 	videoNote *tgapi.VideoNote,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if videoNote == nil {
-		return parts, nil
-	}
-	return c.appendNamedVideoLikePart(
-		ctx,
-		parts,
-		attachmentKindVideoNote,
-		strings.TrimSpace(videoNote.FileID),
-		"",
-		"",
-		videoNote.FileSize,
-		defaultVideoNoteName,
-		maxBytes,
-	)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendNamedVideoLikePart(
@@ -596,69 +172,8 @@ func (c *Channel) appendNamedVideoLikePart(
 	fallbackName string,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if fileID == "" {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-	if fileSize > maxBytes && fileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         kind,
-			FileID:       fileID,
-			Name:         fileName,
-			MimeType:     mimeType,
-			ReportedSize: fileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         kind,
-			FileID:       fileID,
-			Name:         fileName,
-			MimeType:     mimeType,
-			ReportedSize: fileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	name := fallbackMediaFilename(
-		fileName,
-		file.FilePath,
-		fallbackName,
-		mimeType,
-	)
-	mimeType = normalizeMediaMIME(name, file.FilePath, mimeType)
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         kind,
-		FileID:       fileID,
-		Name:         name,
-		MimeType:     mimeType,
-		ReportedSize: fileSize,
-		Blob:         ref,
-	})
-
-	parts = append(parts, gwproto.ContentPart{
-		Type: gwproto.PartTypeVideo,
-		File: &gwproto.FilePart{
-			Filename: name,
-			Data:     data,
-			Format:   mimeType,
-		},
-	})
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendVoicePart(
@@ -667,82 +182,8 @@ func (c *Channel) appendVoicePart(
 	voice *tgapi.Voice,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if voice == nil {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	fileID := strings.TrimSpace(voice.FileID)
-	if fileID == "" {
-		return parts, nil
-	}
-	if voice.FileSize > maxBytes && voice.FileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindVoice,
-			FileID:       fileID,
-			MimeType:     strings.TrimSpace(voice.MimeType),
-			ReportedSize: voice.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindVoice,
-			FileID:       fileID,
-			MimeType:     strings.TrimSpace(voice.MimeType),
-			ReportedSize: voice.FileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	mimeType := normalizeMediaMIME(
-		"",
-		file.FilePath,
-		voice.MimeType,
-	)
-	name := fallbackMediaFilename(
-		"",
-		file.FilePath,
-		defaultVoiceName,
-		mimeType,
-	)
-
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         attachmentKindVoice,
-		FileID:       fileID,
-		Name:         name,
-		MimeType:     mimeType,
-		ReportedSize: voice.FileSize,
-		Blob:         ref,
-	})
-
-	if audioPart := c.audioModelPart(
-		ctx,
-		name,
-		file.FilePath,
-		mimeType,
-		data,
-	); audioPart != nil {
-		parts = append(parts, *audioPart)
-		parts = appendStoredFilePart(parts, name, mimeType, data)
-		return parts, nil
-	}
-
-	parts = appendStoredFilePart(parts, name, mimeType, data)
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Channel) appendAudioPart(
@@ -751,129 +192,15 @@ func (c *Channel) appendAudioPart(
 	audio *tgapi.Audio,
 	maxBytes int64,
 ) ([]gwproto.ContentPart, error) {
-	if audio == nil {
-		return parts, nil
-	}
-
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	fileID := strings.TrimSpace(audio.FileID)
-	if fileID == "" {
-		return parts, nil
-	}
-	if audio.FileSize > maxBytes && audio.FileSize > 0 {
-		uerr := &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         tgapi.ErrFileTooLarge,
-		}
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindAudio,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(audio.FileName),
-			MimeType:     strings.TrimSpace(audio.MimeType),
-			ReportedSize: audio.FileSize,
-			UserMessage:  uerr.userMessage,
-			Error:        uerr.Error(),
-		})
-		return nil, uerr
-	}
-
-	file, data, err := c.bot.DownloadFileByID(ctx, fileID, maxBytes)
-	if err != nil {
-		mapped := mapDownloadError(err, maxBytes)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindAudio,
-			FileID:       fileID,
-			Name:         strings.TrimSpace(audio.FileName),
-			MimeType:     strings.TrimSpace(audio.MimeType),
-			ReportedSize: audio.FileSize,
-			UserMessage:  userMessageFromErr(mapped),
-			Error:        err.Error(),
-		})
-		return nil, mapped
-	}
-
-	mimeType := normalizeMediaMIME(
-		audio.FileName,
-		file.FilePath,
-		audio.MimeType,
-	)
-	name := fallbackMediaFilename(
-		audio.FileName,
-		file.FilePath,
-		defaultAudioName,
-		mimeType,
-	)
-	if audioPart := c.audioModelPart(
-		ctx,
-		name,
-		file.FilePath,
-		mimeType,
-		data,
-	); audioPart != nil {
-		ref := storeBlob(trace, name, data)
-		recordAttachment(trace, telegramAttachmentSummary{
-			Kind:         attachmentKindAudio,
-			FileID:       fileID,
-			Name:         name,
-			Format:       audioPart.Audio.Format,
-			MimeType:     mimeType,
-			ReportedSize: audio.FileSize,
-			Blob:         ref,
-		})
-		parts = append(parts, *audioPart)
-		parts = appendStoredFilePart(parts, name, mimeType, data)
-		return parts, nil
-	}
-
-	ref := storeBlob(trace, name, data)
-	recordAttachment(trace, telegramAttachmentSummary{
-		Kind:         attachmentKindAudio,
-		FileID:       fileID,
-		Name:         name,
-		MimeType:     mimeType,
-		ReportedSize: audio.FileSize,
-		Blob:         ref,
-	})
-
-	parts = appendStoredFilePart(parts, name, mimeType, data)
-	return parts, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func mapDownloadError(err error, maxBytes int64) error {
-	if errors.Is(err, tgapi.ErrFileTooLarge) {
-		return &userError{
-			userMessage: attachmentTooLargeMessage(maxBytes),
-			err:         err,
-		}
-	}
-	return &userError{
-		userMessage: downloadFailedMessage,
-		err:         err,
-	}
-}
+func mapDownloadError(err error, maxBytes int64) error { _ = "STUB: not implemented"; return nil }
 
-func attachmentTooLargeMessage(maxBytes int64) string {
-	if maxBytes <= 0 {
-		return attachmentTooLargeMsg
-	}
-	return fmt.Sprintf(
-		"%s (limit: %s).",
-		attachmentTooLargeMsg,
-		formatByteLimit(maxBytes),
-	)
-}
+func attachmentTooLargeMessage(maxBytes int64) string { _ = "STUB: not implemented"; return "" }
 
-func formatByteLimit(maxBytes int64) string {
-	switch {
-	case maxBytes >= bytesPerMiB && maxBytes%bytesPerMiB == 0:
-		return fmt.Sprintf("%d MiB", maxBytes/bytesPerMiB)
-	case maxBytes >= bytesPerKiB && maxBytes%bytesPerKiB == 0:
-		return fmt.Sprintf("%d KiB", maxBytes/bytesPerKiB)
-	default:
-		return fmt.Sprintf("%d bytes", maxBytes)
-	}
-}
+func formatByteLimit(maxBytes int64) string { _ = "STUB: not implemented"; return "" }
 
 func appendStoredFilePart(
 	parts []gwproto.ContentPart,
@@ -881,45 +208,15 @@ func appendStoredFilePart(
 	mimeType string,
 	data []byte,
 ) []gwproto.ContentPart {
-	return append(parts, gwproto.ContentPart{
-		Type: gwproto.PartTypeFile,
-		File: &gwproto.FilePart{
-			Filename: name,
-			Data:     data,
-			Format:   strings.TrimSpace(mimeType),
-		},
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func mimeTypeForImageFormat(format string) string {
-	switch strings.TrimSpace(strings.ToLower(format)) {
-	case "jpeg", "jpg":
-		return mimeImageJPEG
-	case "png":
-		return mimeImagePNG
-	case "gif":
-		return mimeImageGIF
-	case "webp":
-		return mimeImageWEBP
-	default:
-		return ""
-	}
-}
+func mimeTypeForImageFormat(format string) string { _ = "STUB: not implemented"; return "" }
 
-func mimeTypeForAudioFormat(format string) string {
-	switch strings.TrimSpace(strings.ToLower(format)) {
-	case audioFormatMP3:
-		return mimeAudioMPEG
-	case audioFormatWAV:
-		return mimeAudioWAV
-	default:
-		return ""
-	}
-}
+func mimeTypeForAudioFormat(format string) string { _ = "STUB: not implemented"; return "" }
 
-func isSupportedAudioFormat(format string) bool {
-	return strings.TrimSpace(format) != ""
-}
+func isSupportedAudioFormat(format string) bool { _ = "STUB: not implemented"; return false }
 
 type telegramAttachmentSummary struct {
 	Kind         string                `json:"kind,omitempty"`
@@ -937,10 +234,8 @@ func recordAttachment(
 	trace *debugrecorder.Trace,
 	summary telegramAttachmentSummary,
 ) {
-	if trace == nil {
-		return
-	}
-	_ = trace.Record(debugrecorder.KindTelegramAttachment, summary)
+	_ = "STUB: not implemented"
+	return
 }
 
 func storeBlob(
@@ -948,35 +243,15 @@ func storeBlob(
 	name string,
 	data []byte,
 ) debugrecorder.BlobRef {
-	if trace == nil {
-		return debugrecorder.BlobRef{}
-	}
-	ref, err := trace.StoreBlob(name, data)
-	if err != nil {
-		_ = trace.RecordError(err)
-		return debugrecorder.BlobRef{}
-	}
-	return ref
+	_ = "STUB: not implemented"
+	return *new(debugrecorder.BlobRef)
 }
 
-func userMessageFromErr(err error) string {
-	var uerr *userError
-	if errors.As(err, &uerr) {
-		return strings.TrimSpace(uerr.userMessage)
-	}
-	return ""
-}
+func userMessageFromErr(err error) string { _ = "STUB: not implemented"; return "" }
 
 func fallbackFilename(primary, filePath, fallback string) string {
-	name := strings.TrimSpace(primary)
-	if name != "" {
-		return name
-	}
-	base := strings.TrimSpace(path.Base(strings.TrimSpace(filePath)))
-	if base != "" && base != "." && base != "/" {
-		return base
-	}
-	return fallback
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func fallbackMediaFilename(
@@ -985,22 +260,8 @@ func fallbackMediaFilename(
 	fallback string,
 	mimeType string,
 ) string {
-	name := strings.TrimSpace(primary)
-	if name != "" {
-		return name
-	}
-
-	base := strings.TrimSpace(path.Base(strings.TrimSpace(filePath)))
-	if base != "" && base != "." && base != "/" &&
-		!looksGeneratedTelegramFileName(base) {
-		return base
-	}
-
-	ext := mediaExtFromPathOrMIME(filePath, mimeType)
-	if ext == "" {
-		return fallback
-	}
-	return fallback + ext
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func fallbackDocumentFilename(
@@ -1008,94 +269,26 @@ func fallbackDocumentFilename(
 	filePath string,
 	mimeType string,
 ) string {
-	name := strings.TrimSpace(primary)
-	if name != "" && !looksGeneratedTelegramFileName(name) {
-		return name
-	}
-	fallback := documentFallbackBase(filePath, mimeType)
-	return fallbackMediaFilename("", filePath, fallback, mimeType)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func documentFallbackBase(filePath string, mimeType string) string {
-	contentType := strings.ToLower(strings.TrimSpace(mimeType))
-	ext := strings.ToLower(path.Ext(strings.TrimSpace(filePath)))
-
-	switch {
-	case contentType == "application/pdf" || ext == ".pdf":
-		return defaultDocumentName
-	case contentType == mimeImageGIF || ext == ".gif":
-		return defaultAnimationName
-	case strings.HasPrefix(contentType, mimePrefixImage) ||
-		ext == ".jpg" || ext == ".jpeg" ||
-		ext == ".png" || ext == ".webp":
-		return defaultPhotoName
-	case strings.HasPrefix(contentType, mimePrefixVideo) ||
-		ext == ".mp4" || ext == ".mov" ||
-		ext == ".webm" || ext == ".mkv":
-		return defaultVideoName
-	case strings.HasPrefix(contentType, mimePrefixAudio) ||
-		ext == ".mp3" || ext == ".wav" ||
-		ext == ".ogg" || ext == ".oga" ||
-		ext == ".m4a":
-		return defaultAudioName
-	default:
-		return defaultDocumentName
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func looksGeneratedTelegramFileName(name string) bool {
-	trimmed := strings.TrimSpace(name)
-	if trimmed == "" {
-		return false
-	}
-	dot := strings.Index(trimmed, ".")
-	stem := trimmed
-	if dot >= 0 {
-		stem = trimmed[:dot]
-	}
-	if !strings.HasPrefix(stem, "file_") {
-		return false
-	}
-	suffix := strings.TrimPrefix(stem, "file_")
-	return suffix != "" && isDigitsOnly(suffix)
-}
+func looksGeneratedTelegramFileName(name string) bool { _ = "STUB: not implemented"; return false }
 
-func mediaExtFromPathOrMIME(filePath, mimeType string) string {
-	if ext := path.Ext(strings.TrimSpace(filePath)); ext != "" {
-		if strings.EqualFold(ext, ".oga") {
-			return ".ogg"
-		}
-		return strings.ToLower(ext)
-	}
-	switch strings.ToLower(strings.TrimSpace(mimeType)) {
-	case mimeAudioMPEG:
-		return ".mp3"
-	case mimeAudioWAV:
-		return ".wav"
-	case mimeAudioOGG:
-		return ".ogg"
-	case mimeVideoMP4:
-		return ".mp4"
-	case mimeImageGIF:
-		return ".gif"
-	default:
-		return ""
-	}
-}
+func mediaExtFromPathOrMIME(filePath, mimeType string) string { _ = "STUB: not implemented"; return "" }
 
 func normalizeMediaMIME(
 	fileName string,
 	filePath string,
 	mimeType string,
 ) string {
-	trimmed := strings.TrimSpace(mimeType)
-	if trimmed != "" {
-		return trimmed
-	}
-	if extType := typeFromExtension(path.Ext(fileName)); extType != "" {
-		return extType
-	}
-	return typeFromExtension(path.Ext(filePath))
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func isVideoMedia(
@@ -1103,85 +296,21 @@ func isVideoMedia(
 	filePath string,
 	mimeType string,
 ) bool {
-	normalized := normalizeMediaMIME(fileName, filePath, mimeType)
-	if strings.HasPrefix(normalized, mimePrefixVideo) {
-		return true
-	}
-	switch mediaExtFromPathOrMIME(filePath, normalized) {
-	case ".mp4", ".mov", ".webm", ".mkv":
-		return true
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
-func inferImageFormat(filePath string, data []byte) string {
-	if v := imageFormatFromExt(path.Ext(filePath)); v != "" {
-		return v
-	}
-	if v := imageFormatFromContentType(http.DetectContentType(data)); v != "" {
-		return v
-	}
+func inferImageFormat(filePath string, data []byte) string { _ = "STUB: not implemented"; return "" }
+
+func imageFormatFromExt(ext string) string { _ = "STUB: not implemented"; return "" }
+
+func imageFormatFromContentType(contentType string) string { _ = "STUB: not implemented"; return "" }
+
+func inferAudioFormat(filename, filePath, mimeType string) string {
+	_ = "STUB: not implemented"
 	return ""
 }
 
-func imageFormatFromExt(ext string) string {
-	switch strings.ToLower(strings.TrimSpace(ext)) {
-	case ".jpg", ".jpeg":
-		return "jpeg"
-	case ".png":
-		return "png"
-	case ".gif":
-		return "gif"
-	case ".webp":
-		return "webp"
-	default:
-		return ""
-	}
-}
+func audioFormatFromExt(ext string) string { _ = "STUB: not implemented"; return "" }
 
-func imageFormatFromContentType(contentType string) string {
-	ct := strings.ToLower(strings.TrimSpace(contentType))
-	if !strings.HasPrefix(ct, "image/") {
-		return ""
-	}
-	format := strings.TrimPrefix(ct, "image/")
-	format = strings.TrimSpace(format)
-	if format == "jpg" {
-		return "jpeg"
-	}
-	return format
-}
-
-func inferAudioFormat(filename, filePath, mimeType string) string {
-	if v := audioFormatFromExt(path.Ext(filename)); v != "" {
-		return v
-	}
-	if v := audioFormatFromExt(path.Ext(filePath)); v != "" {
-		return v
-	}
-	return audioFormatFromMimeType(mimeType)
-}
-
-func audioFormatFromExt(ext string) string {
-	switch strings.ToLower(strings.TrimSpace(ext)) {
-	case ".wav":
-		return audioFormatWAV
-	case ".mp3":
-		return audioFormatMP3
-	default:
-		return ""
-	}
-}
-
-func audioFormatFromMimeType(mimeType string) string {
-	mt := strings.ToLower(strings.TrimSpace(mimeType))
-	switch mt {
-	case "audio/wav", "audio/x-wav":
-		return audioFormatWAV
-	case "audio/mpeg", "audio/mp3":
-		return audioFormatMP3
-	default:
-		return ""
-	}
-}
+func audioFormatFromMimeType(mimeType string) string { _ = "STUB: not implemented"; return "" }

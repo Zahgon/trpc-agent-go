@@ -24,59 +24,30 @@ type options struct {
 type Option func(*options)
 
 // WithEndpoint sets a custom endpoint URL for S3-compatible services.
-func WithEndpoint(endpoint string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithEndpoint(endpoint))
-	}
-}
+func WithEndpoint(endpoint string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRegion sets the AWS region.
-func WithRegion(region string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithRegion(region))
-	}
-}
+func WithRegion(region string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCredentials sets static AWS credentials.
 func WithCredentials(accessKeyID, secretAccessKey string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithCredentials(accessKeyID, secretAccessKey))
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSessionToken sets the session token for temporary credentials (STS).
-func WithSessionToken(token string) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithSessionToken(token))
-	}
-}
+func WithSessionToken(token string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPathStyle enables path-style addressing (required for MinIO).
-func WithPathStyle(enabled bool) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithPathStyle(enabled))
-	}
-}
+func WithPathStyle(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRetries sets the maximum number of retries (default: 3).
-func WithRetries(n int) Option {
-	return func(o *options) {
-		o.clientBuilderOpts = append(o.clientBuilderOpts, s3storage.WithRetries(n))
-	}
-}
+func WithRetries(n int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClient sets a pre-created S3 client.
 // When provided, connection options are ignored.
 // The caller retains ownership and must close the client separately.
-func WithClient(client s3storage.Client) Option {
-	return func(o *options) {
-		o.client = client
-	}
-}
+func WithClient(client s3storage.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLogger sets the logger for operational messages.
-func WithLogger(logger log.Logger) Option {
-	return func(o *options) {
-		o.logger = logger
-	}
-}
+func WithLogger(logger log.Logger) Option { _ = "STUB: not implemented"; return *new(Option) }

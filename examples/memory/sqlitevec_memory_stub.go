@@ -12,8 +12,6 @@
 package util
 
 import (
-	"errors"
-
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 )
 
@@ -25,6 +23,6 @@ const sqliteVecMemoryUnavailableMessage = "" +
 func newSQLiteVecMemoryService(
 	cfg MemoryServiceConfig,
 ) (memory.Service, error) {
-	_ = cfg
-	return nil, errors.New(sqliteVecMemoryUnavailableMessage)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }

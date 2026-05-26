@@ -11,19 +11,11 @@
 package markdown
 
 import (
-	"fmt"
 	"io"
-	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/chunking"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
-	idocument "trpc.group/trpc-go/trpc-agent-go/knowledge/document/internal/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document/reader"
-	itransform "trpc.group/trpc-go/trpc-agent-go/knowledge/internal/transform"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/transform"
 )
 
@@ -47,177 +39,84 @@ type Reader struct {
 // New creates a new markdown reader with the given options.
 // Markdown reader uses MarkdownChunking by default.
 func New(opts ...reader.Option) reader.Reader {
+	_ = "STUB: not implemented"
 	// Build config from options
-	config := &reader.Config{
-		Chunk: true,
-	}
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	// Build chunking strategy using the default builder for markdown
-	strategy := reader.BuildChunkingStrategy(config, buildDefaultChunkingStrategy)
-
-	// Create reader from config
-	return &Reader{
-		chunk:            config.Chunk,
-		chunkingStrategy: strategy,
-		transformers:     config.Transformers,
-	}
+	return *new(reader.Reader)
 }
+
+// Build chunking strategy using the default builder for markdown
+
+// Create reader from config
 
 // buildDefaultChunkingStrategy builds the default chunking strategy for markdown reader.
 // Markdown uses MarkdownChunking with configurable chunk size and overlap.
 func buildDefaultChunkingStrategy(chunkSize, overlap int) chunking.Strategy {
-	var opts []chunking.MarkdownOption
-	if chunkSize > 0 {
-		opts = append(opts, chunking.WithMarkdownChunkSize(chunkSize))
-	}
-	if overlap > 0 {
-		opts = append(opts, chunking.WithMarkdownOverlap(overlap))
-	}
-	return chunking.NewMarkdownChunking(opts...)
+	_ = "STUB: not implemented"
+	return *new(chunking.Strategy)
 }
 
 // ReadFromReader reads markdown content from an io.Reader and returns a list of documents.
 func (r *Reader) ReadFromReader(name string, rd io.Reader) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Read content from reader.
-	content, err := io.ReadAll(rd)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create document.
-	doc := idocument.CreateDocument(string(content), name)
-
-	// Apply preprocess.
-	docs, err := itransform.ApplyPreprocess([]*document.Document{doc}, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply preprocess: %w", err)
-	}
-
-	// Apply chunking if enabled.
-	if r.chunk {
-		docs, err = r.chunkDocuments(docs)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Apply postprocess.
-	docs, err = itransform.ApplyPostprocess(docs, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply postprocess: %w", err)
-	}
-
-	return docs, nil
+	return nil, nil
 }
+
+// Create document.
+
+// Apply preprocess.
+
+// Apply chunking if enabled.
+
+// Apply postprocess.
 
 // ReadFromFile reads markdown content from a file path and returns a list of documents.
 func (r *Reader) ReadFromFile(filePath string) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Read file content.
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get file name without extension.
-	fileName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
-
-	// Create document.
-	doc := idocument.CreateDocument(string(content), fileName)
-
-	// Apply preprocess.
-	docs, err := itransform.ApplyPreprocess([]*document.Document{doc}, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply preprocess: %w", err)
-	}
-
-	// Apply chunking if enabled.
-	if r.chunk {
-		docs, err = r.chunkDocuments(docs)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Apply postprocess.
-	docs, err = itransform.ApplyPostprocess(docs, r.transformers...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to apply postprocess: %w", err)
-	}
-
-	return docs, nil
+	return nil, nil
 }
+
+// Get file name without extension.
+
+// Create document.
+
+// Apply preprocess.
+
+// Apply chunking if enabled.
+
+// Apply postprocess.
 
 // ReadFromURL reads markdown content from a URL and returns a list of documents.
 func (r *Reader) ReadFromURL(urlStr string) ([]*document.Document, error) {
+	_ = "STUB: not implemented"
 	// Validate URL before making HTTP request.
-	parsedURL, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
-	}
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return nil, fmt.Errorf("unsupported URL scheme: %s", parsedURL.Scheme)
-	}
-
-	// Download markdown from URL.
-	resp, err := http.Get(parsedURL.String())
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Get file name from URL.
-	fileName := r.extractFileNameFromURL(urlStr)
-
-	return r.ReadFromReader(fileName, resp.Body)
+	return nil, nil
 }
+
+// Download markdown from URL.
+
+// Get file name from URL.
 
 // chunkDocuments applies chunking to documents.
 func (r *Reader) chunkDocuments(docs []*document.Document) ([]*document.Document, error) {
-	if r.chunkingStrategy == nil {
-		r.chunkingStrategy = chunking.NewMarkdownChunking()
-	}
-
-	var result []*document.Document
-	for _, doc := range docs {
-		chunks, err := r.chunkingStrategy.Chunk(doc)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, chunks...)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // extractFileNameFromURL extracts a file name from a URL.
 func (r *Reader) extractFileNameFromURL(url string) string {
+	_ = "STUB: not implemented"
 	// Extract the last part of the URL as the file name.
-	parts := strings.Split(url, "/")
-	if len(parts) > 0 {
-		fileName := parts[len(parts)-1]
-		// Remove query parameters and fragments.
-		if idx := strings.Index(fileName, "?"); idx != -1 {
-			fileName = fileName[:idx]
-		}
-		if idx := strings.Index(fileName, "#"); idx != -1 {
-			fileName = fileName[:idx]
-		}
-		// Remove file extension.
-		fileName = strings.TrimSuffix(fileName, ".md")
-		fileName = strings.TrimSuffix(fileName, ".markdown")
-		return fileName
-	}
-	return "markdown_document"
+	return ""
 }
+
+// Remove query parameters and fragments.
+
+// Remove file extension.
 
 // Name returns the name of this reader.
-func (r *Reader) Name() string {
-	return "MarkdownReader"
-}
+func (r *Reader) Name() string { _ = "STUB: not implemented"; return "" }
 
 // SupportedExtensions returns the file extensions this reader supports.
-func (r *Reader) SupportedExtensions() []string {
-	return supportedExtensions
-}
+func (r *Reader) SupportedExtensions() []string { _ = "STUB: not implemented"; return nil }

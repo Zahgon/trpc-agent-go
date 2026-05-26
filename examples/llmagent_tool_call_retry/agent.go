@@ -10,10 +10,7 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -36,38 +33,10 @@ func buildAgent(
 	service *flakyWeatherService,
 	retryPolicy *tool.RetryPolicy,
 ) *llmagent.LLMAgent {
-	weatherTool := function.NewFunctionTool(
-		service.getWeather,
-		function.WithName(toolName),
-		function.WithDescription("Fetch the weather for a location."),
-	)
-	opts := []llmagent.Option{
-		llmagent.WithModel(
-			openai.New(
-				modelName,
-				openai.WithBaseURL(baseURL),
-				openai.WithAPIKey(apiKey),
-			),
-		),
-		llmagent.WithDescription("Demonstrates single tool-call retry on an LLMAgent."),
-		llmagent.WithInstruction(llmInstruction),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			Stream:      false,
-			MaxTokens:   intPtr(256),
-			Temperature: floatPtr(0),
-		}),
-		llmagent.WithTools([]tool.Tool{weatherTool}),
-	}
-	if retryPolicy != nil {
-		opts = append(opts, llmagent.WithToolCallRetryPolicy(retryPolicy))
-	}
-	return llmagent.New("llmagent-tool-call-retry-demo", opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func intPtr(v int) *int {
-	return &v
-}
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(v float64) *float64 {
-	return &v
-}
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

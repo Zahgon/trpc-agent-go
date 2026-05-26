@@ -55,25 +55,12 @@ const (
 )
 
 // retryCount returns the current counter (0 if unset / nil inv).
-func retryCount(inv *agent.Invocation) int {
-	if inv == nil {
-		return 0
-	}
-	v, _ := agent.GetStateValue[int](inv, stateKeyRetryCount)
-	return v
-}
+func retryCount(inv *agent.Invocation) int { _ = "STUB: not implemented"; return 0 }
 
 // incRetryCount increments and returns the new value. Inlining
 // the read avoids a separate Get → Set round-trip and keeps the
 // AfterModel hot path small.
-func incRetryCount(inv *agent.Invocation) int {
-	if inv == nil {
-		return 0
-	}
-	n := retryCount(inv) + 1
-	inv.SetState(stateKeyRetryCount, n)
-	return n
-}
+func incRetryCount(inv *agent.Invocation) int { _ = "STUB: not implemented"; return 0 }
 
 // resetRetryCount zeroes the counter. Called whenever the
 // retry budget is fully consumed (fail-open path) so that any
@@ -81,66 +68,28 @@ func incRetryCount(inv *agent.Invocation) int {
 // "no enforcement attempts pending" value. The Invocation itself
 // will be discarded shortly afterwards, so this is mostly for
 // observability cleanliness rather than correctness.
-func resetRetryCount(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	inv.DeleteState(stateKeyRetryCount)
-}
+func resetRetryCount(inv *agent.Invocation) { _ = "STUB: not implemented"; return }
 
 // reminderPending reports whether AfterModel asked the next
 // BeforeModel to inject a nudge.
-func reminderPending(inv *agent.Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	v, _ := agent.GetStateValue[bool](inv, stateKeyReminderPending)
-	return v
-}
+func reminderPending(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // setReminderPending sets / clears the flag. We DeleteState on
 // false rather than writing a zero value so introspection tools
 // see "no key" instead of "key set to false" — slightly less
 // noisy in trace dumps.
-func setReminderPending(inv *agent.Invocation, pending bool) {
-	if inv == nil {
-		return
-	}
-	if pending {
-		inv.SetState(stateKeyReminderPending, true)
-		return
-	}
-	inv.DeleteState(stateKeyReminderPending)
-}
+func setReminderPending(inv *agent.Invocation, pending bool) { _ = "STUB: not implemented"; return }
 
 // blockerDeclared reports whether todo_declare_blocker has been
 // called on this invocation.
-func blockerDeclared(inv *agent.Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	v, _ := agent.GetStateValue[bool](inv, stateKeyBlockerDeclared)
-	return v
-}
+func blockerDeclared(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // markBlockerDeclared latches the flag and stores the reason
 // atomically from the caller's viewpoint (two SetState calls,
 // but the AfterModel decision tree only inspects the flag and
 // reason in strict order so a torn read is safe).
-func markBlockerDeclared(inv *agent.Invocation, reason string) {
-	if inv == nil {
-		return
-	}
-	inv.SetState(stateKeyBlockerDeclared, true)
-	inv.SetState(stateKeyBlockerReason, reason)
-}
+func markBlockerDeclared(inv *agent.Invocation, reason string) { _ = "STUB: not implemented"; return }
 
 // blockerReason returns the stored reason, or "" when no blocker
 // has been declared on this invocation.
-func blockerReason(inv *agent.Invocation) string {
-	if inv == nil {
-		return ""
-	}
-	v, _ := agent.GetStateValue[string](inv, stateKeyBlockerReason)
-	return v
-}
+func blockerReason(inv *agent.Invocation) string { _ = "STUB: not implemented"; return "" }

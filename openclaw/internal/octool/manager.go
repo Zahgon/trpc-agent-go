@@ -11,14 +11,9 @@
 package octool
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"fmt"
 	"io"
-	"os"
 	"os/exec"
-	"strings"
 	"sync"
 	"time"
 )
@@ -56,58 +51,20 @@ type Manager struct {
 
 type Option func(*Manager)
 
-func WithMaxLines(n int) Option {
-	return func(m *Manager) {
-		if n > 0 {
-			m.maxLines = n
-		}
-	}
-}
+func WithMaxLines(n int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithJobTTL(d time.Duration) Option {
-	return func(m *Manager) {
-		if d > 0 {
-			m.jobTTL = d
-		}
-	}
-}
+func WithJobTTL(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithBaseEnv(env map[string]string) Option {
-	return func(m *Manager) {
-		if len(env) == 0 {
-			return
-		}
-		m.baseEnv = copyEnvMap(env)
-	}
-}
+func WithBaseEnv(env map[string]string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithCommandPolicy(policy CommandPolicy) Option {
-	return func(m *Manager) {
-		m.policy = policy
-	}
-}
+func WithCommandPolicy(policy CommandPolicy) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 func WithOutputRedactor(redactor OutputRedactor) Option {
-	return func(m *Manager) {
-		m.redactor = redactor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
-func NewManager(opts ...Option) *Manager {
-	m := &Manager{
-		sessions:         map[string]*session{},
-		maxLines:         defaultMaxLines,
-		jobTTL:           defaultJobTTL,
-		clock:            time.Now,
-		shellEnvSnapshot: snapshotLoginShellEnv,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(m)
-		}
-	}
-	return m
-}
+func NewManager(opts ...Option) *Manager { _ = "STUB: not implemented"; return nil }
 
 type execParams struct {
 	Command    string
@@ -133,107 +90,8 @@ func (m *Manager) Exec(
 	ctx context.Context,
 	params execParams,
 ) (execResult, error) {
-	if ctx == nil {
-		return execResult{}, errors.New("nil context")
-	}
-	if params.Command == "" {
-		return execResult{}, errors.New("command is required")
-	}
-	var req CommandRequest
-	if m.policy != nil || m.redactor != nil {
-		req = m.commandRequest(ctx, params)
-		if m.policy != nil {
-			if err := m.policy(ctx, req); err != nil {
-				return execResult{}, err
-			}
-		}
-	}
-	redact := m.outputRedactor(req)
-
-	m.cleanupExpired()
-
-	yieldMs := defaultYieldMs
-	if params.YieldMs != nil && *params.YieldMs >= 0 {
-		yieldMs = *params.YieldMs
-	}
-
-	timeoutS := defaultTimeoutS
-	if params.TimeoutS != nil && *params.TimeoutS > 0 {
-		timeoutS = *params.TimeoutS
-	}
-
-	timeout := time.Duration(timeoutS) * time.Second
-
-	if !params.Background && yieldMs == 0 && !params.Pty {
-		out, code, err := runForeground(
-			ctx,
-			params,
-			timeout,
-			m.baseEnv,
-		)
-		if err != nil {
-			return execResult{}, err
-		}
-		out = applyOutputRedactor(redact, out)
-		return execResult{
-			Status:   "exited",
-			Output:   out,
-			ExitCode: code,
-		}, nil
-	}
-
-	sess, err := m.startBackground(params, timeout, redact)
-	if err != nil {
-		return execResult{}, err
-	}
-
-	if params.Background {
-		return execResult{
-			Status:    "running",
-			SessionID: sess.id,
-			Output:    sess.tail(defaultLogTail),
-		}, nil
-	}
-
-	if yieldMs == 0 {
-		select {
-		case <-ctx.Done():
-			_ = m.kill(sess.id)
-			return execResult{}, ctx.Err()
-		case <-sess.doneCh:
-		}
-		out, code := sess.allOutput()
-		_ = m.clearFinished(sess.id)
-		return execResult{
-			Status:   "exited",
-			Output:   out,
-			ExitCode: code,
-		}, nil
-	}
-
-	yield := time.Duration(yieldMs) * time.Millisecond
-	timer := time.NewTimer(yield)
-	defer timer.Stop()
-
-	select {
-	case <-ctx.Done():
-		_ = m.kill(sess.id)
-		return execResult{}, ctx.Err()
-	case <-sess.doneCh:
-		out, code := sess.allOutput()
-		_ = m.clearFinished(sess.id)
-		return execResult{
-			Status:   "exited",
-			Output:   out,
-			ExitCode: code,
-		}, nil
-	case <-timer.C:
-		return execResult{
-			Status:    "running",
-			SessionID: sess.id,
-			Output:    sess.tail(defaultLogTail),
-		}, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(execResult), nil
 }
 
 func runForeground(
@@ -242,181 +100,48 @@ func runForeground(
 	timeout time.Duration,
 	baseEnv map[string]string,
 ) (string, int, error) {
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
-	cmd := shellCmd(ctx, params.Command)
-	cmd.Dir = params.Workdir
-	cmd.Env = mergedEnv(baseEnv, params.Env)
-
-	out, err := cmd.CombinedOutput()
-	code := exitCode(err)
-	return string(out), code, nil
+	_ = "STUB: not implemented"
+	return "", 0, nil
 }
 
-func shellCmd(ctx context.Context, command string) *exec.Cmd {
-	return exec.CommandContext(
-		ctx,
-		shellProgram,
-		shellLoginFlag,
-		command,
-	)
-}
+func shellCmd(ctx context.Context, command string) *exec.Cmd { _ = "STUB: not implemented"; return nil }
 
 func mergedEnv(
 	baseEnv map[string]string,
 	extra map[string]string,
 ) []string {
-	if len(baseEnv) == 0 && len(extra) == 0 {
-		return nil
-	}
-	env := os.Environ()
-	out := make([]string, 0, len(env)+len(baseEnv)+len(extra))
-	out = append(out, env...)
-
-	for k, v := range baseEnv {
-		out = setEnv(out, k, v)
-	}
-	for k, v := range extra {
-		out = setEnv(out, k, v)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func setEnv(env []string, k, v string) []string {
-	prefix := fmt.Sprintf("%s=", k)
-	for i := range env {
-		if strings.HasPrefix(env[i], prefix) {
-			env[i] = prefix + v
-			return env
-		}
-	}
-	return append(env, prefix+v)
-}
+func setEnv(env []string, k, v string) []string { _ = "STUB: not implemented"; return nil }
 
-func exitCode(err error) int {
-	if err == nil {
-		return 0
-	}
-	var ee *exec.ExitError
-	if errors.As(err, &ee) && ee.ProcessState != nil {
-		return ee.ProcessState.ExitCode()
-	}
-	return -1
-}
+func exitCode(err error) int { _ = "STUB: not implemented"; return 0 }
 
 func (m *Manager) startBackground(
 	params execParams,
 	timeout time.Duration,
 	redact func(string) string,
 ) (*session, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	cmd := shellCmd(ctx, params.Command)
-	cmd.Dir = params.Workdir
-	cmd.Env = mergedEnv(m.baseEnv, params.Env)
-
-	sess := newSession(newSessionID(), params.Command, m.maxLines)
-	sess.cancel = cancel
-	sess.redact = redact
-
-	if params.Pty {
-		master, closeIO, err := startPTY(cmd)
-		if err != nil {
-			cancel()
-			return nil, err
-		}
-		sess.stdin = master
-		sess.closeIO = closeIO
-		sess.ioWG.Add(1)
-		go func() {
-			defer sess.ioWG.Done()
-			sess.readFrom(master)
-		}()
-	} else {
-		stdin, stdout, stderr, err := startPipes(cmd)
-		if err != nil {
-			cancel()
-			return nil, err
-		}
-		sess.stdin = stdin
-		sess.closeIO = func() error {
-			_ = stdin.Close()
-			_ = stdout.Close()
-			_ = stderr.Close()
-			return nil
-		}
-		sess.ioWG.Add(2)
-		go func() {
-			defer sess.ioWG.Done()
-			sess.readFrom(stdout)
-		}()
-		go func() {
-			defer sess.ioWG.Done()
-			sess.readFrom(stderr)
-		}()
-		if err := cmd.Start(); err != nil {
-			cancel()
-			_ = sess.closeIO()
-			return nil, err
-		}
-	}
-
-	go func() {
-		sess.ioWG.Wait()
-		close(sess.ioDone)
-	}()
-
-	sess.cmd = cmd
-	m.mu.Lock()
-	m.sessions[sess.id] = sess
-	m.mu.Unlock()
-
-	go func() {
-		// Use cmd.Process.Wait() instead of cmd.Wait() because
-		// cmd.Wait() closes the pipe read ends returned by StdoutPipe
-		// and StderrPipe, which races with readFrom goroutines still
-		// reading from those pipes.  See the exec.StdoutPipe docs:
-		// "It is thus incorrect to call Wait before all reads from the
-		// pipe have completed."
-		ps, _ := cmd.Process.Wait()
-		waitDone(sess.ioDone, defaultIODrain)
-		code := -1
-		if ps != nil {
-			code = ps.ExitCode()
-		}
-		sess.markDone(code)
-		cancel()
-		_ = sess.closeIO()
-	}()
-
-	return sess, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func copyEnvMap(env map[string]string) map[string]string {
-	if len(env) == 0 {
-		return nil
-	}
-	out := make(map[string]string, len(env))
-	for key, value := range env {
-		if strings.TrimSpace(key) == "" {
-			continue
-		}
-		out[key] = value
-	}
-	return out
-}
+// Use cmd.Process.Wait() instead of cmd.Wait() because
+// cmd.Wait() closes the pipe read ends returned by StdoutPipe
+// and StderrPipe, which races with readFrom goroutines still
+// reading from those pipes.  See the exec.StdoutPipe docs:
+// "It is thus incorrect to call Wait before all reads from the
+// pipe have completed."
+
+func copyEnvMap(env map[string]string) map[string]string { _ = "STUB: not implemented"; return nil }
 
 func (m *Manager) commandRequest(
 	ctx context.Context,
 	params execParams,
 ) CommandRequest {
-	req := newCommandRequest(params)
-	req.Env = m.commandEnv(
-		ctx,
-		params.Workdir,
-		params.Env,
-	)
-	return req
+	_ = "STUB: not implemented"
+	return *new(CommandRequest)
 }
 
 func (m *Manager) commandEnv(
@@ -424,188 +149,80 @@ func (m *Manager) commandEnv(
 	workdir string,
 	extra map[string]string,
 ) map[string]string {
-	out := m.loginShellEnv(ctx, workdir)
-	if len(out) == 0 {
-		out = currentProcessEnvMap()
-	}
-	out = mergeEnvMaps(out, m.baseEnv)
-	return mergeEnvMaps(out, extra)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func mergeEnvMaps(
 	base map[string]string,
 	extra map[string]string,
 ) map[string]string {
-	if len(base) == 0 && len(extra) == 0 {
-		return nil
-	}
-	out := copyEnvMap(base)
-	if len(out) == 0 {
-		out = make(map[string]string, len(extra))
-	}
-	for key, value := range extra {
-		if strings.TrimSpace(key) == "" {
-			continue
-		}
-		out[key] = value
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *Manager) outputRedactor(
 	req CommandRequest,
 ) func(string) string {
-	if m.redactor == nil {
-		return nil
-	}
-	copied := copyCommandRequest(req)
-	return func(output string) string {
-		return m.redactor(copied, output)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func copyCommandRequest(req CommandRequest) CommandRequest {
-	req.Env = copyEnvMap(req.Env)
-	return req
+	_ = "STUB: not implemented"
+	return *new(CommandRequest)
 }
 
 func applyOutputRedactor(
 	redact func(string) string,
 	output string,
 ) string {
-	if redact == nil || output == "" {
-		return output
-	}
-	return redact(output)
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func currentProcessEnvMap() map[string]string {
-	return envListToMap(os.Environ())
-}
+func currentProcessEnvMap() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func envListToMap(env []string) map[string]string {
-	if len(env) == 0 {
-		return nil
-	}
-	out := make(map[string]string, len(env))
-	for _, pair := range env {
-		key, value, ok := splitEnvPair(pair)
-		if !ok {
-			continue
-		}
-		out[key] = value
-	}
-	return out
-}
+func envListToMap(env []string) map[string]string { _ = "STUB: not implemented"; return nil }
 
 func splitEnvPair(pair string) (string, string, bool) {
-	if pair == "" {
-		return "", "", false
-	}
-	idx := strings.Index(pair, "=")
-	if idx <= 0 {
-		return "", "", false
-	}
-	return pair[:idx], pair[idx+1:], true
+	_ = "STUB: not implemented"
+	return "", "", false
 }
 
 func (m *Manager) loginShellEnv(
 	ctx context.Context,
 	workdir string,
 ) map[string]string {
-	snapshot := m.shellEnvSnapshot
-	if snapshot == nil {
-		snapshot = snapshotLoginShellEnv
-	}
-	return snapshot(ctx, workdir)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func snapshotLoginShellEnv(
 	ctx context.Context,
 	workdir string,
 ) map[string]string {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	ctx, cancel := context.WithTimeout(ctx, defaultShellEnvTimeout)
-	defer cancel()
-
-	cmd := shellCmd(ctx, shellEnvDumpCommand)
-	cmd.Dir = workdir
-
-	out, err := cmd.Output()
-	if err != nil {
-		return nil
-	}
-	pairs := bytes.Split(out, []byte{0})
-	items := make([]string, 0, len(pairs))
-	for _, pair := range pairs {
-		if len(pair) == 0 {
-			continue
-		}
-		items = append(items, string(pair))
-	}
-	return envListToMap(items)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func waitDone(done <-chan struct{}, timeout time.Duration) {
-	if done == nil {
-		return
-	}
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-	select {
-	case <-done:
-	case <-timer.C:
-	}
-}
+func waitDone(done <-chan struct{}, timeout time.Duration) { _ = "STUB: not implemented"; return }
 
 func startPipes(
 	cmd *exec.Cmd,
 ) (io.WriteCloser, io.ReadCloser, io.ReadCloser, error) {
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		_ = stdin.Close()
-		return nil, nil, nil, err
-	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		_ = stdin.Close()
-		_ = stdout.Close()
-		return nil, nil, nil, err
-	}
-	return stdin, stdout, stderr, nil
+	_ = "STUB: not implemented"
+	return *new(io.WriteCloser), *new(io.ReadCloser), *new(io.ReadCloser), nil
 }
 
-func (m *Manager) list() []processSession {
-	m.cleanupExpired()
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	out := make([]processSession, 0, len(m.sessions))
-	for _, s := range m.sessions {
-		out = append(out, s.snapshot())
-	}
-	sortSessions(out)
-	return out
-}
+func (m *Manager) list() []processSession { _ = "STUB: not implemented"; return nil }
 
 // ListSessions returns the current exec_command session snapshots.
-func (m *Manager) ListSessions() []ProcessSession {
-	return m.list()
-}
+func (m *Manager) ListSessions() []ProcessSession { _ = "STUB: not implemented"; return nil }
 
 func (m *Manager) poll(id string, limit *int) (processPoll, error) {
-	s, err := m.get(id)
-	if err != nil {
-		return processPoll{}, err
-	}
-	return s.poll(limit), nil
+	_ = "STUB: not implemented"
+	return *new(processPoll), nil
 }
 
 func (m *Manager) log(
@@ -613,11 +230,8 @@ func (m *Manager) log(
 	offset *int,
 	limit *int,
 ) (processLog, error) {
-	s, err := m.get(id)
-	if err != nil {
-		return processLog{}, err
-	}
-	return s.log(offset, limit), nil
+	_ = "STUB: not implemented"
+	return *new(processLog), nil
 }
 
 func (m *Manager) write(
@@ -625,71 +239,16 @@ func (m *Manager) write(
 	data string,
 	newline bool,
 ) (processWrite, error) {
-	s, err := m.get(id)
-	if err != nil {
-		return processWrite{}, err
-	}
-	return s.write(data, newline)
+	_ = "STUB: not implemented"
+	return *new(processWrite), nil
 }
 
-func (m *Manager) kill(id string) error {
-	s, err := m.get(id)
-	if err != nil {
-		return err
-	}
-	return s.kill(defaultKillGrace)
-}
+func (m *Manager) kill(id string) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) clearFinished(id string) error {
-	s, err := m.get(id)
-	if err != nil {
-		return err
-	}
-	if s.running() {
-		return errors.New("session is still running")
-	}
-	m.mu.Lock()
-	delete(m.sessions, id)
-	m.mu.Unlock()
-	return nil
-}
+func (m *Manager) clearFinished(id string) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) remove(id string) error {
-	s, err := m.get(id)
-	if err != nil {
-		return err
-	}
-	if s.running() {
-		if err := s.kill(defaultKillGrace); err != nil {
-			return err
-		}
-	}
-	return m.clearFinished(id)
-}
+func (m *Manager) remove(id string) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) get(id string) (*session, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (m *Manager) get(id string) (*session, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	s, ok := m.sessions[id]
-	if !ok {
-		return nil, fmt.Errorf("unknown sessionId: %s", id)
-	}
-	return s, nil
-}
-
-func (m *Manager) cleanupExpired() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	now := m.clock()
-	for id, s := range m.sessions {
-		if s.running() {
-			continue
-		}
-		if now.Sub(s.doneAt()) < m.jobTTL {
-			continue
-		}
-		delete(m.sessions, id)
-	}
-}
+func (m *Manager) cleanupExpired() { _ = "STUB: not implemented"; return }

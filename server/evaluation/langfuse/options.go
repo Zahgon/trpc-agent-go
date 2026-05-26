@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	lfconfig "trpc.group/trpc-go/trpc-agent-go/telemetry/langfuse/config"
 )
 
 const (
@@ -41,106 +40,49 @@ type options struct {
 	runOptions     []agent.RunOption
 }
 
-func newOptions(opts ...Option) *options {
-	connectionConfig := lfconfig.FromEnv()
-	options := &options{
-		path:        defaultPath,
-		caseBuilder: buildCaseSpec,
-		baseURL:     connectionConfig.BaseURL,
-		publicKey:   connectionConfig.PublicKey,
-		secretKey:   connectionConfig.SecretKey,
-		traceTags:   []string{"remote-experiment", "trpc-agent-go"},
-		userIDSupplier: func(_ context.Context) string {
-			return defaultUserID
-		},
-		environment: defaultEnvironment,
-		timeout:     defaultTimeout,
-		httpClient: &http.Client{
-			Timeout: defaultTimeout,
-		},
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithPath sets the handler route path.
-func WithPath(path string) Option {
-	return func(opts *options) {
-		opts.path = path
-	}
-}
+func WithPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBaseURL sets the Langfuse public API base URL.
-func WithBaseURL(baseURL string) Option {
-	return func(opts *options) {
-		opts.baseURL = baseURL
-	}
-}
+func WithBaseURL(baseURL string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPublicKey sets the Langfuse public API key.
-func WithPublicKey(publicKey string) Option {
-	return func(opts *options) {
-		opts.publicKey = publicKey
-	}
-}
+func WithPublicKey(publicKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSecretKey sets the Langfuse secret API key.
-func WithSecretKey(secretKey string) Option {
-	return func(opts *options) {
-		opts.secretKey = secretKey
-	}
-}
+func WithSecretKey(secretKey string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCaseBuilder sets the dataset item to case conversion function.
 func WithCaseBuilder(caseBuilder CaseBuilder) Option {
-	return func(opts *options) {
-		opts.caseBuilder = caseBuilder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTraceTags sets the default trace tags used when the payload does not override them.
-func WithTraceTags(tags ...string) Option {
-	return func(opts *options) {
-		opts.traceTags = append(opts.traceTags, tags...)
-	}
-}
+func WithTraceTags(tags ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // UserIDSupplier returns the default user ID used by one remote experiment run.
 type UserIDSupplier func(ctx context.Context) string
 
 // WithUserIDSupplier sets the user ID supplier used when the case spec does not provide one.
 func WithUserIDSupplier(supplier UserIDSupplier) Option {
-	return func(opts *options) {
-		opts.userIDSupplier = supplier
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEnvironment sets the default Langfuse environment attached to traces and scores.
-func WithEnvironment(environment string) Option {
-	return func(opts *options) {
-		opts.environment = environment
-	}
-}
+func WithEnvironment(environment string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the maximum execution time for one remote experiment request.
-func WithTimeout(timeout time.Duration) Option {
-	return func(opts *options) {
-		opts.timeout = timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClient sets the HTTP client used for Langfuse public API calls.
-func WithHTTPClient(client *http.Client) Option {
-	return func(opts *options) {
-		opts.httpClient = client
-	}
-}
+func WithHTTPClient(client *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunOptions appends agent run options applied to every remote experiment case.
 func WithRunOptions(runOptions ...agent.RunOption) Option {
-	return func(opts *options) {
-		opts.runOptions = append(opts.runOptions, runOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

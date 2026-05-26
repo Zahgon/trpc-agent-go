@@ -11,19 +11,11 @@
 package octool
 
 import (
-	"bufio"
 	"context"
-	"errors"
 	"io"
 	"os/exec"
-	"runtime"
-	"sort"
-	"strings"
 	"sync"
-	"syscall"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type session struct {
@@ -52,131 +44,25 @@ type session struct {
 	maxLines   int
 }
 
-func newSession(id, command string, maxLines int) *session {
-	return &session{
-		id:       id,
-		command:  command,
-		doneCh:   make(chan struct{}),
-		ioDone:   make(chan struct{}),
-		started:  time.Now(),
-		maxLines: maxLines,
-	}
-}
+func newSession(id, command string, maxLines int) *session { _ = "STUB: not implemented"; return nil }
 
-func newSessionID() string {
-	return uuid.NewString()
-}
+func newSessionID() string { _ = "STUB: not implemented"; return "" }
 
-func (s *session) running() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.finished.IsZero()
-}
+func (s *session) running() bool { _ = "STUB: not implemented"; return false }
 
-func (s *session) doneAt() time.Time {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.finished
-}
+func (s *session) doneAt() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func (s *session) markDone(exitCode int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if !s.finished.IsZero() {
-		return
-	}
-	if s.partial != "" {
-		s.lines = append(s.lines, s.partial)
-		s.partial = ""
-	}
-	s.exitCode = exitCode
-	s.finished = time.Now()
-	close(s.doneCh)
-}
+func (s *session) markDone(exitCode int) { _ = "STUB: not implemented"; return }
 
-func (s *session) readFrom(r io.Reader) {
-	if r == nil {
-		return
-	}
-	rd := bufio.NewReaderSize(r, 32*1024)
-	for {
-		b, err := rd.ReadBytes('\n')
-		if len(b) > 0 {
-			s.appendOutput(string(b))
-		}
-		if err != nil {
-			return
-		}
-	}
-}
+func (s *session) readFrom(r io.Reader) { _ = "STUB: not implemented"; return }
 
-func (s *session) appendOutput(chunk string) {
-	text := strings.ReplaceAll(chunk, "\r\n", "\n")
+func (s *session) appendOutput(chunk string) { _ = "STUB: not implemented"; return }
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *session) trimLocked() { _ = "STUB: not implemented"; return }
 
-	text = s.partial + text
-	parts := strings.Split(text, "\n")
-	if len(parts) == 0 {
-		return
-	}
-	s.partial = parts[len(parts)-1]
-	for _, line := range parts[:len(parts)-1] {
-		s.lines = append(s.lines, line)
-	}
-	s.trimLocked()
-}
+func (s *session) tail(lines int) string { _ = "STUB: not implemented"; return "" }
 
-func (s *session) trimLocked() {
-	if s.maxLines <= 0 {
-		return
-	}
-	if len(s.lines) <= s.maxLines {
-		return
-	}
-	drop := len(s.lines) - s.maxLines
-	s.lines = s.lines[drop:]
-	s.lineBase += drop
-	if s.pollCursor < s.lineBase {
-		s.pollCursor = s.lineBase
-	}
-}
-
-func (s *session) tail(lines int) string {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if lines <= 0 {
-		return ""
-	}
-	start := 0
-	if len(s.lines) > lines {
-		start = len(s.lines) - lines
-	}
-	out := strings.Join(s.lines[start:], "\n")
-	if s.partial != "" {
-		if out != "" {
-			out += "\n"
-		}
-		out += s.partial
-	}
-	return applyOutputRedactor(s.redact, out)
-}
-
-func (s *session) allOutput() (string, int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	out := strings.Join(s.lines, "\n")
-	if s.partial != "" {
-		if out != "" {
-			out += "\n"
-		}
-		out += s.partial
-	}
-	return applyOutputRedactor(s.redact, out), s.exitCode
-}
+func (s *session) allOutput() (string, int) { _ = "STUB: not implemented"; return "", 0 }
 
 type processSession struct {
 	SessionID string `json:"sessionId"`
@@ -190,25 +76,7 @@ type processSession struct {
 // ProcessSession is the exported view of one exec_command session.
 type ProcessSession = processSession
 
-func (s *session) snapshot() processSession {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	out := processSession{
-		SessionID: s.id,
-		Command:   s.command,
-		StartedAt: s.started.Format(time.RFC3339),
-	}
-	if s.finished.IsZero() {
-		out.Status = "running"
-		return out
-	}
-	out.Status = "exited"
-	out.DoneAt = s.finished.Format(time.RFC3339)
-	code := s.exitCode
-	out.ExitCode = &code
-	return out
-}
+func (s *session) snapshot() processSession { _ = "STUB: not implemented"; return *new(processSession) }
 
 type processPoll struct {
 	Status     string `json:"status"`
@@ -218,41 +86,7 @@ type processPoll struct {
 	ExitCode   *int   `json:"exitCode,omitempty"`
 }
 
-func (s *session) poll(limit *int) processPoll {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	start := s.pollCursor
-	if start < s.lineBase {
-		start = s.lineBase
-		s.pollCursor = start
-	}
-	end := s.lineBase + len(s.lines)
-	if limit != nil && *limit > 0 {
-		if want := start + *limit; want < end {
-			end = want
-		}
-	}
-
-	from := start - s.lineBase
-	to := end - s.lineBase
-	out := strings.Join(s.lines[from:to], "\n")
-	s.pollCursor = end
-
-	res := processPoll{
-		Output:     applyOutputRedactor(s.redact, out),
-		Offset:     start,
-		NextOffset: end,
-	}
-	if s.finished.IsZero() {
-		res.Status = "running"
-		return res
-	}
-	res.Status = "exited"
-	code := s.exitCode
-	res.ExitCode = &code
-	return res
-}
+func (s *session) poll(limit *int) processPoll { _ = "STUB: not implemented"; return *new(processPoll) }
 
 type processLog struct {
 	Output     string `json:"output,omitempty"`
@@ -261,41 +95,8 @@ type processLog struct {
 }
 
 func (s *session) log(offset *int, limit *int) processLog {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	start := s.lineBase
-	end := s.lineBase + len(s.lines)
-
-	if offset != nil {
-		start = *offset
-	}
-	if start < s.lineBase {
-		start = s.lineBase
-	}
-	if start > end {
-		start = end
-	}
-
-	if offset == nil && limit == nil {
-		if end-start > defaultLogLimit {
-			start = end - defaultLogLimit
-		}
-	} else if limit != nil && *limit > 0 {
-		if want := start + *limit; want < end {
-			end = want
-		}
-	}
-
-	from := start - s.lineBase
-	to := end - s.lineBase
-	out := strings.Join(s.lines[from:to], "\n")
-
-	return processLog{
-		Output:     applyOutputRedactor(s.redact, out),
-		Offset:     start,
-		NextOffset: end,
-	}
+	_ = "STUB: not implemented"
+	return *new(processLog)
 }
 
 type processWrite struct {
@@ -303,59 +104,10 @@ type processWrite struct {
 }
 
 func (s *session) write(data string, newline bool) (processWrite, error) {
-	if data == "" && !newline {
-		return processWrite{OK: true}, nil
-	}
-
-	s.mu.Lock()
-	stdin := s.stdin
-	running := s.finished.IsZero()
-	s.mu.Unlock()
-
-	if !running {
-		return processWrite{}, errors.New("session is not running")
-	}
-	if stdin == nil {
-		return processWrite{}, errors.New("stdin is not available")
-	}
-
-	text := data
-	if newline {
-		text += "\n"
-	}
-	if _, err := io.WriteString(stdin, text); err != nil {
-		return processWrite{}, err
-	}
-	return processWrite{OK: true}, nil
+	_ = "STUB: not implemented"
+	return *new(processWrite), nil
 }
 
-func (s *session) kill(grace time.Duration) error {
-	s.mu.Lock()
-	cmd := s.cmd
-	cancel := s.cancel
-	s.mu.Unlock()
+func (s *session) kill(grace time.Duration) error { _ = "STUB: not implemented"; return nil }
 
-	if cancel != nil {
-		cancel()
-	}
-	if cmd == nil || cmd.Process == nil {
-		return nil
-	}
-
-	if runtime.GOOS != "windows" {
-		_ = cmd.Process.Signal(syscall.SIGTERM)
-	}
-
-	select {
-	case <-s.doneCh:
-		return nil
-	case <-time.After(grace):
-		return cmd.Process.Kill()
-	}
-}
-
-func sortSessions(sessions []processSession) {
-	sort.Slice(sessions, func(i, j int) bool {
-		return sessions[i].SessionID < sessions[j].SessionID
-	})
-}
+func sortSessions(sessions []processSession) { _ = "STUB: not implemented"; return }

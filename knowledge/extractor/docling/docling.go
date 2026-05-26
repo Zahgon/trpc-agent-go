@@ -23,10 +23,8 @@
 package docling
 
 import (
-	"bytes"
 	"context"
 	"io"
-	"net/http"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/extractor"
@@ -45,40 +43,22 @@ type Extractor struct {
 }
 
 // New creates a new Docling extractor.
-func New(opts ...Option) *Extractor {
-	o := options{
-		endpoint:     defaultEndpoint,
-		timeout:      defaultTimeout,
-		ocrEnabled:   true,
-		imageRefMode: ImageRefModePlaceholder,
-		formats:      defaultFormats,
-	}
-	for _, opt := range opts {
-		opt(&o)
-	}
-	if o.httpClient == nil {
-		o.httpClient = &http.Client{Timeout: o.timeout}
-	}
-	return &Extractor{opts: o}
-}
+func New(opts ...Option) *Extractor { _ = "STUB: not implemented"; return nil }
 
 // Extract converts the given data by uploading it to Docling Serve.
 func (e *Extractor) Extract(ctx context.Context, data []byte, opts ...extractor.Option) (*extractor.Result, error) {
-	return e.ExtractFromReader(ctx, bytes.NewReader(data), opts...)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ExtractFromReader converts content from a reader by uploading to Docling Serve.
 func (e *Extractor) ExtractFromReader(ctx context.Context, r io.Reader, opts ...extractor.Option) (*extractor.Result, error) {
-	eopts := extractor.ApplyOptions(opts...)
-	return e.doFileConvert(ctx, r, eopts)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // SupportedFormats returns the file extensions this extractor handles.
-func (e *Extractor) SupportedFormats() []string {
-	return e.opts.formats
-}
+func (e *Extractor) SupportedFormats() []string { _ = "STUB: not implemented"; return nil }
 
 // Close releases resources. Docling extractor is stateless, so this is a no-op.
-func (e *Extractor) Close() error {
-	return nil
-}
+func (e *Extractor) Close() error { _ = "STUB: not implemented"; return nil }

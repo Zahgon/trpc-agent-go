@@ -17,17 +17,10 @@ type options struct {
 // Option configures the internal judge helper.
 type Option func(*options)
 
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithStructuredOutput sets the structured output schema for the judge request.
 func WithStructuredOutput(out *model.StructuredOutput) Option {
-	return func(opts *options) {
-		opts.structuredOutput = out
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

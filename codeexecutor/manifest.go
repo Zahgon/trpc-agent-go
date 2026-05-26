@@ -11,7 +11,6 @@
 package codeexecutor
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -62,40 +61,7 @@ type outputSpecSnake struct {
 
 // UnmarshalJSON accepts both legacy Go-style keys (MaxFiles) and the
 // recommended snake_case keys (max_files).
-func (s *OutputSpec) UnmarshalJSON(data []byte) error {
-	type outputSpecAlias OutputSpec
-	var base outputSpecAlias
-	if err := json.Unmarshal(data, &base); err != nil {
-		return err
-	}
-	var snake outputSpecSnake
-	if err := json.Unmarshal(data, &snake); err != nil {
-		return err
-	}
-	*s = OutputSpec(base)
-	if snake.Globs != nil {
-		s.Globs = snake.Globs
-	}
-	if snake.MaxFiles != nil {
-		s.MaxFiles = *snake.MaxFiles
-	}
-	if snake.MaxFileBytes != nil {
-		s.MaxFileBytes = *snake.MaxFileBytes
-	}
-	if snake.MaxTotalBytes != nil {
-		s.MaxTotalBytes = *snake.MaxTotalBytes
-	}
-	if snake.Save != nil {
-		s.Save = *snake.Save
-	}
-	if snake.NameTemplate != nil {
-		s.NameTemplate = *snake.NameTemplate
-	}
-	if snake.Inline != nil {
-		s.Inline = *snake.Inline
-	}
-	return nil
-}
+func (s *OutputSpec) UnmarshalJSON(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 // FileRef references a file collected from workspace.
 type FileRef struct {

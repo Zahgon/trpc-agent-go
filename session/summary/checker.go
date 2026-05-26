@@ -10,17 +10,12 @@ package summary
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/internal/modelcontext"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	isummaryscope "trpc.group/trpc-go/trpc-agent-go/session/internal/summaryscope"
 )
 
 // Checker defines a function type for checking if summarization is needed.
@@ -45,163 +40,65 @@ const tokenThresholdReasoningContentStateKey = session.StateTempPrefix +
 	"summary:token_threshold_reasoning_content"
 
 func getTokenCounter() model.TokenCounter {
-	defaultTokenCounterMu.RLock()
-	counter := defaultTokenCounter
-	defaultTokenCounterMu.RUnlock()
-
-	if counter == nil {
-		return model.NewSimpleTokenCounter()
-	}
-	return counter
+	_ = "STUB: not implemented"
+	return *new(model.TokenCounter)
 }
 
 // SetTokenCounter sets the default TokenCounter used by summary checkers.
 // This affects all future CheckTokenThreshold evaluations in this process.
-func SetTokenCounter(counter model.TokenCounter) {
-	if counter == nil {
-		counter = model.NewSimpleTokenCounter()
-	}
-
-	defaultTokenCounterMu.Lock()
-	defaultTokenCounter = counter
-	defaultTokenCounterMu.Unlock()
-}
+func SetTokenCounter(counter model.TokenCounter) { _ = "STUB: not implemented"; return }
 
 // filterDeltaEvents returns events that occurred strictly after the last
 // summarized timestamp stored in session state. If the timestamp is not set
 // or invalid, it returns all events (first summarization scenario).
-func filterDeltaEvents(sess *session.Session) []event.Event {
-	if sess == nil || len(sess.Events) == 0 {
-		return nil
-	}
+func filterDeltaEvents(sess *session.Session) []event.Event { _ = "STUB: not implemented"; return nil }
 
-	raw, ok := sess.GetState(lastIncludedTsKey)
-	if !ok || len(raw) == 0 {
-		return sess.Events
-	}
-
-	lastTs, err := time.Parse(time.RFC3339Nano, string(raw))
-	if err != nil {
-		log.Warnf(
-			"invalid %s in session state (session_id=%s): %v",
-			lastIncludedTsKey,
-			sess.ID,
-			err,
-		)
-		return sess.Events
-	}
-
-	out := make([]event.Event, 0, len(sess.Events))
-	for _, e := range sess.Events {
-		if e.Timestamp.After(lastTs) {
-			out = append(out, e)
-		}
-	}
-	return out
-}
-
-func effectiveFilterKey(e event.Event) string {
-	if e.FilterKey != "" {
-		return e.FilterKey
-	}
-	if e.Version != event.CurrentVersion {
-		return e.Branch
-	}
-	return ""
-}
+func effectiveFilterKey(e event.Event) string { _ = "STUB: not implemented"; return "" }
 
 func filterSummaryInputEventsForSession(
 	events []event.Event,
 	sess *session.Session,
 ) []event.Event {
-	if sess == nil {
-		return events
-	}
-	if scopeKey := isummaryscope.GetScopeFilterKey(sess); scopeKey != "" {
-		return filterEventsInScope(events, scopeKey)
-	}
-	return events
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func filterThresholdEventsForSession(
 	events []event.Event,
 	sess *session.Session,
 ) []event.Event {
-	if sess == nil {
-		return events
-	}
-	if scopeKey := isummaryscope.GetScopeFilterKey(sess); scopeKey != "" {
-		return filterEventsInScope(events, scopeKey)
-	}
-	return filterEventsWithExactKey(events, sess.AppName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // filterEventsInScope keeps only events in the requested branch scope plus
 // synthetic events with an empty filter key.
 func filterEventsInScope(events []event.Event, scopeKey string) []event.Event {
-	if scopeKey == "" || len(events) == 0 {
-		return events
-	}
-	out := make([]event.Event, 0, len(events))
-	prefix := scopeKey + event.FilterKeyDelimiter
-	for _, e := range events {
-		fk := effectiveFilterKey(e)
-		if fk == "" || fk == scopeKey || strings.HasPrefix(fk, prefix) {
-			out = append(out, e)
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // filterEventsWithExactKey keeps only events whose effective filter key
 // matches filterKey exactly, plus synthetic events with an empty filter key.
 // This isolates full-session threshold checks to primary-agent activity.
 func filterEventsWithExactKey(events []event.Event, filterKey string) []event.Event {
-	if filterKey == "" || len(events) == 0 {
-		return events
-	}
-
-	out := make([]event.Event, 0, len(events))
-	for _, e := range events {
-		fk := effectiveFilterKey(e)
-		if fk == "" || fk == filterKey {
-			out = append(out, e)
-		}
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CheckEventThreshold creates a checker that triggers when the number of
 // threshold events since the last summary exceeds the given threshold.
 // Full-session checks count only primary-agent activity, while branch-scoped
 // checks count the scoped branch and its descendants.
-func CheckEventThreshold(eventCount int) Checker {
-	return func(sess *session.Session) bool {
-		delta := filterDeltaEvents(sess)
-		if len(delta) == 0 {
-			return false
-		}
-		thresholdEvents := filterThresholdEventsForSession(delta, sess)
-		return len(thresholdEvents) > eventCount
-	}
-}
+func CheckEventThreshold(eventCount int) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 // CheckTimeThreshold creates a checker that triggers when the time elapsed
 // since the last relevant event is greater than the given interval. Scoped
 // branch checks use the last event in that branch subtree; full-session checks
 // use the last event in the session.
 func CheckTimeThreshold(interval time.Duration) Checker {
-	return func(sess *session.Session) bool {
-		if sess == nil || len(sess.Events) == 0 {
-			return false
-		}
-		relevant := filterSummaryInputEventsForSession(sess.Events, sess)
-		if len(relevant) == 0 {
-			return false
-		}
-		lastEvent := relevant[len(relevant)-1]
-		return time.Since(lastEvent.Timestamp) > interval
-	}
+	_ = "STUB: not implemented"
+	return *new(Checker)
 }
 
 // checkTokenThresholdFromMessage checks if the token count of the given message exceeds the threshold.
@@ -210,21 +107,11 @@ func checkTokenThresholdFromMessage(
 	tokenCount int,
 	message model.Message,
 ) bool {
-	if strings.TrimSpace(message.Content) == "" &&
-		strings.TrimSpace(message.ReasoningContent) == "" {
-		return false
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	// SimpleTokenCounter.CountTokens currently never returns an error.
-	tokens, _ := getTokenCounter().CountTokens(
-		ctx,
-		message,
-	)
-	return tokens > tokenCount
+	_ = "STUB: not implemented"
+	return false
 }
+
+// SimpleTokenCounter.CountTokens currently never returns an error.
 
 // CheckTokenThreshold creates a checker that triggers when the estimated
 // token count of the threshold events since the last summary exceeds the given
@@ -241,19 +128,14 @@ func checkTokenThresholdFromMessage(
 // Because Checker does not accept a context, this legacy helper evaluates
 // token counts with context.Background(). Use CheckTokenThresholdContext or
 // WithTokenThreshold when token counting depends on request-scoped context.
-func CheckTokenThreshold(tokenCount int) Checker {
-	return func(sess *session.Session) bool {
-		return checkTokenThreshold(context.Background(), tokenCount, sess)
-	}
-}
+func CheckTokenThreshold(tokenCount int) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 // CheckTokenThresholdContext creates a context-aware checker that triggers
 // when the estimated token count of the primary-agent events since the last
 // summary exceeds the given threshold.
 func CheckTokenThresholdContext(tokenCount int) ContextChecker {
-	return func(ctx context.Context, sess *session.Session) bool {
-		return checkTokenThreshold(ctx, tokenCount, sess)
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextChecker)
 }
 
 func checkTokenThreshold(
@@ -261,100 +143,38 @@ func checkTokenThreshold(
 	tokenCount int,
 	sess *session.Session,
 ) bool {
-	if message, ok := getInjectedTokenThresholdMessage(sess); ok {
-		return checkTokenThresholdFromMessage(
-			ctx,
-			tokenCount,
-			message,
-		)
-	}
-	delta := filterDeltaEvents(sess)
-	if len(delta) == 0 {
-		return false
-	}
-	thresholdEvents := filterThresholdEventsForSession(delta, sess)
-	if len(thresholdEvents) == 0 {
-		return false
-	}
-	message := extractTokenThresholdMessage(
-		thresholdEvents, nil, nil,
-	)
-	return checkTokenThresholdFromMessage(
-		ctx,
-		tokenCount,
-		message,
-	)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func getInjectedTokenThresholdMessage(sess *session.Session) (model.Message, bool) {
-	if sess == nil {
-		return model.Message{}, false
-	}
-	content, hasContent := sess.GetState(tokenThresholdConversationTextStateKey)
-	reasoning, hasReasoning := sess.GetState(tokenThresholdReasoningContentStateKey)
-	if !hasContent && !hasReasoning {
-		return model.Message{}, false
-	}
-	return model.Message{
-		Content:          string(content),
-		ReasoningContent: string(reasoning),
-	}, true
+	_ = "STUB: not implemented"
+	return *new(model.Message), false
 }
 
 // ChecksAll composes multiple checkers using AND logic.
 // It returns true only if all provided checkers return true.
 // Use this to enforce stricter summarization gates.
-func ChecksAll(checks []Checker) Checker {
-	return func(sess *session.Session) bool {
-		for _, check := range checks {
-			if !check(sess) {
-				return false
-			}
-		}
-		return true
-	}
-}
+func ChecksAll(checks []Checker) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 // ChecksAny composes multiple checkers using OR logic.
 // It returns true if any one of the provided checkers returns true.
 // Use this to allow flexible, opportunistic summarization triggers.
-func ChecksAny(checks []Checker) Checker {
-	return func(sess *session.Session) bool {
-		for _, check := range checks {
-			if check(sess) {
-				return true
-			}
-		}
-		return false
-	}
-}
+func ChecksAny(checks []Checker) Checker { _ = "STUB: not implemented"; return *new(Checker) }
 
 func wrapChecker(check Checker) ContextChecker {
-	return func(_ context.Context, sess *session.Session) bool {
-		return check(sess)
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextChecker)
 }
 
 func allContextChecks(checks []ContextChecker) ContextChecker {
-	return func(ctx context.Context, sess *session.Session) bool {
-		for _, check := range checks {
-			if !check(ctx, sess) {
-				return false
-			}
-		}
-		return true
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextChecker)
 }
 
 func anyContextChecks(checks []ContextChecker) ContextChecker {
-	return func(ctx context.Context, sess *session.Session) bool {
-		for _, check := range checks {
-			if check(ctx, sess) {
-				return true
-			}
-		}
-		return false
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextChecker)
 }
 
 // Default context-threshold constants.
@@ -402,32 +222,22 @@ type contextThresholdOptions struct {
 // window at which summarization triggers. Default: 0.5 (50%).
 // Values outside (0, 1] are ignored.
 func WithContextThresholdRatio(ratio float64) ContextThresholdOption {
-	return func(o *contextThresholdOptions) {
-		if ratio > 0 && ratio <= 1 {
-			o.thresholdRatio = ratio
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextThresholdOption)
 }
 
 // WithContextThresholdFallbackWindow sets the context window used when
 // the model cannot be identified at runtime. Default: 8192.
 func WithContextThresholdFallbackWindow(tokens int) ContextThresholdOption {
-	return func(o *contextThresholdOptions) {
-		if tokens > 0 {
-			o.fallbackContextWindow = tokens
-			o.fallbackContextWindowSet = true
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextThresholdOption)
 }
 
 // WithContextThresholdMinTokens sets the absolute minimum token count
 // before summarization can trigger. Default: 2000.
 func WithContextThresholdMinTokens(tokens int) ContextThresholdOption {
-	return func(o *contextThresholdOptions) {
-		if tokens >= 0 {
-			o.minTokenThreshold = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextThresholdOption)
 }
 
 // CheckContextThreshold creates a context-aware checker that dynamically
@@ -448,25 +258,8 @@ func WithContextThresholdMinTokens(tokens int) ContextThresholdOption {
 // the summarizer model's context window (when used via WithContextThreshold),
 // then to the configured fallbackContextWindow (default 8192).
 func CheckContextThreshold(opts ...ContextThresholdOption) ContextChecker {
-	o := contextThresholdOptions{
-		thresholdRatio:        defaultContextThresholdRatio,
-		fallbackContextWindow: defaultContextThresholdFallbackWindow,
-		minTokenThreshold:     defaultContextThresholdMinTokens,
-	}
-	for _, opt := range opts {
-		opt(&o)
-	}
-
-	return func(ctx context.Context, sess *session.Session) bool {
-		contextWindow := resolveContextWindowFromCtx(
-			ctx, o.fallbackContextWindow,
-		)
-		threshold := int(float64(contextWindow) * o.thresholdRatio)
-		if threshold < o.minTokenThreshold {
-			threshold = o.minTokenThreshold
-		}
-		return checkTokenThreshold(ctx, threshold, sess)
-	}
+	_ = "STUB: not implemented"
+	return *new(ContextChecker)
 }
 
 // resolveContextWindowFromCtx attempts to determine the model's context
@@ -476,22 +269,6 @@ func CheckContextThreshold(opts ...ContextThresholdOption) ContextChecker {
 //  3. user-configured fallback
 //  4. framework default (8192)
 func resolveContextWindowFromCtx(ctx context.Context, fallback int) int {
-	if ctx != nil {
-		if inv, ok := agent.InvocationFromContext(ctx); ok && inv != nil {
-			if w, ok := agent.ModelContextWindowFromRunOptions(
-				&inv.RunOptions,
-			); ok {
-				return w
-			}
-			if inv.Model != nil {
-				if w, ok := modelcontext.ResolveContextWindow(inv.Model); ok {
-					return w
-				}
-			}
-		}
-	}
-	if fallback > 0 {
-		return fallback
-	}
-	return defaultContextThresholdFallbackWindow
+	_ = "STUB: not implemented"
+	return 0
 }

@@ -11,7 +11,6 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	demotool "trpc.group/trpc-go/trpc-agent-go/examples/agui/server/externaltool/llmagent/tool"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -26,28 +25,15 @@ CALC=<integer>; LOOKUP=<internal lookup result>; NOTE=<external note content>; A
 5. Copy the external_note and external_approval tool result content verbatim after NOTE= and APPROVAL=.`
 
 func newAgent(modelInstance model.Model, generationConfig model.GenerationConfig) *llmagent.LLMAgent {
-	return llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithTools(demotool.NewInternalTools()),
-		llmagent.WithEnableParallelTools(true),
-		llmagent.WithGenerationConfig(generationConfig),
-		llmagent.WithInstruction(agentInstruction),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newGenerationConfig() model.GenerationConfig {
-	return model.GenerationConfig{
-		MaxTokens:   intPtr(512),
-		Temperature: floatPtr(0),
-		Stream:      *isStream,
-	}
+	_ = "STUB: not implemented"
+	return *new(model.GenerationConfig)
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

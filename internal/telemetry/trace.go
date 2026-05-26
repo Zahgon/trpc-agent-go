@@ -12,22 +12,16 @@
 package telemetry
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/internal/toolorder"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	semconvtrace "trpc.group/trpc-go/trpc-agent-go/telemetry/semconv/trace"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -54,14 +48,10 @@ const (
 )
 
 // NewChatSpanName creates a new chat span name.
-func NewChatSpanName(requestModel string) string {
-	return newInferenceSpanName(OperationChat, requestModel)
-}
+func NewChatSpanName(requestModel string) string { _ = "STUB: not implemented"; return "" }
 
 // NewExecuteToolSpanName creates a new execute tool span name.
-func NewExecuteToolSpanName(toolName string) string {
-	return OperationExecuteTool + " " + toolName
-}
+func NewExecuteToolSpanName(toolName string) string { _ = "STUB: not implemented"; return "" }
 
 // WorkflowType is the normalized type vocabulary used by workflow spans.
 type WorkflowType string
@@ -79,10 +69,12 @@ const (
 
 // String returns the string representation of the workflow type.
 func (wt WorkflowType) String() string {
-	return string(wt)
+	_ = "STUB: not implemented"
+
+	// Workflow is the workflow information.
+	return ""
 }
 
-// Workflow is the workflow information.
 type Workflow struct {
 	Name     string
 	ID       string
@@ -93,9 +85,7 @@ type Workflow struct {
 }
 
 // NewWorkflowSpanName creates a new workflow span name.
-func NewWorkflowSpanName(workflowName string) string {
-	return OperationWorkflow + " " + workflowName
-}
+func NewWorkflowSpanName(workflowName string) string { _ = "STUB: not implemented"; return "" }
 
 type telemetryMessage struct {
 	Role             model.Role          `json:"role"`
@@ -115,82 +105,29 @@ type telemetryChoice struct {
 }
 
 func telemetryMessageFromModel(msg model.Message) telemetryMessage {
-	return telemetryMessage{
-		Role:             msg.Role,
-		Content:          msg.Content,
-		ContentParts:     msg.ContentParts,
-		ToolCallID:       msg.ToolID,
-		Name:             msg.ToolName,
-		ToolCalls:        msg.ToolCalls,
-		ReasoningContent: msg.ReasoningContent,
-	}
+	_ = "STUB: not implemented"
+	return *new(telemetryMessage)
 }
 
 func marshalTelemetryMessages(messages []model.Message) ([]byte, error) {
-	out := make([]telemetryMessage, len(messages))
-	for i, msg := range messages {
-		out[i] = telemetryMessageFromModel(msg)
-	}
-	return json.Marshal(out)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func marshalTelemetryChoices(choices []model.Choice) ([]byte, error) {
-	out := make([]telemetryChoice, len(choices))
-	for i, choice := range choices {
-		out[i] = telemetryChoice{
-			Index:        choice.Index,
-			Message:      telemetryMessageFromModel(choice.Message),
-			Delta:        telemetryMessageFromModel(choice.Delta),
-			FinishReason: choice.FinishReason,
-		}
-	}
-	return json.Marshal(out)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // TraceWorkflow traces the workflow.
-func TraceWorkflow(span trace.Span, workflow *Workflow) {
-	if !span.IsRecording() {
-		return
-	}
-	span.SetAttributes(
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationWorkflow),
-		attribute.String(semconvtrace.KeyGenAIWorkflowName, workflow.Name),
-		attribute.String(semconvtrace.KeyGenAIWorkflowID, workflow.ID),
-	)
-	if workflow.Type != "" {
-		span.SetAttributes(attribute.String(semconvtrace.KeyGenAIWorkflowType, workflow.Type.String()))
-	}
-	if workflow.Request != nil {
-		request, err := json.Marshal(workflow.Request)
-		if err != nil {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIWorkflowRequest, fmt.Sprintf("<not json serializable: %v>", err)))
-		} else {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIWorkflowRequest, string(request)))
-		}
-	}
-	if workflow.Response != nil {
-		response, err := json.Marshal(workflow.Response)
-		if err != nil {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIWorkflowResponse, fmt.Sprintf("<not json serializable>: %v", err)))
-		} else {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIWorkflowResponse, string(response)))
-		}
-	}
-	if workflow.Error != nil {
-		span.SetAttributes(attribute.String(semconvtrace.KeyErrorType, ToErrorType(workflow.Error, semconvtrace.ValueDefaultErrorType)))
-		span.SetStatus(codes.Error, workflow.Error.Error())
-		span.RecordError(workflow.Error)
-	}
-}
+func TraceWorkflow(span trace.Span, workflow *Workflow) { _ = "STUB: not implemented"; return }
 
 // newInferenceSpanName creates a new inference span name.
 // inference operation name: "chat" for openai, "generate_content" for gemini.
 // For example, "chat gpt-4.0".
 func newInferenceSpanName(operationNames, requestModel string) string {
-	if requestModel == "" {
-		return operationNames
-	}
-	return operationNames + " " + requestModel
+	_ = "STUB: not implemented"
+	return ""
 }
 
 const (
@@ -202,50 +139,14 @@ const (
 
 // TraceToolCall traces the invocation of a tool call.
 func TraceToolCall(span trace.Span, sess *session.Session, declaration *tool.Declaration, args []byte, rspEvent *event.Event, err error) {
-	span.SetAttributes(
-		attribute.String(semconvtrace.KeyGenAISystem, semconvtrace.SystemTRPCGoAgent),
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationExecuteTool),
-		attribute.String(semconvtrace.KeyGenAIToolName, declaration.Name),
-		attribute.String(semconvtrace.KeyGenAIToolDescription, declaration.Description),
-	)
-	if rspEvent != nil {
-		span.SetAttributes(attribute.String(semconvtrace.KeyEventID, rspEvent.ID))
-	}
-	if sess != nil {
-		span.SetAttributes(
-			attribute.String(semconvtrace.KeyGenAIConversationID, sess.ID),
-			attribute.String(semconvtrace.KeyRunnerUserID, sess.UserID),
-		)
-	}
-
-	// args is json-encoded.
-	span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallArguments, string(args)))
-	if rspEvent != nil && rspEvent.Response != nil {
-		if e := rspEvent.Response.Error; e != nil {
-			span.SetStatus(codes.Error, e.Message)
-			span.SetAttributes(responseErrorAttributes(e, semconvtrace.ValueDefaultErrorType)...)
-		} else if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.SetAttributes(attribute.String(semconvtrace.KeyErrorType, ToErrorType(err, semconvtrace.ValueDefaultErrorType)), attribute.String(semconvtrace.KeyErrorMessage, err.Error()))
-		}
-
-		if callIDs := rspEvent.Response.GetToolCallIDs(); len(callIDs) > 0 {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallID, callIDs[0]))
-		}
-		if bts, err := json.Marshal(rspEvent.Response); err == nil {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallResult, string(bts)))
-		} else {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallResult, "<not json serializable>"))
-		}
-	}
-
-	// Setting empty llm request and response (as UI expect these) while not
-	// applicable for tool_response.
-	span.SetAttributes(
-		attribute.String(semconvtrace.KeyLLMRequest, "{}"),
-		attribute.String(semconvtrace.KeyLLMResponse, "{}"),
-	)
+	_ = "STUB: not implemented"
+	return
 }
+
+// args is json-encoded.
+
+// Setting empty llm request and response (as UI expect these) while not
+// applicable for tool_response.
 
 // ToolNameMergedTools is the name of the merged tools.
 const ToolNameMergedTools = "(merged tools)"
@@ -254,144 +155,45 @@ const ToolNameMergedTools = "(merged tools)"
 // Calling this function is not needed for telemetry purposes. This is provided
 // for preventing trace-query requests typically sent by web UIs.
 func TraceMergedToolCalls(span trace.Span, rspEvent *event.Event) {
-	span.SetAttributes(
-		attribute.String(semconvtrace.KeyGenAISystem, semconvtrace.SystemTRPCGoAgent),
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationExecuteTool),
-		attribute.String(semconvtrace.KeyGenAIToolName, ToolNameMergedTools),
-		attribute.String(semconvtrace.KeyGenAIToolDescription, "(merged tools)"),
-		attribute.String(semconvtrace.KeyGenAIToolCallArguments, "N/A"),
-	)
-	if rspEvent != nil && rspEvent.Response != nil {
-		if callIDs := rspEvent.Response.GetToolCallIDs(); len(callIDs) > 0 {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallID, callIDs[0]))
-		}
-		if e := rspEvent.Response.Error; e != nil {
-			span.SetStatus(codes.Error, e.Message)
-			span.SetAttributes(responseErrorAttributes(e, semconvtrace.ValueDefaultErrorType)...)
-		}
-		span.SetAttributes(attribute.String(semconvtrace.KeyEventID, rspEvent.ID))
-
-		if bts, err := json.Marshal(rspEvent.Response); err == nil {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallResult, string(bts)))
-		} else {
-			span.SetAttributes(attribute.String(semconvtrace.KeyGenAIToolCallResult, "<not json serializable>"))
-		}
-	}
-
-	// Setting empty llm request and response (as UI expect these) while not
-	// applicable for tool_response.
-	span.SetAttributes(
-		attribute.String(semconvtrace.KeyLLMRequest, "{}"),
-		attribute.String(semconvtrace.KeyLLMResponse, "{}"),
-	)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Setting empty llm request and response (as UI expect these) while not
+// applicable for tool_response.
 
 func resolveInvocationAgentIdentity(invoke *agent.Invocation) (string, string) {
-	if invoke == nil {
-		return "", ""
-	}
-	// Invocation does not carry a canonical agent ID today, so use
-	// Invocation.AgentName as the fallback for gen_ai.agent.id.
-	return invoke.AgentName, invoke.AgentName
+	_ = "STUB: not implemented"
+	return "", ""
 }
+
+// Invocation does not carry a canonical agent ID today, so use
+// Invocation.AgentName as the fallback for gen_ai.agent.id.
 
 // TraceBeforeInvokeAgent traces the before invocation of an agent.
 func TraceBeforeInvokeAgent(span trace.Span, invoke *agent.Invocation, agentDescription, instructions string, genConfig *model.GenerationConfig) {
-	if !span.IsRecording() {
-		return
-	}
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyGenAISystem, semconvtrace.SystemTRPCGoAgent),
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationInvokeAgent),
-		attribute.String(semconvtrace.KeyGenAIAgentDescription, agentDescription),
-		attribute.String(semconvtrace.KeyGenAISystemInstructions, instructions),
-	}
-	if invoke != nil {
-		traceBeforeInvokeAgentInvocation(span, invoke)
-		attrs = append(attrs, beforeInvokeAgentAttributes(invoke)...)
-	}
-	span.SetAttributes(attrs...)
-	setInvokeAgentGenerationConfigAttributes(span, genConfig)
+	_ = "STUB: not implemented"
+	return
 }
 
 func traceBeforeInvokeAgentInvocation(span trace.Span, invoke *agent.Invocation) {
-	if len(invoke.RunOptions.SpanAttributes) > 0 {
-		span.SetAttributes(invoke.RunOptions.SpanAttributes...)
-	}
-	if invoke.GetParentInvocation() == nil &&
-		len(invoke.RunOptions.TraceStartedCallbacks) > 0 {
-		spanContext := span.SpanContext()
-		for _, callback := range invoke.RunOptions.TraceStartedCallbacks {
-			if callback == nil {
-				continue
-			}
-			callback(spanContext)
-		}
-	}
-	setInvokeAgentInputMessageAttributes(span, invoke.Message)
+	_ = "STUB: not implemented"
+	return
 }
 
 func setInvokeAgentInputMessageAttributes(span trace.Span, msg model.Message) {
-	if bts, err := marshalTelemetryMessages([]model.Message{msg}); err == nil {
-		span.SetAttributes(
-			attribute.String(semconvtrace.KeyGenAIInputMessages, string(bts)),
-		)
-	} else {
-		span.SetAttributes(attribute.String(semconvtrace.KeyGenAIInputMessages, "<not json serializable>"))
-	}
-	if bts, err := marshalOTelTelemetryMessages([]model.Message{msg}); err == nil {
-		span.SetAttributes(
-			attribute.String(semconvtrace.KeyGenAIInputMessagesOTel, string(bts)),
-		)
-	} else {
-		span.SetAttributes(attribute.String(semconvtrace.KeyGenAIInputMessagesOTel, "<not json serializable>"))
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func beforeInvokeAgentAttributes(invoke *agent.Invocation) []attribute.KeyValue {
-	var attrs []attribute.KeyValue
-	agentName, agentID := resolveInvocationAgentIdentity(invoke)
-	if agentName != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIAgentName, agentName))
-	}
-	if agentID != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIAgentID, agentID))
-	}
-	attrs = append(attrs, attribute.String(semconvtrace.KeyInvocationID, invoke.InvocationID))
-	if invoke.Session != nil {
-		attrs = append(attrs,
-			attribute.String(semconvtrace.KeyRunnerUserID, invoke.Session.UserID),
-			attribute.String(semconvtrace.KeyGenAIConversationID, invoke.Session.ID),
-		)
-	}
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func setInvokeAgentGenerationConfigAttributes(span trace.Span, genConfig *model.GenerationConfig) {
-	if genConfig != nil {
-		span.SetAttributes(attribute.Bool(semconvtrace.KeyGenAIRequestIsStream, genConfig.Stream))
-		if len(genConfig.Stop) > 0 {
-			span.SetAttributes(attribute.StringSlice(semconvtrace.KeyGenAIRequestStopSequences, genConfig.Stop))
-		}
-		if fp := genConfig.FrequencyPenalty; fp != nil {
-			span.SetAttributes(attribute.Float64(semconvtrace.KeyGenAIRequestFrequencyPenalty, *fp))
-		}
-		if mt := genConfig.MaxTokens; mt != nil {
-			span.SetAttributes(attribute.Int(semconvtrace.KeyGenAIRequestMaxTokens, *mt))
-		}
-		if pp := genConfig.PresencePenalty; pp != nil {
-			span.SetAttributes(attribute.Float64(semconvtrace.KeyGenAIRequestPresencePenalty, *pp))
-		}
-		if tp := genConfig.Temperature; tp != nil {
-			span.SetAttributes(attribute.Float64(semconvtrace.KeyGenAIRequestTemperature, *tp))
-		}
-		if tp := genConfig.TopP; tp != nil {
-			span.SetAttributes(attribute.Float64(semconvtrace.KeyGenAIRequestTopP, *tp))
-		}
-		if te := genConfig.ThinkingEnabled; te != nil {
-			span.SetAttributes(attribute.Bool(semconvtrace.KeyGenAIRequestThinkingEnabled, *te))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // TokenUsage is token usage information.
@@ -409,51 +211,8 @@ func TraceAfterInvokeAgent(
 	timeToFirstToken time.Duration,
 	errorTypeFallback string,
 ) {
-	if !span.IsRecording() {
-		return
-	}
-	if tokenUsage != nil {
-		span.SetAttributes(attribute.Int(semconvtrace.KeyGenAIUsageInputTokens, tokenUsage.PromptTokens))
-		span.SetAttributes(attribute.Int(semconvtrace.KeyGenAIUsageOutputTokens, tokenUsage.CompletionTokens))
-	}
-	if timeToFirstToken > 0 {
-		span.SetAttributes(attribute.Float64(semconvtrace.KeyTRPCAgentGoClientTimeToFirstToken, timeToFirstToken.Seconds()))
-	}
-	if rspEvent == nil {
-		return
-	}
-	rsp := rspEvent.Response
-	if rsp == nil {
-		return
-	}
-	if len(rsp.Choices) > 0 {
-		if bts, err := marshalTelemetryChoices(rsp.Choices); err == nil {
-			span.SetAttributes(
-				attribute.String(semconvtrace.KeyGenAIOutputMessages, string(bts)),
-			)
-		}
-		if bts, err := marshalOTelTelemetryChoices(rsp.Choices); err == nil {
-			span.SetAttributes(
-				attribute.String(semconvtrace.KeyGenAIOutputMessagesOTel, string(bts)),
-			)
-		}
-		var finishReasons []string
-		for _, choice := range rsp.Choices {
-			if choice.FinishReason != nil {
-				finishReasons = append(finishReasons, *choice.FinishReason)
-			} else {
-				finishReasons = append(finishReasons, "")
-			}
-		}
-		span.SetAttributes(attribute.StringSlice(semconvtrace.KeyGenAIResponseFinishReasons, finishReasons))
-	}
-	span.SetAttributes(attribute.String(semconvtrace.KeyGenAIResponseModel, rsp.Model))
-	span.SetAttributes(attribute.String(semconvtrace.KeyGenAIResponseID, rsp.ID))
-
-	if e := rsp.Error; e != nil {
-		span.SetStatus(codes.Error, e.Message)
-		span.SetAttributes(responseErrorAttributes(e, errorTypeFallback)...)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // TraceChatAttributes contains TraceChat inputs other than span.
@@ -469,244 +228,78 @@ type TraceChatAttributes struct {
 }
 
 // NewSummarizeTaskType creates a task type for summarize.
-func NewSummarizeTaskType(name string) string {
-	taskType := "summarize"
-	if name == "" {
-		return taskType
-	}
-	return taskType + " " + name
-}
+func NewSummarizeTaskType(name string) string { _ = "STUB: not implemented"; return "" }
 
 // TraceChat traces the invocation of an LLM call.
-func TraceChat(span trace.Span, attributes *TraceChatAttributes) {
-	if !span.IsRecording() {
-		return
-	}
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyGenAISystem, semconvtrace.SystemTRPCGoAgent),
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationChat),
-	}
-	if attributes == nil {
-		span.SetAttributes(attrs...)
-		return
-	}
+func TraceChat(span trace.Span, attributes *TraceChatAttributes) { _ = "STUB: not implemented"; return }
 
-	if attributes.EventID != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyEventID, attributes.EventID))
-	}
-	if attributes.TimeToFirstToken > 0 {
-		attrs = append(attrs, attribute.Float64(semconvtrace.KeyTRPCAgentGoClientTimeToFirstToken, attributes.TimeToFirstToken.Seconds()))
-	}
-	if attributes.TaskType != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAITaskType, attributes.TaskType))
-	}
+// Add invocation attributes
 
-	// Add invocation attributes
-	attrs = append(attrs, buildInvocationAttributes(attributes.Invocation)...)
+// Add request attributes
 
-	// Add request attributes
-	attrs = append(attrs, buildRequestAttributes(attributes.Request)...)
+// Add response attributes
 
-	// Add response attributes
-	attrs = append(attrs, buildResponseAttributes(attributes.Response, semconvtrace.ValueDefaultErrorType)...)
+// Set all attributes at once
 
-	// Set all attributes at once
-	span.SetAttributes(attrs...)
-
-	// Handle response error status
-	if attributes.Response != nil && attributes.Response.Error != nil {
-		span.SetStatus(codes.Error, attributes.Response.Error.Message)
-	}
-}
+// Handle response error status
 
 // buildInvocationAttributes extracts attributes from the invocation.
 func buildInvocationAttributes(invoke *agent.Invocation) []attribute.KeyValue {
-	if invoke == nil {
-		return nil
-	}
-
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyInvocationID, invoke.InvocationID),
-	}
-
-	if invoke.Session != nil {
-		attrs = append(attrs,
-			attribute.String(semconvtrace.KeyGenAIConversationID, invoke.Session.ID),
-			attribute.String(semconvtrace.KeyRunnerUserID, invoke.Session.UserID),
-		)
-	}
-
-	if invoke.Model != nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIRequestModel, invoke.Model.Info().Name))
-	}
-
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // buildRequestAttributes builds request-related attributes.
 func buildRequestAttributes(req *model.Request) []attribute.KeyValue {
-	if req == nil {
-		return nil
-	}
-
-	attrs := []attribute.KeyValue{
-		attribute.StringSlice(semconvtrace.KeyGenAIRequestStopSequences, req.GenerationConfig.Stop),
-		attribute.Int(semconvtrace.KeyGenAIRequestChoiceCount, 1),
-	}
-
-	// Add generation config attributes
-	genConfig := req.GenerationConfig
-	// Add stream attribute only when it's true
-	if genConfig.Stream {
-		attrs = append(attrs, attribute.Bool(semconvtrace.KeyGenAIRequestIsStream, true))
-	}
-	if fp := genConfig.FrequencyPenalty; fp != nil {
-		attrs = append(attrs, attribute.Float64(semconvtrace.KeyGenAIRequestFrequencyPenalty, *fp))
-	}
-	if mt := genConfig.MaxTokens; mt != nil {
-		attrs = append(attrs, attribute.Int(semconvtrace.KeyGenAIRequestMaxTokens, *mt))
-	}
-	if pp := genConfig.PresencePenalty; pp != nil {
-		attrs = append(attrs, attribute.Float64(semconvtrace.KeyGenAIRequestPresencePenalty, *pp))
-	}
-	if tp := genConfig.Temperature; tp != nil {
-		attrs = append(attrs, attribute.Float64(semconvtrace.KeyGenAIRequestTemperature, *tp))
-	}
-	if tp := genConfig.TopP; tp != nil {
-		attrs = append(attrs, attribute.Float64(semconvtrace.KeyGenAIRequestTopP, *tp))
-	}
-	if te := genConfig.ThinkingEnabled; te != nil {
-		attrs = append(attrs, attribute.Bool(semconvtrace.KeyGenAIRequestThinkingEnabled, *te))
-	}
-
-	// Add request body
-	if bts, err := json.Marshal(req); err == nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyLLMRequest, string(bts)))
-	} else {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyLLMRequest, "<not json serializable>"))
-	}
-
-	// Add tool definitions as best-effort structured array (JSON string fallback)
-	if len(req.Tools) > 0 {
-		definitions := make([]*tool.Declaration, 0, len(req.Tools))
-		for _, t := range toolorder.SortedTools(req.Tools) {
-			definitions = append(definitions, t.Declaration())
-		}
-
-		if len(definitions) > 0 {
-			if bts, err := json.Marshal(definitions); err == nil {
-				attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIRequestToolDefinitions, string(bts)))
-			}
-		}
-	}
-
-	// Add messages
-	if bts, err := marshalTelemetryMessages(req.Messages); err == nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIInputMessages, string(bts)))
-	} else {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIInputMessages, "<not json serializable>"))
-	}
-	if bts, err := marshalOTelTelemetryMessages(req.Messages); err == nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIInputMessagesOTel, string(bts)))
-	} else {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIInputMessagesOTel, "<not json serializable>"))
-	}
-
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Add generation config attributes
+
+// Add stream attribute only when it's true
+
+// Add request body
+
+// Add tool definitions as best-effort structured array (JSON string fallback)
+
+// Add messages
 
 // buildResponseAttributes builds response-related attributes.
 func buildResponseAttributes(rsp *model.Response, errorTypeFallback string) []attribute.KeyValue {
-	if rsp == nil {
-		return nil
-	}
-
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyGenAIResponseModel, rsp.Model),
-		attribute.String(semconvtrace.KeyGenAIResponseID, rsp.ID),
-	}
-
-	// Add error type if present
-	if e := rsp.Error; e != nil {
-		attrs = append(attrs, responseErrorAttributes(e, errorTypeFallback)...)
-	}
-
-	// Add usage attributes
-	if rsp.Usage != nil {
-		attrs = append(attrs,
-			attribute.Int(semconvtrace.KeyGenAIUsageInputTokens, rsp.Usage.PromptTokens),
-			attribute.Int(semconvtrace.KeyGenAIUsageOutputTokens, rsp.Usage.CompletionTokens),
-		)
-		// Prompt cache tokens (if provided by the model provider)
-		if cached := rsp.Usage.PromptTokensDetails.CachedTokens; cached != 0 {
-			// OpenAI: cached_tokens
-			attrs = append(attrs, attribute.Int(semconvtrace.KeyGenAIUsageInputTokensCached, cached))
-		}
-		if cacheRead := rsp.Usage.PromptTokensDetails.CacheReadTokens; cacheRead != 0 {
-			// Anthropic: cache_read_tokens
-			attrs = append(attrs, attribute.Int(semconvtrace.KeyGenAIUsageInputTokensCacheRead, cacheRead))
-		}
-		if cacheCreation := rsp.Usage.PromptTokensDetails.CacheCreationTokens; cacheCreation != 0 {
-			// Anthropic: cache_creation_tokens
-			attrs = append(attrs, attribute.Int(semconvtrace.KeyGenAIUsageInputTokensCacheCreation, cacheCreation))
-		}
-	}
-
-	// Add choices attributes
-	if len(rsp.Choices) > 0 {
-		if bts, err := marshalTelemetryChoices(rsp.Choices); err == nil {
-			attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIOutputMessages, string(bts)))
-		}
-		if bts, err := marshalOTelTelemetryChoices(rsp.Choices); err == nil {
-			attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIOutputMessagesOTel, string(bts)))
-		}
-
-		// Extract finish reasons
-		finishReasons := make([]string, 0, len(rsp.Choices))
-		for _, choice := range rsp.Choices {
-			if choice.FinishReason != nil {
-				finishReasons = append(finishReasons, *choice.FinishReason)
-			} else {
-				finishReasons = append(finishReasons, "")
-			}
-		}
-		attrs = append(attrs, attribute.StringSlice(semconvtrace.KeyGenAIResponseFinishReasons, finishReasons))
-	}
-
-	// Add response body
-	if bts, err := json.Marshal(rsp); err == nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyLLMResponse, string(bts)))
-	} else {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyLLMResponse, "<not json serializable>"))
-	}
-
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Add error type if present
+
+// Add usage attributes
+
+// Prompt cache tokens (if provided by the model provider)
+
+// OpenAI: cached_tokens
+
+// Anthropic: cache_read_tokens
+
+// Anthropic: cache_creation_tokens
+
+// Add choices attributes
+
+// Extract finish reasons
+
+// Add response body
+
 func responseErrorAttributes(respErr *model.ResponseError, fallback string) []attribute.KeyValue {
-	if respErr == nil {
-		return nil
-	}
-	return []attribute.KeyValue{
-		attribute.String(
-			semconvtrace.KeyErrorType,
-			FormatResponseErrorLabel(respErr, fallback),
-		),
-		attribute.String(semconvtrace.KeyErrorMessage, respErr.Message),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewGRPCConn creates a new gRPC connection to the OpenTelemetry Collector.
 func NewGRPCConn(endpoint string) (*grpc.ClientConn, error) {
+	_ = "STUB: not implemented"
 	// It connects the OpenTelemetry Collector through gRPC connection.
 	// You can customize the endpoint using SetConfig() or environment variables.
-	conn, err := grpcDial(endpoint,
-		// Note the use of insecure transport here. TLS is recommended in production.
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create gRPC connection to collector: %w", err)
-	}
-
-	return conn, err
+	return nil, nil
 }
+
+// Note the use of insecure transport here. TLS is recommended in production.

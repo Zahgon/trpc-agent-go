@@ -11,9 +11,6 @@ package outbound
 
 import (
 	"context"
-	"fmt"
-	"sort"
-	"strings"
 	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/channel"
@@ -33,73 +30,22 @@ type Router struct {
 }
 
 // NewRouter creates an empty outbound router.
-func NewRouter() *Router {
-	return &Router{
-		textSenders:    make(map[string]channel.TextSender),
-		messageSenders: make(map[string]channel.MessageSender),
-	}
-}
+func NewRouter() *Router { _ = "STUB: not implemented"; return nil }
 
 // Register adds a channel sender when the channel implements TextSender.
-func (r *Router) Register(ch channel.Channel) {
-	if sender, ok := ch.(channel.TextSender); ok {
-		r.RegisterSender(sender)
-	}
-	if sender, ok := ch.(channel.MessageSender); ok {
-		r.RegisterMessageSender(sender)
-	}
-}
+func (r *Router) Register(ch channel.Channel) { _ = "STUB: not implemented"; return }
 
 // RegisterSender adds or replaces a sender for its channel id.
-func (r *Router) RegisterSender(sender channel.TextSender) {
-	if r == nil || sender == nil {
-		return
-	}
-	id := strings.TrimSpace(sender.ID())
-	if id == "" {
-		return
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.textSenders[id] = sender
-}
+func (r *Router) RegisterSender(sender channel.TextSender) { _ = "STUB: not implemented"; return }
 
 // RegisterMessageSender adds or replaces a media-capable sender.
 func (r *Router) RegisterMessageSender(sender channel.MessageSender) {
-	if r == nil || sender == nil {
-		return
-	}
-	id := strings.TrimSpace(sender.ID())
-	if id == "" {
-		return
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.messageSenders[id] = sender
+	_ = "STUB: not implemented"
+	return
 }
 
 // Channels returns the sorted list of registered channel ids.
-func (r *Router) Channels() []string {
-	if r == nil {
-		return nil
-	}
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	index := make(map[string]struct{})
-	for id := range r.textSenders {
-		index[id] = struct{}{}
-	}
-	for id := range r.messageSenders {
-		index[id] = struct{}{}
-	}
-	out := make([]string, 0, len(index))
-	for id := range index {
-		out = append(out, id)
-	}
-	sort.Strings(out)
-	return out
-}
+func (r *Router) Channels() []string { _ = "STUB: not implemented"; return nil }
 
 // SendText delivers plain text through the selected channel.
 func (r *Router) SendText(
@@ -107,9 +53,8 @@ func (r *Router) SendText(
 	target DeliveryTarget,
 	text string,
 ) error {
-	return r.SendMessage(ctx, target, channel.OutboundMessage{
-		Text: text,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SendMessage delivers text and optional local files through the selected
@@ -119,37 +64,6 @@ func (r *Router) SendMessage(
 	target DeliveryTarget,
 	msg channel.OutboundMessage,
 ) error {
-	if r == nil {
-		return fmt.Errorf("outbound: nil router")
-	}
-
-	channelID := strings.TrimSpace(target.Channel)
-	if channelID == "" {
-		return fmt.Errorf("outbound: empty channel")
-	}
-
-	r.mu.RLock()
-	messageSender := r.messageSenders[channelID]
-	textSender := r.textSenders[channelID]
-	r.mu.RUnlock()
-	if messageSender != nil {
-		return messageSender.SendMessage(
-			ctx,
-			target.Target,
-			msg,
-		)
-	}
-	if textSender == nil {
-		return fmt.Errorf(
-			"outbound: unsupported channel: %s",
-			channelID,
-		)
-	}
-	if len(msg.Files) > 0 {
-		return fmt.Errorf(
-			"outbound: channel does not support file delivery: %s",
-			channelID,
-		)
-	}
-	return textSender.SendText(ctx, target.Target, msg.Text)
+	_ = "STUB: not implemented"
+	return nil
 }

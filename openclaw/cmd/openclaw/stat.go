@@ -9,8 +9,6 @@
 
 package main
 
-import "strings"
-
 const (
 	defaultReleaseVersion = "dev"
 	releaseTagPrefix      = "openclaw-"
@@ -18,30 +16,8 @@ const (
 
 var releaseVersion = defaultReleaseVersion
 
-func currentVersion() string {
-	version := strings.TrimSpace(releaseVersion)
-	if version == "" {
-		return defaultReleaseVersion
-	}
-	return version
-}
+func currentVersion() string { _ = "STUB: not implemented"; return "" }
 
-func normalizeReleaseVersion(raw string) string {
-	version := strings.TrimSpace(raw)
-	version = strings.TrimPrefix(version, releaseTagPrefix)
-	if version == "" {
-		return ""
-	}
-	if strings.HasPrefix(version, "v") {
-		return version
-	}
-	return "v" + version
-}
+func normalizeReleaseVersion(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func releaseTagForVersion(version string) string {
-	normalized := normalizeReleaseVersion(version)
-	if normalized == "" {
-		return ""
-	}
-	return releaseTagPrefix + normalized
-}
+func releaseTagForVersion(version string) string { _ = "STUB: not implemented"; return "" }

@@ -10,24 +10,13 @@
 package admin
 
 import (
-	"crypto/sha256"
-	"encoding/json"
-	"fmt"
 	"html/template"
-	"net"
 	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/cron"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/debugrecorder"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/octool"
 	ocskills "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/skills"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/uploads"
 )
 
 const (
@@ -252,204 +241,28 @@ type Service struct {
 
 type Option func(*Service)
 
-func WithClock(fn func() time.Time) Option {
-	return func(s *Service) {
-		if s != nil && fn != nil {
-			s.now = fn
-		}
-	}
-}
+func WithClock(fn func() time.Time) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 func WithBrowserHTTPClient(client *http.Client) Option {
-	return func(s *Service) {
-		if s != nil && client != nil {
-			s.browserHTTPClient = client
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithRuntimeConfigProvider(provider RuntimeConfigProvider) Option {
-	return func(s *Service) {
-		if s != nil {
-			s.runtimeConfig = provider
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithRuntimeLifecycleProvider(
 	provider RuntimeLifecycleProvider,
 ) Option {
-	return func(s *Service) {
-		if s != nil {
-			s.runtimeLifecycle = provider
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
-func New(cfg Config, opts ...Option) *Service {
-	svc := &Service{
-		cfg: cfg,
-		now: time.Now,
-		browserHTTPClient: &http.Client{
-			Timeout: browserProbeTimeout,
-		},
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(svc)
-		}
-	}
-	return svc
-}
+func New(cfg Config, opts ...Option) *Service { _ = "STUB: not implemented"; return nil }
 
-func (s *Service) Handler() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc(
-		routeIndex,
-		wrapRelativeLinksFunc(s.handleOverview),
-	)
-	mux.HandleFunc(
-		routeOverview,
-		wrapRelativeLinksFunc(s.handleOverview),
-	)
-	mux.HandleFunc(
-		routeSkillsPage,
-		wrapRelativeLinksFunc(s.handleSkillsPage),
-	)
-	mux.HandleFunc(
-		routeConfigPage,
-		wrapRelativeLinksFunc(s.handleConfigPage),
-	)
-	mux.HandleFunc(
-		routeRuntimeControlPage,
-		wrapRelativeLinksFunc(s.handleRuntimeControlPage),
-	)
-	mux.HandleFunc(
-		routePrompts,
-		wrapRelativeLinksFunc(s.handlePromptsPage),
-	)
-	mux.HandleFunc(
-		routeIdentity,
-		wrapRelativeLinksFunc(s.handleIdentityPage),
-	)
-	mux.HandleFunc(
-		routePersonas,
-		wrapRelativeLinksFunc(s.handlePersonasPage),
-	)
-	mux.HandleFunc(
-		routeChats,
-		wrapRelativeLinksFunc(s.handleChatsPage),
-	)
-	mux.HandleFunc(
-		routeMemory,
-		wrapRelativeLinksFunc(s.handleMemoryPage),
-	)
-	mux.HandleFunc(
-		routeAutomation,
-		wrapRelativeLinksFunc(s.handleAutomationPage),
-	)
-	mux.HandleFunc(
-		routeSessions,
-		wrapRelativeLinksFunc(s.handleSessionsPage),
-	)
-	mux.HandleFunc(
-		routeDebug,
-		wrapRelativeLinksFunc(s.handleDebugPage),
-	)
-	mux.HandleFunc(
-		routeBrowser,
-		wrapRelativeLinksFunc(s.handleBrowserPage),
-	)
-	mux.HandleFunc(routeStatusJSON, s.handleStatusJSON)
-	mux.HandleFunc(routePageStateJSON, s.handlePageStateJSON)
-	mux.HandleFunc(routeSkillsJSON, s.handleSkillsJSON)
-	mux.HandleFunc(routeConfigJSON, s.handleConfigJSON)
-	mux.HandleFunc(routePromptsJSON, s.handlePromptsJSON)
-	mux.HandleFunc(routeIdentityJSON, s.handleIdentityJSON)
-	mux.HandleFunc(routePersonasJSON, s.handlePersonasJSON)
-	mux.HandleFunc(routeChatsJSON, s.handleChatsJSON)
-	mux.HandleFunc(routeChatHistoryJSON, s.handleChatHistoryJSON)
-	mux.HandleFunc(routeMemoryFilesJSON, s.handleMemoryFilesJSON)
-	mux.HandleFunc(
-		routeMemoryFileAPI,
-		wrapRelativeLinksFunc(s.handleMemoryFileAPI),
-	)
-	mux.HandleFunc(routeMemoryFile, s.handleMemoryFile)
-	mux.HandleFunc(
-		routeConfigSave,
-		wrapRelativeLinksFunc(s.handleSaveRuntimeConfig),
-	)
-	mux.HandleFunc(
-		routeConfigReset,
-		wrapRelativeLinksFunc(s.handleResetRuntimeConfig),
-	)
-	mux.HandleFunc(
-		routeRuntimeControlAction,
-		wrapRelativeLinksFunc(s.handleRuntimeControlAction),
-	)
-	mux.HandleFunc(
-		routePromptInlineSave,
-		wrapRelativeLinksFunc(s.handleSavePromptInline),
-	)
-	mux.HandleFunc(
-		routePromptRuntimeSave,
-		wrapRelativeLinksFunc(s.handleSavePromptRuntime),
-	)
-	mux.HandleFunc(
-		routePromptFileSave,
-		wrapRelativeLinksFunc(s.handleSavePromptFile),
-	)
-	mux.HandleFunc(
-		routePromptFileCreate,
-		wrapRelativeLinksFunc(s.handleCreatePromptFile),
-	)
-	mux.HandleFunc(
-		routePromptFileDelete,
-		wrapRelativeLinksFunc(s.handleDeletePromptFile),
-	)
-	mux.HandleFunc(
-		routeIdentitySave,
-		wrapRelativeLinksFunc(s.handleSaveIdentity),
-	)
-	mux.HandleFunc(
-		routePersonaSave,
-		wrapRelativeLinksFunc(s.handleSavePersona),
-	)
-	mux.HandleFunc(
-		routePersonaDelete,
-		wrapRelativeLinksFunc(s.handleDeletePersona),
-	)
-	mux.HandleFunc(
-		routePersonaDefaultSave,
-		wrapRelativeLinksFunc(s.handleSaveDefaultPersona),
-	)
-	mux.HandleFunc(
-		routeSkillsRefresh,
-		wrapRelativeLinksFunc(s.handleRefreshSkills),
-	)
-	mux.HandleFunc(
-		routeSkillToggle,
-		wrapRelativeLinksFunc(s.handleToggleSkill),
-	)
-	mux.HandleFunc(routeJobsJSON, s.handleJobsJSON)
-	mux.HandleFunc(routeJobRun, wrapRelativeLinksFunc(s.handleRunJob))
-	mux.HandleFunc(
-		routeJobRemove,
-		wrapRelativeLinksFunc(s.handleRemoveJob),
-	)
-	mux.HandleFunc(
-		routeJobsClear,
-		wrapRelativeLinksFunc(s.handleClearJobs),
-	)
-	mux.HandleFunc(routeExecSessionsJSON, s.handleExecSessionsJSON)
-	mux.HandleFunc(routeUploadsJSON, s.handleUploadsJSON)
-	mux.HandleFunc(routeUploadSessions, s.handleUploadSessionsJSON)
-	mux.HandleFunc(routeUploadFile, s.handleUploadFile)
-	mux.HandleFunc(routeDebugSessionsJSON, s.handleDebugSessionsJSON)
-	mux.HandleFunc(routeDebugTracesJSON, s.handleDebugTracesJSON)
-	mux.HandleFunc(routeDebugFile, s.handleDebugFile)
-	return mux
-}
+func (s *Service) Handler() http.Handler { _ = "STUB: not implemented"; return *new(http.Handler) }
 
 type snapshot struct {
 	GeneratedAt time.Time `json:"generated_at"`
@@ -688,452 +501,137 @@ type adminNavItem struct {
 	Active bool
 }
 
-func (s *Service) Snapshot() snapshot {
-	out := s.baseSnapshot()
-	out.Skills = s.skillsStatus()
-	out.Memory = s.memoryStatusSummary()
-	out.Browser = s.browserStatus()
-	out.Exec = s.execStatus()
-	out.Uploads = s.uploadsStatus()
-	out.Debug = s.debugStatus()
-	out.Cron = s.cronStatus()
-	return out
-}
+func (s *Service) Snapshot() snapshot { _ = "STUB: not implemented"; return *new(snapshot) }
 
-func (s *Service) baseSnapshot() snapshot {
-	now := s.now()
-	out := snapshot{
-		GeneratedAt:    now,
-		AppName:        strings.TrimSpace(s.cfg.AppName),
-		InstanceID:     strings.TrimSpace(s.cfg.InstanceID),
-		StartedAt:      s.cfg.StartedAt,
-		Hostname:       strings.TrimSpace(s.cfg.Hostname),
-		PID:            s.cfg.PID,
-		GoVersion:      strings.TrimSpace(s.cfg.GoVersion),
-		Uptime:         formatUptime(s.cfg.StartedAt, now),
-		AgentType:      strings.TrimSpace(s.cfg.AgentType),
-		ModelMode:      strings.TrimSpace(s.cfg.ModelMode),
-		ModelName:      strings.TrimSpace(s.cfg.ModelName),
-		SessionBackend: strings.TrimSpace(s.cfg.SessionBackend),
-		MemoryBackend:  strings.TrimSpace(s.cfg.MemoryBackend),
-		GatewayAddr:    strings.TrimSpace(s.cfg.GatewayAddr),
-		GatewayLabel:   compactPortLabel(s.cfg.GatewayAddr),
-		GatewayURL:     strings.TrimSpace(s.cfg.GatewayURL),
-		AdminAddr:      strings.TrimSpace(s.cfg.AdminAddr),
-		AdminURL:       strings.TrimSpace(s.cfg.AdminURL),
-		AdminAutoPort:  s.cfg.AdminAutoPort,
-		Langfuse:       normalizeLangfuseStatus(s.cfg.Langfuse),
-		StateDir:       strings.TrimSpace(s.cfg.StateDir),
-		DebugDir:       strings.TrimSpace(s.cfg.DebugDir),
-		Routes:         s.cfg.GatewayRoutes,
-	}
-
-	if len(s.cfg.Channels) > 0 {
-		out.Channels = append([]string(nil), s.cfg.Channels...)
-		sort.Strings(out.Channels)
-	}
-	return out
-}
+func (s *Service) baseSnapshot() snapshot { _ = "STUB: not implemented"; return *new(snapshot) }
 
 func (s *Service) snapshotForView(view adminView) snapshot {
-	if view == viewOverview {
-		return s.Snapshot()
-	}
-
-	out := s.baseSnapshot()
-	switch view {
-	case viewSkills:
-		out.Skills = s.skillsStatus()
-	case viewConfig:
-	case viewMemory:
-		out.Memory = s.memoryStatus()
-	case viewAutomation:
-		out.Cron = s.cronStatus()
-	case viewChats:
-		out.Exec = s.execStatus()
-	case viewSessions:
-		out.Exec = s.execStatus()
-		out.Uploads = s.uploadsStatus()
-	case viewDebug:
-		out.Debug = s.debugStatus()
-	case viewBrowser:
-		out.Browser = s.browserStatus()
-	}
-	return out
+	_ = "STUB: not implemented"
+	return *new(snapshot)
 }
 
-func (s *Service) cronStatus() cronStatus {
-	if s == nil || s.cfg.Cron == nil {
-		return cronStatus{}
-	}
+func (s *Service) cronStatus() cronStatus { _ = "STUB: not implemented"; return *new(cronStatus) }
 
-	status := s.cfg.Cron.Status()
-	jobs := s.cfg.Cron.List()
-	out := cronStatus{
-		Enabled:     true,
-		JobCount:    len(jobs),
-		RunningJobs: intFromMap(status["jobs_running"]),
-		Channels:    stringSliceFromMap(status["channels"]),
-		Jobs:        make([]jobView, 0, len(jobs)),
-	}
-	for _, job := range jobs {
-		if job == nil {
-			continue
-		}
-		out.Jobs = append(out.Jobs, jobViewFromJob(job))
-	}
-	return out
-}
-
-func (s *Service) skillsStatus() skillsStatus {
-	if s == nil || s.cfg.Skills == nil {
-		return skillsStatus{}
-	}
-
-	configPath := strings.TrimSpace(s.cfg.Skills.SkillsConfigPath())
-	out := skillsStatus{
-		Enabled:     true,
-		Writable:    configPath != "",
-		Refreshable: s.cfg.Skills.SkillsRefreshable(),
-		ConfigPath:  configPath,
-	}
-
-	report, err := s.cfg.Skills.SkillsStatus()
-	if err != nil {
-		out.Error = strings.TrimSpace(err.Error())
-		return out
-	}
-
-	out.TotalCount = len(report.Skills)
-
-	bundledSkills := make([]skillView, 0, len(report.Skills))
-	otherSkills := make([]skillView, 0, len(report.Skills))
-	for _, entry := range report.Skills {
-		view := skillViewFromStatus(entry)
-		switch view.Status {
-		case "disabled":
-			out.DisabledCount++
-		case "ready":
-			out.ReadyCount++
-		default:
-			out.NeedsSetupCount++
-		}
-		if view.Bundled {
-			out.BundledCount++
-			bundledSkills = append(bundledSkills, view)
-			continue
-		}
-		otherSkills = append(otherSkills, view)
-	}
-
-	if len(bundledSkills) > 0 {
-		out.Groups = append(out.Groups, skillsGroupView{
-			ID:     "bundled",
-			Label:  "Bundled Skills",
-			Skills: bundledSkills,
-		})
-	}
-	if len(otherSkills) > 0 {
-		out.Groups = append(out.Groups, skillsGroupView{
-			ID:     "other",
-			Label:  "Additional Skills",
-			Skills: otherSkills,
-		})
-	}
-	return out
-}
+func (s *Service) skillsStatus() skillsStatus { _ = "STUB: not implemented"; return *new(skillsStatus) }
 
 func skillViewFromStatus(entry ocskills.StatusEntry) skillView {
-	view := skillView{
-		Name:               strings.TrimSpace(entry.Name),
-		Description:        strings.TrimSpace(entry.Description),
-		SkillKey:           strings.TrimSpace(entry.SkillKey),
-		ConfigKey:          strings.TrimSpace(entry.ConfigKey),
-		FilePath:           strings.TrimSpace(entry.FilePath),
-		Source:             strings.TrimSpace(entry.Source),
-		Reason:             strings.TrimSpace(entry.Reason),
-		Emoji:              strings.TrimSpace(entry.Emoji),
-		Homepage:           strings.TrimSpace(entry.Homepage),
-		PrimaryEnv:         strings.TrimSpace(entry.PrimaryEnv),
-		Bundled:            entry.Bundled,
-		Always:             entry.Always,
-		Disabled:           entry.Disabled,
-		Eligible:           entry.Eligible,
-		BlockedByAllowlist: entry.BlockedByAllowlist,
-		Requirements:       skillRequirementsViewFromStatus(entry.Requirements),
-		Missing:            skillRequirementsViewFromStatus(entry.Missing),
-		Install:            skillInstallViewsFromStatus(entry.Install),
-	}
-	switch {
-	case view.Disabled:
-		view.Status = "disabled"
-	case view.Eligible:
-		view.Status = "ready"
-	default:
-		view.Status = "needs-setup"
-	}
-	view.SearchText = strings.ToLower(strings.Join([]string{
-		view.Name,
-		view.Description,
-		view.SkillKey,
-		view.Source,
-		view.Reason,
-		view.PrimaryEnv,
-		view.FilePath,
-	}, " "))
-	return view
+	_ = "STUB: not implemented"
+	return *new(skillView)
 }
 
 func skillRequirementsViewFromStatus(
 	req ocskills.StatusRequirements,
 ) skillRequirementsView {
-	return skillRequirementsView{
-		OS:      append([]string(nil), req.OS...),
-		Bins:    append([]string(nil), req.Bins...),
-		AnyBins: append([]string(nil), req.AnyBins...),
-		Env:     append([]string(nil), req.Env...),
-		Config:  append([]string(nil), req.Config...),
-	}
+	_ = "STUB: not implemented"
+	return *new(skillRequirementsView)
 }
 
 func skillInstallViewsFromStatus(
 	options []ocskills.StatusInstallOption,
 ) []skillInstallView {
-	if len(options) == 0 {
-		return nil
-	}
-	out := make([]skillInstallView, 0, len(options))
-	for _, option := range options {
-		out = append(out, skillInstallView{
-			ID:    strings.TrimSpace(option.ID),
-			Kind:  strings.TrimSpace(option.Kind),
-			Label: strings.TrimSpace(option.Label),
-			Bins:  append([]string(nil), option.Bins...),
-		})
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *Service) browserStatus() browserStatus {
-	if len(s.cfg.Browser.Providers) == 0 &&
-		s.cfg.Browser.Managed == nil {
-		return browserStatus{}
-	}
-
-	probes := make(map[string]browserEndpointView)
-	out := browserStatus{}
-	if s.cfg.Browser.Managed != nil {
-		managed := s.cfg.Browser.Managed.BrowserManagedStatus()
-		managed.LogRelativePath = filepath.ToSlash(strings.TrimSpace(
-			managed.LogRelativePath,
-		))
-		if managed.LogURL == "" &&
-			managed.LogRelativePath != "" {
-			managed.LogURL = routeDebugFile + "?" + url.Values{
-				queryPath: {managed.LogRelativePath},
-			}.Encode()
-		}
-		if len(managed.RecentLogs) > 0 {
-			managed.RecentLogs = append(
-				[]string(nil),
-				managed.RecentLogs...,
-			)
-		}
-		out.Managed = managed
-	}
-	out.Enabled = len(s.cfg.Browser.Providers) > 0 || out.Managed.Enabled
-	out.ProviderCount = len(s.cfg.Browser.Providers)
-	out.Providers = make([]browserProviderView, 0,
-		len(s.cfg.Browser.Providers))
-	for i := range s.cfg.Browser.Providers {
-		provider := s.cfg.Browser.Providers[i]
-		view := browserProviderView{
-			Name:             strings.TrimSpace(provider.Name),
-			DefaultProfile:   strings.TrimSpace(provider.DefaultProfile),
-			EvaluateEnabled:  provider.EvaluateEnabled,
-			HostServerURL:    strings.TrimSpace(provider.HostServerURL),
-			SandboxServerURL: strings.TrimSpace(provider.SandboxServerURL),
-			AllowLoopback:    provider.AllowLoopback,
-			AllowPrivateNet:  provider.AllowPrivateNet,
-			AllowFileURLs:    provider.AllowFileURLs,
-		}
-		view.Host = s.probeBrowserEndpoint(view.HostServerURL, probes)
-		view.Sandbox = s.probeBrowserEndpoint(
-			view.SandboxServerURL,
-			probes,
-		)
-		out.NodeCount += len(provider.Nodes)
-		if len(provider.Profiles) > 0 {
-			view.Profiles = make([]browserProfileView, 0,
-				len(provider.Profiles))
-		}
-		for j := range provider.Profiles {
-			profile := provider.Profiles[j]
-			view.Profiles = append(view.Profiles, browserProfileView{
-				Name:        strings.TrimSpace(profile.Name),
-				Description: strings.TrimSpace(profile.Description),
-				Transport:   strings.TrimSpace(profile.Transport),
-				ServerURL:   strings.TrimSpace(profile.ServerURL),
-				BrowserServerURL: strings.TrimSpace(
-					profile.BrowserServerURL,
-				),
-			})
-		}
-		if len(provider.Nodes) > 0 {
-			view.Nodes = make([]browserNodeView, 0, len(provider.Nodes))
-		}
-		for j := range provider.Nodes {
-			node := provider.Nodes[j]
-			serverURL := strings.TrimSpace(node.ServerURL)
-			view.Nodes = append(view.Nodes, browserNodeView{
-				ID:        strings.TrimSpace(node.ID),
-				ServerURL: serverURL,
-				Status: s.probeBrowserEndpoint(
-					serverURL,
-					probes,
-				),
-			})
-		}
-		out.ProfileCount += len(view.Profiles)
-		sort.Slice(view.Profiles, func(a, b int) bool {
-			return view.Profiles[a].Name < view.Profiles[b].Name
-		})
-		sort.Slice(view.Nodes, func(a, b int) bool {
-			return view.Nodes[a].ID < view.Nodes[b].ID
-		})
-		out.Providers = append(out.Providers, view)
-	}
-	sort.Slice(out.Providers, func(a, b int) bool {
-		return out.Providers[a].Name < out.Providers[b].Name
-	})
-	return out
+	_ = "STUB: not implemented"
+	return *new(browserStatus)
 }
 
 func (s *Service) probeBrowserEndpoint(
 	rawURL string,
 	cache map[string]browserEndpointView,
 ) browserEndpointView {
-	trimmed := strings.TrimSpace(rawURL)
-	if trimmed == "" {
-		return browserEndpointView{}
-	}
-	if cached, ok := cache[trimmed]; ok {
-		return cached
-	}
-
-	view := browserEndpointView{
-		URL: trimmed,
-	}
-	client := s.browserHTTPClient
-	if client == nil {
-		client = &http.Client{Timeout: browserProbeTimeout}
-	}
-	resp, err := client.Get(strings.TrimRight(trimmed, "/") + "/profiles")
-	if err != nil {
-		view.Error = err.Error()
-		cache[trimmed] = view
-		return view
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		view.Error = fmt.Sprintf("unexpected status %s", resp.Status)
-		cache[trimmed] = view
-		return view
-	}
-
-	var payload struct {
-		Profiles []browserRemoteProbe `json:"profiles"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		view.Error = fmt.Sprintf("decode profiles: %v", err)
-		cache[trimmed] = view
-		return view
-	}
-	view.Reachable = true
-	view.Profiles = append([]browserRemoteProbe(nil), payload.Profiles...)
-	sort.Slice(view.Profiles, func(a, b int) bool {
-		return view.Profiles[a].Name < view.Profiles[b].Name
-	})
-	cache[trimmed] = view
-	return view
+	_ = "STUB: not implemented"
+	return *new(browserEndpointView)
 }
 
 func (s *Service) handleOverview(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewOverview)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSkillsPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewSkills)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handlePromptsPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewPrompts)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleIdentityPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewIdentity)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handlePersonasPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewPersonas)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleChatsPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewChats)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleMemoryPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewMemory)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleAutomationPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewAutomation)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSessionsPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewSessions)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleDebugPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewDebug)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleBrowserPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewBrowser)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) renderPage(
@@ -1141,207 +639,32 @@ func (s *Service) renderPage(
 	r *http.Request,
 	view adminView,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	snapshot := s.snapshotForView(view)
-	configStatus := s.runtimeConfigStatus()
-	runtimeControl := s.runtimeLifecycleStatus(r)
-	refreshRuntimeControl := runtimeControl
-	if view == viewRuntimeControl {
-		refreshRuntimeControl = s.runtimeLifecycleRefreshStatus(r)
-	}
-	prompts := s.promptsStatus()
-	identity := s.identityStatus()
-	personas := s.personasStatus()
-	chats := s.chatsStatus()
-	data := pageData{
-		Snapshot:         snapshot,
-		Config:           configStatus,
-		ConfigPending:    pendingRestartFields(configStatus),
-		ConfigCanRestart: s.hasRuntimeLifecycleProvider(),
-		RuntimeControl:   runtimeControl,
-		Prompts:          prompts,
-		Identity:         identity,
-		Personas:         personas,
-		Chats:            chats,
-		ChatHistoryPath:  routeChatHistoryJSON,
-		Notice:           strings.TrimSpace(r.URL.Query().Get(queryNotice)),
-		Error:            strings.TrimSpace(r.URL.Query().Get(queryError)),
-		View:             view,
-		PageTitle:        pageTitle(view),
-		PageSummary:      pageSummary(view),
-		NavSections: adminNavSections(
-			view,
-			s.hasRuntimeConfigProvider(),
-			s.hasRuntimeLifecycleProvider(),
-		),
-	}
-	if view == viewChats {
-		data.SelectedChat, data.SelectedChatError = resolveSelectedChat(
-			chats,
-			s.cfg.Chats,
-			selectedChatID(r),
-		)
-	}
-	data.PageRefresh = buildPageRefreshData(
-		r,
-		view,
-		pageRefreshInput{
-			Snapshot:          snapshot,
-			Config:            configStatus,
-			RuntimeControl:    refreshRuntimeControl,
-			Prompts:           prompts,
-			Identity:          identity,
-			Personas:          personas,
-			Chats:             chats,
-			SelectedChat:      data.SelectedChat,
-			SelectedChatError: data.SelectedChatError,
-		},
-	)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := adminPage.Execute(w, data); err != nil {
-		http.Error(
-			w,
-			fmt.Sprintf("render admin page: %v", err),
-			http.StatusInternalServerError,
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func pendingRestartFields(status RuntimeConfigStatus) int {
-	count := 0
-	for _, section := range status.Sections {
-		for _, field := range section.Fields {
-			if field.PendingRestart {
-				count++
-			}
-		}
-	}
-	return count
-}
+func pendingRestartFields(status RuntimeConfigStatus) int { _ = "STUB: not implemented"; return 0 }
 
 func resolveSelectedChat(
 	status ChatsStatus,
 	provider ChatsProvider,
 	selectedID string,
 ) (*ChatView, string) {
-	selected := selectChatView(status, selectedID)
-	if selected == nil {
-		return nil, ""
-	}
-	detailProvider, ok := provider.(ChatDetailProvider)
-	if !ok {
-		return selected, ""
-	}
-	detail, err := detailProvider.ChatDetail(
-		strings.TrimSpace(selected.BaseSessionID),
-	)
-	if err != nil {
-		return selected, strings.TrimSpace(err.Error())
-	}
-	if err := validateChatDetail(*selected, detail); err != nil {
-		return selected, strings.TrimSpace(err.Error())
-	}
-	merged := mergeChatView(*selected, detail)
-	return &merged, ""
+	_ = "STUB: not implemented"
+	return nil, ""
 }
 
 func validateChatDetail(base ChatView, detail ChatView) error {
-	baseSessionID := strings.TrimSpace(base.BaseSessionID)
-	detailSessionID := strings.TrimSpace(detail.BaseSessionID)
-	if detailSessionID == "" || baseSessionID == "" {
-		return nil
-	}
-	if detailSessionID == baseSessionID {
-		return nil
-	}
-	return fmt.Errorf(
-		"chat detail mismatch: expected %q, got %q",
-		baseSessionID,
-		detailSessionID,
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func mergeChatView(
 	base ChatView,
 	detail ChatView,
 ) ChatView {
-	merged := base
-	if strings.TrimSpace(merged.DisplayLabel) == "" {
-		merged.DisplayLabel = strings.TrimSpace(detail.DisplayLabel)
-	}
-	if strings.TrimSpace(merged.Kind) == "" {
-		merged.Kind = strings.TrimSpace(detail.Kind)
-	}
-	if strings.TrimSpace(merged.KindLabel) == "" {
-		merged.KindLabel = strings.TrimSpace(detail.KindLabel)
-	}
-	if strings.TrimSpace(merged.CurrentSessionID) == "" {
-		merged.CurrentSessionID = strings.TrimSpace(
-			detail.CurrentSessionID,
-		)
-	}
-	if strings.TrimSpace(merged.RecallSessionID) == "" {
-		merged.RecallSessionID = strings.TrimSpace(
-			detail.RecallSessionID,
-		)
-	}
-	if !detail.LastActivity.IsZero() {
-		merged.LastActivity = detail.LastActivity
-	}
-	if detail.Epoch != 0 {
-		merged.Epoch = detail.Epoch
-	}
-	if value := strings.TrimSpace(detail.EffectiveAssistant); value != "" {
-		merged.EffectiveAssistant = value
-	}
-	if value := strings.TrimSpace(detail.ChatAssistantOverride); value != "" {
-		merged.ChatAssistantOverride = value
-	}
-	if value := strings.TrimSpace(detail.NameSource); value != "" {
-		merged.NameSource = value
-	}
-	if detail.OverridesGlobal {
-		merged.OverridesGlobal = true
-	}
-	if value := strings.TrimSpace(detail.PersonaID); value != "" {
-		merged.PersonaID = value
-	}
-	if value := strings.TrimSpace(detail.PersonaLabel); value != "" {
-		merged.PersonaLabel = value
-	}
-	if detail.PersonaPinned {
-		merged.PersonaPinned = true
-	}
-	if value := strings.TrimSpace(detail.WorkspacePath); value != "" {
-		merged.WorkspacePath = value
-	}
-	if len(detail.KnownUserIDs) != 0 {
-		merged.KnownUserIDs = detail.KnownUserIDs
-	}
-	if len(detail.KnownUsers) != 0 {
-		merged.KnownUsers = detail.KnownUsers
-	}
-	if len(detail.History) != 0 {
-		merged.History = detail.History
-	}
-	if detail.HistoryTotalCount != 0 {
-		merged.HistoryTotalCount = detail.HistoryTotalCount
-	}
-	if detail.HistoryTruncated {
-		merged.HistoryTruncated = true
-	}
-	if len(detail.Transcript) != 0 {
-		merged.Transcript = detail.Transcript
-	}
-	if detail.TranscriptTruncated {
-		merged.TranscriptTruncated = true
-	}
-	return merged
+	_ = "STUB: not implemented"
+	return *new(ChatView)
 }
 
 func adminNavSections(
@@ -1349,531 +672,140 @@ func adminNavSections(
 	showConfig bool,
 	showRuntimeControl bool,
 ) []adminNavSection {
-	controlItems := []adminNavItem{
-		{Label: "Overview", Path: routeOverview},
-	}
-	if showConfig {
-		controlItems = append(
-			controlItems,
-			adminNavItem{Label: "Config", Path: routeConfigPage},
-		)
-	}
-	controlItems = append(
-		controlItems,
-		adminNavItem{Label: "Skills", Path: routeSkillsPage},
-		adminNavItem{Label: "Prompts", Path: routePrompts},
-		adminNavItem{Label: "Identity", Path: routeIdentity},
-		adminNavItem{Label: "Personas", Path: routePersonas},
-		adminNavItem{Label: "Chats", Path: routeChats},
-		adminNavItem{Label: "Memory", Path: routeMemory},
-		adminNavItem{Label: "Automation", Path: routeAutomation},
-	)
-	sections := []adminNavSection{
-		{
-			Label: "Control",
-			Items: controlItems,
-		},
-		{
-			Label: "Diagnostics",
-			Items: runtimeDiagnosticsNavItems(showRuntimeControl),
-		},
-	}
-	for i := range sections {
-		for j := range sections[i].Items {
-			sections[i].Items[j].Active =
-				navViewForPath(sections[i].Items[j].Path) == active
-		}
-	}
-	return sections
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runtimeDiagnosticsNavItems(
 	showRuntimeControl bool,
 ) []adminNavItem {
-	items := []adminNavItem{}
-	if showRuntimeControl {
-		items = append(
-			items,
-			adminNavItem{
-				Label: "Runtime Control",
-				Path:  routeRuntimeControlPage,
-			},
-		)
-	}
-	items = append(
-		items,
-		adminNavItem{Label: "Runtime Sessions", Path: routeSessions},
-		adminNavItem{Label: "Debug", Path: routeDebug},
-		adminNavItem{Label: "Browser", Path: routeBrowser},
-	)
-	return items
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func pageTitle(view adminView) string {
-	switch view {
-	case viewConfig:
-		return "Config"
-	case viewRuntimeControl:
-		return "Runtime Control"
-	case viewSkills:
-		return "Skills"
-	case viewPrompts:
-		return "Prompts"
-	case viewIdentity:
-		return "Identity"
-	case viewPersonas:
-		return "Personas"
-	case viewChats:
-		return "Chats"
-	case viewMemory:
-		return "Memory"
-	case viewAutomation:
-		return "Automation"
-	case viewSessions:
-		return "Runtime Sessions"
-	case viewDebug:
-		return "Debug"
-	case viewBrowser:
-		return "Browser"
-	default:
-		return "Overview"
-	}
-}
+func pageTitle(view adminView) string { _ = "STUB: not implemented"; return "" }
 
-func pageSummary(view adminView) string {
-	switch view {
-	case viewConfig:
-		return pageSummaryConfig
-	case viewRuntimeControl:
-		return pageSummaryRuntimeControl
-	case viewSkills:
-		return "Discover installed skills, refresh folders from disk, and manage config-backed enablement."
-	case viewPrompts:
-		return pageSummaryPrompts
-	case viewIdentity:
-		return pageSummaryIdentity
-	case viewPersonas:
-		return pageSummaryPersonas
-	case viewChats:
-		return pageSummaryChats
-	case viewMemory:
-		return "Inspect durable memory storage, expand file-backed " +
-			"MEMORY.md scopes, and edit full files in place."
-	case viewAutomation:
-		return "Inspect scheduled jobs, trigger one-off runs, and clear automation state."
-	case viewSessions:
-		return "Review exec sessions, upload sessions, and recently persisted files."
-	case viewDebug:
-		return "Browse debug session indexes, recent traces, and Langfuse readiness."
-	case viewBrowser:
-		return "Inspect browser providers, managed browser-server state, nodes, and profiles."
-	default:
-		return "Runtime summary, gateway surfaces, and entry points into the rest of the admin."
-	}
-}
+func pageSummary(view adminView) string { _ = "STUB: not implemented"; return "" }
 
-func pageRefreshWatch(view adminView) bool {
-	switch view {
-	case viewOverview,
-		viewConfig,
-		viewRuntimeControl,
-		viewSkills,
-		viewChats,
-		viewMemory,
-		viewAutomation,
-		viewSessions,
-		viewDebug,
-		viewBrowser:
-		return true
-	default:
-		return false
-	}
-}
+func pageRefreshWatch(view adminView) bool { _ = "STUB: not implemented"; return false }
 
 func buildPageRefreshData(
 	r *http.Request,
 	view adminView,
 	input pageRefreshInput,
 ) pageRefreshData {
-	return pageRefreshData{
-		CurrentPath:     pageRefreshCurrentPath(r),
-		StatePath:       pageRefreshStatePath(r, view),
-		Token:           pageRefreshToken(view, input),
-		UpdatedAt:       input.Snapshot.GeneratedAt,
-		IntervalSeconds: refreshSeconds,
-		Watch:           pageRefreshWatch(view),
-	}
+	_ = "STUB: not implemented"
+	return *new(pageRefreshData)
 }
 
-func pageRefreshCurrentPath(r *http.Request) string {
-	if r == nil || r.URL == nil {
-		return routeOverview
-	}
-	values := r.URL.Query()
-	values.Del(queryNotice)
-	values.Del(queryError)
-	path := strings.TrimSpace(r.URL.Path)
-	if path == "" {
-		path = routeOverview
-	}
-	if encoded := values.Encode(); encoded != "" {
-		return path + "?" + encoded
-	}
-	return path
-}
+func pageRefreshCurrentPath(r *http.Request) string { _ = "STUB: not implemented"; return "" }
 
 func pageRefreshStatePath(
 	r *http.Request,
 	view adminView,
 ) string {
-	values := url.Values{}
-	values.Set(queryView, string(view))
-	if view == viewChats {
-		if chatID := selectedChatID(r); chatID != "" {
-			values.Set(queryChatID, chatID)
-		}
-	}
-	if view == viewRuntimeControl && r != nil && r.URL != nil {
-		version := strings.TrimSpace(
-			r.URL.Query().Get(queryRuntimeVersion),
-		)
-		if version != "" {
-			values.Set(queryRuntimeVersion, version)
-		}
-	}
-	return routePageStateJSON + "?" + values.Encode()
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func pageRefreshToken(
 	view adminView,
 	input pageRefreshInput,
 ) string {
-	switch view {
-	case viewConfig:
-		return refreshTokenForValue(input.Config)
-	case viewRuntimeControl:
-		return refreshTokenForValue(input.RuntimeControl)
-	case viewPrompts:
-		return refreshTokenForValue(input.Prompts)
-	case viewIdentity:
-		return refreshTokenForValue(input.Identity)
-	case viewPersonas:
-		return refreshTokenForValue(input.Personas)
-	case viewChats:
-		return refreshTokenForValue(struct {
-			Chats             ChatsStatus `json:"chats"`
-			SelectedChat      *ChatView   `json:"selected_chat,omitempty"`
-			SelectedChatError string      `json:"selected_chat_error,omitempty"`
-		}{
-			Chats:             input.Chats,
-			SelectedChat:      compactChatView(input.SelectedChat),
-			SelectedChatError: input.SelectedChatError,
-		})
-	default:
-		snapshot := input.Snapshot
-		snapshot.GeneratedAt = time.Time{}
-		return refreshTokenForValue(snapshot)
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func compactChatView(chat *ChatView) *ChatView {
-	if chat == nil {
-		return nil
-	}
-	copy := *chat
-	copy.History = nil
-	copy.Transcript = nil
-	return &copy
-}
+func compactChatView(chat *ChatView) *ChatView { _ = "STUB: not implemented"; return nil }
 
-func refreshTokenForValue(value any) string {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return ""
-	}
-	sum := sha256.Sum256(data)
-	return fmt.Sprintf("%x", sum[:])
-}
+func refreshTokenForValue(value any) string { _ = "STUB: not implemented"; return "" }
 
 func (s *Service) pageRefreshInput(
 	r *http.Request,
 	view adminView,
 ) pageRefreshInput {
-	input := pageRefreshInput{
-		Snapshot: s.snapshotForView(view),
-		Config:   s.runtimeConfigStatus(),
-		Prompts:  s.promptsStatus(),
-		Identity: s.identityStatus(),
-		Personas: s.personasStatus(),
-		Chats:    s.chatsStatus(),
-	}
-	if view == viewRuntimeControl {
-		input.RuntimeControl = s.runtimeLifecycleRefreshStatus(r)
-	} else {
-		input.RuntimeControl = s.runtimeLifecycleStatus(r)
-	}
-	if view == viewChats {
-		input.SelectedChat, input.SelectedChatError = resolveSelectedChat(
-			input.Chats,
-			s.cfg.Chats,
-			selectedChatID(r),
-		)
-	}
-	return input
+	_ = "STUB: not implemented"
+	return *new(pageRefreshInput)
 }
 
 func (s *Service) handleStatusJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.Snapshot())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handlePageStateJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	view := adminView(strings.TrimSpace(r.URL.Query().Get(queryView)))
-	if view == "" {
-		view = viewOverview
-	}
-	input := s.pageRefreshInput(r, view)
-	writeJSON(w, http.StatusOK, pageStateStatus{
-		Token:     pageRefreshToken(view, input),
-		UpdatedAt: input.Snapshot.GeneratedAt,
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSkillsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.skillsStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleMemoryFilesJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.memoryStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleMemoryFileAPI(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	switch r.Method {
-	case http.MethodGet:
-		s.handleMemoryFileJSON(w, r)
-	case http.MethodPost:
-		s.handleSaveMemoryFile(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleMemoryFileJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	root, configured, err := configuredMemoryRoot(s.cfg.MemoryFiles)
-	if err != nil || !configured {
-		http.Error(
-			w,
-			"memory file store is not configured",
-			http.StatusNotFound,
-		)
-		return
-	}
-	detail, err := readMemoryFileDetailWithResolver(
-		root,
-		strings.TrimSpace(r.URL.Query().Get(queryPath)),
-		s.cfg.MemoryUserLabels,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	writeJSON(w, http.StatusOK, detail)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSaveMemoryFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	_, configured, err := configuredMemoryRoot(s.cfg.MemoryFiles)
-	if err != nil || !configured {
-		http.Error(
-			w,
-			"memory file store is not configured",
-			http.StatusNotFound,
-		)
-		return
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	path := strings.TrimSpace(r.FormValue(queryPath))
-	if path == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"path is required",
-			returnTo,
-		)
-		return
-	}
-	if err := saveMemoryFile(
-		r.Context(),
-		s.cfg.MemoryFiles,
-		path,
-		r.FormValue(formPromptContent),
-	); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Saved memory file.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleMemoryFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	root, configured, err := configuredMemoryRoot(s.cfg.MemoryFiles)
-	if err != nil || !configured {
-		http.Error(
-			w,
-			"memory file store is not configured",
-			http.StatusNotFound,
-		)
-		return
-	}
-	filePath, err := resolveMemoryFile(
-		root,
-		strings.TrimSpace(r.URL.Query().Get(queryPath)),
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	http.ServeFile(w, r, filePath)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleRefreshSkills(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	if s.cfg.Skills == nil || !s.cfg.Skills.SkillsRefreshable() {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"live skills repository is not available",
-			returnTo,
-		)
-		return
-	}
-	if err := s.cfg.Skills.RefreshSkills(); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Refreshed skills. New or removed skill folders will be available on the next turn.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleToggleSkill(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	configKey, enabled, skillName, returnTo, ok := s.requireSkillTogglePOST(w, r)
-	if !ok {
-		return
-	}
-
-	if err := s.cfg.Skills.SetSkillEnabled(configKey, enabled); err != nil {
-		s.redirectWithMessageAt(w, r, queryError, err.Error(), returnTo)
-		return
-	}
-
-	name := strings.TrimSpace(skillName)
-	if name == "" {
-		name = strings.TrimSpace(configKey)
-	}
-	state := "disabled"
-	if enabled {
-		state = "enabled"
-	}
-	message := fmt.Sprintf(
-		"Saved %s as %s. Restart %s to apply runtime changes.",
-		name,
-		state,
-		adminBrandName,
-	)
-	if s.cfg.Skills != nil && s.cfg.Skills.SkillsRefreshable() {
-		message = fmt.Sprintf(
-			"Saved %s as %s. Changes apply on the next turn.",
-			name,
-			state,
-		)
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		message,
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) redirectWithMessageAt(
@@ -1883,461 +815,136 @@ func (s *Service) redirectWithMessageAt(
 	message string,
 	fragment string,
 ) {
-	target := &url.URL{
-		Path:     redirectPathFromRequest(r),
-		Fragment: strings.TrimSpace(fragment),
-	}
-	values := url.Values{}
-	values.Set(key, message)
-	target.RawQuery = values.Encode()
-	http.Redirect(
-		w,
-		r,
-		target.String(),
-		http.StatusSeeOther,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
-func redirectPathFromRequest(r *http.Request) string {
-	if r == nil {
-		return routeIndex
-	}
-	if path := navPath(strings.TrimSpace(r.FormValue(formReturnPath))); path != "" {
-		return path
-	}
-	return routeIndex
-}
+func redirectPathFromRequest(r *http.Request) string { _ = "STUB: not implemented"; return "" }
 
-func navPath(raw string) string {
-	switch strings.TrimSpace(raw) {
-	case routeIndex, routeOverview:
-		return routeOverview
-	case routeConfigPage:
-		return routeConfigPage
-	case routeRuntimeControlPage:
-		return routeRuntimeControlPage
-	case routeSkillsPage:
-		return routeSkillsPage
-	case routePrompts:
-		return routePrompts
-	case routeIdentity:
-		return routeIdentity
-	case routePersonas:
-		return routePersonas
-	case routeChats:
-		return routeChats
-	case routeMemory:
-		return routeMemory
-	case routeAutomation:
-		return routeAutomation
-	case routeSessions:
-		return routeSessions
-	case routeDebug:
-		return routeDebug
-	case routeBrowser:
-		return routeBrowser
-	default:
-		return ""
-	}
-}
+func navPath(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func navViewForPath(path string) adminView {
-	switch strings.TrimSpace(path) {
-	case routeIndex, routeOverview:
-		return viewOverview
-	case routeConfigPage:
-		return viewConfig
-	case routeRuntimeControlPage:
-		return viewRuntimeControl
-	case routeSkillsPage:
-		return viewSkills
-	case routePrompts:
-		return viewPrompts
-	case routeIdentity:
-		return viewIdentity
-	case routePersonas:
-		return viewPersonas
-	case routeChats:
-		return viewChats
-	case routeMemory:
-		return viewMemory
-	case routeAutomation:
-		return viewAutomation
-	case routeSessions:
-		return viewSessions
-	case routeDebug:
-		return viewDebug
-	case routeBrowser:
-		return viewBrowser
-	default:
-		return viewOverview
-	}
-}
+func navViewForPath(path string) adminView { _ = "STUB: not implemented"; return *new(adminView) }
 
 func (s *Service) handleJobsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.cronStatus().Jobs)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleExecSessionsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.execStatus().Sessions)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleUploadsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	filters := uploadFiltersFromRequest(r)
-	writeJSON(
-		w,
-		http.StatusOK,
-		s.uploadsStatusFiltered(filters, 0, 0),
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleUploadSessionsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	filters := uploadFiltersFromRequest(r)
-	writeJSON(
-		w,
-		http.StatusOK,
-		s.uploadsStatusFiltered(filters, 0, 0).Sessions,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleUploadFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	root := resolveUploadsRoot(s.cfg.StateDir)
-	filePath, err := resolveUploadFile(
-		root,
-		strings.TrimSpace(r.URL.Query().Get(queryPath)),
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if strings.TrimSpace(r.URL.Query().Get(queryDownload)) != "" {
-		w.Header().Set(
-			"Content-Disposition",
-			fmt.Sprintf(
-				"attachment; filename=%q",
-				filepath.Base(filePath),
-			),
-		)
-	}
-	http.ServeFile(w, r, filePath)
+	_ = "STUB: not implemented"
+	return
 }
 
 func uploadFiltersFromRequest(r *http.Request) uploadFilters {
-	if r == nil || r.URL == nil {
-		return uploadFilters{}
-	}
-	values := r.URL.Query()
-	return uploadFilters{
-		Channel:   strings.TrimSpace(values.Get(queryChannel)),
-		UserID:    strings.TrimSpace(values.Get(queryUserID)),
-		SessionID: strings.TrimSpace(values.Get(querySessionID)),
-		Kind:      strings.TrimSpace(values.Get(queryKind)),
-		MimeType:  strings.TrimSpace(values.Get(queryMimeType)),
-		Source:    strings.TrimSpace(values.Get(querySource)),
-	}
+	_ = "STUB: not implemented"
+	return *new(uploadFilters)
 }
 
 func (s *Service) handleDebugSessionsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.debugStatus().Sessions)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleDebugTracesJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	sessionID := strings.TrimSpace(r.URL.Query().Get(querySessionID))
-	writeJSON(
-		w,
-		http.StatusOK,
-		s.debugStatusForSession(sessionID).RecentTraces,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleDebugFile(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	tracePath := strings.TrimSpace(r.URL.Query().Get(queryTrace))
-	name := strings.TrimSpace(r.URL.Query().Get(queryName))
-	relPath := strings.TrimSpace(r.URL.Query().Get(queryPath))
-	if relPath == "" && name == debugEventsFileName {
-		traceDir, err := s.resolveDebugTraceDir(tracePath)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		data, err := debugrecorder.ReadEventsFile(traceDir)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		w.Header().Set(headerContentType, debugEventsMIMEType)
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(data)
-		return
-	}
-	filePath, err := s.resolveDebugFile(tracePath, name, relPath)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	http.ServeFile(w, r, filePath)
+	_ = "STUB: not implemented"
+	return
 }
 
 func resolveUploadFile(root string, rel string) (string, error) {
-	if strings.TrimSpace(root) == "" {
-		return "", fmt.Errorf("uploads are not enabled")
-	}
-	clean := filepath.Clean(strings.TrimSpace(rel))
-	if clean == "." || clean == "" {
-		return "", fmt.Errorf("missing upload path")
-	}
-	if strings.HasPrefix(clean, "..") ||
-		filepath.IsAbs(clean) {
-		return "", fmt.Errorf("invalid upload path")
-	}
-	if uploads.IsMetadataPath(clean) {
-		return "", fmt.Errorf("invalid upload path")
-	}
-
-	filePath := filepath.Join(root, clean)
-	relative, err := filepath.Rel(root, filePath)
-	if err != nil {
-		return "", fmt.Errorf("resolve upload path: %w", err)
-	}
-	if relative == "." || strings.HasPrefix(relative, "..") {
-		return "", fmt.Errorf("invalid upload path")
-	}
-
-	info, err := os.Stat(filePath)
-	if err != nil {
-		return "", err
-	}
-	if info.IsDir() {
-		return "", fmt.Errorf("upload path is a directory")
-	}
-	return filePath, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (s *Service) handleRunJob(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	jobID, ok := s.requireJobAction(w, r)
-	if !ok {
-		return
-	}
-	if _, err := s.cfg.Cron.RunNow(jobID); err != nil {
-		s.redirectWithMessage(w, r, queryError, err.Error())
-		return
-	}
-	s.redirectWithMessage(
-		w,
-		r,
-		queryNotice,
-		"Scheduled job run requested.",
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleRemoveJob(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	jobID, ok := s.requireJobAction(w, r)
-	if !ok {
-		return
-	}
-	if err := s.cfg.Cron.Remove(jobID); err != nil {
-		s.redirectWithMessage(w, r, queryError, err.Error())
-		return
-	}
-	s.redirectWithMessage(
-		w,
-		r,
-		queryNotice,
-		"Scheduled job removed.",
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleClearJobs(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if !s.requireCronPOST(w, r) {
-		return
-	}
-
-	removed := 0
-	for _, job := range s.cfg.Cron.List() {
-		if job == nil || strings.TrimSpace(job.ID) == "" {
-			continue
-		}
-		if err := s.cfg.Cron.Remove(job.ID); err != nil {
-			s.redirectWithMessage(w, r, queryError, err.Error())
-			return
-		}
-		removed++
-	}
-	s.redirectWithMessage(
-		w,
-		r,
-		queryNotice,
-		fmt.Sprintf("Cleared %d scheduled job(s).", removed),
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) requireJobAction(
 	w http.ResponseWriter,
 	r *http.Request,
 ) (string, bool) {
-	if !s.requireCronPOST(w, r) {
-		return "", false
-	}
-	jobID := strings.TrimSpace(r.FormValue(formJobID))
-	if jobID == "" {
-		s.redirectWithMessage(w, r, queryError, "job_id is required")
-		return "", false
-	}
-	return jobID, true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 func (s *Service) requireCronPOST(
 	w http.ResponseWriter,
 	r *http.Request,
 ) bool {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return false
-	}
-	if s.cfg.Cron == nil {
-		http.Error(
-			w,
-			"scheduled jobs are not enabled",
-			http.StatusNotFound,
-		)
-		return false
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (s *Service) requireSkillTogglePOST(
 	w http.ResponseWriter,
 	r *http.Request,
 ) (string, bool, string, string, bool) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return "", false, "", "", false
-	}
-	if s.cfg.Skills == nil {
-		http.Error(w, "skills are not enabled", http.StatusNotFound)
-		return "", false, "", "", false
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return "", false, "", "", false
-	}
-
-	configKey := strings.TrimSpace(r.FormValue(formSkillKey))
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	if configKey == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"skill_key is required",
-			returnTo,
-		)
-		return "", false, "", "", false
-	}
-
-	rawEnabled := strings.TrimSpace(r.FormValue(formEnabled))
-	enabled := rawEnabled == "true" || rawEnabled == "1"
-	if rawEnabled != "true" &&
-		rawEnabled != "false" &&
-		rawEnabled != "1" &&
-		rawEnabled != "0" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"enabled must be true or false",
-			returnTo,
-		)
-		return "", false, "", "", false
-	}
-
-	if strings.TrimSpace(s.cfg.Skills.SkillsConfigPath()) == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"skill toggles require a config-backed runtime",
-			returnTo,
-		)
-		return "", false, "", "", false
-	}
-
-	return configKey,
-		enabled,
-		strings.TrimSpace(r.FormValue(formSkillName)),
-		returnTo,
-		true
+	_ = "STUB: not implemented"
+	return "", false, "", "", false
 }
 
 func (s *Service) redirectWithMessage(
@@ -2346,296 +953,56 @@ func (s *Service) redirectWithMessage(
 	key string,
 	message string,
 ) {
-	s.redirectWithMessageAt(w, r, key, message, "")
+	_ = "STUB: not implemented"
+	return
 }
 
-func writeJSON(w http.ResponseWriter, code int, value any) {
-	data, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	data = append(data, '\n')
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	_, _ = w.Write(data)
-}
+func writeJSON(w http.ResponseWriter, code int, value any) { _ = "STUB: not implemented"; return }
 
-func jobViewFromJob(job *cron.Job) jobView {
-	return jobView{
-		ID:             strings.TrimSpace(job.ID),
-		Name:           fallbackJobName(job),
-		Schedule:       cron.ScheduleSummary(job.Schedule),
-		UserID:         strings.TrimSpace(job.UserID),
-		Channel:        strings.TrimSpace(job.Delivery.Channel),
-		Target:         strings.TrimSpace(job.Delivery.Target),
-		MessagePreview: summarizeText(job.Message, maxRunesPreview),
-		LastOutput:     summarizeText(job.LastOutput, maxJobOutputRunes),
-		Enabled:        job.Enabled,
-		CreatedAt:      job.CreatedAt,
-		UpdatedAt:      job.UpdatedAt,
-		LastRunAt:      cloneTime(job.LastRunAt),
-		NextRunAt:      cloneTime(job.NextRunAt),
-		LastStatus:     strings.TrimSpace(job.LastStatus),
-		LastError:      strings.TrimSpace(job.LastError),
-	}
-}
+func jobViewFromJob(job *cron.Job) jobView { _ = "STUB: not implemented"; return *new(jobView) }
 
-func fallbackJobName(job *cron.Job) string {
-	if job == nil {
-		return ""
-	}
-	if name := strings.TrimSpace(job.Name); name != "" {
-		return name
-	}
-	return strings.TrimSpace(job.ID)
-}
+func fallbackJobName(job *cron.Job) string { _ = "STUB: not implemented"; return "" }
 
 const maxRunesPreview = 96
 
-func summarizeText(text string, maxRunes int) string {
-	if maxRunes <= 0 {
-		maxRunes = maxRunesPreview
-	}
-	runes := []rune(strings.TrimSpace(text))
-	if len(runes) <= maxRunes {
-		return string(runes)
-	}
-	return string(runes[:maxRunes]) + "..."
-}
+func summarizeText(text string, maxRunes int) string { _ = "STUB: not implemented"; return "" }
 
-func cloneTime(src *time.Time) *time.Time {
-	if src == nil {
-		return nil
-	}
-	next := *src
-	return &next
-}
+func cloneTime(src *time.Time) *time.Time { _ = "STUB: not implemented"; return nil }
 
-func intFromMap(raw any) int {
-	value, ok := raw.(int)
-	if ok {
-		return value
-	}
-	return 0
-}
+func intFromMap(raw any) int { _ = "STUB: not implemented"; return 0 }
 
-func stringSliceFromMap(raw any) []string {
-	items, ok := raw.([]string)
-	if !ok || len(items) == 0 {
-		return nil
-	}
-	out := append([]string(nil), items...)
-	sort.Strings(out)
-	return out
-}
+func stringSliceFromMap(raw any) []string { _ = "STUB: not implemented"; return nil }
 
-func formatTime(raw any) string {
-	switch value := raw.(type) {
-	case time.Time:
-		if value.IsZero() {
-			return "-"
-		}
-		return value.Local().Format(formatTimeLayout)
-	case *time.Time:
-		if value == nil || value.IsZero() {
-			return "-"
-		}
-		return value.Local().Format(formatTimeLayout)
-	default:
-		return "-"
-	}
-}
+func formatTime(raw any) string { _ = "STUB: not implemented"; return "" }
 
-func formatUptime(startedAt time.Time, now time.Time) string {
-	if startedAt.IsZero() {
-		return "-"
-	}
-	if now.Before(startedAt) {
-		now = startedAt
-	}
-	return now.Sub(startedAt).Round(time.Second).String()
-}
+func formatUptime(startedAt time.Time, now time.Time) string { _ = "STUB: not implemented"; return "" }
 
-func compactPortLabel(addr string) string {
-	trimmed := strings.TrimSpace(addr)
-	if trimmed == "" {
-		return ""
-	}
-	_, port, err := net.SplitHostPort(trimmed)
-	if err == nil && strings.TrimSpace(port) != "" {
-		return ":" + strings.TrimSpace(port)
-	}
-	return trimmed
-}
+func compactPortLabel(addr string) string { _ = "STUB: not implemented"; return "" }
 
-func browserEndpointSummary(view browserEndpointView) string {
-	if strings.TrimSpace(view.URL) == "" {
-		return "-"
-	}
-	if !view.Reachable {
-		if strings.TrimSpace(view.Error) != "" {
-			return "down: " + strings.TrimSpace(view.Error)
-		}
-		return "down"
-	}
-	if len(view.Profiles) == 0 {
-		return "reachable"
-	}
-	parts := make([]string, 0, len(view.Profiles))
-	for i := range view.Profiles {
-		profile := view.Profiles[i]
-		name := strings.TrimSpace(profile.Name)
-		state := strings.TrimSpace(profile.State)
-		if name == "" && state == "" {
-			continue
-		}
-		if state == "" {
-			parts = append(parts, name)
-			continue
-		}
-		if name == "" {
-			parts = append(parts, state)
-			continue
-		}
-		parts = append(parts, name+"="+state)
-	}
-	if len(parts) == 0 {
-		return "reachable"
-	}
-	return strings.Join(parts, ", ")
-}
+func browserEndpointSummary(view browserEndpointView) string { _ = "STUB: not implemented"; return "" }
 
-func displayAdminAppName(name string) string {
-	trimmed := strings.TrimSpace(name)
-	if trimmed == "" {
-		return ""
-	}
-	lower := strings.ToLower(trimmed)
-	if lower == "openclaw" {
-		return adminRuntimePrefix
-	}
-	if strings.HasPrefix(lower, "openclaw-") {
-		return adminRuntimePrefix + trimmed[len("openclaw"):]
-	}
-	return trimmed
-}
+func displayAdminAppName(name string) string { _ = "STUB: not implemented"; return "" }
 
 func (s *Service) resolveDebugFile(
 	tracePath string,
 	name string,
 	relPath string,
 ) (string, error) {
-	root := strings.TrimSpace(s.cfg.DebugDir)
-	if root == "" {
-		return "", fmt.Errorf("debug recorder is not configured")
-	}
-	if strings.TrimSpace(relPath) != "" {
-		return resolveDebugRootFile(root, relPath)
-	}
-	if !isAllowedDebugFile(name) {
-		return "", fmt.Errorf("unsupported debug file: %s", name)
-	}
-	traceDir, err := s.resolveDebugTraceDir(tracePath)
-	if err != nil {
-		return "", err
-	}
-
-	candidate := filepath.Join(traceDir, name)
-	if name == debugEventsFileName {
-		resolved, _, err := debugrecorder.ResolveEventsFilePath(traceDir)
-		if err == nil {
-			return resolved, nil
-		}
-	}
-	if _, err := os.Stat(candidate); err != nil {
-		return "", fmt.Errorf("debug file not found")
-	}
-	return candidate, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (s *Service) resolveDebugTraceDir(tracePath string) (string, error) {
-	root := strings.TrimSpace(s.cfg.DebugDir)
-	if root == "" {
-		return "", fmt.Errorf("debug recorder is not configured")
-	}
-	if strings.TrimSpace(tracePath) == "" {
-		return "", fmt.Errorf("trace path is required")
-	}
-
-	candidate := filepath.Clean(filepath.Join(
-		root,
-		filepath.FromSlash(tracePath),
-	))
-	absRoot, err := filepath.Abs(root)
-	if err != nil {
-		return "", fmt.Errorf("resolve debug root: %w", err)
-	}
-	absCandidate, err := filepath.Abs(candidate)
-	if err != nil {
-		return "", fmt.Errorf("resolve debug file: %w", err)
-	}
-	if absCandidate != absRoot &&
-		!strings.HasPrefix(
-			absCandidate,
-			absRoot+string(os.PathSeparator),
-		) {
-		return "", fmt.Errorf("debug trace escapes debug root")
-	}
-	info, err := os.Stat(absCandidate)
-	if err != nil {
-		return "", fmt.Errorf("debug trace not found")
-	}
-	if !info.IsDir() {
-		return "", fmt.Errorf("debug trace path is not a directory")
-	}
-	return absCandidate, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func resolveDebugRootFile(root string, relPath string) (string, error) {
-	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(relPath)))
-	if clean == "." || clean == "" {
-		return "", fmt.Errorf("debug path is required")
-	}
-	if filepath.IsAbs(clean) || strings.HasPrefix(clean, "..") {
-		return "", fmt.Errorf("invalid debug path")
-	}
-
-	candidate := filepath.Join(root, clean)
-	absRoot, err := filepath.Abs(root)
-	if err != nil {
-		return "", fmt.Errorf("resolve debug root: %w", err)
-	}
-	absCandidate, err := filepath.Abs(candidate)
-	if err != nil {
-		return "", fmt.Errorf("resolve debug file: %w", err)
-	}
-	if absCandidate != absRoot &&
-		!strings.HasPrefix(
-			absCandidate,
-			absRoot+string(os.PathSeparator),
-		) {
-		return "", fmt.Errorf("debug file escapes debug root")
-	}
-
-	info, err := os.Stat(absCandidate)
-	if err != nil {
-		return "", fmt.Errorf("debug file not found")
-	}
-	if info.IsDir() {
-		return "", fmt.Errorf("debug path is a directory")
-	}
-	return absCandidate, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func isAllowedDebugFile(name string) bool {
-	switch strings.TrimSpace(name) {
-	case debugMetaFileName, debugEventsFileName, debugResultFileName:
-		return true
-	default:
-		return false
-	}
-}
+func isAllowedDebugFile(name string) bool { _ = "STUB: not implemented"; return false }
 
 var adminPage = template.Must(
 	template.New("admin").Funcs(template.FuncMap{

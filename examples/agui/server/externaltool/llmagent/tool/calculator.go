@@ -11,41 +11,17 @@ package tool
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const calculatorName = "calculator"
 
-func newCalculatorTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		calculator,
-		function.WithName(calculatorName),
-		function.WithDescription("Add, subtract, multiply, or divide two integers."),
-	)
-}
+func newCalculatorTool() agenttool.Tool { _ = "STUB: not implemented"; return *new(agenttool.Tool) }
 
 func calculator(_ context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result int
-	switch args.Operation {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B == 0 {
-			return calculatorResult{}, errors.New("division by zero")
-		}
-		result = args.A / args.B
-	default:
-		return calculatorResult{}, fmt.Errorf("invalid operation: %s", args.Operation)
-	}
-	return calculatorResult{Result: result}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {

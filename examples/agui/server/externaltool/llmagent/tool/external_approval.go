@@ -11,25 +11,21 @@ package tool
 
 import (
 	"context"
-	"fmt"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 // ExternalApprovalName is the caller-executed approval tool name.
 const ExternalApprovalName = "external_approval"
 
 func newExternalApprovalTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		externalApprovalNotImplemented,
-		function.WithName(ExternalApprovalName),
-		function.WithDescription("Ask the caller to provide an approval decision for the given item."),
-	)
+	_ = "STUB: not implemented"
+	return *new(agenttool.Tool)
 }
 
 func externalApprovalNotImplemented(_ context.Context, args externalApprovalArgs) (externalApprovalResult, error) {
-	return externalApprovalResult{}, fmt.Errorf("%s is executed by the caller for item %q", ExternalApprovalName, args.Item)
+	_ = "STUB: not implemented"
+	return *new(externalApprovalResult), nil
 }
 
 type externalApprovalArgs struct {

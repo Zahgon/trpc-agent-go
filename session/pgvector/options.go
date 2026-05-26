@@ -12,11 +12,9 @@
 package pgvector
 
 import (
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/embedder"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
@@ -140,321 +138,209 @@ var defaultOptions = ServiceOpts{
 }
 
 func (opts ServiceOpts) shouldCascadeFullSessionSummary() bool {
-	if opts.cascadeFullSessionSummary == nil {
-		return true
-	}
-	return *opts.cascadeFullSessionSummary
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithPostgresClientDSN sets the PostgreSQL DSN connection
 // string directly (recommended).
 func WithPostgresClientDSN(dsn string) ServiceOpt {
-	return func(o *ServiceOpts) { o.dsn = dsn }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithHost sets the PostgreSQL host.
-func WithHost(host string) ServiceOpt {
-	return func(o *ServiceOpts) { o.host = host }
-}
+func WithHost(host string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPort sets the PostgreSQL port.
-func WithPort(port int) ServiceOpt {
-	return func(o *ServiceOpts) { o.port = port }
-}
+func WithPort(port int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithUser sets the username for authentication.
-func WithUser(user string) ServiceOpt {
-	return func(o *ServiceOpts) { o.user = user }
-}
+func WithUser(user string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) ServiceOpt {
-	return func(o *ServiceOpts) { o.password = password }
-}
+func WithPassword(password string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithDatabase sets the database name.
-func WithDatabase(database string) ServiceOpt {
-	return func(o *ServiceOpts) { o.database = database }
-}
+func WithDatabase(database string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSSLMode sets the SSL mode for connection.
-func WithSSLMode(sslMode string) ServiceOpt {
-	return func(o *ServiceOpts) { o.sslMode = sslMode }
-}
+func WithSSLMode(sslMode string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithPostgresInstance uses a named postgres instance
 // from storage.
 func WithPostgresInstance(name string) ServiceOpt {
-	return func(o *ServiceOpts) { o.instanceName = name }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets extra options for the postgres
 // client builder.
-func WithExtraOptions(extra ...any) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.extraOptions = append(o.extraOptions, extra...)
-	}
-}
+func WithExtraOptions(extra ...any) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSessionEventLimit sets the limit of events in a
 // session.
 func WithSessionEventLimit(limit int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.sessionEventLimit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSessionTTL sets the TTL for session state and
 // event list.
 func WithSessionTTL(ttl time.Duration) ServiceOpt {
-	return func(o *ServiceOpts) { o.sessionTTL = ttl }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAppStateTTL sets the TTL for app state.
 func WithAppStateTTL(ttl time.Duration) ServiceOpt {
-	return func(o *ServiceOpts) { o.appStateTTL = ttl }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithUserStateTTL sets the TTL for user state.
 func WithUserStateTTL(ttl time.Duration) ServiceOpt {
-	return func(o *ServiceOpts) { o.userStateTTL = ttl }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEnableAsyncPersist enables async persistence for
 // session events.
 func WithEnableAsyncPersist(enable bool) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.enableAsyncPersist = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncPersisterNum sets the number of workers for
 // async persistence.
-func WithAsyncPersisterNum(num int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncPersisterNum
-		}
-		o.asyncPersisterNum = num
-	}
-}
+func WithAsyncPersisterNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummarizer injects a summarizer for LLM-based
 // summaries.
 func WithSummarizer(s summary.SessionSummarizer) ServiceOpt {
-	return func(o *ServiceOpts) { o.summarizer = s }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncSummaryNum sets the number of workers for
 // async summary processing.
-func WithAsyncSummaryNum(num int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if num < 1 {
-			num = defaultAsyncSummaryNum
-		}
-		o.asyncSummaryNum = num
-	}
-}
+func WithAsyncSummaryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryQueueSize sets the size of the summary job
 // queue.
-func WithSummaryQueueSize(size int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if size < 1 {
-			size = defaultSummaryQueueSize
-		}
-		o.summaryQueueSize = size
-	}
-}
+func WithSummaryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSummaryJobTimeout sets the timeout for processing
 // a single summary job.
 func WithSummaryJobTimeout(
 	timeout time.Duration,
 ) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if timeout <= 0 {
-			return
-		}
-		o.summaryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSummaryFilterAllowlist restricts which non-empty filterKeys may trigger
 // branch summaries. Keys use the same exact format as event filter keys.
 func WithSummaryFilterAllowlist(filterKeys ...string) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.summaryFilterAllowlist = append([]string{}, filterKeys...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithCascadeFullSessionSummary controls whether an allowed branch summary also
 // refreshes the full-session summary keyed by SummaryFilterKeyAllContents.
 func WithCascadeFullSessionSummary(enable bool) ServiceOpt {
-	return func(o *ServiceOpts) {
-		enabled := enable
-		o.cascadeFullSessionSummary = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSoftDelete enables or disables soft delete.
-func WithSoftDelete(enable bool) ServiceOpt {
-	return func(o *ServiceOpts) { o.softDelete = enable }
-}
+func WithSoftDelete(enable bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCleanupInterval sets the interval for automatic
 // cleanup of expired data.
 func WithCleanupInterval(
 	interval time.Duration,
 ) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.cleanupInterval = interval
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSkipDBInit skips database initialization.
-func WithSkipDBInit(skip bool) ServiceOpt {
-	return func(o *ServiceOpts) { o.skipDBInit = skip }
-}
+func WithSkipDBInit(skip bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithTablePrefix sets a prefix for all table names.
-func WithTablePrefix(prefix string) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if prefix == "" {
-			o.tablePrefix = ""
-			return
-		}
-		sqldb.MustValidateTablePrefix(prefix)
-		if !strings.HasSuffix(prefix, "_") {
-			prefix += "_"
-		}
-		o.tablePrefix = prefix
-	}
-}
+func WithTablePrefix(prefix string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSchema sets the PostgreSQL schema name.
-func WithSchema(schema string) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if schema != "" {
-			sqldb.MustValidateTableName(schema)
-		}
-		o.schema = schema
-	}
-}
+func WithSchema(schema string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithAppendEventHook adds AppendEvent hooks.
 func WithAppendEventHook(
 	hooks ...session.AppendEventHook,
 ) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.appendEventHooks = append(
-			o.appendEventHooks, hooks...,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithGetSessionHook adds GetSession hooks.
 func WithGetSessionHook(
 	hooks ...session.GetSessionHook,
 ) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.getSessionHooks = append(
-			o.getSessionHooks, hooks...,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEmbedder sets the embedder for generating event
 // embeddings. Required for pgvector service
 // initialization and vector search support.
 func WithEmbedder(e embedder.Embedder) ServiceOpt {
-	return func(o *ServiceOpts) { o.embedder = e }
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithEmbedTimeout sets the timeout for embedding API calls.
 // Default is 30 seconds. Increase this if you experience
 // timeout errors with slow embedding APIs.
 func WithEmbedTimeout(timeout time.Duration) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if timeout > 0 {
-			o.embedTimeout = timeout
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSyncIndexing controls whether event embeddings are
 // generated synchronously after persistence.
-func WithSyncIndexing(sync bool) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.syncIndexing = sync
-	}
-}
+func WithSyncIndexing(sync bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithIndexTextBuilder customizes the text used for
 // event embeddings.
 func WithIndexTextBuilder(builder IndexTextBuilder) ServiceOpt {
-	return func(o *ServiceOpts) {
-		o.indexTextBuilder = builder
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithIndexDimension sets the embedding vector dimension
 // (default: 1536). It must match the configured embedder
 // dimension when the embedder reports one.
-func WithIndexDimension(dim int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if dim > 0 {
-			o.indexDimension = dim
-		}
-	}
-}
+func WithIndexDimension(dim int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMaxResults sets the default max results for
 // SearchEvents (default: 5).
-func WithMaxResults(n int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if n > 0 {
-			o.maxResults = n
-		}
-	}
-}
+func WithMaxResults(n int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithHNSWM sets the HNSW index M parameter
 // (default: 16).
-func WithHNSWM(m int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if m > 0 {
-			o.hnswM = m
-		}
-	}
-}
+func WithHNSWM(m int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithHNSWEfConstruction sets the HNSW index
 // ef_construction parameter (default: 200).
-func WithHNSWEfConstruction(ef int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if ef > 0 {
-			o.hnswEf = ef
-		}
-	}
-}
+func WithHNSWEfConstruction(ef int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithHybridRRFK sets the RRF constant used when
 // SearchModeHybrid is enabled (default: 60).
-func WithHybridRRFK(k int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if k > 0 {
-			o.hybridRRFK = k
-		}
-	}
-}
+func WithHybridRRFK(k int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithHybridCandidateRatio sets how many candidates each
 // hybrid branch fetches before fusion (default: 3x).
 func WithHybridCandidateRatio(ratio int) ServiceOpt {
-	return func(o *ServiceOpts) {
-		if ratio > 0 {
-			o.candidateRatio = ratio
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }

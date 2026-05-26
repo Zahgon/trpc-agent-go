@@ -36,81 +36,34 @@ type flusherHolder struct {
 	fn flusher
 }
 
-func (h *flusherHolder) set(fn flusher) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.fn = fn
-}
+func (h *flusherHolder) set(fn flusher) { _ = "STUB: not implemented"; return }
 
-func (h *flusherHolder) get() flusher {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return h.fn
-}
+func (h *flusherHolder) get() flusher { _ = "STUB: not implemented"; return *new(flusher) }
 
-func (h *flusherHolder) clear() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.fn = nil
-}
+func (h *flusherHolder) clear() { _ = "STUB: not implemented"; return }
 
 // IsAttached reports whether a flush function has been attached to the invocation.
-func IsAttached(inv *agent.Invocation) bool {
-	holder, ok := agent.GetStateValue[*flusherHolder](inv, StateKeyFlushSession)
-	if !ok || holder == nil {
-		return false
-	}
-	return holder.get() != nil
-}
+func IsAttached(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // Attach binds a flush function to the given invocation and wires it to the provided flush channel.
 // When Invoke is called, the function will enqueue a FlushRequest on ch and wait for ACK to be closed by the runner.
 func Attach(ctx context.Context, inv *agent.Invocation, ch chan *FlushRequest) {
-	var fn flusher = func(ctx context.Context) error {
-		req := &FlushRequest{ACK: make(chan struct{})}
-		// Enqueue the flush request on the flush channel.
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case ch <- req:
-		}
-		// Wait for the ACK to be closed by the runner.
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-req.ACK:
-			return nil
-		}
-	}
-	// Reuse existing holder if present; otherwise create one.
-	if holder, ok := agent.GetStateValue[*flusherHolder](inv, StateKeyFlushSession); ok && holder != nil {
-		holder.set(fn)
-	} else {
-		inv.SetState(StateKeyFlushSession, &flusherHolder{fn: fn})
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Enqueue the flush request on the flush channel.
+
+// Wait for the ACK to be closed by the runner.
+
+// Reuse existing holder if present; otherwise create one.
 
 // Invoke executes the flush function stored on the invocation state if present.
 func Invoke(ctx context.Context, inv *agent.Invocation) error {
-	holder, ok := agent.GetStateValue[*flusherHolder](inv, StateKeyFlushSession)
-	if !ok || holder == nil {
-		return nil
-	}
-	fn := holder.get()
-	if fn == nil {
-		return nil
-	}
-	return fn(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Clear removes any flush function stored on the invocation state.
 // This is intended to be called by the runner when the event loop finishes.
-func Clear(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	if holder, ok := agent.GetStateValue[*flusherHolder](inv, StateKeyFlushSession); ok && holder != nil {
-		holder.clear()
-	}
-	inv.DeleteState(StateKeyFlushSession)
-}
+func Clear(inv *agent.Invocation) { _ = "STUB: not implemented"; return }

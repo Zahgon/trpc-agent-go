@@ -12,7 +12,6 @@ package vectorstore
 
 import (
 	"context"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/searchfilter"
@@ -66,23 +65,20 @@ type DeleteConfig struct {
 
 // WithDeleteDocumentIDs sets the document IDs to delete.
 func WithDeleteDocumentIDs(ids []string) DeleteOption {
-	return func(c *DeleteConfig) {
-		c.DocumentIDs = ids
-	}
+	_ = "STUB: not implemented"
+	return *new(DeleteOption)
 }
 
 // WithDeleteFilter sets the filter for delete operations.
 func WithDeleteFilter(filter map[string]any) DeleteOption {
-	return func(c *DeleteConfig) {
-		c.Filter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(DeleteOption)
 }
 
 // WithDeleteAll enables deleting all matching documents.
 func WithDeleteAll(deleteAll bool) DeleteOption {
-	return func(c *DeleteConfig) {
-		c.DeleteAll = deleteAll
-	}
+	_ = "STUB: not implemented"
+	return *new(DeleteOption)
 }
 
 // CountOption represents a functional option for Count.
@@ -95,9 +91,8 @@ type CountConfig struct {
 
 // WithCountFilter sets the filter for count operations.
 func WithCountFilter(filter map[string]any) CountOption {
-	return func(c *CountConfig) {
-		c.Filter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(CountOption)
 }
 
 // GetMetadataOption represents a functional option for GetMetadata.
@@ -113,30 +108,26 @@ type GetMetadataConfig struct {
 
 // WithGetMetadataIDs sets the document IDs to retrieve metadata for.
 func WithGetMetadataIDs(ids []string) GetMetadataOption {
-	return func(c *GetMetadataConfig) {
-		c.IDs = ids
-	}
+	_ = "STUB: not implemented"
+	return *new(GetMetadataOption)
 }
 
 // WithGetMetadataFilter sets the filter for get metadata operations.
 func WithGetMetadataFilter(filter map[string]any) GetMetadataOption {
-	return func(c *GetMetadataConfig) {
-		c.Filter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(GetMetadataOption)
 }
 
 // WithGetMetadataLimit sets the limit for get metadata operations.
 func WithGetMetadataLimit(limit int) GetMetadataOption {
-	return func(c *GetMetadataConfig) {
-		c.Limit = limit
-	}
+	_ = "STUB: not implemented"
+	return *new(GetMetadataOption)
 }
 
 // WithGetMetadataOffset sets the offset for get metadata operations.
 func WithGetMetadataOffset(offset int) GetMetadataOption {
-	return func(c *GetMetadataConfig) {
-		c.Offset = offset
-	}
+	_ = "STUB: not implemented"
+	return *new(GetMetadataOption)
 }
 
 // UpdateByFilterOption represents a functional option for UpdateByFilter.
@@ -160,16 +151,14 @@ type UpdateByFilterConfig struct {
 
 // WithUpdateByFilterDocumentIDs sets the document IDs to filter.
 func WithUpdateByFilterDocumentIDs(ids []string) UpdateByFilterOption {
-	return func(c *UpdateByFilterConfig) {
-		c.DocumentIDs = ids
-	}
+	_ = "STUB: not implemented"
+	return *new(UpdateByFilterOption)
 }
 
 // WithUpdateByFilterCondition sets the filter condition for update operations.
 func WithUpdateByFilterCondition(cond *searchfilter.UniversalFilterCondition) UpdateByFilterOption {
-	return func(c *UpdateByFilterConfig) {
-		c.FilterCondition = cond
-	}
+	_ = "STUB: not implemented"
+	return *new(UpdateByFilterOption)
 }
 
 // WithUpdateByFilterUpdates sets the field-value pairs to update.
@@ -181,74 +170,33 @@ func WithUpdateByFilterCondition(cond *searchfilter.UniversalFilterCondition) Up
 //
 // Note: id, created_at fields cannot be updated.
 func WithUpdateByFilterUpdates(updates map[string]any) UpdateByFilterOption {
-	return func(c *UpdateByFilterConfig) {
-		c.Updates = updates
-	}
+	_ = "STUB: not implemented"
+	return *new(UpdateByFilterOption)
 }
 
 // ApplyDeleteOptions parses delete options and returns a DeleteConfig.
-func ApplyDeleteOptions(opts ...DeleteOption) *DeleteConfig {
-	config := &DeleteConfig{}
-	for _, opt := range opts {
-		opt(config)
-	}
-	return config
-}
+func ApplyDeleteOptions(opts ...DeleteOption) *DeleteConfig { _ = "STUB: not implemented"; return nil }
 
 // ApplyCountOptions parses count options and returns a CountConfig.
-func ApplyCountOptions(opts ...CountOption) *CountConfig {
-	config := &CountConfig{}
-	for _, opt := range opts {
-		opt(config)
-	}
-	return config
-}
+func ApplyCountOptions(opts ...CountOption) *CountConfig { _ = "STUB: not implemented"; return nil }
 
 // ApplyUpdateByFilterOptions parses update by filter options and returns an UpdateByFilterConfig.
 func ApplyUpdateByFilterOptions(opts ...UpdateByFilterOption) (*UpdateByFilterConfig, error) {
-	config := &UpdateByFilterConfig{}
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	// Validate: must have filter conditions
-	if len(config.DocumentIDs) == 0 && config.FilterCondition == nil {
-		return nil, fmt.Errorf("update by filter: no filter conditions specified (document IDs or filter condition required)")
-	}
-
-	// Validate: must have updates
-	if len(config.Updates) == 0 {
-		return nil, fmt.Errorf("update by filter: no updates specified")
-	}
-
-	return config, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Validate: must have filter conditions
+
+// Validate: must have updates
 
 // ApplyGetMetadataOptions parses get metadata options and returns a GetMetadataConfig.
 func ApplyGetMetadataOptions(opts ...GetMetadataOption) (*GetMetadataConfig, error) {
-	config := &GetMetadataConfig{
-		Limit:  -1,
-		Offset: -1,
-	}
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	if config.Limit == 0 {
-		return nil, fmt.Errorf("get metadata limit should be greater than 0")
-	}
-
-	if config.Limit < 0 && config.Offset > 0 {
-		return nil, fmt.Errorf("get metadata limit should be greater than 0 when offset is greater than 0")
-	}
-
-	if config.Limit > 0 && config.Offset < 0 {
-		// reset offset to 0
-		config.Offset = 0
-	}
-
-	return config, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// reset offset to 0
 
 // SearchQuery represents a vector similarity search query.
 type SearchQuery struct {

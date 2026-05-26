@@ -12,25 +12,15 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
 
-	"github.com/google/uuid"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/chainagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -77,237 +67,69 @@ type chainChat struct {
 }
 
 // run starts the interactive chat session.
-func (c *chainChat) run() error {
-	ctx := context.Background()
+func (c *chainChat) run() error { _ = "STUB: not implemented"; return nil }
 
-	// Setup the runner with chain agent.
-	if err := c.setup(ctx); err != nil {
-		return fmt.Errorf("setup failed: %w", err)
-	}
+// Setup the runner with chain agent.
 
-	// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
-	defer c.runner.Close()
+// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
 
-	// Start interactive chat.
-	return c.startChat(ctx)
-}
+// Start interactive chat.
 
 // setup creates the runner with chain agent and sub-agents.
 func (c *chainChat) setup(_ context.Context) error {
+	_ = "STUB: not implemented"
 	// Create OpenAI model.
-	modelInstance := openai.New(c.modelName)
-
-	// Create shared tools for research agent.
-	webSearchTool := function.NewFunctionTool(
-		c.webSearch,
-		function.WithName("web_search"),
-		function.WithDescription("Search the web for current information on any topic"),
-	)
-	knowledgeTool := function.NewFunctionTool(
-		c.queryKnowledge,
-		function.WithName("knowledge_base"),
-		function.WithDescription("Query internal knowledge base for factual information"),
-	)
-
-	// Create generation config.
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(maxTokens),
-		Temperature: floatPtr(temperature),
-		Stream:      true,
-	}
-
-	// Create Planning Agent.
-	planningAgent := llmagent.New(
-		"planning-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("Analyzes user requests and creates structured plans"),
-		llmagent.WithInstruction("You are a planning specialist. Analyze the user's request and create a brief, structured plan (2-3 steps max). Be concise and specific about what needs to be done. Keep your response under 100 words."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithAddContextPrefix(!c.disablePrefix), // Use flag to control prefix
-		llmagent.WithAgentCallbacks(agent.NewCallbacks().RegisterBeforeAgent(
-			func(ctx context.Context, args *agent.BeforeAgentArgs) (*agent.BeforeAgentResult, error) {
-				fmt.Printf("\n--- The %s is executing task planning\n", args.Invocation.AgentName)
-				if args.Invocation.AgentName != "planning-agent" {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", args.Invocation.AgentName, "planning-agent")
-				}
-				ctxInvocation, ok := agent.InvocationFromContext(ctx)
-				if !ok {
-					return nil, fmt.Errorf("failed to get invocation from context")
-				}
-				if ctxInvocation.AgentName != args.Invocation.AgentName {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", ctxInvocation.AgentName, args.Invocation.AgentName)
-				}
-				return nil, nil
-			},
-		)),
-	)
-
-	// Create Research Agent with tools.
-	researchAgent := llmagent.New(
-		"research-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("Gathers information using available tools and resources"),
-		llmagent.WithInstruction("You are a research specialist. Use the available tools to gather key information. Be concise and fact-based. Keep your response under 150 words."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools([]tool.Tool{webSearchTool, knowledgeTool}),
-		llmagent.WithAddContextPrefix(!c.disablePrefix), // Use flag to control prefix
-		llmagent.WithAgentCallbacks(agent.NewCallbacks().RegisterBeforeAgent(
-			func(ctx context.Context, args *agent.BeforeAgentArgs) (*agent.BeforeAgentResult, error) {
-				fmt.Printf("\n----- The %s is searching for information\n", args.Invocation.AgentName)
-				if args.Invocation.AgentName != "research-agent" {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", args.Invocation.AgentName, "research-agent")
-				}
-				ctxInvocation, ok := agent.InvocationFromContext(ctx)
-				if !ok {
-					return nil, fmt.Errorf("failed to get invocation from context")
-				}
-				if ctxInvocation.AgentName != args.Invocation.AgentName {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", ctxInvocation.AgentName, args.Invocation.AgentName)
-				}
-				return nil, nil
-			},
-		)),
-	)
-
-	// Create Writing Agent.
-	writingAgent := llmagent.New(
-		"writing-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("Composes final responses based on planning and research"),
-		llmagent.WithInstruction("You are a writing specialist. Create a brief, well-structured response based on the plan and research from previous agents. Be clear and concise. Keep your response under 200 words."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithAddContextPrefix(!c.disablePrefix), // Use flag to control prefix
-		llmagent.WithAgentCallbacks(agent.NewCallbacks().RegisterBeforeAgent(
-			func(ctx context.Context, args *agent.BeforeAgentArgs) (*agent.BeforeAgentResult, error) {
-				fmt.Printf("\n----- The %s is composing the final response\n", args.Invocation.AgentName)
-				if args.Invocation.AgentName != "writing-agent" {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", args.Invocation.AgentName, "writing-agent")
-				}
-				ctxInvocation, ok := agent.InvocationFromContext(ctx)
-				if !ok {
-					return nil, fmt.Errorf("failed to get invocation from context")
-				}
-				if ctxInvocation.AgentName != args.Invocation.AgentName {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", ctxInvocation.AgentName, args.Invocation.AgentName)
-				}
-				return nil, nil
-			},
-		)),
-	)
-
-	// Create Chain Agent with sub-agents.
-	chainAgent := chainagent.New(
-		"multi-agent-chain",
-		chainagent.WithSubAgents([]agent.Agent{planningAgent, researchAgent, writingAgent}),
-		chainagent.WithAgentCallbacks(agent.NewCallbacks().RegisterBeforeAgent(
-			func(ctx context.Context, args *agent.BeforeAgentArgs) (*agent.BeforeAgentResult, error) {
-				fmt.Printf("\n--- The %s is Runing\n", args.Invocation.AgentName)
-				if args.Invocation.AgentName != "multi-agent-chain" {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", args.Invocation.AgentName,
-						"multi-agent-chain")
-				}
-				ctxInvocation, ok := agent.InvocationFromContext(ctx)
-				if !ok {
-					return nil, fmt.Errorf("failed to get invocation from context")
-				}
-				if ctxInvocation.AgentName != args.Invocation.AgentName {
-					return nil, fmt.Errorf("agent name mismatch: %s != %s", ctxInvocation.AgentName, args.Invocation.AgentName)
-				}
-				return nil, nil
-			},
-		)),
-	)
-
-	// Create runner with the chain agent.
-	appName := "chain-agent-demo"
-	c.runner = runner.NewRunner(appName, chainAgent)
-
-	// Setup identifiers.
-	c.userID = "user"
-	c.sessionID = fmt.Sprintf("chain-session-%d", time.Now().Unix())
-
-	fmt.Printf("✅ Chain ready! Session: %s\n", c.sessionID)
-	fmt.Printf("📝 Agents: %s → %s → %s\n\n",
-		planningAgent.Info().Name,
-		researchAgent.Info().Name,
-		writingAgent.Info().Name)
-
 	return nil
 }
+
+// Create shared tools for research agent.
+
+// Create generation config.
+
+// Create Planning Agent.
+
+// Use flag to control prefix
+
+// Create Research Agent with tools.
+
+// Use flag to control prefix
+
+// Create Writing Agent.
+
+// Use flag to control prefix
+
+// Create Chain Agent with sub-agents.
+
+// Create runner with the chain agent.
+
+// Setup identifiers.
 
 // startChat runs the interactive conversation loop.
-func (c *chainChat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
+func (c *chainChat) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
+// Handle exit command.
 
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
+// Process the user message.
 
-		// Handle exit command.
-		if strings.ToLower(userInput) == "exit" {
-			fmt.Println("👋 Goodbye!")
-			return nil
-		}
-
-		// Process the user message.
-		if err := c.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println() // Add spacing between turns
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-
-	return nil
-}
+// Add spacing between turns
 
 // processMessage handles a single message exchange through the agent chain.
 func (c *chainChat) processMessage(ctx context.Context, userMessage string) error {
-	message := model.NewUserMessage(userMessage)
-
-	requestID := uuid.NewString()
-	// Run the chain agent through the runner.
-	eventChan, err := c.runner.Run(ctx, c.userID, c.sessionID, message, agent.WithRequestID(requestID))
-	if err != nil {
-		return fmt.Errorf("failed to run chain agent: %w", err)
-	}
-
-	// Process streaming response.
-	return c.processStreamingResponse(eventChan)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Run the chain agent through the runner.
+
+// Process streaming response.
 
 // processStreamingResponse handles the streaming response from the agent chain.
 func (c *chainChat) processStreamingResponse(eventChan <-chan *event.Event) error {
-	var (
-		currentAgent    string
-		agentStarted    bool
-		toolCallsActive bool
-	)
-
-	for event := range eventChan {
-		if err := c.handleChainEvent(event, &currentAgent, &agentStarted, &toolCallsActive); err != nil {
-			return err
-		}
-
-		// Check if this is the final runner completion event.
-		if event.Done && event.Response != nil && event.Response.Object == model.ObjectTypeRunnerCompletion {
-			fmt.Printf("\n")
-			break
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Check if this is the final runner completion event.
 
 // handleChainEvent processes a single event from the agent chain.
 func (c *chainChat) handleChainEvent(
@@ -316,26 +138,18 @@ func (c *chainChat) handleChainEvent(
 	agentStarted *bool,
 	toolCallsActive *bool,
 ) error {
+	_ = "STUB: not implemented"
 	// Handle errors.
-	if event.Error != nil {
-		fmt.Printf("\n❌ Error: %s\n", event.Error.Message)
-		return nil
-	}
-
-	// Handle agent transitions.
-	c.handleAgentTransition(event, currentAgent, agentStarted, toolCallsActive)
-
-	// Handle tool calls.
-	c.handleToolCalls(event, toolCallsActive)
-
-	// Handle tool responses.
-	c.handleToolResponses(event)
-
-	// Handle streaming content.
-	c.handleStreamingContent(event, currentAgent, toolCallsActive)
-
 	return nil
 }
+
+// Handle agent transitions.
+
+// Handle tool calls.
+
+// Handle tool responses.
+
+// Handle streaming content.
 
 // handleAgentTransition manages agent switching and display.
 func (c *chainChat) handleAgentTransition(
@@ -344,126 +158,52 @@ func (c *chainChat) handleAgentTransition(
 	agentStarted *bool,
 	toolCallsActive *bool,
 ) {
-	if event.Author != *currentAgent {
-		if *agentStarted {
-			fmt.Printf("\n")
-		}
-		*currentAgent = event.Author
-		*agentStarted = true
-		*toolCallsActive = false
-
-		// Display agent transition.
-		c.displayAgentTransition(*currentAgent)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Display agent transition.
 
 // displayAgentTransition shows the current agent with appropriate emoji.
-func (c *chainChat) displayAgentTransition(currentAgent string) {
-	switch currentAgent {
-	case "planning-agent":
-		fmt.Printf("📋 Planning Agent: ")
-	case "research-agent":
-		fmt.Printf("🔍 Research Agent: ")
-	case "writing-agent":
-		fmt.Printf("✍️  Writing Agent: ")
-	default:
-		// No display for unknown agents.
-	}
-}
+func (c *chainChat) displayAgentTransition(currentAgent string) { _ = "STUB: not implemented"; return }
+
+// No display for unknown agents.
 
 // handleToolCalls detects and displays tool calls.
 func (c *chainChat) handleToolCalls(event *event.Event, toolCallsActive *bool) {
-	if len(event.Response.Choices) > 0 && len(event.Response.Choices[0].Message.ToolCalls) > 0 {
-		*toolCallsActive = true
-		fmt.Printf("\n🔧 Using tools:\n")
-		for _, toolCall := range event.Response.Choices[0].Message.ToolCalls {
-			fmt.Printf("   • %s (ID: %s)\n", toolCall.Function.Name, toolCall.ID)
-			if len(toolCall.Function.Arguments) > 0 {
-				fmt.Printf("     Args: %s\n", string(toolCall.Function.Arguments))
-			}
-		}
-		fmt.Printf("🔄 Executing...\n")
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // handleToolResponses processes tool responses.
-func (c *chainChat) handleToolResponses(event *event.Event) {
-	if event.Response != nil && len(event.Response.Choices) > 0 {
-		for _, choice := range event.Response.Choices {
-			if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-				c.displayToolResponse(choice)
-			}
-		}
-	}
-}
+func (c *chainChat) handleToolResponses(event *event.Event) { _ = "STUB: not implemented"; return }
 
 // displayToolResponse shows tool response information.
-func (c *chainChat) displayToolResponse(choice model.Choice) {
-	fmt.Printf("✅ Tool result (ID: %s): %s\n",
-		choice.Message.ToolID,
-		strings.TrimSpace(choice.Message.Content))
-}
+func (c *chainChat) displayToolResponse(choice model.Choice) { _ = "STUB: not implemented"; return }
 
 // handleStreamingContent processes streaming content from agents.
 func (c *chainChat) handleStreamingContent(event *event.Event, currentAgent *string, toolCallsActive *bool) {
-	if len(event.Response.Choices) > 0 {
-		choice := event.Response.Choices[0]
-		if choice.Delta.Content != "" {
-			if *toolCallsActive {
-				*toolCallsActive = false
-				fmt.Printf("\n%s (continued): ", c.getAgentEmoji(*currentAgent))
-			}
-			fmt.Print(choice.Delta.Content)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // getAgentEmoji returns the appropriate emoji for the agent.
-func (c *chainChat) getAgentEmoji(agentName string) string {
-	switch agentName {
-	case "planning-agent":
-		return "📋 Planning Agent"
-	case "research-agent":
-		return "🔍 Research Agent"
-	case "writing-agent":
-		return "✍️  Writing Agent"
-	default:
-		return "🤖 " + agentName
-	}
-}
+func (c *chainChat) getAgentEmoji(agentName string) string { _ = "STUB: not implemented"; return "" }
 
 // Tool implementations.
 
 // webSearch simulates a web search tool.
 func (c *chainChat) webSearch(_ context.Context, args webSearchArgs) (webSearchResult, error) {
+	_ = "STUB: not implemented"
 	// Simulate web search with relevant information.
-	results := []string{
-		fmt.Sprintf("Recent information about '%s' from reliable sources", args.Query),
-		"Current trends and developments in the field",
-		"Expert opinions and analysis from industry leaders",
-	}
-
-	return webSearchResult{
-		Query:   args.Query,
-		Results: results,
-		Count:   len(results),
-	}, nil
+	return *new(webSearchResult), nil
 }
 
 // queryKnowledge simulates a knowledge base query.
 func (c *chainChat) queryKnowledge(ctx context.Context, args knowledgeArgs) (knowledgeResult, error) {
+	_ = "STUB: not implemented"
 	// Simulate knowledge base query.
-	facts := []string{
-		fmt.Sprintf("Factual information about '%s'", args.Topic),
-		"Historical context and background",
-		"Technical specifications and details",
-	}
-
-	return knowledgeResult{
-		Topic: args.Topic,
-		Facts: facts,
-		Count: len(facts),
-	}, nil
+	return *new(knowledgeResult), nil
 }
 
 // Tool argument and result types.
@@ -490,10 +230,6 @@ type knowledgeResult struct {
 
 // Helper functions.
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

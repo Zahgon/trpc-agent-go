@@ -12,24 +12,14 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/google/uuid"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/plugin"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
 const (
@@ -104,187 +94,24 @@ type chatApp struct {
 	sessionID string
 }
 
-func (a *chatApp) run(ctx context.Context) error {
-	if err := a.setup(); err != nil {
-		return err
-	}
-	defer a.runner.Close()
-	return a.loop(ctx)
-}
+func (a *chatApp) run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-func (a *chatApp) setup() error {
-	modelInstance := openai.New(
-		a.modelName,
-		openai.WithVariant(openai.Variant(a.variant)),
-	)
-	sessionService := sessioninmemory.NewSessionService()
+func (a *chatApp) setup() error { _ = "STUB: not implemented"; return nil }
 
-	genConfig := model.GenerationConfig{Stream: a.streaming}
-	tools := []tool.Tool{newCalculatorTool()}
+func (a *chatApp) loop(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	llmAgent := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A chat agent with plugins enabled."),
-		llmagent.WithInstruction(agentInstruction),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools(tools),
-	)
-
-	a.runner = runner.NewRunner(
-		appName,
-		llmAgent,
-		runner.WithSessionService(sessionService),
-		runner.WithPlugins(
-			plugin.NewLogging(),
-			plugin.NewGlobalInstruction(globalInstruction),
-			newDemoPlugin(a.debug),
-		),
-	)
-
-	a.userID = "demo-user"
-	a.sessionID = fmt.Sprintf("demo-session-%d", time.Now().Unix())
-
-	fmt.Printf("✅ Session: %s\n\n", a.sessionID)
-	return nil
-}
-
-func (a *chatApp) loop(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		switch text {
-		case cmdExit:
-			fmt.Println("👋 Goodbye!")
-			return nil
-		case cmdHelp:
-			a.printHelp()
-			continue
-		}
-		if err := a.runOnce(ctx, text); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-		fmt.Println()
-	}
-	return scanner.Err()
-}
-
-func (a *chatApp) printHelp() {
-	fmt.Println("Commands:")
-	fmt.Printf("  %s: exit\n", cmdExit)
-	fmt.Printf("  %s: show help\n", cmdHelp)
-	fmt.Println()
-	fmt.Println("Plugin hints:")
-	fmt.Printf("  - Send %q to short-circuit the model.\n", denyKeyword)
-	fmt.Printf(
-		"  - Ask for a calculation to trigger %q.\n",
-		toolNameCalculator,
-	)
-	fmt.Println()
-}
+func (a *chatApp) printHelp() { _ = "STUB: not implemented"; return }
 
 func (a *chatApp) runOnce(ctx context.Context, userText string) error {
-	reqID := uuid.NewString()
-	msg := model.NewUserMessage(userText)
-	evCh, err := a.runner.Run(
-		ctx,
-		a.userID,
-		a.sessionID,
-		msg,
-		agent.WithRequestID(reqID),
-	)
-	if err != nil {
-		return err
-	}
-	return a.printEvents(evCh)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *chatApp) printEvents(evCh <-chan *event.Event) error {
-	fmt.Print("🤖 Assistant: ")
-
-	var lastFull string
-	for evt := range evCh {
-		if evt == nil {
-			continue
-		}
-
-		if evt.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", evt.Error.Message)
-			continue
-		}
-
-		if evt.IsToolCallResponse() {
-			a.printToolCalls(evt)
-			continue
-		}
-		if evt.IsToolResultResponse() {
-			a.printToolResults(evt)
-			continue
-		}
-
-		if evt.IsRunnerCompletion() {
-			break
-		}
-
-		if evt.Response == nil || len(evt.Response.Choices) == 0 {
-			continue
-		}
-
-		choice := evt.Response.Choices[0]
-		if choice.Delta.Content != "" {
-			fmt.Print(choice.Delta.Content)
-			continue
-		}
-		msg := choice.Message
-		if msg.Role != model.RoleAssistant || msg.Content == "" {
-			continue
-		}
-		if msg.Content == lastFull {
-			continue
-		}
-		fmt.Println(msg.Content)
-		lastFull = msg.Content
-
-		if a.debug {
-			fmt.Printf("[debug] tag=%s author=%s\n", evt.Tag, evt.Author)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (a *chatApp) printToolCalls(evt *event.Event) {
-	if evt == nil || evt.Response == nil {
-		return
-	}
-	fmt.Printf("\n🔧 Tool calls:\n")
-	for _, choice := range evt.Response.Choices {
-		for _, tc := range choice.Message.ToolCalls {
-			fmt.Printf(
-				"  - %s(%s)\n",
-				tc.Function.Name,
-				string(tc.Function.Arguments),
-			)
-		}
-	}
-}
+func (a *chatApp) printToolCalls(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-func (a *chatApp) printToolResults(evt *event.Event) {
-	if evt == nil || evt.Response == nil {
-		return
-	}
-	fmt.Printf("\n✅ Tool results:\n")
-	for _, choice := range evt.Response.Choices {
-		msg := choice.Message
-		if msg.Role != model.RoleTool || msg.Content == "" {
-			continue
-		}
-		fmt.Printf("  - %s\n", msg.Content)
-	}
-}
+func (a *chatApp) printToolResults(evt *event.Event) { _ = "STUB: not implemented"; return }

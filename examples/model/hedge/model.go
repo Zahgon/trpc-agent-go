@@ -11,22 +11,9 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/hedge"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 )
 
 func newHedgeModel(config appConfig) (model.Model, error) {
-	primary := openai.New(
-		config.primaryModelName,
-		openai.WithBaseURL(config.primaryBaseURL),
-	)
-	backup := openai.New(
-		config.backupModelName,
-		openai.WithBaseURL(config.backupBaseURL),
-	)
-	return hedge.New(
-		hedge.WithName("hedge-chat-model"),
-		hedge.WithCandidates(primary, backup),
-		hedge.WithDelay(config.hedgeDelay),
-	)
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }

@@ -10,8 +10,6 @@
 package cron
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/outbound"
@@ -138,164 +136,38 @@ type Job struct {
 func runtimeProfileRefFromProfile(
 	profile runtimeprofile.Profile,
 ) RuntimeProfileRef {
-	return RuntimeProfileRef{
-		ID:      strings.TrimSpace(profile.ID),
-		Version: strings.TrimSpace(profile.Version),
-		AppName: strings.TrimSpace(profile.AppName),
-	}
+	_ = "STUB: not implemented"
+	return *new(RuntimeProfileRef)
 }
 
 func (r *RuntimeProfileRef) profile() runtimeprofile.Profile {
-	if r == nil {
-		return runtimeprofile.Profile{}
-	}
-	return runtimeprofile.Profile{
-		ID:      strings.TrimSpace(r.ID),
-		Version: strings.TrimSpace(r.Version),
-		AppName: strings.TrimSpace(r.AppName),
-	}
+	_ = "STUB: not implemented"
+	return *new(runtimeprofile.Profile)
 }
 
-func (r *RuntimeProfileRef) hasProfile() bool {
-	return runtimeprofile.HasProfile(r.profile())
-}
+func (r *RuntimeProfileRef) hasProfile() bool { _ = "STUB: not implemented"; return false }
 
-func (j *Job) clone() *Job {
-	if j == nil {
-		return nil
-	}
-	out := *j
-	if j.LastRunAt != nil {
-		last := *j.LastRunAt
-		out.LastRunAt = &last
-	}
-	if j.NextRunAt != nil {
-		next := *j.NextRunAt
-		out.NextRunAt = &next
-	}
-	if j.Policy.EndsAt != nil {
-		endsAt := *j.Policy.EndsAt
-		out.Policy.EndsAt = &endsAt
-	}
-	if j.Profile != nil {
-		profile := *j.Profile
-		out.Profile = &profile
-	}
-	return &out
-}
+func (j *Job) clone() *Job { _ = "STUB: not implemented"; return nil }
 
-func sanitizeStoredOutput(text string) string {
-	runes := []rune(strings.TrimSpace(text))
-	if len(runes) <= maxStoredOutputRunes {
-		return string(runes)
-	}
-	return string(runes[:maxStoredOutputRunes])
-}
+func sanitizeStoredOutput(text string) string { _ = "STUB: not implemented"; return "" }
 
 // IsRunSessionID reports whether a session id belongs to cron execution.
-func IsRunSessionID(sessionID string) bool {
-	return strings.HasPrefix(
-		strings.TrimSpace(sessionID),
-		cronSessionPrefix,
-	)
-}
+func IsRunSessionID(sessionID string) bool { _ = "STUB: not implemented"; return false }
 
-func normalizeScheduleKind(kind string) string {
-	switch value := strings.ToLower(strings.TrimSpace(kind)); value {
-	case ScheduleKindAfter:
-		return ScheduleKindAt
-	default:
-		return value
-	}
-}
+func normalizeScheduleKind(kind string) string { _ = "STUB: not implemented"; return "" }
 
 // ScheduleSummary returns a stable human-readable schedule summary.
-func ScheduleSummary(schedule Schedule) string {
-	switch normalizeScheduleKind(schedule.Kind) {
-	case ScheduleKindAt:
-		return "at " + strings.TrimSpace(schedule.At)
-	case ScheduleKindEvery:
-		if every := strings.TrimSpace(schedule.Every); every != "" {
-			return "every " + every
-		}
-		if schedule.EveryMS > 0 {
-			return fmt.Sprintf("every %dms", schedule.EveryMS)
-		}
-	case ScheduleKindCron:
-		expr := strings.TrimSpace(schedule.CronExpr)
-		if expr == "" {
-			return ScheduleKindCron
-		}
-		tz := strings.TrimSpace(schedule.Timezone)
-		if tz == "" {
-			return "cron " + expr
-		}
-		return fmt.Sprintf("cron %s (%s)", expr, tz)
-	}
-	return strings.TrimSpace(schedule.Kind)
-}
+func ScheduleSummary(schedule Schedule) string { _ = "STUB: not implemented"; return "" }
 
-func freshRunSessionID(jobID string, now time.Time) string {
-	return fmt.Sprintf(
-		"%s%s:%d",
-		cronSessionPrefix,
-		jobID,
-		now.UnixNano(),
-	)
-}
+func freshRunSessionID(jobID string, now time.Time) string { _ = "STUB: not implemented"; return "" }
 
-func freshRequestID(jobID string, now time.Time) string {
-	return fmt.Sprintf("cron:%s:%d", jobID, now.UnixNano())
-}
+func freshRequestID(jobID string, now time.Time) string { _ = "STUB: not implemented"; return "" }
 
-func normalizeOverlapPolicy(raw string) (string, error) {
-	value := strings.ToLower(strings.TrimSpace(raw))
-	if value == "" {
-		return OverlapPolicySkip, nil
-	}
-	switch value {
-	case OverlapPolicySkip, OverlapPolicyReplace:
-		return value, nil
-	default:
-		return "", fmt.Errorf(
-			"cron: unsupported overlap policy: %s",
-			raw,
-		)
-	}
-}
+func normalizeOverlapPolicy(raw string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
-func cloneTimePtr(src *time.Time) *time.Time {
-	if src == nil {
-		return nil
-	}
-	next := *src
-	return &next
-}
+func cloneTimePtr(src *time.Time) *time.Time { _ = "STUB: not implemented"; return nil }
 
 func scheduledRunContext(job *Job) cronRunTemplateData {
-	runIndex := 0
-	if job != nil {
-		runIndex = job.Stats.RunCount
-	}
-
-	maxRuns := 0
-	hasMaxRuns := false
-	remainingRuns := 0
-	isFinalRun := false
-	if job != nil && job.Policy.MaxRuns > 0 {
-		hasMaxRuns = true
-		maxRuns = job.Policy.MaxRuns
-		if maxRuns > runIndex {
-			remainingRuns = maxRuns - runIndex
-		}
-		isFinalRun = runIndex >= maxRuns
-	}
-
-	return cronRunTemplateData{
-		RunIndex:      runIndex,
-		HasMaxRuns:    hasMaxRuns,
-		MaxRuns:       maxRuns,
-		RemainingRuns: remainingRuns,
-		IsFinalRun:    isFinalRun,
-	}
+	_ = "STUB: not implemented"
+	return *new(cronRunTemplateData)
 }

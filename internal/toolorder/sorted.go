@@ -11,8 +11,6 @@
 package toolorder
 
 import (
-	"sort"
-
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -20,19 +18,4 @@ import (
 //
 // Model adapters and telemetry both use this helper so the exported tool
 // definitions match the order sent to model providers.
-func SortedTools(tools map[string]tool.Tool) []tool.Tool {
-	names := make([]string, 0, len(tools))
-	for name, t := range tools {
-		if t == nil || t.Declaration() == nil {
-			continue
-		}
-		names = append(names, name)
-	}
-	sort.Strings(names)
-
-	result := make([]tool.Tool, 0, len(names))
-	for _, name := range names {
-		result = append(result, tools[name])
-	}
-	return result
-}
+func SortedTools(tools map[string]tool.Tool) []tool.Tool { _ = "STUB: not implemented"; return nil }

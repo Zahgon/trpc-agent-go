@@ -10,9 +10,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
-
 	"trpc.group/trpc-go/trpc-agent-go/plugin/identity"
 )
 
@@ -25,25 +22,6 @@ import (
 //
 // The provider lives behind the identity.Provider interface, so swapping
 // in a real backend is a one-line change at the Runner construction site.
-func newDemoProvider() identity.Provider {
-	return identity.ProviderFunc(func(
-		_ context.Context,
-		resolvedUserID string,
-		resolvedSessionID string,
-	) (*identity.Identity, error) {
-		_ = resolvedSessionID // a real provider would typically use it.
-		token := fmt.Sprintf("demo-token-for-%s", resolvedUserID)
-		return &identity.Identity{
-			UserID: resolvedUserID,
-			Token:  token,
-			Headers: map[string]string{
-				"Authorization": "Bearer " + token,
-				"X-User-Id":     resolvedUserID,
-			},
-			EnvVars: map[string]string{
-				"USER_ACCESS_TOKEN": token,
-				"USER_ID":           resolvedUserID,
-			},
-		}, nil
-	})
-}
+func newDemoProvider() identity.Provider { _ = "STUB: not implemented"; return *new(identity.Provider) }
+
+// a real provider would typically use it.

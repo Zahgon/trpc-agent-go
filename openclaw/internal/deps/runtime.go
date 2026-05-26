@@ -10,14 +10,7 @@
 package deps
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"strings"
 )
 
 const (
@@ -96,14 +89,16 @@ type Report struct {
 }
 
 func Inspect(stateDir string, sources []Source) (Report, error) {
-	return inspect(stateDir, sources, true)
+	_ = "STUB: not implemented"
+	return *new(Report), nil
 }
 
 func InspectStartup(
 	stateDir string,
 	sources []Source,
 ) (Report, error) {
-	return inspect(stateDir, sources, false)
+	_ = "STUB: not implemented"
+	return *new(Report), nil
 }
 
 func inspect(
@@ -111,244 +106,48 @@ func inspect(
 	sources []Source,
 	includePython bool,
 ) (Report, error) {
-	sources = MergeSources(sources...)
-
-	toolchain := DetectToolchain(stateDir)
-	platform := Platform{
-		GOOS:           runtime.GOOS,
-		GOARCH:         runtime.GOARCH,
-		PackageManager: DetectPackageManager(),
-	}
-	report := Report{
-		Platform:  platform,
-		Toolchain: toolchain,
-		Sources:   make([]SourceReport, 0, len(sources)),
-	}
-
-	for _, source := range sources {
-		sourceReport, missing, err := inspectSource(
-			toolchain,
-			source,
-			includePython,
-		)
-		if err != nil {
-			return Report{}, err
-		}
-		report.Sources = append(report.Sources, sourceReport)
-		report.Missing = mergeMissing(report.Missing, missing)
-	}
-	return report, nil
+	_ = "STUB: not implemented"
+	return *new(Report), nil
 }
 
 func InspectProfiles(
 	stateDir string,
 	profiles []string,
 ) (Report, error) {
-	sources, err := SourcesForProfiles(profiles)
-	if err != nil {
-		return Report{}, err
-	}
-	return Inspect(stateDir, sources)
+	_ = "STUB: not implemented"
+	return *new(Report), nil
 }
 
-func DetectToolchain(stateDir string) Toolchain {
-	stateDir = strings.TrimSpace(stateDir)
-	root := ManagedPythonRoot(stateDir)
-	binDir := ManagedBinDir(stateDir)
-	active := dirExists(binDir)
+func DetectToolchain(stateDir string) Toolchain { _ = "STUB: not implemented"; return *new(Toolchain) }
 
-	python := FindPythonRuntime(stateDir)
-	return Toolchain{
-		StateDir: stateDir,
-		Root:     root,
-		BinDir:   binDir,
-		Active:   active,
-		Python:   python,
-	}
-}
+func ManagedToolchainRoot(stateDir string) string { _ = "STUB: not implemented"; return "" }
 
-func ManagedToolchainRoot(stateDir string) string {
-	if strings.TrimSpace(stateDir) == "" {
-		return ""
-	}
-	return filepath.Join(
-		strings.TrimSpace(stateDir),
-		defaultToolchainDir,
-	)
-}
-
-func ManagedPythonRoot(stateDir string) string {
-	root := ManagedToolchainRoot(stateDir)
-	if root == "" {
-		return ""
-	}
-	return filepath.Join(root, defaultPythonEnvDir)
-}
+func ManagedPythonRoot(stateDir string) string { _ = "STUB: not implemented"; return "" }
 
 // ManagedToolPrefix returns the shared install prefix used for managed
 // tool binaries. Python, npm, and other managed CLIs intentionally
 // share this prefix so one PATH entry can expose all managed tools.
-func ManagedToolPrefix(stateDir string) string {
-	return ManagedPythonRoot(stateDir)
-}
+func ManagedToolPrefix(stateDir string) string { _ = "STUB: not implemented"; return "" }
 
-func ManagedBinDir(stateDir string) string {
-	root := ManagedToolPrefix(stateDir)
-	if root == "" {
-		return ""
-	}
-	if runtime.GOOS == "windows" {
-		return filepath.Join(root, "Scripts")
-	}
-	return filepath.Join(root, "bin")
-}
+func ManagedBinDir(stateDir string) string { _ = "STUB: not implemented"; return "" }
 
-func ManagedPythonCandidates(stateDir string) []string {
-	binDir := ManagedBinDir(stateDir)
-	if binDir == "" {
-		return nil
-	}
-	names := []string{"python3", "python"}
-	if runtime.GOOS == "windows" {
-		names = []string{"python.exe"}
-	}
-	out := make([]string, 0, len(names))
-	for _, name := range names {
-		out = append(out, filepath.Join(binDir, name))
-	}
-	return out
-}
+func ManagedPythonCandidates(stateDir string) []string { _ = "STUB: not implemented"; return nil }
 
-func ToolEnv(stateDir string) map[string]string {
-	binDir := ManagedBinDir(stateDir)
-	if !dirExists(binDir) {
-		return nil
-	}
-
-	pathValue := prependPath(binDir, os.Getenv(envPath))
-	out := map[string]string{
-		envPath:              pathValue,
-		envVirtualEnv:        ManagedPythonRoot(stateDir),
-		envOpenClawToolchain: ManagedToolchainRoot(stateDir),
-		envOpenClawPython:    filepath.Join(binDir, "python3"),
-		envPipDisableVersion: pipDisableVersionValue,
-	}
-	if runtime.GOOS == "windows" {
-		out[envOpenClawPython] = filepath.Join(binDir, "python.exe")
-	}
-	return out
-}
+func ToolEnv(stateDir string) map[string]string { _ = "STUB: not implemented"; return nil }
 
 func FindPythonRuntime(stateDir string) PythonRuntime {
-	managedCandidates := ManagedPythonCandidates(stateDir)
-	for _, candidate := range managedCandidates {
-		if !fileExists(candidate) {
-			continue
-		}
-		version := pythonVersion(candidate)
-		return PythonRuntime{
-			Found:     true,
-			Path:      candidate,
-			Version:   version,
-			Managed:   true,
-			EnvRoot:   ManagedPythonRoot(stateDir),
-			Bootstrap: systemPythonCandidate(),
-		}
-	}
-
-	system := systemPythonCandidate()
-	if system == "" {
-		return PythonRuntime{
-			Bootstrap: "",
-			EnvRoot:   ManagedPythonRoot(stateDir),
-		}
-	}
-	return PythonRuntime{
-		Found:     true,
-		Path:      system,
-		Version:   pythonVersion(system),
-		Managed:   false,
-		EnvRoot:   ManagedPythonRoot(stateDir),
-		Bootstrap: system,
-	}
+	_ = "STUB: not implemented"
+	return *new(PythonRuntime)
 }
 
-func DetectPackageManager() string {
-	for _, manager := range []string{
-		InstallKindBrew,
-		InstallKindAPT,
-		InstallKindDNF,
-		InstallKindYUM,
-	} {
-		if _, err := exec.LookPath(manager); err == nil {
-			return manager
-		}
-	}
-	return ""
-}
+func DetectPackageManager() string { _ = "STUB: not implemented"; return "" }
 
 func CheckPythonPackages(
 	python PythonRuntime,
 	pkgs []PythonPackage,
 ) ([]PythonStatus, error) {
-	pkgs = normalizePythonPackages(pkgs)
-	if len(pkgs) == 0 {
-		return nil, nil
-	}
-
-	out := make([]PythonStatus, 0, len(pkgs))
-	for _, pkg := range pkgs {
-		out = append(out, PythonStatus{
-			Module:  pkg.Module,
-			Package: pkg.Package,
-			Found:   false,
-		})
-	}
-	if !python.Found {
-		return out, nil
-	}
-
-	modules := make([]string, 0, len(pkgs))
-	for _, pkg := range pkgs {
-		modules = append(modules, pkg.Module)
-	}
-	script := strings.Join([]string{
-		"import importlib.util",
-		"import json",
-		"import sys",
-		"mods = json.loads(sys.argv[1])",
-		"print(json.dumps({m: importlib.util.find_spec(m) is not None " +
-			"for m in mods}))",
-	}, "; ")
-	rawMods, err := json.Marshal(modules)
-	if err != nil {
-		return nil, err
-	}
-	cmd, err := pythonExecCommand(
-		python.Path,
-		"-c",
-		script,
-		string(rawMods),
-	)
-	if err != nil {
-		return out, fmt.Errorf(
-			"build python package check command: %w",
-			err,
-		)
-	}
-	outBytes, err := cmd.CombinedOutput()
-	if err != nil {
-		return out, nil
-	}
-
-	found := map[string]bool{}
-	if err := json.Unmarshal(outBytes, &found); err != nil {
-		return out, nil
-	}
-	for i := range out {
-		out[i].Found = found[out[i].Module]
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func inspectSource(
@@ -356,219 +155,39 @@ func inspectSource(
 	source Source,
 	includePython bool,
 ) (SourceReport, Missing, error) {
-	source = normalizeSource(source)
-	report := SourceReport{
-		Name:        source.Name,
-		Description: source.Description,
-		Install:     append([]InstallAction(nil), source.Install...),
-	}
-	var missing Missing
-
-	for _, name := range source.Requires.Bins {
-		status := checkBin(toolchain, name)
-		report.Bins = append(report.Bins, status)
-		if !status.Found {
-			missing.Bins = append(missing.Bins, status.Name)
-		}
-	}
-
-	if len(source.Requires.AnyBins) > 0 {
-		any := AnyBinStatus{
-			Names: append([]string(nil), source.Requires.AnyBins...),
-		}
-		for _, name := range source.Requires.AnyBins {
-			status := checkBin(toolchain, name)
-			if status.Found {
-				any.Found = append(any.Found, status)
-			}
-		}
-		any.Satisfied = len(any.Found) > 0
-		report.AnyBins = append(report.AnyBins, any)
-		if !any.Satisfied {
-			missing.AnyBins = append(
-				missing.AnyBins,
-				append([]string(nil), any.Names...),
-			)
-		}
-	}
-
-	if includePython {
-		python, err := CheckPythonPackages(
-			toolchain.Python,
-			source.Requires.Python,
-		)
-		if err != nil {
-			return SourceReport{}, Missing{}, err
-		}
-		report.Python = python
-		for i, status := range python {
-			if status.Found {
-				continue
-			}
-			missing.Python = append(
-				missing.Python,
-				source.Requires.Python[i],
-			)
-		}
-	}
-	return report, normalizeMissing(missing), nil
+	_ = "STUB: not implemented"
+	return *new(SourceReport), *new(Missing), nil
 }
 
 func checkBin(toolchain Toolchain, name string) BinStatus {
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return BinStatus{}
-	}
-
-	if path, ok := lookupManagedBin(toolchain, name); ok {
-		return BinStatus{
-			Name:  name,
-			Found: true,
-			Path:  path,
-		}
-	}
-
-	path, err := exec.LookPath(name)
-	if err != nil {
-		return BinStatus{Name: name}
-	}
-	return BinStatus{
-		Name:  name,
-		Found: true,
-		Path:  path,
-	}
+	_ = "STUB: not implemented"
+	return *new(BinStatus)
 }
 
 func lookupManagedBin(
 	toolchain Toolchain,
 	name string,
 ) (string, bool) {
-	binDir := strings.TrimSpace(toolchain.BinDir)
-	if binDir == "" {
-		return "", false
-	}
-
-	for _, candidate := range managedBinCandidates(name) {
-		path := filepath.Join(binDir, candidate)
-		if !fileExists(path) {
-			continue
-		}
-		spec, err := validateExecutablePath(path)
-		if err != nil {
-			continue
-		}
-		return spec.path, true
-	}
+	_ = "STUB: not implemented"
 	return "", false
 }
 
-func managedBinCandidates(name string) []string {
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return nil
-	}
-	if runtime.GOOS != "windows" {
-		return []string{name}
-	}
-	out := []string{name}
-	for _, ext := range []string{".exe", ".cmd", ".bat"} {
-		if strings.HasSuffix(strings.ToLower(name), ext) {
-			return out
-		}
-		out = append(out, name+ext)
-	}
-	return out
-}
+func managedBinCandidates(name string) []string { _ = "STUB: not implemented"; return nil }
 
-func mergeMissing(left, right Missing) Missing {
-	left.Bins = append(left.Bins, right.Bins...)
-	left.AnyBins = append(left.AnyBins, right.AnyBins...)
-	left.Python = append(left.Python, right.Python...)
-	return normalizeMissing(left)
-}
+func mergeMissing(left, right Missing) Missing { _ = "STUB: not implemented"; return *new(Missing) }
 
-func normalizeMissing(m Missing) Missing {
-	m.Bins = normalizeStrings(m.Bins)
-	m.Python = normalizePythonPackages(m.Python)
+func normalizeMissing(m Missing) Missing { _ = "STUB: not implemented"; return *new(Missing) }
 
-	seenAny := map[string]struct{}{}
-	outAny := make([][]string, 0, len(m.AnyBins))
-	for _, group := range m.AnyBins {
-		group = normalizeStrings(group)
-		if len(group) == 0 {
-			continue
-		}
-		key := strings.Join(group, "\x00")
-		if _, ok := seenAny[key]; ok {
-			continue
-		}
-		seenAny[key] = struct{}{}
-		outAny = append(outAny, group)
-	}
-	m.AnyBins = outAny
-	return m
-}
+func HasMissing(report Report) bool { _ = "STUB: not implemented"; return false }
 
-func HasMissing(report Report) bool {
-	return len(report.Missing.Bins) > 0 ||
-		len(report.Missing.AnyBins) > 0 ||
-		len(report.Missing.Python) > 0
-}
+func pythonVersion(path string) string { _ = "STUB: not implemented"; return "" }
 
-func pythonVersion(path string) string {
-	script := "import sys; print(sys.version.split()[0])"
-	cmd, err := pythonExecCommand(path, "-c", script)
-	if err != nil {
-		return ""
-	}
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
-}
+func systemPythonCandidate() string { _ = "STUB: not implemented"; return "" }
 
-func systemPythonCandidate() string {
-	for _, name := range []string{"python3", "python"} {
-		path, err := exec.LookPath(name)
-		if err == nil {
-			return path
-		}
-	}
-	if runtime.GOOS == "windows" {
-		path, err := exec.LookPath("python.exe")
-		if err == nil {
-			return path
-		}
-	}
-	return ""
-}
+func prependPath(prefix string, current string) string { _ = "STUB: not implemented"; return "" }
 
-func prependPath(prefix string, current string) string {
-	prefix = strings.TrimSpace(prefix)
-	if prefix == "" {
-		return current
-	}
-	if current == "" {
-		return prefix
-	}
-	return prefix + string(os.PathListSeparator) + current
-}
+func dirExists(path string) bool { _ = "STUB: not implemented"; return false }
 
-func dirExists(path string) bool {
-	if strings.TrimSpace(path) == "" {
-		return false
-	}
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
-}
-
-func fileExists(path string) bool {
-	if strings.TrimSpace(path) == "" {
-		return false
-	}
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
+func fileExists(path string) bool { _ = "STUB: not implemented"; return false }
 
 var errPythonNotFound = errors.New("python interpreter not found")

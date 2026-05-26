@@ -92,84 +92,60 @@ type Callbacks struct {
 type CallbacksOption func(*Callbacks)
 
 // NewCallbacks creates a new Callbacks instance for evaluation callbacks.
-func NewCallbacks(opts ...CallbacksOption) *Callbacks {
-	c := &Callbacks{}
-	for _, opt := range opts {
-		opt(c)
-	}
-	return c
-}
+func NewCallbacks(opts ...CallbacksOption) *Callbacks { _ = "STUB: not implemented"; return nil }
 
 // Register adds a callback component with the provided name.
 func (c *Callbacks) Register(name string, callback *Callback) *Callbacks {
-	if callback == nil {
-		return c
-	}
-	if callback.BeforeInferenceSet != nil {
-		c.BeforeInferenceSet = append(c.BeforeInferenceSet, NamedCallback[BeforeInferenceSetCallback]{Name: name, Callback: callback.BeforeInferenceSet})
-	}
-	if callback.AfterInferenceSet != nil {
-		c.AfterInferenceSet = append(c.AfterInferenceSet, NamedCallback[AfterInferenceSetCallback]{Name: name, Callback: callback.AfterInferenceSet})
-	}
-	if callback.BeforeInferenceCase != nil {
-		c.BeforeInferenceCase = append(c.BeforeInferenceCase, NamedCallback[BeforeInferenceCaseCallback]{Name: name, Callback: callback.BeforeInferenceCase})
-	}
-	if callback.AfterInferenceCase != nil {
-		c.AfterInferenceCase = append(c.AfterInferenceCase, NamedCallback[AfterInferenceCaseCallback]{Name: name, Callback: callback.AfterInferenceCase})
-	}
-	if callback.BeforeEvaluateSet != nil {
-		c.BeforeEvaluateSet = append(c.BeforeEvaluateSet, NamedCallback[BeforeEvaluateSetCallback]{Name: name, Callback: callback.BeforeEvaluateSet})
-	}
-	if callback.AfterEvaluateSet != nil {
-		c.AfterEvaluateSet = append(c.AfterEvaluateSet, NamedCallback[AfterEvaluateSetCallback]{Name: name, Callback: callback.AfterEvaluateSet})
-	}
-	if callback.BeforeEvaluateCase != nil {
-		c.BeforeEvaluateCase = append(c.BeforeEvaluateCase, NamedCallback[BeforeEvaluateCaseCallback]{Name: name, Callback: callback.BeforeEvaluateCase})
-	}
-	if callback.AfterEvaluateCase != nil {
-		c.AfterEvaluateCase = append(c.AfterEvaluateCase, NamedCallback[AfterEvaluateCaseCallback]{Name: name, Callback: callback.AfterEvaluateCase})
-	}
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterBeforeInferenceSet registers a before inference set callback with the provided name.
 func (c *Callbacks) RegisterBeforeInferenceSet(name string, fn BeforeInferenceSetCallback) *Callbacks {
-	return c.Register(name, &Callback{BeforeInferenceSet: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterInferenceSet registers an after inference set callback with the provided name.
 func (c *Callbacks) RegisterAfterInferenceSet(name string, fn AfterInferenceSetCallback) *Callbacks {
-	return c.Register(name, &Callback{AfterInferenceSet: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterBeforeInferenceCase registers a before inference case callback with the provided name.
 func (c *Callbacks) RegisterBeforeInferenceCase(name string, fn BeforeInferenceCaseCallback) *Callbacks {
-	return c.Register(name, &Callback{BeforeInferenceCase: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterInferenceCase registers an after inference case callback with the provided name.
 func (c *Callbacks) RegisterAfterInferenceCase(name string, fn AfterInferenceCaseCallback) *Callbacks {
-	return c.Register(name, &Callback{AfterInferenceCase: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterBeforeEvaluateSet registers a before evaluate set callback with the provided name.
 func (c *Callbacks) RegisterBeforeEvaluateSet(name string, fn BeforeEvaluateSetCallback) *Callbacks {
-	return c.Register(name, &Callback{BeforeEvaluateSet: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterEvaluateSet registers an after evaluate set callback with the provided name.
 func (c *Callbacks) RegisterAfterEvaluateSet(name string, fn AfterEvaluateSetCallback) *Callbacks {
-	return c.Register(name, &Callback{AfterEvaluateSet: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterBeforeEvaluateCase registers a before evaluate case callback with the provided name.
 func (c *Callbacks) RegisterBeforeEvaluateCase(name string, fn BeforeEvaluateCaseCallback) *Callbacks {
-	return c.Register(name, &Callback{BeforeEvaluateCase: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterAfterEvaluateCase registers an after evaluate case callback with the provided name.
 func (c *Callbacks) RegisterAfterEvaluateCase(name string, fn AfterEvaluateCaseCallback) *Callbacks {
-	return c.Register(name, &Callback{AfterEvaluateCase: fn})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // BeforeInferenceSetArgs contains parameters for before inference set callbacks.

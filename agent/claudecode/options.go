@@ -11,8 +11,6 @@ package claudecode
 
 import (
 	"context"
-	"errors"
-	"fmt"
 )
 
 // OutputFormat is the Claude Code CLI transcript output format.
@@ -64,98 +62,33 @@ type RawOutputHookArgs struct {
 type RawOutputHook func(ctx context.Context, args *RawOutputHookArgs) error
 
 // WithName sets the agent name.
-func WithName(name string) Option {
-	return func(o *options) {
-		o.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBin sets the Claude Code CLI executable path.
-func WithBin(bin string) Option {
-	return func(o *options) {
-		o.bin = bin
-	}
-}
+func WithBin(bin string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraArgs appends additional CLI arguments before the session flags and prompt.
-func WithExtraArgs(args ...string) Option {
-	return func(o *options) {
-		o.args = append(o.args, args...)
-	}
-}
+func WithExtraArgs(args ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOutputFormat sets the Claude Code CLI output format used by this agent.
 // Only JSON-based formats are supported because the agent needs transcripts to emit tool events.
-func WithOutputFormat(format OutputFormat) Option {
-	return func(o *options) {
-		o.outputFormat = format
-	}
-}
+func WithOutputFormat(format OutputFormat) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnv appends additional environment variables for the CLI process.
-func WithEnv(env ...string) Option {
-	return func(o *options) {
-		o.env = append(o.env, env...)
-	}
-}
+func WithEnv(env ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithWorkDir sets the CLI working directory.
-func WithWorkDir(dir string) Option {
-	return func(o *options) {
-		o.workDir = dir
-	}
-}
+func WithWorkDir(dir string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRawOutputHook sets a callback to observe raw CLI stdout/stderr output.
 // If the hook returns an error, the invocation fails with a flow error event.
-func WithRawOutputHook(hook RawOutputHook) Option {
-	return func(o *options) {
-		o.rawOutputHook = hook
-	}
-}
+func WithRawOutputHook(hook RawOutputHook) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // withCommandRunner overrides how the agent executes external commands, only for test.
-func withCommandRunner(runner commandRunner) Option {
-	return func(o *options) {
-		o.commandRunner = runner
-	}
-}
+func withCommandRunner(runner commandRunner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // newOptions applies options and validates the resulting configuration.
-func newOptions(opt ...Option) (*options, error) {
-	opts := &options{
-		name:        "claude-code-cli",
-		description: "Invokes a locally installed Claude Code CLI and emits tool events from its transcript.",
-		bin:         "claude",
-		args: []string{
-			"-p",
-			"--verbose",
-		},
-		outputFormat:  OutputFormatJSON,
-		commandRunner: execCommandRunner{},
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	if opts.bin == "" {
-		return nil, errors.New("claude bin is empty")
-	}
-	if opts.commandRunner == nil {
-		return nil, errors.New("command runner is nil")
-	}
-	if !isSupportedOutputFormat(opts.outputFormat) {
-		return nil, fmt.Errorf("unsupported output format: %s", opts.outputFormat)
-	}
-	opts.args = append(opts.args, "--output-format", string(opts.outputFormat))
-	return opts, nil
-}
+func newOptions(opt ...Option) (*options, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // isSupportedOutputFormat reports whether the agent can parse transcripts in the given output format.
-func isSupportedOutputFormat(format OutputFormat) bool {
-	switch format {
-	case OutputFormatJSON, OutputFormatStreamJSON:
-		return true
-	default:
-		return false
-	}
-}
+func isSupportedOutputFormat(format OutputFormat) bool { _ = "STUB: not implemented"; return false }

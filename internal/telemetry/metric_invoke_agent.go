@@ -19,7 +19,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/metric/histogram"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/semconv/metrics"
-	semconvtrace "trpc.group/trpc-go/trpc-agent-go/telemetry/semconv/trace"
 )
 
 var (
@@ -50,30 +49,8 @@ type invokeAgentAttributes struct {
 }
 
 func (a invokeAgentAttributes) toAttributes() []attribute.KeyValue {
-	attrs := []attribute.KeyValue{
-		attribute.String(semconvtrace.KeyGenAIOperationName, OperationInvokeAgent),
-		attribute.Bool(metrics.KeyTRPCAgentGoStream, a.Stream),
-		attribute.String(semconvtrace.KeyGenAISystem, a.System),
-	}
-	if a.AppName != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyTRPCAgentGoAppName, a.AppName))
-	}
-	if a.UserID != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyTRPCAgentGoUserID, a.UserID))
-	}
-	if a.AgentName != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIAgentName, a.AgentName))
-	}
-	if a.AgentID != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyGenAIAgentID, a.AgentID))
-	}
-	if a.ErrorType != "" {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyErrorType, a.ErrorType))
-	} else if a.Error != nil {
-		attrs = append(attrs, attribute.String(semconvtrace.KeyErrorType, ToErrorType(a.Error, semconvtrace.ValueDefaultErrorType)))
-	}
-
-	return attrs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // InvokeAgentTracker tracks metrics for a single agent invocation lifecycle.
@@ -95,88 +72,40 @@ func NewInvokeAgentTracker(
 	stream bool,
 	err *error,
 ) *InvokeAgentTracker {
-	attributes := invokeAgentAttributes{Stream: stream, Error: *err}
-	if invocation != nil {
-		attributes.AgentName, attributes.AgentID = resolveInvocationAgentIdentity(invocation)
-		if invocation.Model != nil {
-			attributes.System = invocation.Model.Info().Name
-		}
-		if invocation.Session != nil {
-			attributes.UserID = invocation.Session.UserID
-			attributes.AppName = invocation.Session.AppName
-		}
-	}
-
-	return &InvokeAgentTracker{
-		ctx:          ctx,
-		start:        time.Now(),
-		isFirstToken: true,
-		attributes:   attributes,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // TrackResponse updates telemetry state for each response chunk.
 func (t *InvokeAgentTracker) TrackResponse(response *model.Response) {
-	if response == nil {
-		return
-	}
-
-	if t.isFirstToken && response.IsValidContent() {
-		t.firstTokenTimeDuration = time.Since(t.start)
-		t.isFirstToken = false
-	}
-
-	// Track token usage
-	if !response.IsPartial && response.Usage != nil {
-		t.totalPromptTokens += response.Usage.PromptTokens
-		t.totalCompletionTokens += response.Usage.CompletionTokens
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Track token usage
 
 // SetResponseErrorType updates the response error type seen (for extracting error info).
 func (t *InvokeAgentTracker) SetResponseErrorType(errorType string) {
-	t.attributes.ErrorType = errorType
+	_ = "STUB: not implemented"
+	return
 }
 
 // RecordMetrics returns a defer function that records all telemetry metrics.
 // Should be called with defer immediately after creating the tracker.
-func (t *InvokeAgentTracker) RecordMetrics() func() {
-	return func() {
-		requestDuration := time.Since(t.start)
-		otelAttrs := t.attributes.toAttributes()
+func (t *InvokeAgentTracker) RecordMetrics() func() { _ = "STUB: not implemented"; return nil }
 
-		// Increment request counter
-		if InvokeAgentMetricGenAIRequestCnt != nil {
-			InvokeAgentMetricGenAIRequestCnt.Add(t.ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
+// Increment request counter
 
-		// Record request duration
-		if InvokeAgentMetricGenAIClientOperationDuration != nil {
-			InvokeAgentMetricGenAIClientOperationDuration.Record(t.ctx, requestDuration.Seconds(), metric.WithAttributes(otelAttrs...))
-		}
+// Record request duration
 
-		// Record time to first token only when a meaningful payload was observed.
-		if t.firstTokenTimeDuration > 0 && InvokeAgentMetricGenAIClientTimeToFirstToken != nil {
-			InvokeAgentMetricGenAIClientTimeToFirstToken.Record(t.ctx, t.firstTokenTimeDuration.Seconds(),
-				metric.WithAttributes(otelAttrs...))
-		}
+// Record time to first token only when a meaningful payload was observed.
 
-		// Record input token usage
-		if InvokeAgentMetricGenAIClientTokenUsage != nil {
-			InvokeAgentMetricGenAIClientTokenUsage.Record(t.ctx, int64(t.totalPromptTokens),
-				metric.WithAttributes(append(otelAttrs, attribute.String(semconvtrace.KeyGenAITokenType, metrics.KeyTRPCAgentGoInputTokenType))...))
-		}
+// Record input token usage
 
-		// Record output token usage
-		if InvokeAgentMetricGenAIClientTokenUsage != nil {
-			InvokeAgentMetricGenAIClientTokenUsage.Record(t.ctx, int64(t.totalCompletionTokens),
-				metric.WithAttributes(append(otelAttrs, attribute.String(semconvtrace.KeyGenAITokenType, metrics.KeyTRPCAgentGoOutputTokenType))...))
-		}
-
-	}
-}
+// Record output token usage
 
 // FirstTokenTimeDuration returns the time to first token duration.
 func (t *InvokeAgentTracker) FirstTokenTimeDuration() time.Duration {
-	return t.firstTokenTimeDuration
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }

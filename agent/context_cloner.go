@@ -33,25 +33,14 @@ func init() {
 // goroutines.
 //
 // Passing nil resets the cloner to the identity function.
-func SetGoroutineContextCloner(cloner GoroutineContextCloner) {
-	if cloner == nil {
-		cloner = identityContext
-	}
-	goroutineContextCloner.Store(cloner)
-}
+func SetGoroutineContextCloner(cloner GoroutineContextCloner) { _ = "STUB: not implemented"; return }
 
 // CloneContext returns a context safe to use inside a new goroutine.
 //
 // By default, it returns the input context unchanged.
 func CloneContext(ctx context.Context) context.Context {
-	if ctx == nil {
-		return nil
-	}
-	cloner, ok := goroutineContextCloner.Load().(GoroutineContextCloner)
-	if !ok || cloner == nil {
-		return ctx
-	}
-	return cloner(ctx)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // CloneContextForGoroutine returns a context safe to use inside a new
@@ -59,7 +48,11 @@ func CloneContext(ctx context.Context) context.Context {
 //
 // Deprecated: use CloneContext.
 func CloneContextForGoroutine(ctx context.Context) context.Context {
-	return CloneContext(ctx)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func identityContext(ctx context.Context) context.Context { return ctx }
+func identityContext(ctx context.Context) context.Context {
+	_ = "STUB: not implemented"
+	return *new(context.Context)
+}

@@ -10,12 +10,9 @@
 package graph
 
 import (
-	"encoding/json"
-	"fmt"
 	"reflect"
 	"sync"
 
-	"trpc.group/trpc-go/trpc-agent-go/internal/util"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -81,7 +78,8 @@ type State map[string]any
 //	    // use userInput
 //	}
 func GetStateValue[T any](s State, key string) (T, bool) {
-	return util.GetMapValue[string, T](s, key)
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
 
 // SetOneShotMessagesForNode sets one-shot messages for a specific target node.
@@ -90,15 +88,8 @@ func SetOneShotMessagesForNode(
 	nodeID string,
 	msgs []model.Message,
 ) State {
-	if nodeID == "" || len(msgs) == 0 {
-		return ClearOneShotMessagesForNode(nodeID)
-	}
-	update := map[string][]model.Message{
-		nodeID: append([]model.Message(nil), msgs...),
-	}
-	return State{
-		StateKeyOneShotMessagesByNode: update,
-	}
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 // SetOneShotMessagesByNode sets one-shot messages for multiple target nodes.
@@ -114,47 +105,18 @@ func SetOneShotMessagesForNode(
 func SetOneShotMessagesByNode(
 	byNode map[string][]model.Message,
 ) State {
-	if len(byNode) == 0 {
-		return nil
-	}
-	update := make(map[string][]model.Message, len(byNode))
-	for nodeID, msgs := range byNode {
-		if nodeID == "" {
-			continue
-		}
-		if len(msgs) == 0 {
-			update[nodeID] = nil
-			continue
-		}
-		update[nodeID] = append([]model.Message(nil), msgs...)
-	}
-	if len(update) == 0 {
-		return nil
-	}
-	return State{
-		StateKeyOneShotMessagesByNode: update,
-	}
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 // ClearOneShotMessagesByNode clears the entire one-shot-by-node map.
-func ClearOneShotMessagesByNode() State {
-	return State{
-		StateKeyOneShotMessagesByNode: nil,
-	}
-}
+func ClearOneShotMessagesByNode() State { _ = "STUB: not implemented"; return *new(State) }
 
 // ClearOneShotMessagesForNode clears one-shot messages for a specific node by
 // deleting its entry in StateKeyOneShotMessagesByNode.
 func ClearOneShotMessagesForNode(nodeID string) State {
-	if nodeID == "" {
-		return nil
-	}
-	update := map[string][]model.Message{
-		nodeID: nil,
-	}
-	return State{
-		StateKeyOneShotMessagesByNode: update,
-	}
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 // GetOneShotMessagesForNode retrieves one-shot messages for a specific node.
@@ -163,94 +125,22 @@ func GetOneShotMessagesForNode(
 	state State,
 	nodeID string,
 ) ([]model.Message, bool) {
-	if state == nil || nodeID == "" {
-		return nil, false
-	}
-	raw, ok := state[StateKeyOneShotMessagesByNode]
-	if !ok || raw == nil {
-		return nil, false
-	}
-
-	switch m := raw.(type) {
-	case map[string][]model.Message:
-		msgs := m[nodeID]
-		if len(msgs) == 0 {
-			return nil, false
-		}
-		return append([]model.Message(nil), msgs...), true
-	case map[string]any:
-		entry, ok := m[nodeID]
-		if !ok || entry == nil {
-			return nil, false
-		}
-		msgs, err := decodeMessages(entry)
-		if err != nil || len(msgs) == 0 {
-			return nil, false
-		}
-		return msgs, true
-	default:
-		anyMap, ok := decodeMapStringAny(raw)
-		if !ok {
-			return nil, false
-		}
-		entry, ok := anyMap[nodeID]
-		if !ok || entry == nil {
-			return nil, false
-		}
-		msgs, err := decodeMessages(entry)
-		if err != nil || len(msgs) == 0 {
-			return nil, false
-		}
-		return msgs, true
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // Clone creates a deep copy of the state.
-func (s State) Clone() State {
-	clone := make(State, len(s))
-	for k, v := range s {
-		clone[k] = v
-	}
-	return clone
-}
+func (s State) Clone() State { _ = "STUB: not implemented"; return *new(State) }
 
-func (s State) safeClone() State {
-	clone := make(State, len(s))
-	for k, v := range s {
-		if isUnsafeStateKey(k) {
-			continue
-		}
-		// Use jsonSafeCopy so that nested non-serializable
-		// types (chan, func, sync.Mutex, etc.) are stripped
-		// and the result is safe for json.Marshal.
-		clone[k] = jsonSafeCopy(v)
-	}
-	return clone
-}
+func (s State) safeClone() State { _ = "STUB: not implemented"; return *new(State) }
+
+// Use jsonSafeCopy so that nested non-serializable
+// types (chan, func, sync.Mutex, etc.) are stripped
+// and the result is safe for json.Marshal.
 
 func (s State) deepCopy(retainUnsafeKey bool, fields map[string]StateField) State {
-	isDisableDeepCopyKey := func(key string) bool {
-		if field, ok := fields[key]; ok {
-			return field.DisableDeepCopy
-		}
-		return false
-	}
-
-	tmp := make(State, len(s))
-	for k, v := range s {
-		unsafeKey := isUnsafeStateKey(k)
-		if unsafeKey && !retainUnsafeKey {
-			continue
-		}
-
-		if unsafeKey || isDisableDeepCopyKey(k) {
-			tmp[k] = v
-			continue
-		}
-		tmp[k] = deepCopyAny(v)
-	}
-
-	return tmp
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
 // StateReducer is a function that determines how state updates are merged.
@@ -274,209 +164,70 @@ type StateSchema struct {
 }
 
 // NewStateSchema creates a new state schema.
-func NewStateSchema() *StateSchema {
-	return &StateSchema{
-		Fields: make(map[string]StateField),
-	}
-}
+func NewStateSchema() *StateSchema { _ = "STUB: not implemented"; return nil }
 
 // AddField adds a field to the state schema.
 func (s *StateSchema) AddField(name string, field StateField) *StateSchema {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if field.Reducer == nil {
-		field.Reducer = DefaultReducer
-	}
-
-	s.Fields[name] = field
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ApplyUpdate applies a state update using the defined reducers.
 func (s *StateSchema) ApplyUpdate(currentState State, update State) State {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	result := currentState.Clone()
-	for key, updateValue := range update {
-		field, exists := s.Fields[key]
-		if !exists {
-			// Ignore internal/ephemeral keys in updates. They are owned by
-			// the executor and may contain concurrently-mutated maps.
-			if isInternalStateKey(key) {
-				continue
-			}
-			if key == StateKeyOneShotMessagesByNode {
-				result[key] = OneShotMessagesByNodeReducer(
-					result[key],
-					updateValue,
-				)
-				continue
-			}
-			// If no field definition, use default behavior (override) with
-			// deep copy to avoid sharing mutable references across goroutines.
-			result[key] = deepCopyAny(updateValue)
-			continue
-		}
-		currentValue, hasCurrentValue := result[key]
-		if !hasCurrentValue && field.Default != nil {
-			currentValue = field.Default()
-		}
-
-		if field.DisableDeepCopy {
-			result[key] = field.Reducer(currentValue, updateValue)
-			continue
-		}
-
-		// Apply reducer with deep-copied update to prevent reference sharing.
-		safeUpdate := deepCopyAny(updateValue)
-		merged := field.Reducer(currentValue, safeUpdate)
-		// Ensure merged complex values are not shared by taking a deep copy.
-		switch merged.(type) {
-		case map[string]any, []any, []string, []int, []float64:
-			result[key] = deepCopyAny(merged)
-		default:
-			result[key] = merged
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return *new(State)
 }
+
+// Ignore internal/ephemeral keys in updates. They are owned by
+// the executor and may contain concurrently-mutated maps.
+
+// If no field definition, use default behavior (override) with
+// deep copy to avoid sharing mutable references across goroutines.
+
+// Apply reducer with deep-copied update to prevent reference sharing.
+
+// Ensure merged complex values are not shared by taking a deep copy.
 
 // Validate validates a state against the schema.
-func (s *StateSchema) Validate(state State) error {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	for name, field := range s.Fields {
-		value, exists := state[name]
-
-		if field.Required && !exists {
-			return fmt.Errorf("required field %s is missing", name)
-		}
-
-		if exists && value != nil {
-			valueType := reflect.TypeOf(value)
-			if !valueType.AssignableTo(field.Type) {
-				return fmt.Errorf("field %s has wrong type: expected %v, got %v",
-					name, field.Type, valueType)
-			}
-		}
-	}
-	return nil
-}
+func (s *StateSchema) Validate(state State) error { _ = "STUB: not implemented"; return nil }
 
 // validateSchema validates the schema struct.
-func (s *StateSchema) validateSchema() error {
-	if s == nil {
-		return fmt.Errorf("graph must have a state schema")
-	}
+func (s *StateSchema) validateSchema() error { _ = "STUB: not implemented"; return nil }
 
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+// Validate that Type and Reducer are not nil.
 
-	for name, field := range s.Fields {
-		// Validate that Type and Reducer are not nil.
-		if field.Type == nil {
-			return fmt.Errorf("field %s has nil type", name)
-		}
-		if field.Reducer == nil {
-			return fmt.Errorf("field %s has nil reducer", name)
-		}
-
-		// Validate that Default is assignable to Type.
-		if field.Default != nil {
-			defaultValue := field.Default()
-			if defaultValue == nil {
-				kind := field.Type.Kind()
-				switch kind {
-				case reflect.Ptr, reflect.Interface, reflect.Slice, reflect.Map, reflect.Chan, reflect.Func:
-				default:
-					return fmt.Errorf("field %s has incompatible default value: nil is not assignable to type %v", name, field.Type)
-				}
-			} else {
-				defaultType := reflect.TypeOf(defaultValue)
-				if !defaultType.AssignableTo(field.Type) {
-					return fmt.Errorf("field %s has incompatible default value: expected %v, got %v",
-						name, field.Type, defaultType)
-				}
-			}
-		}
-	}
-	return nil
-}
+// Validate that Default is assignable to Type.
 
 // Common reducer functions.
 
 // DefaultReducer overwrites the existing value with the update.
 func DefaultReducer(existing, update any) any {
+	_ = "STUB: not implemented"
 	// For composite types, return a deep copy to avoid shared references.
-	switch update.(type) {
-	case map[string]any, []any, []string, []int, []float64:
-		return deepCopyAny(update)
-	}
-	return update
+	return *new(any)
 }
 
 // CoverReducer overwrites the existing value with the update.
 func CoverReducer(existing, update any) any {
-	return update
+	_ = "STUB: not implemented"
+
+	// AppendReducer appends update to existing slice.
+	return *new(any)
 }
 
-// AppendReducer appends update to existing slice.
-func AppendReducer(existing, update any) any {
-	if existing == nil {
-		existing = []any{}
-	}
+func AppendReducer(existing, update any) any { _ = "STUB: not implemented"; return *new(any) }
 
-	existingSlice, ok1 := existing.([]any)
-	updateSlice, ok2 := update.([]any)
-
-	if !ok1 || !ok2 {
-		// Fallback to default behavior if not slices
-		return update
-	}
-	return append(existingSlice, updateSlice...)
-}
+// Fallback to default behavior if not slices
 
 // StringSliceReducer appends string slices specifically.
-func StringSliceReducer(existing, update any) any {
-	if existing == nil {
-		existing = []string{}
-	}
+func StringSliceReducer(existing, update any) any { _ = "STUB: not implemented"; return *new(any) }
 
-	existingSlice, ok1 := existing.([]string)
-	updateSlice, ok2 := update.([]string)
-
-	if !ok1 || !ok2 {
-		// Fallback to default behavior if not string slices
-		return update
-	}
-	return append(existingSlice, updateSlice...)
-}
+// Fallback to default behavior if not string slices
 
 // MergeReducer merges update map into existing map.
-func MergeReducer(existing, update any) any {
-	if existing == nil {
-		existing = make(map[string]any)
-	}
+func MergeReducer(existing, update any) any { _ = "STUB: not implemented"; return *new(any) }
 
-	existingMap, ok1 := existing.(map[string]any)
-	updateMap, ok2 := update.(map[string]any)
-
-	if !ok1 || !ok2 {
-		// Fallback to default behavior; deep copy if composite
-		return deepCopyAny(update)
-	}
-
-	result := make(map[string]any, len(existingMap)+len(updateMap))
-	for k, v := range existingMap {
-		result[k] = deepCopyAny(v)
-	}
-	for k, v := range updateMap {
-		result[k] = deepCopyAny(v)
-	}
-	return result
-}
+// Fallback to default behavior; deep copy if composite
 
 // OneShotMessagesByNodeReducer merges targeted one-shot inputs scoped by node
 // ID. It treats the update as a partial map[nodeID][]model.Message and applies
@@ -484,162 +235,45 @@ func MergeReducer(existing, update any) any {
 //   - nil / empty message slice: delete the node entry
 //   - non-empty message slice: replace the node entry
 func OneShotMessagesByNodeReducer(existing, update any) any {
-	base := make(map[string][]model.Message)
-	for nodeID, msgs := range decodeOneShotMessagesByNodeExisting(existing) {
-		base[nodeID] = msgs
-	}
-
-	if update == nil {
-		return map[string][]model.Message(nil)
-	}
-
-	switch u := update.(type) {
-	case map[string][]model.Message:
-		applyOneShotMessagesByNodeUpdate(base, u)
-		return normalizeOneShotMessagesByNode(base)
-	case map[string]any:
-		applyOneShotMessagesByNodeAnyUpdate(base, u)
-		return normalizeOneShotMessagesByNode(base)
-	default:
-		raw, ok := decodeMapStringAny(update)
-		if !ok {
-			return deepCopyAny(update)
-		}
-		applyOneShotMessagesByNodeAnyUpdate(base, raw)
-		return normalizeOneShotMessagesByNode(base)
-	}
+	_ = "STUB: not implemented"
+	return *new(any)
 }
 
 func applyOneShotMessagesByNodeUpdate(
 	base map[string][]model.Message,
 	update map[string][]model.Message,
 ) {
-	for nodeID, msgs := range update {
-		if len(msgs) == 0 {
-			delete(base, nodeID)
-			continue
-		}
-		base[nodeID] = append([]model.Message(nil), msgs...)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func applyOneShotMessagesByNodeAnyUpdate(
 	base map[string][]model.Message,
 	update map[string]any,
 ) {
-	for nodeID, raw := range update {
-		if raw == nil {
-			delete(base, nodeID)
-			continue
-		}
-		msgs, err := decodeMessages(raw)
-		if err != nil || len(msgs) == 0 {
-			delete(base, nodeID)
-			continue
-		}
-		base[nodeID] = msgs
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func normalizeOneShotMessagesByNode(
 	m map[string][]model.Message,
 ) map[string][]model.Message {
-	if len(m) == 0 {
-		return map[string][]model.Message(nil)
-	}
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func decodeOneShotMessagesByNodeExisting(v any) map[string][]model.Message {
-	if v == nil {
-		return nil
-	}
-	switch m := v.(type) {
-	case map[string][]model.Message:
-		out := make(map[string][]model.Message, len(m))
-		for nodeID, msgs := range m {
-			if len(msgs) == 0 {
-				continue
-			}
-			out[nodeID] = append([]model.Message(nil), msgs...)
-		}
-		return out
-	case map[string]any:
-		out := make(map[string][]model.Message, len(m))
-		for nodeID, raw := range m {
-			msgs, err := decodeMessages(raw)
-			if err != nil || len(msgs) == 0 {
-				continue
-			}
-			out[nodeID] = msgs
-		}
-		return out
-	default:
-		raw, ok := decodeMapStringAny(v)
-		if !ok {
-			return nil
-		}
-		return decodeOneShotMessagesByNodeExisting(raw)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func decodeMapStringAny(v any) (map[string]any, bool) {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return nil, false
-	}
-	var out map[string]any
-	if err := json.Unmarshal(b, &out); err != nil {
-		return nil, false
-	}
-	return out, true
-}
+func decodeMapStringAny(v any) (map[string]any, bool) { _ = "STUB: not implemented"; return nil, false }
 
-func decodeMessages(v any) ([]model.Message, error) {
-	if v == nil {
-		return nil, nil
-	}
-	if msgs, ok := v.([]model.Message); ok {
-		return append([]model.Message(nil), msgs...), nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	var msgs []model.Message
-	if err := json.Unmarshal(b, &msgs); err != nil {
-		return nil, err
-	}
-	return msgs, nil
-}
+func decodeMessages(v any) ([]model.Message, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // MessageReducer handles message arrays with ID-based updates and MessageOp support.
-func MessageReducer(existing, update any) any {
-	if existing == nil {
-		existing = []model.Message{}
-	}
-	existingMsgs, ok1 := existing.([]model.Message)
-	if !ok1 {
-		return update
-	}
-	switch x := update.(type) {
-	case nil:
-		// no-op
-		return existingMsgs
-	case model.Message:
-		return append(existingMsgs, x)
-	case []model.Message:
-		return append(existingMsgs, x...)
-	case MessageOp:
-		return x.Apply(existingMsgs)
-	case []MessageOp:
-		result := existingMsgs
-		for _, op := range x {
-			result = op.Apply(result)
-		}
-		return result
-	default:
-		// Fallback to default behavior for unsupported types
-		return update
-	}
-}
+func MessageReducer(existing, update any) any { _ = "STUB: not implemented"; return *new(any) }
+
+// no-op
+
+// Fallback to default behavior for unsupported types

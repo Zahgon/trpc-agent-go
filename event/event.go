@@ -13,14 +13,9 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/agent/trace"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -122,19 +117,7 @@ type Event struct {
 }
 
 // ContainsTag checks if the event contains the specified tag.
-func (e *Event) ContainsTag(tag string) bool {
-	if e.Tag == "" {
-		return false
-	}
-
-	tags := strings.Split(e.Tag, TagDelimiter)
-	for _, t := range tags {
-		if strings.TrimSpace(t) == strings.TrimSpace(tag) {
-			return true
-		}
-	}
-	return false
-}
+func (e *Event) ContainsTag(tag string) bool { _ = "STUB: not implemented"; return false }
 
 // EventActions represents optional actions/hints attached to an event.
 // These are used by the flow to adjust control behavior without
@@ -147,159 +130,47 @@ type EventActions struct {
 }
 
 // Clone creates a deep copy of the event.
-func (e *Event) Clone() *Event {
-	if e == nil {
-		return nil
-	}
-	clone := *e
-	clone.Response = e.Response.Clone()
-	clone.LongRunningToolIDs = make(map[string]struct{})
-	clone.Version = CurrentVersion
-	clone.ID = uuid.NewString()
-	clone.ExecutionTrace = cloneExecutionTrace(e.ExecutionTrace)
-	if e.Version != CurrentVersion {
-		clone.FilterKey = e.Branch
-	}
-	for k := range e.LongRunningToolIDs {
-		clone.LongRunningToolIDs[k] = struct{}{}
-	}
-	if e.StateDelta != nil {
-		clone.StateDelta = make(map[string][]byte)
-		for k, v := range e.StateDelta {
-			clone.StateDelta[k] = make([]byte, len(v))
-			copy(clone.StateDelta[k], v)
-		}
-	}
-	if e.Extensions != nil {
-		clone.Extensions = make(map[string]json.RawMessage)
-		for k, v := range e.Extensions {
-			clone.Extensions[k] = cloneRawMessage(v)
-		}
-	}
-	if e.Actions != nil {
-		clone.Actions = &EventActions{
-			SkipSummarization: e.Actions.SkipSummarization,
-		}
-	}
-	return &clone
-}
+func (e *Event) Clone() *Event { _ = "STUB: not implemented"; return nil }
 
 func cloneRawMessage(raw json.RawMessage) json.RawMessage {
-	if raw == nil {
-		return nil
-	}
-	cloned := make([]byte, len(raw))
-	copy(cloned, raw)
-	return json.RawMessage(cloned)
+	_ = "STUB: not implemented"
+	return *new(json.RawMessage)
 }
 
 func cloneExecutionTrace(executionTrace *trace.Trace) *trace.Trace {
-	if executionTrace == nil {
-		return nil
-	}
-	clonedTrace := &trace.Trace{
-		RootAgentName:    executionTrace.RootAgentName,
-		RootInvocationID: executionTrace.RootInvocationID,
-		SessionID:        executionTrace.SessionID,
-		StartedAt:        executionTrace.StartedAt,
-		EndedAt:          executionTrace.EndedAt,
-		Status:           executionTrace.Status,
-		Steps:            make([]trace.Step, 0, len(executionTrace.Steps)),
-	}
-	for _, step := range executionTrace.Steps {
-		clonedTrace.Steps = append(
-			clonedTrace.Steps,
-			cloneExecutionTraceStep(step),
-		)
-	}
-	return clonedTrace
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneExecutionTraceStep(step trace.Step) trace.Step {
-	return trace.Step{
-		StepID:             step.StepID,
-		InvocationID:       step.InvocationID,
-		ParentInvocationID: step.ParentInvocationID,
-		AgentName:          step.AgentName,
-		Branch:             step.Branch,
-		NodeID:             step.NodeID,
-		StartedAt:          step.StartedAt,
-		EndedAt:            step.EndedAt,
-		PredecessorStepIDs: append(
-			[]string(nil),
-			step.PredecessorStepIDs...,
-		),
-		AppliedSurfaceIDs: append([]string(nil), step.AppliedSurfaceIDs...),
-		Input:             cloneExecutionTraceSnapshot(step.Input),
-		Output:            cloneExecutionTraceSnapshot(step.Output),
-		Error:             step.Error,
-	}
+	_ = "STUB: not implemented"
+	return *new(trace.Step)
 }
 
 func cloneExecutionTraceSnapshot(snapshot *trace.Snapshot) *trace.Snapshot {
-	if snapshot == nil {
-		return nil
-	}
-	return &trace.Snapshot{Text: snapshot.Text}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Filter checks if the event matches the specified filter key.
-func (e *Event) Filter(filterKey string) bool {
-	if e == nil {
-		return false
-	}
-
-	eFilterKey := e.FilterKey
-	if e.Version != CurrentVersion {
-		eFilterKey = e.Branch
-	}
-
-	if filterKey == "" || eFilterKey == "" {
-		return true
-	}
-
-	filterKey += FilterKeyDelimiter
-	eFilterKey = eFilterKey + FilterKeyDelimiter
-	return strings.HasPrefix(filterKey, eFilterKey) || strings.HasPrefix(eFilterKey, filterKey)
-}
+func (e *Event) Filter(filterKey string) bool { _ = "STUB: not implemented"; return false }
 
 // New creates a new Event with generated ID and timestamp.
-func New(invocationID, author string, opts ...Option) *Event {
-	e := &Event{
-		Response:     &model.Response{},
-		ID:           uuid.New().String(),
-		Timestamp:    time.Now(),
-		InvocationID: invocationID,
-		Author:       author,
-		Version:      CurrentVersion,
-	}
-	for _, opt := range opts {
-		opt(e)
-	}
-	return e
-}
+func New(invocationID, author string, opts ...Option) *Event { _ = "STUB: not implemented"; return nil }
 
 // NewErrorEvent creates a new error Event with the specified error details.
 // This provides a clean way to create error events without manual field assignment.
 func NewErrorEvent(invocationID, author, errorType, errorMessage string,
 	opts ...Option) *Event {
-	rsp := &model.Response{
-		Object: model.ObjectTypeError,
-		Done:   true,
-		Error: &model.ResponseError{
-			Type:    errorType,
-			Message: errorMessage,
-		},
-	}
-	opts = append(opts, WithResponse(rsp))
-	return New(invocationID, author, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewResponseEvent creates a new Event from a model Response.
 func NewResponseEvent(invocationID, author string, response *model.Response,
 	opts ...Option) *Event {
-	opts = append(opts, WithResponse(response))
-	return New(invocationID, author, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DefaultEmitTimeoutErr is the default error returned when a wait notice times out.
@@ -313,225 +184,93 @@ type EmitEventTimeoutError struct {
 
 // Error implements the error interface.
 func (e *EmitEventTimeoutError) Error() string {
-	return e.Message
+	_ = "STUB: not implemented"
+
+	// AsEmitEventTimeoutError checks if an error is a EmitEventTimeoutError using errors.As.
+	return ""
 }
 
-// AsEmitEventTimeoutError checks if an error is a EmitEventTimeoutError using errors.As.
 func AsEmitEventTimeoutError(err error) (*EmitEventTimeoutError, bool) {
-	var waitNoticeTimeoutErr *EmitEventTimeoutError
-	ok := errors.As(err, &waitNoticeTimeoutErr)
-	return waitNoticeTimeoutErr, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // NewEmitEventTimeoutError creates a new EmitEventTimeoutError with the given message.
 func NewEmitEventTimeoutError(message string) *EmitEventTimeoutError {
-	return &EmitEventTimeoutError{Message: message}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsRunnerCompletion reports whether this event is the terminal completion
 // event emitted by Runner. It is the most reliable signal that the entire
 // run has finished (regardless of the specific Agent implementation), and the
 // recommended condition to stop consuming the event stream.
-func (e *Event) IsRunnerCompletion() bool {
-	if e == nil || e.Response == nil {
-		return false
-	}
-	return e.Done && e.Object == model.ObjectTypeRunnerCompletion
-}
+func (e *Event) IsRunnerCompletion() bool { _ = "STUB: not implemented"; return false }
 
 // IsError reports whether this event carries any error signal.
 // It is broader than IsTerminalError and also matches non-terminal graph
 // observability events such as graph.node.error.
-func (e *Event) IsError() bool {
-	if e == nil || e.Response == nil {
-		return false
-	}
-	return e.Object == model.ObjectTypeError || e.Error != nil
-}
+func (e *Event) IsError() bool { _ = "STUB: not implemented"; return false }
 
 // IsTerminalError reports whether this event represents a terminal failure for
 // the overall run.
-func (e *Event) IsTerminalError() bool {
-	if e == nil || e.Response == nil || e.Response.Error == nil {
-		return false
-	}
-	return e.Object == model.ObjectTypeError || e.Done
-}
+func (e *Event) IsTerminalError() bool { _ = "STUB: not implemented"; return false }
 
 // EmitEvent sends an event to the channel without timeout.
 func EmitEvent(ctx context.Context, ch chan<- *Event, e *Event) error {
-	return EmitEventWithTimeout(ctx, ch, e, EmitWithoutTimeout)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // snapshotEvent returns a string representation of e if trace logging is
 // enabled, or an empty string otherwise. The snapshot must be taken while the
 // caller still holds exclusive ownership of *e — before ch <- e — because
 // once the send completes the receiver may mutate the struct concurrently.
-func snapshotEvent(e *Event) string {
-	if !log.IsTraceEnabled() {
-		return ""
-	}
-	return fmt.Sprintf("%+v", redactedEventForLogging(e))
-}
+func snapshotEvent(e *Event) string { _ = "STUB: not implemented"; return "" }
 
-func redactedEventForLogging(e *Event) Event {
-	if e == nil {
-		return Event{}
-	}
-	redacted := *e
-	redacted.ExecutionTrace = nil
-	return redacted
-}
+func redactedEventForLogging(e *Event) Event { _ = "STUB: not implemented"; return *new(Event) }
 
 func tryEmitReadyEvent(ctx context.Context, ch chan<- *Event, e *Event) (bool, error) {
+	_ = "STUB: not implemented"
 	// Snapshot before send: once ch <- e returns, the receiver owns *e and
 	// may mutate it concurrently (runner.copyEventInvocationFields). Reading
 	// *e after the send for logging is a data race.
-	eventStr := snapshotEvent(e)
-	select {
-	case ch <- e:
-		log.TracefContext(ctx, "EmitEventWithTimeout: event sent, event: %s", eventStr)
-		return true, nil
-	case <-ctx.Done():
-		err := ctx.Err()
-		redactedEvent := redactedEventForLogging(e)
-		log.WarnfContext(
-			ctx,
-			"EmitEventWithTimeout: context error: %v, event: %+v",
-			err,
-			redactedEvent,
-		)
-		return true, err
-	default:
-		return false, nil
-	}
+	return false, nil
 }
 
 // EmitEventWithTimeout sends an event to the channel with optional timeout.
 func EmitEventWithTimeout(ctx context.Context, ch chan<- *Event,
 	e *Event, timeout time.Duration) error {
-	if e == nil || ch == nil {
-		return nil
-	}
-
-	// If the context is already cancelled, prefer returning immediately
-	// rather than attempting to send. This avoids a racy select where both
-	// the send and the ctx.Done() cases are ready, which could otherwise
-	// result in emitting an event after cancellation.
-	if err := ctx.Err(); err != nil {
-		redactedEvent := redactedEventForLogging(e)
-		log.WarnfContext(
-			ctx,
-			"EmitEventWithTimeout: context error: %v, event: %+v",
-			err,
-			redactedEvent,
-		)
-		return err
-	}
-
-	log.TracefContext(ctx, "[EmitEventWithTimeout]queue monitoring: RequestID: %s, channel capacity: %d, current length: %d, branch: %s",
-		e.RequestID, cap(ch), len(ch), e.Branch)
-
-	if timeout == EmitWithoutTimeout {
-		if handled, err := tryEmitReadyEvent(ctx, ch, e); handled {
-			return err
-		}
-		// Fall back to a blocking send. Snapshot before send — same race as above.
-		eventStr := snapshotEvent(e)
-		select {
-		case ch <- e:
-			log.TracefContext(ctx, "EmitEventWithTimeout: event sent, event: %s", eventStr)
-		case <-ctx.Done():
-			err := ctx.Err()
-			redactedEvent := redactedEventForLogging(e)
-			log.WarnfContext(
-				ctx,
-				"EmitEventWithTimeout: context error: %v, event: %+v",
-				err,
-				redactedEvent,
-			)
-			return err
-		}
-		return nil
-	}
-
-	if handled, err := tryEmitReadyEvent(ctx, ch, e); handled {
-		return err
-	}
-
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-	// Snapshot before send — same race as above.
-	eventStr := snapshotEvent(e)
-	select {
-	case ch <- e:
-		log.TracefContext(ctx, "EmitEventWithTimeout: event sent, event: %s", eventStr)
-	case <-ctx.Done():
-		err := ctx.Err()
-		redactedEvent := redactedEventForLogging(e)
-		log.WarnfContext(
-			ctx,
-			"EmitEventWithTimeout: context error: %v, event: %+v",
-			err,
-			redactedEvent,
-		)
-		return err
-	case <-timer.C:
-		redactedEvent := redactedEventForLogging(e)
-		log.WarnfContext(
-			ctx,
-			"EmitEventWithTimeout: timeout, event: %+v",
-			redactedEvent,
-		)
-		return DefaultEmitTimeoutErr
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// If the context is already cancelled, prefer returning immediately
+// rather than attempting to send. This avoids a racy select where both
+// the send and the ctx.Done() cases are ready, which could otherwise
+// result in emitting an event after cancellation.
+
+// Fall back to a blocking send. Snapshot before send — same race as above.
+
+// Snapshot before send — same race as above.
 
 // MarshalJSON implements json.Marshaler and produces a format that
 // preserves legacy flattened fields while also embedding minimal
 // response metadata (ID/timestamp) under the dedicated "response" key.
-func (e Event) MarshalJSON() ([]byte, error) {
-	payload := jsonEvent{
-		eventNoMethods: (*eventNoMethods)(&e),
-	}
-	if e.Response != nil {
-		payload.Response = &responseMeta{
-			ID:        e.Response.ID,
-			Timestamp: e.Response.Timestamp,
-		}
-	}
-	return json.Marshal(payload)
-}
+func (e Event) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // UnmarshalJSON implements json.Unmarshaler by accepting both legacy flattened
 // payloads and the new nested-response representation, preferring the nested
 // response when present.
 func (e *Event) UnmarshalJSON(data []byte) error {
+	_ = "STUB: not implemented"
 	// First parse the flat structure.
-	var flat eventNoMethods
-	if err := json.Unmarshal(data, &flat); err != nil {
-		return err
-	}
-	*e = Event(flat)
-	// Then try to read nested metadata.
-	var nested struct {
-		Response *responseMeta `json:"response,omitempty"`
-	}
-	// Tolerate nested part failure, it does not affect the overall failure, preserve the flat fields.
-	if err := json.Unmarshal(data, &nested); err != nil {
-		log.Warnf("unmarshal response: %v", err)
-		return nil
-	}
-	if nested.Response != nil {
-		if e.Response == nil {
-			e.Response = &model.Response{}
-		}
-		e.Response.ID = nested.Response.ID
-		e.Response.Timestamp = nested.Response.Timestamp
-	}
 	return nil
 }
+
+// Then try to read nested metadata.
+
+// Tolerate nested part failure, it does not affect the overall failure, preserve the flat fields.
 
 // eventNoMethods is the alias of Event for avoiding recursive calls of custom MarshalJSON/UnmarshalJSON.
 type eventNoMethods Event

@@ -13,7 +13,6 @@ package util
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore/sqlitevec"
 )
 
 const (
@@ -26,19 +25,6 @@ const (
 )
 
 func newSQLiteVecStore() (vectorstore.VectorStore, error) {
-	dsn := GetEnvOrDefault(sqliteVecDSNEnvKey, defaultSQLiteVecDSN)
-	table := GetEnvOrDefault(
-		sqliteVecTableEnvKey,
-		defaultSQLiteVecTable,
-	)
-	metaTable := GetEnvOrDefault(
-		sqliteVecMetadataTableEnvKey,
-		defaultSQLiteVecMetadata,
-	)
-
-	return sqlitevec.New(
-		sqlitevec.WithDSN(dsn),
-		sqlitevec.WithTableName(table),
-		sqlitevec.WithMetadataTableName(metaTable),
-	)
+	_ = "STUB: not implemented"
+	return *new(vectorstore.VectorStore), nil
 }

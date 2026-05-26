@@ -21,28 +21,20 @@ type invocationKey struct{}
 
 // NewInvocationContext creates a new InvocationContext.
 func NewInvocationContext(ctx context.Context, invocation *Invocation) *InvocationContext {
-	return &InvocationContext{
-		Context: context.WithValue(ctx, invocationKey{}, invocation),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // InvocationFromContext returns the invocation from the context.
 func InvocationFromContext(ctx context.Context) (*Invocation, bool) {
-	invocation, ok := ctx.Value(invocationKey{}).(*Invocation)
-	return invocation, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // EnsureInvocation ensures ctx contains a non-nil invocation and returns the updated context and invocation.
 func EnsureInvocation(ctx context.Context) (context.Context, *Invocation) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	inv, ok := InvocationFromContext(ctx)
-	if ok && inv != nil {
-		return ctx, inv
-	}
-	inv = NewInvocation()
-	return NewInvocationContext(ctx, inv), inv
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
 
 // GetStateValueFromContext retrieves a typed value from the invocation state
@@ -60,12 +52,8 @@ func EnsureInvocation(ctx context.Context) (context.Context, *Invocation) {
 //	    log.Printf("Request ID: %s", requestID)
 //	}
 func GetStateValueFromContext[T any](ctx context.Context, key string) (T, bool) {
-	var zero T
-	inv, ok := InvocationFromContext(ctx)
-	if !ok {
-		return zero, false
-	}
-	return GetStateValue[T](inv, key)
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
 
 // GetRuntimeStateValueFromContext retrieves a typed value from the runtime state
@@ -83,20 +71,9 @@ func GetStateValueFromContext[T any](ctx context.Context, key string) (T, bool) 
 //	    log.Printf("Room ID: %d", roomID)
 //	}
 func GetRuntimeStateValueFromContext[T any](ctx context.Context, key string) (T, bool) {
-	var zero T
-	inv, ok := InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return zero, false
-	}
-	return GetRuntimeStateValue[T](&inv.RunOptions, key)
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
 
 // CheckContextCancelled check context cancelled
-func CheckContextCancelled(ctx context.Context) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-		return nil
-	}
-}
+func CheckContextCancelled(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

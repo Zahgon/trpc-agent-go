@@ -11,26 +11,13 @@ package app
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/duckduckgo"
-	"trpc.group/trpc-go/trpc-agent-go/tool/file"
 	"trpc.group/trpc-go/trpc-agent-go/tool/mcp"
 
-	arxivsearch "trpc.group/trpc-go/trpc-agent-go/tool/arxivsearch"
-	email "trpc.group/trpc-go/trpc-agent-go/tool/email"
-	googlesearch "trpc.group/trpc-go/trpc-agent-go/tool/google/search"
 	openapitool "trpc.group/trpc-go/trpc-agent-go/tool/openapi"
-	httpfetch "trpc.group/trpc-go/trpc-agent-go/tool/webfetch/httpfetch"
-	"trpc.group/trpc-go/trpc-agent-go/tool/wikipedia"
 
-	ocbrowser "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/browser"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
 )
 
@@ -111,42 +98,16 @@ func newBrowserTools(
 	_ registry.ToolProviderDeps,
 	spec registry.PluginSpec,
 ) ([]tool.Tool, error) {
-	var cfg ocbrowser.Config
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	browserTool, err := ocbrowser.NewTool(cfg)
-	if err != nil {
-		return nil, err
-	}
-	return []tool.Tool{browserTool}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func newDuckDuckGoTools(
 	_ registry.ToolProviderDeps,
 	spec registry.PluginSpec,
 ) ([]tool.Tool, error) {
-	var cfg httpToolConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	client := &http.Client{Timeout: defaultHTTPTimeout}
-	if cfg.Timeout > 0 {
-		client.Timeout = cfg.Timeout
-	}
-
-	opts := make([]duckduckgo.Option, 0, 3)
-	if baseURL := strings.TrimSpace(cfg.BaseURL); baseURL != "" {
-		opts = append(opts, duckduckgo.WithBaseURL(baseURL))
-	}
-	if ua := strings.TrimSpace(cfg.UserAgent); ua != "" {
-		opts = append(opts, duckduckgo.WithUserAgent(ua))
-	}
-	opts = append(opts, duckduckgo.WithHTTPClient(client))
-
-	return []tool.Tool{duckduckgo.NewTool(opts...)}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type httpWebFetchConfig struct {
@@ -163,46 +124,8 @@ func newHTTPWebFetchTools(
 	_ registry.ToolProviderDeps,
 	spec registry.PluginSpec,
 ) ([]tool.Tool, error) {
-	var cfg httpWebFetchConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	if !cfg.AllowAll && len(cfg.AllowedDomains) == 0 {
-		return nil, errors.New(
-			"webfetch_http requires allowed_domains or allow_all_domains",
-		)
-	}
-
-	client := &http.Client{Timeout: defaultHTTPTimeout}
-	if cfg.Timeout > 0 {
-		client.Timeout = cfg.Timeout
-	}
-
-	opts := make([]httpfetch.Option, 0, 6)
-	opts = append(opts, httpfetch.WithHTTPClient(client))
-	if cfg.MaxContentLength > 0 {
-		opts = append(
-			opts,
-			httpfetch.WithMaxContentLength(cfg.MaxContentLength),
-		)
-	}
-	if cfg.MaxTotalContentLength > 0 {
-		opts = append(
-			opts,
-			httpfetch.WithMaxTotalContentLength(
-				cfg.MaxTotalContentLength,
-			),
-		)
-	}
-	if len(cfg.AllowedDomains) > 0 {
-		opts = append(opts, httpfetch.WithAllowedDomains(cfg.AllowedDomains))
-	}
-	if len(cfg.BlockedDomains) > 0 {
-		opts = append(opts, httpfetch.WithBlockedDomains(cfg.BlockedDomains))
-	}
-
-	return []tool.Tool{httpfetch.NewTool(opts...)}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type mcpFilterConfig struct {
@@ -231,92 +154,15 @@ func newMCPToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg mcpToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	conn := mcp.ConnectionConfig{
-		Transport: strings.TrimSpace(cfg.Transport),
-		ServerURL: strings.TrimSpace(cfg.ServerURL),
-		Headers:   cfg.Headers,
-		Command:   strings.TrimSpace(cfg.Command),
-		Args:      cfg.Args,
-		Timeout:   cfg.Timeout,
-	}
-
-	if err := validateMCPConnection(conn); err != nil {
-		return nil, err
-	}
-
-	options := make([]mcp.ToolSetOption, 0, 4)
-	if name := strings.TrimSpace(spec.Name); name != "" {
-		options = append(options, mcp.WithName(name))
-	}
-
-	filter, err := buildMCPToolFilter(cfg.ToolFilter)
-	if err != nil {
-		return nil, err
-	}
-	if filter != nil {
-		options = append(options, mcp.WithToolFilterFunc(filter))
-	}
-
-	if cfg.Reconnect != nil && cfg.Reconnect.Enabled {
-		attempts := cfg.Reconnect.MaxAttempts
-		if attempts <= 0 {
-			attempts = 3
-		}
-		options = append(options, mcp.WithSessionReconnect(attempts))
-	}
-
-	return mcp.NewMCPToolSet(conn, options...), nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
-func validateMCPConnection(cfg mcp.ConnectionConfig) error {
-	t := strings.ToLower(strings.TrimSpace(cfg.Transport))
-	switch t {
-	case mcpTransportStdio:
-		if strings.TrimSpace(cfg.Command) == "" {
-			return errors.New("mcp transport stdio requires command")
-		}
-		return nil
-	case mcpTransportSSE, mcpTransportStreamable, "streamable_http":
-		if strings.TrimSpace(cfg.ServerURL) == "" {
-			return errors.New("mcp transport requires server_url")
-		}
-		return nil
-	default:
-		return fmt.Errorf("unsupported mcp transport: %s", cfg.Transport)
-	}
-}
+func validateMCPConnection(cfg mcp.ConnectionConfig) error { _ = "STUB: not implemented"; return nil }
 
 func buildMCPToolFilter(cfg *mcpFilterConfig) (tool.FilterFunc, error) {
-	if cfg == nil {
-		return nil, nil
-	}
-
-	names := make([]string, 0, len(cfg.Names))
-	for _, name := range cfg.Names {
-		v := strings.TrimSpace(name)
-		if v == "" {
-			continue
-		}
-		names = append(names, v)
-	}
-	if len(names) == 0 {
-		return nil, nil
-	}
-
-	mode := strings.ToLower(strings.TrimSpace(cfg.Mode))
-	switch mode {
-	case "", "include":
-		return tool.NewIncludeToolNamesFilter(names...), nil
-	case "exclude":
-		return tool.NewExcludeToolNamesFilter(names...), nil
-	default:
-		return nil, fmt.Errorf("unsupported mcp tool_filter.mode: %s", cfg.Mode)
-	}
+	_ = "STUB: not implemented"
+	return *new(tool.FilterFunc), nil
 }
 
 type fileToolSetConfig struct {
@@ -338,64 +184,8 @@ func newFileToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg fileToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	readOnly := true
-	if cfg.ReadOnly != nil {
-		readOnly = *cfg.ReadOnly
-	}
-
-	saveEnabled := !readOnly
-	if cfg.EnableSave != nil {
-		saveEnabled = *cfg.EnableSave
-	}
-	replaceEnabled := !readOnly
-	if cfg.EnableReplace != nil {
-		replaceEnabled = *cfg.EnableReplace
-	}
-
-	opts := make([]file.Option, 0, 10)
-	if baseDir := strings.TrimSpace(cfg.BaseDir); baseDir != "" {
-		opts = append(opts, file.WithBaseDir(baseDir))
-	}
-	opts = append(opts, file.WithSaveFileEnabled(saveEnabled))
-	opts = append(opts, file.WithReplaceContentEnabled(replaceEnabled))
-
-	if cfg.EnableRead != nil {
-		opts = append(opts, file.WithReadFileEnabled(*cfg.EnableRead))
-	}
-	if cfg.EnableReadMultiple != nil {
-		opts = append(
-			opts,
-			file.WithReadMultipleFilesEnabled(*cfg.EnableReadMultiple),
-		)
-	}
-	if cfg.EnableList != nil {
-		opts = append(opts, file.WithListFileEnabled(*cfg.EnableList))
-	}
-	if cfg.EnableSearchFile != nil {
-		opts = append(
-			opts,
-			file.WithSearchFileEnabled(*cfg.EnableSearchFile),
-		)
-	}
-	if cfg.EnableSearchContent != nil {
-		opts = append(
-			opts,
-			file.WithSearchContentEnabled(*cfg.EnableSearchContent),
-		)
-	}
-	if cfg.MaxFileSize > 0 {
-		opts = append(opts, file.WithMaxFileSize(cfg.MaxFileSize))
-	}
-	if name := strings.TrimSpace(spec.Name); name != "" {
-		opts = append(opts, file.WithName(name))
-	}
-
-	return file.NewToolSet(opts...)
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 type openAPISpecConfig struct {
@@ -415,77 +205,16 @@ func newOpenAPIToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg openAPIToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-	if cfg.Spec == nil {
-		return nil, errors.New("openapi requires config.spec")
-	}
-
-	loader, err := openAPILoader(*cfg.Spec, cfg.AllowExternalRefs)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx := context.Background()
-	if cfg.Timeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, cfg.Timeout)
-		defer cancel()
-	}
-
-	options := make([]openapitool.Option, 0, 4)
-	options = append(options, openapitool.WithSpecLoader(loader))
-	if ua := strings.TrimSpace(cfg.UserAgent); ua != "" {
-		options = append(options, openapitool.WithUserAgent(ua))
-	}
-	if cfg.Timeout > 0 {
-		client := &http.Client{Timeout: cfg.Timeout}
-		options = append(options, openapitool.WithHTTPClient(client))
-	}
-	if name := strings.TrimSpace(spec.Name); name != "" {
-		options = append(options, openapitool.WithName(name))
-	}
-
-	return openapitool.NewToolSet(ctx, options...)
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 func openAPILoader(
 	cfg openAPISpecConfig,
 	allowExternalRefs bool,
 ) (openapitool.Loader, error) {
-	opts := []openapitool.LoaderOption{
-		openapitool.WithExternalRefs(allowExternalRefs),
-	}
-
-	filePath := strings.TrimSpace(cfg.File)
-	urlStr := strings.TrimSpace(cfg.URL)
-	inline := strings.TrimSpace(cfg.Inline)
-
-	count := 0
-	if filePath != "" {
-		count++
-	}
-	if urlStr != "" {
-		count++
-	}
-	if inline != "" {
-		count++
-	}
-	if count != 1 {
-		return nil, errors.New(
-			"openapi.spec requires exactly one of file, url, inline",
-		)
-	}
-
-	if filePath != "" {
-		return openapitool.NewFileLoader(filePath, opts...)
-	}
-	if urlStr != "" {
-		return openapitool.NewURILoader(urlStr, opts...)
-	}
-	return openapitool.NewDataLoader([]byte(inline), opts...)
+	_ = "STUB: not implemented"
+	return *new(openapitool.Loader), nil
 }
 
 type googleToolSetConfig struct {
@@ -502,48 +231,8 @@ func newGoogleToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg googleToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	apiKey := strings.TrimSpace(cfg.APIKey)
-	if apiKey == "" {
-		apiKey = strings.TrimSpace(os.Getenv(envGoogleAPIKey))
-	}
-	engineID := strings.TrimSpace(cfg.EngineID)
-	if engineID == "" {
-		engineID = strings.TrimSpace(os.Getenv(envGoogleEngineID))
-	}
-
-	ctx := context.Background()
-	if cfg.Timeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, cfg.Timeout)
-		defer cancel()
-	}
-
-	options := make([]googlesearch.Option, 0, 6)
-	options = append(options, googlesearch.WithAPIKey(apiKey))
-	options = append(options, googlesearch.WithEngineID(engineID))
-	if baseURL := strings.TrimSpace(cfg.BaseURL); baseURL != "" {
-		options = append(options, googlesearch.WithBaseURL(baseURL))
-	}
-	if cfg.Size > 0 {
-		options = append(options, googlesearch.WithSize(cfg.Size))
-	}
-	if cfg.Offset > 0 {
-		options = append(options, googlesearch.WithOffset(cfg.Offset))
-	}
-	if lang := strings.TrimSpace(cfg.Lang); lang != "" {
-		options = append(options, googlesearch.WithLanguage(lang))
-	}
-
-	ts, err := googlesearch.NewToolSet(ctx, options...)
-	if err != nil {
-		return nil, err
-	}
-	return overrideToolSetName(ts, spec.Name), nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 type wikipediaToolSetConfig struct {
@@ -557,30 +246,8 @@ func newWikipediaToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg wikipediaToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	options := make([]wikipedia.Option, 0, 4)
-	if lang := strings.TrimSpace(cfg.Language); lang != "" {
-		options = append(options, wikipedia.WithLanguage(lang))
-	}
-	if cfg.MaxResults > 0 {
-		options = append(options, wikipedia.WithMaxResults(cfg.MaxResults))
-	}
-	if ua := strings.TrimSpace(cfg.UserAgent); ua != "" {
-		options = append(options, wikipedia.WithUserAgent(ua))
-	}
-	if cfg.Timeout > 0 {
-		options = append(options, wikipedia.WithTimeout(cfg.Timeout))
-	}
-
-	ts, err := wikipedia.NewToolSet(options...)
-	if err != nil {
-		return nil, err
-	}
-	return overrideToolSetName(ts, spec.Name), nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 type arxivToolSetConfig struct {
@@ -594,47 +261,16 @@ func newArxivToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	var cfg arxivToolSetConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	options := make([]arxivsearch.Option, 0, 4)
-	if baseURL := strings.TrimSpace(cfg.BaseURL); baseURL != "" {
-		options = append(options, arxivsearch.WithBaseURL(baseURL))
-	}
-	if cfg.PageSize > 0 {
-		options = append(options, arxivsearch.WithPageSize(cfg.PageSize))
-	}
-	if cfg.DelaySeconds > 0 {
-		options = append(
-			options,
-			arxivsearch.WithDelaySeconds(cfg.DelaySeconds),
-		)
-	}
-	if cfg.NumRetries > 0 {
-		options = append(
-			options,
-			arxivsearch.WithNumRetries(cfg.NumRetries),
-		)
-	}
-
-	ts, err := arxivsearch.NewToolSet(options...)
-	if err != nil {
-		return nil, err
-	}
-	return overrideToolSetName(ts, spec.Name), nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 func newEmailToolSet(
 	_ registry.ToolSetProviderDeps,
 	spec registry.PluginSpec,
 ) (tool.ToolSet, error) {
-	ts, err := email.NewToolSet()
-	if err != nil {
-		return nil, err
-	}
-	return overrideToolSetName(ts, spec.Name), nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
 
 type toolSetNameOverride struct {
@@ -643,20 +279,15 @@ type toolSetNameOverride struct {
 }
 
 func (t toolSetNameOverride) Tools(ctx context.Context) []tool.Tool {
-	return t.tool.Tools(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t toolSetNameOverride) Close() error { return t.tool.Close() }
+func (t toolSetNameOverride) Close() error { _ = "STUB: not implemented"; return nil }
 
-func (t toolSetNameOverride) Name() string { return t.name }
+func (t toolSetNameOverride) Name() string { _ = "STUB: not implemented"; return "" }
 
 func overrideToolSetName(ts tool.ToolSet, name string) tool.ToolSet {
-	if ts == nil {
-		return nil
-	}
-	v := strings.TrimSpace(name)
-	if v == "" || v == ts.Name() {
-		return ts
-	}
-	return toolSetNameOverride{name: v, tool: ts}
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet)
 }

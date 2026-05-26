@@ -59,44 +59,20 @@ var defaultFormats = []string{
 type Option func(*options)
 
 // WithEndpoint sets the Docling Serve API base URL (e.g., "http://localhost:5001").
-func WithEndpoint(endpoint string) Option {
-	return func(o *options) {
-		o.endpoint = endpoint
-	}
-}
+func WithEndpoint(endpoint string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClient sets a custom HTTP client for requests to Docling Serve.
-func WithHTTPClient(client *http.Client) Option {
-	return func(o *options) {
-		o.httpClient = client
-	}
-}
+func WithHTTPClient(client *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the request timeout for conversion calls.
-func WithTimeout(d time.Duration) Option {
-	return func(o *options) {
-		o.timeout = d
-	}
-}
+func WithTimeout(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOCR enables or disables OCR during document conversion.
-func WithOCR(enabled bool) Option {
-	return func(o *options) {
-		o.ocrEnabled = enabled
-	}
-}
+func WithOCR(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFormats overrides the default set of supported file extensions.
-func WithFormats(formats []string) Option {
-	return func(o *options) {
-		o.formats = formats
-	}
-}
+func WithFormats(formats []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithImageRefMode sets how images are represented in the markdown output.
 // Default is ImageRefModePlaceholder.
-func WithImageRefMode(mode ImageRefMode) Option {
-	return func(o *options) {
-		o.imageRefMode = mode
-	}
-}
+func WithImageRefMode(mode ImageRefMode) Option { _ = "STUB: not implemented"; return *new(Option) }

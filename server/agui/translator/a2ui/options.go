@@ -24,17 +24,10 @@ type options struct {
 	passThroughEventHook PassThroughEventHook
 }
 
-func newOptions(opt ...Option) options {
-	opts := options{}
-	for _, o := range opt {
-		o(&opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) options { _ = "STUB: not implemented"; return *new(options) }
 
 // WithPassThroughEventHook sets a hook that decides whether default events should be passed through.
 func WithPassThroughEventHook(hook PassThroughEventHook) Option {
-	return func(opts *options) {
-		opts.passThroughEventHook = hook
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

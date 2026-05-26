@@ -9,47 +9,14 @@
 
 package arxiv
 
-import (
-	"fmt"
-	"regexp"
-	"strings"
-)
-
 // GetShortID get short id from entry id
-func (r *Result) GetShortID() string {
-	if strings.Contains(r.EntryID, "arxiv.org/abs/") {
-		return strings.Split(r.EntryID, "arxiv.org/abs/")[1]
-	}
-	return r.EntryID
-}
+func (r *Result) GetShortID() string { _ = "STUB: not implemented"; return "" }
 
 // GetDefaultFilename get default filename from result
-func (r *Result) GetDefaultFilename(extension string) string {
-	if extension == "" {
-		extension = "pdf"
-	}
-
-	shortID := r.GetShortID()
-	shortID = strings.ReplaceAll(shortID, "/", "_")
-
-	title := r.Title
-	if title == "" {
-		title = "UNTITLED"
-	}
-
-	re := regexp.MustCompile(`[^\w]`)
-	cleanTitle := re.ReplaceAllString(title, "_")
-
-	return fmt.Sprintf("%s.%s.%s", shortID, cleanTitle, extension)
-}
+func (r *Result) GetDefaultFilename(extension string) string { _ = "STUB: not implemented"; return "" }
 
 // GetSourceURL get source url from result
-func (r *Result) GetSourceURL() string {
-	if r.PdfURL == "" {
-		return ""
-	}
-	return strings.Replace(r.PdfURL, "/pdf/", "/src/", 1)
-}
+func (r *Result) GetSourceURL() string { _ = "STUB: not implemented"; return "" }
 
 // ArxivError arxiv api error
 type ArxivError struct {
@@ -59,9 +26,7 @@ type ArxivError struct {
 }
 
 // Error error
-func (e *ArxivError) Error() string {
-	return fmt.Sprintf("%s (%s)", e.Message, e.URL)
-}
+func (e *ArxivError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // UnexpectedEmptyPageError unexpected empty page error
 type UnexpectedEmptyPageError struct {
@@ -76,52 +41,30 @@ type HTTPError struct {
 
 // NewSearch create new search instance
 func NewSearch(query string, options ...SearchOption) Search {
-	search := Search{
-		Query:     query,
-		IDList:    []string{},
-		SortBy:    SortCriterionRelevance,
-		SortOrder: SortOrderDescending,
-	}
-
-	for _, option := range options {
-		option(&search)
-	}
-
-	return search
+	_ = "STUB: not implemented"
+	return *new(Search)
 }
 
 // SearchOption search option
 type SearchOption func(*Search)
 
 // WithIDList set id list
-func WithIDList(ids ...string) SearchOption {
-	return func(s *Search) {
-		s.IDList = ids
-	}
-}
+func WithIDList(ids ...string) SearchOption { _ = "STUB: not implemented"; return *new(SearchOption) }
 
 // WithMaxResults set max results
-func WithMaxResults(max int) SearchOption {
-	return func(s *Search) {
-		s.MaxResults = &max
-	}
-}
+func WithMaxResults(max int) SearchOption { _ = "STUB: not implemented"; return *new(SearchOption) }
 
 // WithSortBy set sort by
 func WithSortBy(sortBy SortCriterion) SearchOption {
-	return func(s *Search) {
-		s.SortBy = sortBy
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchOption)
 }
 
 // WithSortOrder set sort order
 func WithSortOrder(sortOrder SortOrder) SearchOption {
-	return func(s *Search) {
-		s.SortOrder = sortOrder
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchOption)
 }
 
 // DefaultClient return default client
-func DefaultClient() *Client {
-	return NewClient(DefaultConfig())
-}
+func DefaultClient() *Client { _ = "STUB: not implemented"; return nil }

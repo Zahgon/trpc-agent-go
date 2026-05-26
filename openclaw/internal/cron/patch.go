@@ -24,41 +24,4 @@ type Patch struct {
 	Target           *string
 }
 
-func applyPatch(job *Job, patch Patch, now time.Time) error {
-	if patch.Name != nil {
-		job.Name = *patch.Name
-	}
-	if patch.Message != nil {
-		job.Message = *patch.Message
-	}
-	if patch.Enabled != nil {
-		job.Enabled = *patch.Enabled
-	}
-	if patch.Schedule != nil {
-		job.Schedule = *patch.Schedule
-	}
-	if patch.ScheduleTimezone != nil {
-		job.Schedule.Timezone = *patch.ScheduleTimezone
-	}
-	if patch.Policy != nil {
-		job.Policy = *patch.Policy
-	}
-	if patch.TimeoutSec != nil {
-		job.TimeoutSec = *patch.TimeoutSec
-	}
-	if patch.Channel != nil {
-		job.Delivery.Channel = *patch.Channel
-	}
-	if patch.Target != nil {
-		job.Delivery.Target = *patch.Target
-	}
-	job.UpdatedAt = now
-
-	if _, err := normalizeCommon(job, false, now); err != nil {
-		return err
-	}
-	if !job.Enabled {
-		job.NextRunAt = nil
-	}
-	return nil
-}
+func applyPatch(job *Job, patch Patch, now time.Time) error { _ = "STUB: not implemented"; return nil }

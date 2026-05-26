@@ -26,42 +26,25 @@ type options struct {
 	unsafeIntent    *unsafeintent.Plugin
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		name: defaultPluginName,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithName sets the plugin name.
-func WithName(name string) Option {
-	return func(opts *options) {
-		opts.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithApproval attaches the approval capability.
 func WithApproval(approvalPlugin *approval.Plugin) Option {
-	return func(opts *options) {
-		opts.approval = approvalPlugin
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPromptInjection attaches the prompt injection capability.
 func WithPromptInjection(promptInjectionPlugin *promptinjection.Plugin) Option {
-	return func(opts *options) {
-		opts.promptInjection = promptInjectionPlugin
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithUnsafeIntent attaches the unsafe intent capability.
 func WithUnsafeIntent(unsafeIntentPlugin *unsafeintent.Plugin) Option {
-	return func(opts *options) {
-		opts.unsafeIntent = unsafeIntentPlugin
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

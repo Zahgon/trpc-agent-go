@@ -12,8 +12,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"math"
 	"net/http"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
@@ -90,37 +88,13 @@ func main() {
 }
 
 func userIDResolver(ctx context.Context, input *adapter.RunAgentInput) (string, error) {
-	forwardedProps, ok := input.ForwardedProps.(map[string]any)
-	if !ok {
-		return "anonymous", nil
-	}
-	user, ok := forwardedProps["userId"].(string)
-	if !ok {
-		return "anonymous", nil
-	}
-	if user != "" {
-		return user, nil
-	}
-	return "anonymous", nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func calculator(ctx context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch args.Operation {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		result = args.A / args.B
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	default:
-		return calculatorResult{Result: 0}, fmt.Errorf("invalid operation: %s", args.Operation)
-	}
-	return calculatorResult{Result: result}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {
@@ -133,10 +107,6 @@ type calculatorResult struct {
 	Result float64 `json:"result"`
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

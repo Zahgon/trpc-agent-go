@@ -22,44 +22,34 @@ type contextKeyFinalResultChunks struct{}
 // Returns the tool call ID and true if found, empty string and false
 // otherwise.
 func ToolCallIDFromContext(ctx context.Context) (string, bool) {
-	toolCallID, ok := ctx.Value(ContextKeyToolCallID{}).(string)
-	return toolCallID, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // WithStructuredStreamErrors marks a streamable-tool invocation as expecting
 // structured error chunks instead of plain text fallback content.
 func WithStructuredStreamErrors(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return context.WithValue(ctx, contextKeyStructuredStreamErrors{}, true)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // StructuredStreamErrorsFromContext reports whether structured stream error
 // chunks are enabled for the current streamable-tool invocation.
 func StructuredStreamErrorsFromContext(ctx context.Context) bool {
-	if ctx == nil {
-		return false
-	}
-	enabled, _ := ctx.Value(contextKeyStructuredStreamErrors{}).(bool)
-	return enabled
+	_ = "STUB: not implemented"
+	return false
 }
 
 // WithFinalResultChunks marks a streamable-tool invocation as expecting final
 // result chunks for framework-managed completion handling.
 func WithFinalResultChunks(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return context.WithValue(ctx, contextKeyFinalResultChunks{}, true)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // FinalResultChunksFromContext reports whether final result chunks are enabled
 // for the current streamable-tool invocation.
 func FinalResultChunksFromContext(ctx context.Context) bool {
-	if ctx == nil {
-		return false
-	}
-	enabled, _ := ctx.Value(contextKeyFinalResultChunks{}).(bool)
-	return enabled
+	_ = "STUB: not implemented"
+	return false
 }

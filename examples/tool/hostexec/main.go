@@ -12,22 +12,13 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
-	"fmt"
 	"log"
-	"os"
-	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/hostexec"
 )
 
 const appName = "hostexec-demo"
@@ -59,135 +50,23 @@ type cliApp struct {
 }
 
 func newApp(modelName string, baseDir string) (*cliApp, error) {
-	toolSet, err := hostexec.NewToolSet(
-		hostexec.WithBaseDir(baseDir),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("create hostexec tool set: %w", err)
-	}
-
-	agt := llmagent.New(
-		"hostexec-assistant",
-		llmagent.WithModel(openai.New(modelName)),
-		llmagent.WithDescription(
-			"An assistant that can run local shell commands",
-		),
-		llmagent.WithInstruction(hostExecInstruction),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			MaxTokens: intPtr(2000),
-			Stream:    true,
-		}),
-		llmagent.WithToolSets([]tool.ToolSet{toolSet}),
-	)
-
-	return &cliApp{
-		modelName: modelName,
-		baseDir:   baseDir,
-		tools:     toolSet,
-		runner:    runner.NewRunner(appName, agt),
-		userID:    "user",
-		sessionID: fmt.Sprintf("hostexec-%d", time.Now().Unix()),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (a *cliApp) run(ctx context.Context) error {
-	fmt.Printf("Host Exec Demo\n")
-	fmt.Printf("Model: %s\n", a.modelName)
-	fmt.Printf("Base Dir: %s\n", a.baseDir)
-	fmt.Printf("Session: %s\n", a.sessionID)
-	fmt.Println(strings.Repeat("=", 50))
-	fmt.Println("Ask for local shell work inside the base directory.")
-	fmt.Println("Examples:")
-	fmt.Println("  - List files in this project")
-	fmt.Println("  - Run go test ./... and summarize failures")
-	fmt.Println("  - Start a long command and keep polling it")
-	fmt.Println("Type 'exit' to quit.")
-	fmt.Println()
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("You: ")
-		if !scanner.Scan() {
-			break
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		if strings.EqualFold(text, "exit") {
-			return nil
-		}
-		if err := a.runTurn(ctx, text); err != nil {
-			fmt.Printf("Error: %v\n\n", err)
-		}
-	}
-	return scanner.Err()
-}
+func (a *cliApp) run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func (a *cliApp) runTurn(
 	ctx context.Context,
 	userText string,
 ) error {
-	evCh, err := a.runner.Run(
-		ctx,
-		a.userID,
-		a.sessionID,
-		model.NewUserMessage(userText),
-	)
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Assistant: ")
-	var printed bool
-	for ev := range evCh {
-		if ev.Error != nil {
-			fmt.Printf("\nError: %s\n", ev.Error.Message)
-			continue
-		}
-		if err := printToolCalls(ev); err != nil {
-			return err
-		}
-		if len(ev.Response.Choices) == 0 {
-			continue
-		}
-		choice := ev.Response.Choices[0]
-		if choice.Delta.Content != "" {
-			fmt.Print(choice.Delta.Content)
-			printed = true
-		}
-		if choice.Message.Content != "" && !ev.Done {
-			fmt.Print(choice.Message.Content)
-			printed = true
-		}
-	}
-	if printed {
-		fmt.Println()
-	}
-	fmt.Println()
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func printToolCalls(ev *event.Event) error {
-	if len(ev.Response.Choices) == 0 {
-		return nil
-	}
-	msg := ev.Response.Choices[0].Message
-	if len(msg.ToolCalls) == 0 {
-		return nil
-	}
-	fmt.Println()
-	for _, tc := range msg.ToolCalls {
-		fmt.Printf("Tool: %s\n", tc.Function.Name)
-		fmt.Printf("Args: %s\n", tc.Function.Arguments)
-	}
-	fmt.Print("Assistant: ")
-	return nil
-}
+func printToolCalls(ev *event.Event) error { _ = "STUB: not implemented"; return nil }
 
-func intPtr(v int) *int {
-	return &v
-}
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
 const hostExecInstruction = `You are a careful assistant with a direct
 host command tool.

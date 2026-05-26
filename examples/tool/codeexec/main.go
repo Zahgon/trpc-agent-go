@@ -10,27 +10,14 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
-	e2bexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/jupyter"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/codeexec"
 )
 
 func main() {
@@ -67,323 +54,109 @@ type codeExecChat struct {
 }
 
 // run starts the interactive chat session
-func (c *codeExecChat) run() error {
-	ctx := context.Background()
+func (c *codeExecChat) run() error { _ = "STUB: not implemented"; return nil }
 
-	// Setup runner
-	if err := c.setup(ctx); err != nil {
-		return fmt.Errorf("setup failed: %w", err)
-	}
+// Setup runner
 
-	// Ensure runner resources are cleaned up
-	defer c.runner.Close()
-	defer func() {
-		if c.cleanup != nil {
-			if err := c.cleanup(); err != nil {
-				log.Printf("cleanup failed: %v", err)
-			}
-		}
-	}()
+// Ensure runner resources are cleaned up
 
-	// Start interactive chat
-	return c.startChat(ctx)
-}
+// Start interactive chat
 
 // setup creates a runner with code execution tool
 func (c *codeExecChat) setup(_ context.Context) error {
+	_ = "STUB: not implemented"
 	// Create OpenAI model
-	modelInstance := openai.New(c.modelName)
-
-	// Create code executor
-	var executor codeexecutor.CodeExecutor
-	switch strings.ToLower(strings.TrimSpace(c.executorKind)) {
-	case "local":
-		executor = local.New(
-			local.WithTimeout(30 * time.Second),
-		)
-	case "e2b":
-		e2be, err := e2bexec.New()
-		if err != nil {
-			return fmt.Errorf("e2b executor: %w", err)
-		}
-		executor = e2be
-	case "jupyter":
-		je, err := jupyter.New(
-			jupyter.WithStartTimeout(30*time.Second),
-			jupyter.WithWaitReadyTimeout(30*time.Second),
-		)
-		if err != nil {
-			return fmt.Errorf("create jupyter executor: %w", err)
-		}
-		executor = je
-		c.cleanup = je.Close
-	default:
-		return fmt.Errorf("unknown -executor=%q (supported: local, jupyter)", c.executorKind)
-	}
-
-	// Create code execution tool
-	codeExecTool := codeexec.NewTool(executor,
-		codeexec.WithDescription("Execute Python or Bash code and return the result. "+
-			"Use this when you need to run code for computation, data analysis, or logic verification."),
-	)
-
-	// Create LLM agent
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(2000),
-		Temperature: floatPtr(0.7),
-		Stream:      true,
-	}
-
-	agentName := "code-exec-assistant"
-	llmAgent := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("An AI assistant that can execute Python and Bash code"),
-		llmagent.WithInstruction(`You are an intelligent assistant that can execute code.
-When users ask you to perform calculations, data analysis, or any task that requires code execution,
-use the execute_code tool to run Python or Bash code and return the results.
-
-Examples of when to use the tool:
-- Mathematical calculations: "Calculate the factorial of 10"
-- Data processing: "Generate a list of prime numbers under 100"
-- System information: "Show current directory contents"
-- Text processing: "Count words in a given text"
-
-Always explain what the code does before executing it.`),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools([]tool.Tool{codeExecTool}),
-	)
-
-	// Create runner
-	appName := "code-exec-chat"
-	c.runner = runner.NewRunner(
-		appName,
-		llmAgent,
-	)
-
-	// Set identifiers
-	c.userID = "user"
-	c.sessionID = fmt.Sprintf("codeexec-session-%d", time.Now().Unix())
-
-	fmt.Printf("✅ Code execution assistant is ready! Session ID: %s\n\n", c.sessionID)
-
 	return nil
 }
+
+// Create code executor
+
+// Create code execution tool
+
+// Create LLM agent
+
+// Create runner
+
+// Set identifiers
 
 // startChat runs the interactive conversation loop
-func (c *codeExecChat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
+func (c *codeExecChat) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Print welcome message and examples
-	printExamples()
+// Print welcome message and examples
 
-	for {
-		fmt.Print("👤 User: ")
-		if !scanner.Scan() {
-			break
-		}
+// Handle exit command
 
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
+// Process user message
 
-		// Handle exit command
-		if strings.ToLower(userInput) == "exit" {
-			fmt.Println("👋 Goodbye!")
-			return nil
-		}
-
-		// Process user message
-		if err := c.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println() // Add blank line between conversation rounds
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-
-	return nil
-}
+// Add blank line between conversation rounds
 
 // processMessage processes a single message exchange
 func (c *codeExecChat) processMessage(ctx context.Context, userMessage string) error {
-	message := model.NewUserMessage(userMessage)
-
-	// Run agent through runner
-	eventChan, err := c.runner.Run(ctx, c.userID, c.sessionID, message)
-	if err != nil {
-		return fmt.Errorf("failed to run agent: %w", err)
-	}
-
-	// Process streaming response
-	return c.processStreamingResponse(eventChan)
-}
-
-// processStreamingResponse processes streaming response
-func (c *codeExecChat) processStreamingResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("🤖 Assistant: ")
-
-	var (
-		fullContent       string
-		toolCallsDetected bool
-		assistantStarted  bool
-	)
-
-	for evt := range eventChan {
-		// Handle errors
-		if evt.Error != nil {
-			if evt.Error.Type == agent.ErrorTypeStopAgentError {
-				fmt.Printf("\n🛑 Agent stopped: %s\n", evt.Error.Message)
-				return agent.NewStopError(evt.Error.Message)
-			}
-			fmt.Printf("\n❌ Error: %s\n", evt.Error.Message)
-			continue
-		}
-
-		// Detect and display tool calls
-		if c.handleToolCalls(evt, &toolCallsDetected, &assistantStarted) {
-			continue
-		}
-
-		// Detect tool responses
-		if c.handleToolResponses(evt) {
-			continue
-		}
-
-		// Process streaming content
-		c.processStreamingContent(evt, &toolCallsDetected, &assistantStarted, &fullContent)
-
-		// Check if this is the final event
-		if evt.IsFinalResponse() {
-			fmt.Printf("\n")
-			break
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Run agent through runner
+
+// Process streaming response
+
+// processStreamingResponse processes streaming response
+func (c *codeExecChat) processStreamingResponse(eventChan <-chan *event.Event) error {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+// Handle errors
+
+// Detect and display tool calls
+
+// Detect tool responses
+
+// Process streaming content
+
+// Check if this is the final event
+
 // handleToolCalls processes tool call events
 func (c *codeExecChat) handleToolCalls(evt *event.Event, toolCallsDetected *bool, assistantStarted *bool) bool {
-	if len(evt.Response.Choices) == 0 || len(evt.Response.Choices[0].Message.ToolCalls) == 0 {
-		return false
-	}
-
-	*toolCallsDetected = true
-	if *assistantStarted {
-		fmt.Printf("\n")
-	}
-	fmt.Printf("🔧 Tool calls:\n")
-	for _, toolCall := range evt.Response.Choices[0].Message.ToolCalls {
-		fmt.Printf("   💻 %s (ID: %s)\n", toolCall.Function.Name, toolCall.ID)
-		if len(toolCall.Function.Arguments) > 0 {
-			// Parse and display code nicely
-			args := string(toolCall.Function.Arguments)
-			fmt.Printf("     Arguments: %s\n", truncateString(args, 200))
-		}
-	}
-	fmt.Printf("\n⚡ Executing code...\n")
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
+
+// Parse and display code nicely
 
 // handleToolResponses processes tool response events
 func (c *codeExecChat) handleToolResponses(evt *event.Event) bool {
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return false
-	}
-
-	hasToolResponse := false
-	for _, choice := range evt.Response.Choices {
-		if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-			fmt.Printf("✅ Execution result (ID: %s):\n%s\n",
-				choice.Message.ToolID,
-				formatCodeResult(choice.Message.Content))
-			hasToolResponse = true
-		}
-	}
-	return hasToolResponse
+	_ = "STUB: not implemented"
+	return false
 }
 
 // processStreamingContent processes streaming content events
 func (c *codeExecChat) processStreamingContent(evt *event.Event, toolCallsDetected *bool, assistantStarted *bool, fullContent *string) {
-	if len(evt.Response.Choices) == 0 {
-		return
-	}
-
-	choice := evt.Response.Choices[0]
-
-	// Process streaming delta content
-	if choice.Delta.Content != "" {
-		if !*assistantStarted {
-			if *toolCallsDetected {
-				fmt.Printf("\n🤖 Assistant: ")
-			}
-			*assistantStarted = true
-		}
-		fmt.Print(choice.Delta.Content)
-		*fullContent += choice.Delta.Content
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Process streaming delta content
 
 // truncateString truncates a string to the specified length
-func truncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen] + "..."
-}
+func truncateString(s string, maxLen int) string { _ = "STUB: not implemented"; return "" }
 
 // formatCodeResult formats code execution result for display
-func formatCodeResult(content string) string {
-	content = strings.TrimSpace(content)
-	if len(content) > 500 {
-		return content[:500] + "\n... (output truncated)"
-	}
-	return content
-}
+func formatCodeResult(content string) string { _ = "STUB: not implemented"; return "" }
 
 // intPtr returns a pointer to the given integer
 func intPtr(i int) *int {
-	return &i
+	_ = "STUB: not implemented"
+
+	// floatPtr returns a pointer to the given float
+	return nil
 }
 
-// floatPtr returns a pointer to the given float
 func floatPtr(f float64) *float64 {
-	return &f
+	_ = "STUB: not implemented"
+
+	// printExamples prints example questions for users
+	return nil
 }
 
-// printExamples prints example questions for users
-func printExamples() {
-	fmt.Println("💡 Example questions you can try:")
-	fmt.Println()
-	fmt.Println("   📊 Math & Computation:")
-	fmt.Println("      • Calculate the factorial of 10")
-	fmt.Println("      • What is 123 * 456 + 789?")
-	fmt.Println("      • Generate first 20 Fibonacci numbers")
-	fmt.Println("      • Find all prime numbers under 100")
-	fmt.Println()
-	fmt.Println("   🔐 Security & Random:")
-	fmt.Println("      • Generate a random 16-character password with letters, numbers and symbols")
-	fmt.Println("      • Generate a UUID")
-	fmt.Println("      • Calculate the MD5 hash of 'hello world'")
-	fmt.Println()
-	fmt.Println("   📈 Data Analysis:")
-	fmt.Println("      • Calculate mean, median, and std of [1,2,3,4,5,6,7,8,9,10]")
-	fmt.Println("      • Sort the list [64, 34, 25, 12, 22, 11, 90] using quicksort")
-	fmt.Println()
-	fmt.Println("   🎨 Fun & Creative:")
-	fmt.Println("      • Create an ASCII art of a cat")
-	fmt.Println("      • Print a multiplication table from 1 to 9")
-	fmt.Println("      • Draw a simple bar chart for data [5, 3, 8, 2, 7]")
-	fmt.Println()
-	fmt.Println("   💻 System (Bash):")
-	fmt.Println("      • Show current date and time")
-	fmt.Println("      • List files in current directory with sizes")
-	fmt.Println("      • Show system information (uname -a)")
-	fmt.Println("      • Display disk usage")
-	fmt.Println()
-}
+func printExamples() { _ = "STUB: not implemented"; return }

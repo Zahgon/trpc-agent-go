@@ -33,55 +33,37 @@ type options struct {
 }
 
 // newOptions applies functional options to build a criterion configuration.
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures FinalResponseCriterion.
 type Option func(*options)
 
 // WithTextCriterion sets the text criterion.
 func WithTextCriterion(criterion *text.TextCriterion) Option {
-	return func(o *options) {
-		o.text = criterion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithJSONCriterion sets the JSON criterion.
 func WithJSONCriterion(criterion *cjson.JSONCriterion) Option {
-	return func(o *options) {
-		o.json = criterion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithXMLCriterion sets the XML criterion.
 func WithXMLCriterion(criterion *cxml.XMLCriterion) Option {
-	return func(o *options) {
-		o.xml = criterion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCompareName sets the name of the registered compare function.
-func WithCompareName(compareName string) Option {
-	return func(o *options) {
-		o.compareName = compareName
-	}
-}
+func WithCompareName(compareName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompare sets the custom compare function.
-func WithCompare(compare CompareFunc) Option {
-	return func(o *options) {
-		o.compare = compare
-	}
-}
+func WithCompare(compare CompareFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRougeCriterion sets the ROUGE criterion.
 func WithRougeCriterion(criterion *crouge.RougeCriterion) Option {
-	return func(o *options) {
-		o.rouge = criterion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

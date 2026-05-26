@@ -13,7 +13,6 @@ package noop
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
@@ -28,27 +27,20 @@ type Service struct{}
 
 // NewService creates a new no-op session service.
 func NewService() *Service {
-	return &Service{}
+	_ = "STUB: not implemented"
+
+	// CreateSession creates a transient session and does not persist it.
+	return nil
 }
 
-// CreateSession creates a transient session and does not persist it.
 func (s *Service) CreateSession(
 	ctx context.Context,
 	key session.Key,
 	state session.StateMap,
 	opts ...session.Option,
 ) (*session.Session, error) {
-	if err := key.CheckUserKey(); err != nil {
-		return nil, err
-	}
-	if key.SessionID == "" {
-		key.SessionID = uuid.NewString()
-	}
-	sess := session.NewSession(key.AppName, key.UserID, key.SessionID)
-	for k, v := range state {
-		sess.SetState(k, v)
-	}
-	return sess, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetSession always returns nil after validating the key and options.
@@ -57,13 +49,7 @@ func (s *Service) GetSession(
 	key session.Key,
 	opts ...session.Option,
 ) (*session.Session, error) {
-	if err := key.CheckSessionKey(); err != nil {
-		return nil, err
-	}
-	opt := applyOptions(opts...)
-	if err := session.ValidateGetSessionOptions(opt, false); err != nil {
-		return nil, err
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -73,14 +59,8 @@ func (s *Service) ListSessions(
 	userKey session.UserKey,
 	opts ...session.Option,
 ) ([]*session.Session, error) {
-	if err := userKey.CheckUserKey(); err != nil {
-		return nil, err
-	}
-	opt := applyOptions(opts...)
-	if err := session.ValidateListSessionsOptions(opt); err != nil {
-		return nil, err
-	}
-	return []*session.Session{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DeleteSession validates the key and does not persist any deletion.
@@ -89,31 +69,26 @@ func (s *Service) DeleteSession(
 	key session.Key,
 	opts ...session.Option,
 ) error {
-	return key.CheckSessionKey()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateAppState validates the app name and drops the state update.
 func (s *Service) UpdateAppState(ctx context.Context, appName string, state session.StateMap) error {
-	if appName == "" {
-		return session.ErrAppNameRequired
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // DeleteAppState validates the app name and drops the delete request.
 func (s *Service) DeleteAppState(ctx context.Context, appName string, key string) error {
-	if appName == "" {
-		return session.ErrAppNameRequired
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // ListAppStates validates the app name and returns an empty state map.
 func (s *Service) ListAppStates(ctx context.Context, appName string) (session.StateMap, error) {
-	if appName == "" {
-		return nil, session.ErrAppNameRequired
-	}
-	return session.StateMap{}, nil
+	_ = "STUB: not implemented"
+	return *new(session.StateMap), nil
 }
 
 // UpdateUserState validates the user key and drops the state update.
@@ -122,9 +97,7 @@ func (s *Service) UpdateUserState(
 	userKey session.UserKey,
 	state session.StateMap,
 ) error {
-	if err := userKey.CheckUserKey(); err != nil {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -133,15 +106,14 @@ func (s *Service) ListUserStates(
 	ctx context.Context,
 	userKey session.UserKey,
 ) (session.StateMap, error) {
-	if err := userKey.CheckUserKey(); err != nil {
-		return nil, err
-	}
-	return session.StateMap{}, nil
+	_ = "STUB: not implemented"
+	return *new(session.StateMap), nil
 }
 
 // DeleteUserState validates the user key and drops the delete request.
 func (s *Service) DeleteUserState(ctx context.Context, userKey session.UserKey, key string) error {
-	return userKey.CheckUserKey()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateSessionState validates the session key and drops the state update.
@@ -150,9 +122,7 @@ func (s *Service) UpdateSessionState(
 	key session.Key,
 	state session.StateMap,
 ) error {
-	if err := key.CheckSessionKey(); err != nil {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -163,14 +133,7 @@ func (s *Service) AppendEvent(
 	evt *event.Event,
 	opts ...session.Option,
 ) error {
-	if sess == nil {
-		return session.ErrNilSession
-	}
-	key := session.Key{AppName: sess.AppName, UserID: sess.UserID, SessionID: sess.ID}
-	if err := key.CheckSessionKey(); err != nil {
-		return err
-	}
-	sess.UpdateUserSession(evt, opts...)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -181,14 +144,8 @@ func (s *Service) AppendTrackEvent(
 	trackEvent *session.TrackEvent,
 	opts ...session.Option,
 ) error {
-	if sess == nil {
-		return session.ErrNilSession
-	}
-	key := session.Key{AppName: sess.AppName, UserID: sess.UserID, SessionID: sess.ID}
-	if err := key.CheckSessionKey(); err != nil {
-		return err
-	}
-	return sess.AppendTrackEvent(trackEvent, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateSessionSummary is a no-op.
@@ -198,11 +155,8 @@ func (s *Service) CreateSessionSummary(
 	filterKey string,
 	force bool,
 ) error {
-	if sess == nil {
-		return session.ErrNilSession
-	}
-	key := session.Key{AppName: sess.AppName, UserID: sess.UserID, SessionID: sess.ID}
-	return key.CheckSessionKey()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EnqueueSummaryJob is a no-op.
@@ -212,11 +166,8 @@ func (s *Service) EnqueueSummaryJob(
 	filterKey string,
 	force bool,
 ) error {
-	if sess == nil {
-		return session.ErrNilSession
-	}
-	key := session.Key{AppName: sess.AppName, UserID: sess.UserID, SessionID: sess.ID}
-	return key.CheckSessionKey()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetSessionSummaryText always reports that no summary exists.
@@ -225,18 +176,12 @@ func (s *Service) GetSessionSummaryText(
 	sess *session.Session,
 	opts ...session.SummaryOption,
 ) (string, bool) {
+	_ = "STUB: not implemented"
+
+	// Close closes the no-op service.
 	return "", false
 }
 
-// Close closes the no-op service.
-func (s *Service) Close() error {
-	return nil
-}
+func (s *Service) Close() error { _ = "STUB: not implemented"; return nil }
 
-func applyOptions(opts ...session.Option) *session.Options {
-	opt := &session.Options{}
-	for _, o := range opts {
-		o(opt)
-	}
-	return opt
-}
+func applyOptions(opts ...session.Option) *session.Options { _ = "STUB: not implemented"; return nil }

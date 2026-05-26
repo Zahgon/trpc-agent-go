@@ -115,210 +115,102 @@ var defaultOptions = options{
 type Option func(*options)
 
 // WithURL sets the vector database URL.
-func WithURL(url string) Option {
-	return func(o *options) {
-		o.url = url
-	}
-}
+func WithURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUsername sets the username for authentication.
-func WithUsername(username string) Option {
-	return func(o *options) {
-		o.username = username
-	}
-}
+func WithUsername(username string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) Option {
-	return func(o *options) {
-		o.password = password
-	}
-}
+func WithPassword(password string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDatabase sets the database name.
-func WithDatabase(database string) Option {
-	return func(o *options) {
-		o.database = database
-	}
-}
+func WithDatabase(database string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCollection sets the collection name.
-func WithCollection(collection string) Option {
-	return func(o *options) {
-		o.collection = collection
-	}
-}
+func WithCollection(collection string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIndexDimension sets the vector dimension for the index.
-func WithIndexDimension(dimension uint32) Option {
-	return func(o *options) {
-		o.indexDimension = dimension
-	}
-}
+func WithIndexDimension(dimension uint32) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReplicas sets the number of replicas.
-func WithReplicas(replicas uint32) Option {
-	return func(o *options) {
-		o.replicas = replicas
-	}
-}
+func WithReplicas(replicas uint32) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSharding sets the number of shards.
-func WithSharding(sharding uint32) Option {
-	return func(o *options) {
-		o.sharding = sharding
-	}
-}
+func WithSharding(sharding uint32) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableTSVector sets the enableTSVector for the vector database.
-func WithEnableTSVector(enableTSVector bool) Option {
-	return func(o *options) {
-		o.enableTSVector = enableTSVector
-	}
-}
+func WithEnableTSVector(enableTSVector bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHybridSearchWeights sets the weights for hybrid search scoring.
 // vectorWeight: Weight for vector similarity (0.0-1.0)
 // textWeight: Weight for text relevance (0.0-1.0)
 // Note: weights will be normalized to sum to 1.0
 func WithHybridSearchWeights(vectorWeight, textWeight float64) Option {
-	return func(o *options) {
-		// Normalize weights to sum to 1.0.
-		total := vectorWeight + textWeight
-		if total > 0 {
-			o.vectorWeight = vectorWeight / total
-			o.textWeight = textWeight / total
-		} else {
-			// Fallback to defaults if invalid weights.
-			o.vectorWeight = 0.7
-			o.textWeight = 0.3
-		}
-	}
+	_ = "STUB: not implemented"
+	return *
+
+	// Normalize weights to sum to 1.0.
+	new(Option)
 }
 
+// Fallback to defaults if invalid weights.
+
 // WithLanguage sets the language for the vector database.
-func WithLanguage(language string) Option {
-	return func(o *options) {
-		o.language = language
-	}
-}
+func WithLanguage(language string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTCVectorInstance uses a tcvectordb instance from storage.
 // Note: WithURL, WithUserName, WithPassword has higher priority than WithTCVectorInstance.
 // If both are specified, WithURL, WithUserName, WithPassword will be used.
-func WithTCVectorInstance(name string) Option {
-	return func(o *options) {
-		o.instanceName = name
-	}
-}
+func WithTCVectorInstance(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraOptions passes through extra client builder options to storage tcvector.
 // It is mainly for customized client builders; the default builder ignores them.
-func WithExtraOptions(extraOptions ...any) Option {
-	return func(o *options) {
-		o.extraOptions = append(o.extraOptions, extraOptions...)
-	}
-}
+func WithExtraOptions(extraOptions ...any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFilterIndexFields creates dedicated indexes for specified metadata fields.
 // This is optional and provides better query performance for frequently queried fields.
 // Other metadata fields can still be queried via the default JSON index.
 //
 // It will build additional indexes for the specified filter fields.
-func WithFilterIndexFields(fields []string) Option {
-	return func(o *options) {
-		o.filterFields = append(o.filterFields, fields...)
-		for _, field := range fields {
-			o.filterIndexes = append(o.filterIndexes, tcvectordb.FilterIndex{
-				FieldName: field,
-				IndexType: tcvectordb.FILTER,
-				FieldType: tcvectordb.String,
-			})
-		}
-	}
-}
+func WithFilterIndexFields(fields []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDocBuilder sets the document builder function.
-func WithDocBuilder(builder DocBuilderFunc) Option {
-	return func(o *options) {
-		o.docBuilder = builder
-	}
-}
+func WithDocBuilder(builder DocBuilderFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxResults sets the maximum number of search results.
-func WithMaxResults(maxResults int) Option {
-	return func(o *options) {
-		if maxResults <= 0 {
-			maxResults = defaultMaxResults
-		}
-		o.maxResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIDField sets the tcvectordb field name for ID.
-func WithIDField(field string) Option {
-	return func(o *options) {
-		o.idFieldName = field
-	}
-}
+func WithIDField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNameField sets the tcvectordb field name for name/title.
-func WithNameField(field string) Option {
-	return func(o *options) {
-		o.nameFieldName = field
-	}
-}
+func WithNameField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentField sets the tcvectordb field name for content.
-func WithContentField(field string) Option {
-	return func(o *options) {
-		o.contentFieldName = field
-	}
-}
+func WithContentField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEmbeddingField sets the tcvectordb field name for embedding.
 // This field value type is []float64
-func WithEmbeddingField(field string) Option {
-	return func(o *options) {
-		o.embeddingFieldName = field
-	}
-}
+func WithEmbeddingField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataField sets the tcvectordb field name for metadata.
-func WithMetadataField(field string) Option {
-	return func(o *options) {
-		o.metadataFieldName = field
-	}
-}
+func WithMetadataField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCreatedAtField sets the tcvectordb field name for created_at.
 // This field value type is uint64, so the value is converted to time.Time
-func WithCreatedAtField(field string) Option {
-	return func(o *options) {
-		o.createdAtFieldName = field
-	}
-}
+func WithCreatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUpdatedAtField sets the tcvectordb field name for updated_at.
 // This field value type is uint64, so the value is converted to time.Time
-func WithUpdatedAtField(field string) Option {
-	return func(o *options) {
-		o.updatedAtFieldName = field
-	}
-}
+func WithUpdatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSparseVectorField sets the tcvectordb field name for sparse vector.
-func WithSparseVectorField(field string) Option {
-	return func(o *options) {
-		o.sparseVectorFieldName = field
-	}
-}
+func WithSparseVectorField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTCSparseEncoder sets the sparse encoder for keyword and hybrid search.
 func WithTCSparseEncoder(sparseEncoder TCSparseEncoder) Option {
-	return func(o *options) {
-		o.sparseEncoder = sparseEncoder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRemoteEmbeddingModel sets the embedding model name for remote computation.
@@ -326,18 +218,10 @@ func WithTCSparseEncoder(sparseEncoder TCSparseEncoder) Option {
 // directly to tcvectordb for embedding computation.
 // Common models: bge-base-zh, bge-large-zh, m3e-base, text2vec-large-chinese, etc.
 // Set to empty string to disable remote embedding.
-func WithRemoteEmbeddingModel(model string) Option {
-	return func(o *options) {
-		o.embeddingModel = model
-	}
-}
+func WithRemoteEmbeddingModel(model string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFilterAll enables filterAll mode for filter index configuration.
 // When enabled, all scalar fields can be used for filtering without creating indexes,
 // which skips index creation and validation for scalar fields.
 // This is useful when you want to filter on many fields without the overhead of maintaining indexes.
-func WithFilterAll(enable bool) Option {
-	return func(o *options) {
-		o.filterAll = enable
-	}
-}
+func WithFilterAll(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }

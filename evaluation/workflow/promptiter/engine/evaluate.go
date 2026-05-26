@@ -11,11 +11,6 @@ package engine
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"maps"
-	"slices"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
@@ -25,7 +20,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/status"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/provider"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -102,50 +96,13 @@ func (e *engine) evaluate(
 	structure *structureState,
 	request *EvaluationRequest,
 ) (*EvaluationResult, error) {
-	if request == nil {
-		return nil, errors.New("evaluation request is nil")
-	}
-	if structure == nil {
-		return nil, errors.New("structure state is nil")
-	}
-	if err := validateEvalSetInputs("", request.EvalSets); err != nil {
-		return nil, err
-	}
-	if e.agentEvaluator == nil {
-		return nil, errors.New("agent evaluator is nil")
-	}
-	results := make([]EvalSetResult, 0, len(request.EvalSets))
-	totalScore := 0.0
-	for _, input := range request.EvalSets {
-		options, err := buildEvaluationCallOptions(structure, request, input)
-		if err != nil {
-			return nil, err
-		}
-		genericResult, err := e.agentEvaluator.Evaluate(ctx, input.EvalSetID, options...)
-		if err != nil {
-			return nil, err
-		}
-		evalSetResult, err := adaptEvaluationSetResult(structure, input.EvalSetID, genericResult)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, *evalSetResult)
-		totalScore += evalSetResult.OverallScore
-	}
-	return &EvaluationResult{
-		OverallScore: totalScore / float64(len(results)),
-		EvalSets:     results,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func evaluationScore(result *EvaluationResult) (float64, error) {
-	if result == nil {
-		return 0, errors.New("evaluation result is nil")
-	}
-	if len(result.EvalSets) == 0 {
-		return 0, errors.New("evaluation result has no eval sets")
-	}
-	return result.OverallScore, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func buildEvaluationCallOptions(
@@ -153,89 +110,16 @@ func buildEvaluationCallOptions(
 	request *EvaluationRequest,
 	input EvalSetInput,
 ) ([]evaluation.Option, error) {
-	if request == nil {
-		return nil, errors.New("evaluation request is nil")
-	}
-	runOptions, err := compileProfileRunOptions(structure, request.Profile)
-	if err != nil {
-		return nil, err
-	}
-	options := make([]evaluation.Option, 0, 8)
-	options = append(options, evaluation.WithRunDetailsEnabled(true))
-	options = append(options, evaluation.WithRunOptions(runOptions...))
-	if request.Teacher != nil {
-		options = append(options, evaluation.WithExpectedRunner(request.Teacher))
-	}
-	if request.Judge != nil {
-		options = append(options, evaluation.WithJudgeRunner(request.Judge))
-	}
-	options = append(options, evaluation.WithNumRuns(1))
-	if request.Options.EvalCaseParallelism > 0 {
-		options = append(options, evaluation.WithEvalCaseParallelism(request.Options.EvalCaseParallelism))
-	}
-	if request.Options.EvalCaseParallelInferenceEnabled {
-		options = append(options, evaluation.WithEvalCaseParallelInferenceEnabled(true))
-	}
-	if request.Options.EvalCaseParallelEvaluationEnabled {
-		options = append(options, evaluation.WithEvalCaseParallelEvaluationEnabled(true))
-	}
-	if len(input.EvalCaseIDs) > 0 {
-		options = append(options, evaluation.WithEvalCaseIDs(input.EvalCaseIDs...))
-	}
-	return options, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func compileProfileRunOptions(
 	structure *structureState,
 	profile *promptiter.Profile,
 ) ([]agent.RunOption, error) {
-	if structure == nil {
-		return nil, errors.New("structure state is nil")
-	}
-	if profile != nil && profile.StructureID != "" && profile.StructureID != structure.snapshot.StructureID {
-		return nil, fmt.Errorf(
-			"profile structure id %q does not match structure id %q",
-			profile.StructureID,
-			structure.snapshot.StructureID,
-		)
-	}
-	runOptions := []agent.RunOption{
-		agent.WithExecutionTraceEnabled(true),
-	}
-	if profile == nil {
-		return runOptions, nil
-	}
-	overrideIndex := buildOverrideIndex(profile)
-	if len(overrideIndex) == 0 {
-		return runOptions, nil
-	}
-	surfaceIDs := make([]string, 0, len(overrideIndex))
-	for surfaceID := range overrideIndex {
-		surfaceIDs = append(surfaceIDs, surfaceID)
-	}
-	slices.Sort(surfaceIDs)
-	nodePatches := make(map[string]agent.SurfacePatch)
-	for _, surfaceID := range surfaceIDs {
-		override := overrideIndex[surfaceID]
-		surface, ok := structure.surfaceIndex[surfaceID]
-		if !ok {
-			return nil, fmt.Errorf("profile override references unknown surface id %q", override.SurfaceID)
-		}
-		patch := nodePatches[surface.NodeID]
-		if err := applySurfaceOverrideToPatch(&patch, surface, override.Value); err != nil {
-			return nil, err
-		}
-		nodePatches[surface.NodeID] = patch
-	}
-	nodeIDs := make([]string, 0, len(nodePatches))
-	for nodeID := range nodePatches {
-		nodeIDs = append(nodeIDs, nodeID)
-	}
-	slices.Sort(nodeIDs)
-	for _, nodeID := range nodeIDs {
-		runOptions = append(runOptions, agent.WithSurfacePatchForNode(nodeID, nodePatches[nodeID]))
-	}
-	return runOptions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func applySurfaceOverrideToPatch(
@@ -243,103 +127,20 @@ func applySurfaceOverrideToPatch(
 	surface astructure.Surface,
 	value astructure.SurfaceValue,
 ) error {
-	if patch == nil {
-		return errors.New("surface patch is nil")
-	}
-	switch surface.Type {
-	case astructure.SurfaceTypeInstruction:
-		if value.Text == nil {
-			return fmt.Errorf("surface %q instruction value is nil", surface.SurfaceID)
-		}
-		patch.SetInstruction(*value.Text)
-		return nil
-	case astructure.SurfaceTypeGlobalInstruction:
-		if value.Text == nil {
-			return fmt.Errorf("surface %q global instruction value is nil", surface.SurfaceID)
-		}
-		patch.SetGlobalInstruction(*value.Text)
-		return nil
-	case astructure.SurfaceTypeFewShot:
-		examples, err := convertFewShotExamples(value.FewShot)
-		if err != nil {
-			return fmt.Errorf("surface %q few-shot value is invalid: %w", surface.SurfaceID, err)
-		}
-		patch.SetFewShot(examples)
-		return nil
-	case astructure.SurfaceTypeModel:
-		modelInstance, err := buildModelInstance(value.Model)
-		if err != nil {
-			return fmt.Errorf("surface %q model value is invalid: %w", surface.SurfaceID, err)
-		}
-		patch.SetModel(modelInstance)
-		return nil
-	default:
-		return fmt.Errorf(
-			"surface %q type %q is not supported by generic evaluation",
-			surface.SurfaceID,
-			surface.Type,
-		)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildModelInstance(ref *astructure.ModelRef) (model.Model, error) {
-	if ref == nil {
-		return nil, errors.New("model ref is nil")
-	}
-	providerName := strings.TrimSpace(ref.Provider)
-	if providerName == "" {
-		return nil, errors.New("model provider is empty")
-	}
-	modelName := strings.TrimSpace(ref.Name)
-	if modelName == "" {
-		return nil, errors.New("model name is empty")
-	}
-	options := make([]provider.Option, 0, 4)
-	if variant := strings.TrimSpace(ref.Variant); variant != "" {
-		options = append(options, provider.WithVariant(variant))
-	}
-	if baseURL := strings.TrimSpace(ref.BaseURL); baseURL != "" {
-		options = append(options, provider.WithBaseURL(baseURL))
-	}
-	if apiKey := strings.TrimSpace(ref.APIKey); apiKey != "" {
-		options = append(options, provider.WithAPIKey(apiKey))
-	}
-	if len(ref.Headers) > 0 {
-		headers := make(map[string]string, len(ref.Headers))
-		maps.Copy(headers, ref.Headers)
-		options = append(options, provider.WithHeaders(headers))
-	}
-	modelInstance, err := provider.Model(providerName, modelName, options...)
-	if err != nil {
-		return nil, err
-	}
-	return modelInstance, nil
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 func convertFewShotExamples(
 	examples []astructure.FewShotExample,
 ) ([][]model.Message, error) {
-	converted := make([][]model.Message, 0, len(examples))
-	for i, example := range examples {
-		messages := make([]model.Message, 0, len(example.Messages))
-		for j, message := range example.Messages {
-			role := model.Role(message.Role)
-			if !role.IsValid() {
-				return nil, fmt.Errorf(
-					"example %d message %d role %q is invalid",
-					i,
-					j,
-					message.Role,
-				)
-			}
-			messages = append(messages, model.Message{
-				Role:    role,
-				Content: message.Content,
-			})
-		}
-		converted = append(converted, messages)
-	}
-	return converted, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func adaptEvaluationSetResult(
@@ -347,66 +148,13 @@ func adaptEvaluationSetResult(
 	evalSetID string,
 	result *evaluation.EvaluationResult,
 ) (*EvalSetResult, error) {
-	if structure == nil {
-		return nil, errors.New("structure state is nil")
-	}
-	if result == nil {
-		return nil, errors.New("evaluation result is nil")
-	}
-	if result.EvalSetID == "" {
-		return nil, errors.New("evaluation result eval set id is empty")
-	}
-	if result.EvalSetID != evalSetID {
-		return nil, fmt.Errorf(
-			"evaluation result eval set id %q does not match request %q",
-			result.EvalSetID,
-			evalSetID,
-		)
-	}
-	score, err := calculateEvaluationScore(result)
-	if err != nil {
-		return nil, err
-	}
-	cases := make([]CaseResult, 0, len(result.EvalCases))
-	for _, evalCase := range result.EvalCases {
-		if evalCase == nil {
-			continue
-		}
-		converted, err := adaptEvaluationCaseResult(structure, evalSetID, evalCase)
-		if err != nil {
-			return nil, err
-		}
-		cases = append(cases, *converted)
-	}
-	return &EvalSetResult{
-		EvalSetID:    evalSetID,
-		OverallScore: score,
-		Cases:        cases,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func calculateEvaluationScore(result *evaluation.EvaluationResult) (float64, error) {
-	if result == nil {
-		return 0, errors.New("evaluation result is nil")
-	}
-	totalScore := 0.0
-	totalMetrics := 0
-	for _, evalCase := range result.EvalCases {
-		if evalCase == nil {
-			continue
-		}
-		for _, metric := range evalCase.MetricResults {
-			if metric == nil || metric.EvalStatus == status.EvalStatusNotEvaluated {
-				continue
-			}
-			totalScore += metric.Score
-			totalMetrics++
-		}
-	}
-	if totalMetrics == 0 {
-		return 0, errors.New("evaluation result has no metric scores")
-	}
-	return totalScore / float64(totalMetrics), nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func adaptEvaluationCaseResult(
@@ -414,63 +162,8 @@ func adaptEvaluationCaseResult(
 	evalSetID string,
 	evalCase *evaluation.EvaluationCaseResult,
 ) (*CaseResult, error) {
-	if evalCase == nil {
-		return nil, errors.New("evaluation case result is nil")
-	}
-	if evalCase.EvalCaseID == "" {
-		return nil, errors.New("evaluation case id is empty")
-	}
-	if len(evalCase.EvalCaseResults) == 0 {
-		return nil, fmt.Errorf(
-			"evaluation case %q has no run results",
-			evalCase.EvalCaseID,
-		)
-	}
-	runResult := evalCase.EvalCaseResults[0]
-	if runResult == nil {
-		return nil, fmt.Errorf("evaluation case %q run result is nil", evalCase.EvalCaseID)
-	}
-	if len(evalCase.RunDetails) == 0 {
-		return nil, fmt.Errorf(
-			"evaluation case %q has no run details",
-			evalCase.EvalCaseID,
-		)
-	}
-	runDetail := evalCase.RunDetails[0]
-	if runDetail == nil {
-		return nil, fmt.Errorf("evaluation case %q run detail is nil", evalCase.EvalCaseID)
-	}
-	if runDetail.RunID != runResult.RunID {
-		return nil, fmt.Errorf(
-			"evaluation case %q run detail id %d does not match run result id %d",
-			evalCase.EvalCaseID,
-			runDetail.RunID,
-			runResult.RunID,
-		)
-	}
-	trace, sessionID, err := extractInferenceTraceDetails(structure, evalCase.EvalCaseID, runDetail.Inference)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"extract inference trace details for eval case %q: %w",
-			evalCase.EvalCaseID,
-			err,
-		)
-	}
-	metrics, err := adaptMetricResults(runResult.OverallEvalMetricResults)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"adapt metric results for eval case %q: %w",
-			evalCase.EvalCaseID,
-			err,
-		)
-	}
-	return &CaseResult{
-		EvalSetID:  evalSetID,
-		EvalCaseID: evalCase.EvalCaseID,
-		SessionID:  sessionID,
-		Trace:      trace,
-		Metrics:    metrics,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func extractInferenceTraceDetails(
@@ -478,77 +171,19 @@ func extractInferenceTraceDetails(
 	evalCaseID string,
 	result *evaluation.EvaluationInferenceDetails,
 ) (*atrace.Trace, string, error) {
-	if structure == nil {
-		return nil, "", errors.New("structure state is nil")
-	}
-	if result == nil {
-		return nil, "", errors.New("inference result is nil")
-	}
-	if len(result.ExecutionTraces) != 1 {
-		return nil, "", fmt.Errorf(
-			"inference result for eval case %q must contain exactly one execution trace",
-			evalCaseID,
-		)
-	}
-	executionTrace := result.ExecutionTraces[0]
-	if err := validateTraceAgainstStructure(structure, executionTrace); err != nil {
-		return nil, "", err
-	}
-	sessionID := executionTrace.SessionID
-	if sessionID == "" {
-		sessionID = result.SessionID
-	}
-	return executionTrace, sessionID, nil
+	_ = "STUB: not implemented"
+	return nil, "", nil
 }
 
 func validateTraceAgainstStructure(
 	structure *structureState,
 	trace *atrace.Trace,
 ) error {
-	if structure == nil {
-		return errors.New("structure state is nil")
-	}
-	if trace == nil {
-		return errors.New("execution trace is nil")
-	}
-	for _, step := range trace.Steps {
-		if step.StepID == "" {
-			return errors.New("execution trace step id is empty")
-		}
-		for _, surfaceID := range step.AppliedSurfaceIDs {
-			if surfaceID == "" {
-				return fmt.Errorf("execution trace step %q applied surface id is empty", step.StepID)
-			}
-			if _, ok := structure.knownSurfaceIDs[surfaceID]; !ok {
-				return fmt.Errorf(
-					"execution trace step %q references unknown surface id %q",
-					step.StepID,
-					surfaceID,
-				)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func adaptMetricResults(results []*evalresult.EvalMetricResult) ([]MetricResult, error) {
-	metrics := make([]MetricResult, 0, len(results))
-	for _, result := range results {
-		if result == nil {
-			continue
-		}
-		metric := MetricResult{
-			MetricName: result.MetricName,
-			Score:      result.Score,
-			Status:     result.EvalStatus,
-		}
-		if result.Details != nil {
-			metric.Reason = strings.TrimSpace(result.Details.Reason)
-		}
-		if metric.Status == status.EvalStatusFailed && metric.Reason == "" {
-			return nil, fmt.Errorf("metric %q is missing loss reason", metric.MetricName)
-		}
-		metrics = append(metrics, metric)
-	}
-	return metrics, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

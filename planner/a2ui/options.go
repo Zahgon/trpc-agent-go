@@ -29,63 +29,37 @@ type options struct {
 }
 
 // newOptions creates a new options instance.
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		instruction:                       defaultInstruction,
-		serverToClientWithStandardCatalog: defaultServerToClientWithStandardCatalogSchema,
-		clientToServer:                    defaultClientToServerSchema,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithInstruction sets the planner instruction appended to the system prompt.
-func WithInstruction(instruction string) Option {
-	return func(o *options) {
-		o.instruction = instruction
-	}
-}
+func WithInstruction(instruction string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithServerToClientWithStandardCatalogSchema sets the standard catalog server-to-client schema.
 func WithServerToClientWithStandardCatalogSchema(schema string) Option {
-	return func(o *options) {
-		o.serverToClientWithStandardCatalog = schema
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithClientToServerSchema sets the client-to-server schema.
-func WithClientToServerSchema(schema string) Option {
-	return func(o *options) {
-		o.clientToServer = schema
-	}
-}
+func WithClientToServerSchema(schema string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClientCapabilitiesSchema sets the client capabilities schema.
 func WithClientCapabilitiesSchema(schema string) Option {
-	return func(o *options) {
-		o.clientCapabilitiesSchema = schema
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithServerToClientSchema sets the server-to-client schema.
-func WithServerToClientSchema(schema string) Option {
-	return func(o *options) {
-		o.serverToClient = schema
-	}
-}
+func WithServerToClientSchema(schema string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStandardCatalogDefinition sets the standard catalog definition for planning.
 func WithStandardCatalogDefinition(definition string) Option {
-	return func(o *options) {
-		o.standardCatalogDefinition = definition
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCatalogDescriptionSchema sets the catalog description schema.
 func WithCatalogDescriptionSchema(schema string) Option {
-	return func(o *options) {
-		o.catalogDescriptionSchema = schema
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

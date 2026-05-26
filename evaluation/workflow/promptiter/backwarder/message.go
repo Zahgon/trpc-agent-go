@@ -9,12 +9,7 @@
 package backwarder
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"text/template"
 
 	astructure "trpc.group/trpc-go/trpc-agent-go/agent/structure"
 	atrace "trpc.group/trpc-go/trpc-agent-go/agent/trace"
@@ -41,27 +36,7 @@ Request JSON:
 {{ toPrettyJSON . }}
 `
 
-func defaultMessageBuilder() MessageBuilder {
-	tmpl, err := template.New("backwarder_default_message").Funcs(template.FuncMap{
-		"toPrettyJSON": toPrettyJSON,
-	}).Parse(defaultMessageTemplateText)
-	if err != nil {
-		return func(ctx context.Context, request *Request) (*model.Message, error) {
-			return nil, fmt.Errorf("parse default backward message template: %w", err)
-		}
-	}
-	return func(ctx context.Context, request *Request) (*model.Message, error) {
-		if request == nil {
-			return nil, errors.New("render backward message template: request is nil")
-		}
-		var content bytes.Buffer
-		if err := tmpl.Execute(&content, newPromptData(request)); err != nil {
-			return nil, fmt.Errorf("render backward message template: %w", err)
-		}
-		message := model.NewUserMessage(content.String())
-		return &message, nil
-	}
-}
+func defaultMessageBuilder() MessageBuilder { _ = "STUB: not implemented"; return *new(MessageBuilder) }
 
 type promptData struct {
 	Node             promptNode
@@ -101,65 +76,7 @@ type promptIncomingGradient struct {
 	Gradient string
 }
 
-func newPromptData(request *Request) promptData {
-	if request == nil {
-		return promptData{}
-	}
-	data := promptData{
-		Input:  request.Input,
-		Output: request.Output,
-		Error:  request.Error,
-	}
-	if request.Node != nil {
-		data.Node = promptNode{
-			Kind: request.Node.Kind,
-			Name: request.Node.Name,
-		}
-	}
-	allowedSurfaceIDList := requestAllowedGradientSurfaceIDs(request)
-	allowedSurfaceIDs := make(map[string]struct{}, len(allowedSurfaceIDList))
-	for _, surfaceID := range allowedSurfaceIDList {
-		allowedSurfaceIDs[surfaceID] = struct{}{}
-	}
-	data.GradientSurfaces = make([]promptSurface, 0, len(request.Surfaces))
-	data.OtherSurfaces = make([]promptContextSurface, 0, len(request.Surfaces))
-	for _, surface := range request.Surfaces {
-		if _, ok := allowedSurfaceIDs[surface.SurfaceID]; ok {
-			data.GradientSurfaces = append(data.GradientSurfaces, promptSurface{
-				SurfaceID: surface.SurfaceID,
-				Type:      surface.Type,
-				Value:     surface.Value,
-			})
-			continue
-		}
-		data.OtherSurfaces = append(data.OtherSurfaces, promptContextSurface{
-			Type:  surface.Type,
-			Value: surface.Value,
-		})
-	}
-	data.Predecessors = make([]promptPredecessor, 0, len(request.Predecessors))
-	for _, predecessor := range request.Predecessors {
-		data.Predecessors = append(data.Predecessors, promptPredecessor{
-			StepID: predecessor.StepID,
-			Output: predecessor.Output,
-			Error:  predecessor.Error,
-		})
-	}
-	data.Incoming = make([]promptIncomingGradient, 0, len(request.Incoming))
-	for _, incoming := range request.Incoming {
-		data.Incoming = append(data.Incoming, promptIncomingGradient{
-			Severity: incoming.Severity,
-			Gradient: incoming.Gradient,
-		})
-	}
-	return data
-}
+func newPromptData(request *Request) promptData { _ = "STUB: not implemented"; return *new(promptData) }
 
 // toPrettyJSON renders one value as indented JSON for prompts.
-func toPrettyJSON(value any) (string, error) {
-	payloadJSON, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("marshal backward request: %w", err)
-	}
-	return string(payloadJSON), nil
-}
+func toPrettyJSON(value any) (string, error) { _ = "STUB: not implemented"; return "", nil }

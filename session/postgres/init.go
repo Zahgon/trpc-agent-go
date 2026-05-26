@@ -11,12 +11,8 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	storage "trpc.group/trpc-go/trpc-agent-go/storage/postgres"
 )
 
@@ -333,18 +329,14 @@ var indexDefs = []indexDefinition{
 
 // buildCreateTableSQL builds CREATE TABLE SQL with table prefix.
 func buildCreateTableSQL(schema, prefix, tableName, template string) string {
-	fullTableName := sqldb.BuildTableNameWithSchema(schema, prefix, tableName)
-	return strings.ReplaceAll(template, "{{TABLE_NAME}}", fullTableName)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // buildCreateIndexSQL builds CREATE INDEX SQL with table and index names.
 func buildCreateIndexSQL(schema, prefix, tableName, suffix, template string) string {
-	fullTableName := sqldb.BuildTableNameWithSchema(schema, prefix, tableName)
-	indexName := sqldb.BuildIndexNameWithSchema(schema, prefix, tableName, suffix)
-
-	sql := strings.ReplaceAll(template, "{{TABLE_NAME}}", fullTableName)
-	sql = strings.ReplaceAll(sql, "{{INDEX_NAME}}", indexName)
-	return sql
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // parseTableName parses a full table name into schema and table components.
@@ -352,207 +344,75 @@ func buildCreateIndexSQL(schema, prefix, tableName, suffix, template string) str
 // - "session_states" -> ("public", "session_states")
 // - "myschema.session_states" -> ("myschema", "session_states")
 func parseTableName(fullTableName string) (schema, tableName string) {
-	parts := strings.Split(fullTableName, ".")
-	if len(parts) == 2 {
-		return parts[0], parts[1]
-	}
-	return "public", fullTableName
+	_ = "STUB: not implemented"
+	return "", ""
 }
 
 // initDB initializes the database schema
 func (s *Service) initDB(ctx context.Context) {
+	_ = "STUB: not implemented"
 	// Create tables
-	if err := createTables(ctx, s.pgClient, s.opts.schema, s.opts.tablePrefix); err != nil {
-		panic(fmt.Sprintf("create tables failed: %v", err))
-	}
-
-	// Create indexes
-	if err := createIndexes(ctx, s.pgClient, s.opts.schema, s.opts.tablePrefix); err != nil {
-		panic(fmt.Sprintf("create indexes failed: %v", err))
-	}
-
-	// Verify schema
-	if err := s.verifySchema(ctx); err != nil {
-		panic(fmt.Sprintf("schema verification failed: %v", err))
-	}
+	return
 }
+
+// Create indexes
+
+// Verify schema
 
 // createTables creates all required tables with the given prefix.
 // This function can be used by both Service and standalone InitDB.
 func createTables(ctx context.Context, client storage.Client, schema, prefix string) error {
-	for _, table := range tableDefs {
-		tableSQL := buildCreateTableSQL(schema, prefix, table.name, table.template)
-		fullTableName := sqldb.BuildTableNameWithSchema(schema, prefix, table.name)
-		if _, err := client.ExecContext(ctx, tableSQL); err != nil {
-			return fmt.Errorf("create table %s failed: %w", fullTableName, err)
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // createIndexes creates all required indexes with the given prefix.
 // This function can be used by both Service and standalone InitDB.
 func createIndexes(ctx context.Context, client storage.Client, schema, prefix string) error {
-	for _, idx := range indexDefs {
-		indexSQL := buildCreateIndexSQL(schema, prefix, idx.table, idx.suffix, idx.template)
-		fullTableName := sqldb.BuildTableNameWithSchema(schema, prefix, idx.table)
-		if _, err := client.ExecContext(ctx, indexSQL); err != nil {
-			return fmt.Errorf("create index on %s failed: %w", fullTableName, err)
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // verifySchema verifies that the database schema matches expectations
-func (s *Service) verifySchema(ctx context.Context) error {
-	for tableName, schema := range expectedSchema {
-		fullTableName := sqldb.BuildTableNameWithSchema(s.opts.schema, s.opts.tablePrefix, tableName)
+func (s *Service) verifySchema(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-		// Check if table exists
-		exists, err := s.tableExists(ctx, fullTableName)
-		if err != nil {
-			return fmt.Errorf("check table %s existence failed: %w", fullTableName, err)
-		}
-		if !exists {
-			return fmt.Errorf("table %s does not exist", fullTableName)
-		}
+// Check if table exists
 
-		// Verify columns
-		if err := s.verifyColumns(ctx, fullTableName, schema.columns); err != nil {
-			return fmt.Errorf("verify columns for table %s failed: %w", fullTableName, err)
-		}
+// Verify columns
 
-		// Verify indexes
-		if err := s.verifyIndexes(ctx, fullTableName, schema.indexes); err != nil {
-			log.WarnfContext(
-				ctx,
-				"verify indexes for table %s failed (non-fatal): %v",
-				fullTableName,
-				err,
-			)
-		}
-	}
-
-	return nil
-}
+// Verify indexes
 
 // tableExists checks if a table exists
 func (s *Service) tableExists(ctx context.Context, fullTableName string) (bool, error) {
-	schema, tableName := parseTableName(fullTableName)
-	var exists bool
-	err := s.pgClient.Query(ctx, func(rows *sql.Rows) error {
-		if rows.Next() {
-			return rows.Scan(&exists)
-		}
-		return nil
-	}, `SELECT EXISTS (
-		SELECT FROM information_schema.tables
-		WHERE table_schema = $1
-		AND table_name = $2
-	)`, schema, tableName)
-
-	return exists, err
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // verifyColumns verifies that table columns match expectations
 func (s *Service) verifyColumns(ctx context.Context, fullTableName string, expectedColumns []tableColumn) error {
-	schema, tableName := parseTableName(fullTableName)
-	// Get actual columns from database
-	actualColumns := make(map[string]tableColumn)
-	err := s.pgClient.Query(ctx, func(rows *sql.Rows) error {
-		for rows.Next() {
-			var name, dataType string
-			var isNullable string
-			if err := rows.Scan(&name, &dataType, &isNullable); err != nil {
-				return err
-			}
-			actualColumns[name] = tableColumn{
-				name:     name,
-				dataType: dataType,
-				nullable: isNullable == "YES",
-			}
-		}
-		return nil
-	}, `SELECT column_name, data_type, is_nullable
-		FROM information_schema.columns
-		WHERE table_schema = $1
-		AND table_name = $2
-		ORDER BY ordinal_position`, schema, tableName)
-
-	if err != nil {
-		return fmt.Errorf("query columns failed: %w", err)
-	}
-
-	// Check each expected column
-	for _, expected := range expectedColumns {
-		actual, exists := actualColumns[expected.name]
-		if !exists {
-			return fmt.Errorf("column %s.%s is missing", tableName, expected.name)
-		}
-
-		// Check data type
-		if actual.dataType != expected.dataType {
-			return fmt.Errorf("column %s.%s has type %s, expected %s",
-				tableName, expected.name, actual.dataType, expected.dataType)
-		}
-
-		// Check nullable
-		if actual.nullable != expected.nullable {
-			return fmt.Errorf("column %s.%s nullable mismatch: got %v, expected %v",
-				tableName, expected.name, actual.nullable, expected.nullable)
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Get actual columns from database
+
+// Check each expected column
+
+// Check data type
+
+// Check nullable
 
 // verifyIndexes verifies that table indexes exist
 func (s *Service) verifyIndexes(ctx context.Context, fullTableName string, expectedIndexes []tableIndex) error {
-	schema, tableName := parseTableName(fullTableName)
-	// Get actual indexes from database
-	actualIndexes := make(map[string]bool)
-	err := s.pgClient.Query(ctx, func(rows *sql.Rows) error {
-		for rows.Next() {
-			var indexName string
-			if err := rows.Scan(&indexName); err != nil {
-				return err
-			}
-			actualIndexes[indexName] = true
-		}
-		return nil
-	}, `SELECT indexname
-		FROM pg_indexes
-		WHERE schemaname = $1
-		AND tablename = $2`, schema, tableName)
-
-	if err != nil {
-		return fmt.Errorf("query indexes failed: %w", err)
-	}
-
-	// Check each expected index
-	for _, expected := range expectedIndexes {
-		// Use sqldb.BuildIndexNameWithSchema to construct the expected index.
-		expectedIndexName := sqldb.BuildIndexNameWithSchema(
-			s.opts.schema,
-			s.opts.tablePrefix,
-			expected.table,
-			expected.suffix,
-		)
-
-		if !actualIndexes[expectedIndexName] {
-			log.WarnfContext(
-				ctx,
-				"index %s on table %s is missing",
-				expectedIndexName,
-				fullTableName,
-			)
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Get actual indexes from database
+
+// Check each expected index
+
+// Use sqldb.BuildIndexNameWithSchema to construct the expected index.
 
 // InitDBConfig contains configuration for standalone database initialization.
 type InitDBConfig struct {
@@ -572,46 +432,28 @@ type InitDBConfig struct {
 type InitDBOpt func(*InitDBConfig)
 
 // WithInitDBHost sets the PostgreSQL host.
-func WithInitDBHost(host string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.host = host
-	}
-}
+func WithInitDBHost(host string) InitDBOpt { _ = "STUB: not implemented"; return *new(InitDBOpt) }
 
 // WithInitDBPort sets the PostgreSQL port.
-func WithInitDBPort(port int) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.port = port
-	}
-}
+func WithInitDBPort(port int) InitDBOpt { _ = "STUB: not implemented"; return *new(InitDBOpt) }
 
 // WithInitDBUser sets the database user.
-func WithInitDBUser(user string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.user = user
-	}
-}
+func WithInitDBUser(user string) InitDBOpt { _ = "STUB: not implemented"; return *new(InitDBOpt) }
 
 // WithInitDBPassword sets the database password.
 func WithInitDBPassword(password string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.password = password
-	}
+	_ = "STUB: not implemented"
+	return *new(InitDBOpt)
 }
 
 // WithInitDBDatabase sets the database name.
 func WithInitDBDatabase(database string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.database = database
-	}
+	_ = "STUB: not implemented"
+	return *new(InitDBOpt)
 }
 
 // WithInitDBSSLMode sets the SSL mode.
-func WithInitDBSSLMode(sslMode string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.sslMode = sslMode
-	}
-}
+func WithInitDBSSLMode(sslMode string) InitDBOpt { _ = "STUB: not implemented"; return *new(InitDBOpt) }
 
 // WithInitDBTablePrefix sets the table name prefix.
 // Note: An underscore will be automatically added if not present.
@@ -619,51 +461,34 @@ func WithInitDBSSLMode(sslMode string) InitDBOpt {
 //
 // Security: Uses internal/session/sqldb.ValidateTablePrefix to prevent SQL injection.
 func WithInitDBTablePrefix(prefix string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		if prefix == "" {
-			c.tablePrefix = ""
-			return
-		}
-
-		// Use internal/session/sqldb validation
-		sqldb.MustValidateTablePrefix(prefix)
-
-		// Automatically add underscore if not present
-		if !strings.HasSuffix(prefix, "_") {
-			prefix += "_"
-		}
-		c.tablePrefix = prefix
-	}
+	_ = "STUB: not implemented"
+	return *new(InitDBOpt)
 }
+
+// Use internal/session/sqldb validation
+
+// Automatically add underscore if not present
 
 // WithInitDBSchema sets the PostgreSQL schema name where tables will be created.
 // Note: The schema must already exist in the database before calling InitDB.
 // Security: Uses internal/session/sqldb.ValidateTableName to prevent SQL injection.
-func WithInitDBSchema(schema string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		if schema != "" {
-			// Use internal/session/sqldb validation
-			sqldb.MustValidateTableName(schema)
-		}
-		c.schema = schema
-	}
-}
+func WithInitDBSchema(schema string) InitDBOpt { _ = "STUB: not implemented"; return *new(InitDBOpt) }
+
+// Use internal/session/sqldb validation
 
 // WithInitDBInstanceName uses a postgres instance from storage.
 // Note: Direct connection settings (WithInitDBHost, WithInitDBPort, etc.) have higher priority.
 // If both are specified, direct connection settings will be used.
 func WithInitDBInstanceName(instanceName string) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(InitDBOpt)
 }
 
 // WithInitDBExtraOptions sets extra options for the postgres client builder.
 // This option is mainly used for customized postgres client builders.
 func WithInitDBExtraOptions(extraOptions ...any) InitDBOpt {
-	return func(c *InitDBConfig) {
-		c.extraOptions = append(c.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(InitDBOpt)
 }
 
 // InitDB initializes the database schema with tables and indexes.
@@ -698,73 +523,17 @@ func WithInitDBExtraOptions(extraOptions ...any) InitDBOpt {
 //	    postgres.WithInitDBInstanceName("my-postgres"),
 //	    postgres.WithInitDBTablePrefix("trpc_"),
 //	)
-func InitDB(ctx context.Context, opts ...InitDBOpt) error {
-	config := &InitDBConfig{
-		host:     defaultHost,
-		port:     defaultPort,
-		database: defaultDatabase,
-		sslMode:  defaultSSLMode,
-	}
+func InitDB(ctx context.Context, opts ...InitDBOpt) error { _ = "STUB: not implemented"; return nil }
 
-	for _, opt := range opts {
-		opt(config)
-	}
+// Get postgres client builder
 
-	// Get postgres client builder
-	builder := storage.GetClientBuilder()
-	var pgClient storage.Client
-	var err error
+// Priority: direct connection settings > instance name
+// If direct connection settings are provided, use them
 
-	// Priority: direct connection settings > instance name
-	// If direct connection settings are provided, use them
-	if config.host != "" || config.port != 0 || config.database != "" {
-		serviceOpts := ServiceOpts{
-			host:     config.host,
-			port:     config.port,
-			user:     config.user,
-			password: config.password,
-			database: config.database,
-			sslMode:  config.sslMode,
-		}
-		connString := buildConnString(serviceOpts)
+// Otherwise, use instance name if provided
 
-		pgClient, err = builder(ctx,
-			storage.WithClientConnString(connString),
-			storage.WithExtraOptions(config.extraOptions...),
-		)
-		if err != nil {
-			return fmt.Errorf("create postgres client from connection settings failed: %w", err)
-		}
-	} else if config.instanceName != "" {
-		// Otherwise, use instance name if provided
-		builderOpts, ok := storage.GetPostgresInstance(config.instanceName)
-		if !ok {
-			return fmt.Errorf("postgres instance %s not found", config.instanceName)
-		}
+// Append extra options if provided
 
-		// Append extra options if provided
-		if len(config.extraOptions) > 0 {
-			builderOpts = append(builderOpts, storage.WithExtraOptions(config.extraOptions...))
-		}
+// Create tables using shared function
 
-		pgClient, err = builder(ctx, builderOpts...)
-		if err != nil {
-			return fmt.Errorf("create postgres client from instance name failed: %w", err)
-		}
-	} else {
-		return fmt.Errorf("either connection settings or instance name must be provided")
-	}
-	defer pgClient.Close()
-
-	// Create tables using shared function
-	if err := createTables(ctx, pgClient, config.schema, config.tablePrefix); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
-	}
-
-	// Create indexes using shared function
-	if err := createIndexes(ctx, pgClient, config.schema, config.tablePrefix); err != nil {
-		return fmt.Errorf("failed to create indexes: %w", err)
-	}
-
-	return nil
-}
+// Create indexes using shared function

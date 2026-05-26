@@ -10,12 +10,6 @@
 // Package codeast defines internal AST parsing abstractions shared by code-aware readers.
 package codeast
 
-import (
-	"path/filepath"
-	"strings"
-	"unicode/utf8"
-)
-
 // EntityType defines the type of code entity.
 type EntityType string
 
@@ -202,133 +196,23 @@ type NodeDocumentPayloadOptions struct {
 
 // NodesToDocumentPayloads converts a parse result into document payloads.
 func NodesToDocumentPayloads(result *Result, opts NodeDocumentPayloadOptions) []*DocumentPayload {
-	if result == nil {
-		return nil
-	}
-
-	payloads := make([]*DocumentPayload, 0, len(result.Nodes))
-	for _, node := range result.Nodes {
-		payload := NodeToDocumentPayload(node, opts)
-		if payload != nil {
-			payloads = append(payloads, payload)
-		}
-	}
-	return payloads
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NodeToDocumentPayload converts a single AST node into a document payload.
 func NodeToDocumentPayload(node *Node, opts NodeDocumentPayloadOptions) *DocumentPayload {
-	if node == nil {
-		return nil
-	}
-
-	metadata := make(map[string]any)
-	for k, v := range opts.BaseMetadata {
-		metadata[k] = v
-	}
-
-	typeValue := string(node.Type)
-	if opts.FormatType != nil {
-		typeValue = opts.FormatType(node.Type)
-	}
-
-	metadata[TrpcAstMetaPrefix+"type"] = typeValue
-	metadata[TrpcAstMetaPrefix+"name"] = node.Name
-	metadata[TrpcAstMetaPrefix+"full_name"] = node.FullName
-	metadata[TrpcAstMetaPrefix+"language"] = string(node.Language)
-	metadata[TrpcAstMetaPrefix+"scope"] = string(resolveNodeScope(node, opts.ScopeBasePath))
-	if node.Package != "" {
-		metadata[TrpcAstMetaPrefix+"package"] = node.Package
-	}
-	if node.FilePath != "" {
-		metadata[TrpcAstMetaPrefix+"file_path"] = node.FilePath
-	}
-	if node.LineStart > 0 {
-		metadata[TrpcAstMetaPrefix+"line_start"] = node.LineStart
-	}
-	if node.LineEnd > 0 {
-		metadata[TrpcAstMetaPrefix+"line_end"] = node.LineEnd
-	}
-	if node.Signature != "" {
-		metadata[TrpcAstMetaPrefix+"signature"] = node.Signature
-	}
-	if node.Comment != "" {
-		metadata[TrpcAstMetaPrefix+"comment"] = strings.TrimSpace(node.Comment)
-	}
-
-	imports := node.Imports
-	if len(imports) == 0 && opts.FileInfo != nil {
-		imports = opts.FileInfo.Imports
-	}
-	if len(imports) > 0 {
-		metadata[TrpcAstMetaPrefix+"imports"] = append([]string(nil), imports...)
-		metadata[TrpcAstMetaPrefix+"import_count"] = len(imports)
-	}
-
-	for k, v := range node.Metadata {
-		metadata[TrpcAstMetaPrefix+k] = v
-	}
-
-	metadata["trpc_agent_go_chunk_index"] = node.ChunkIndex
-	metadata["trpc_agent_go_chunk_size"] = utf8.RuneCountInString(node.Code)
-	metadata["trpc_agent_go_content_length"] = utf8.RuneCountInString(node.Code)
-
-	payload := &DocumentPayload{
-		Name:     node.Name,
-		Content:  node.Code,
-		Metadata: metadata,
-	}
-	if opts.BuildEmbeddingText != nil {
-		payload.EmbeddingText = opts.BuildEmbeddingText(node)
-	}
-	return payload
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func resolveNodeScope(node *Node, basePath string) Scope {
-	if basePath == "" || node.FilePath == "" {
-		return node.Scope
-	}
-	if node.Scope != "" && node.Scope != ScopeCode && node.Scope != ScopeExample {
-		return node.Scope
-	}
-	if IsExamplePath(node.FilePath, basePath) {
-		return ScopeExample
-	}
-	return ScopeCode
+	_ = "STUB: not implemented"
+	return *new(Scope)
 }
 
 // IsExamplePath checks if a file path is under an example directory within a repository.
-func IsExamplePath(filePath string, basePath string) bool {
-	checkPath := filePath
-	if basePath != "" {
-		relPath, err := filepath.Rel(basePath, filePath)
-		if err == nil && !strings.HasPrefix(relPath, "..") {
-			checkPath = relPath
-		}
-	}
-
-	parts := splitPath(checkPath)
-	for _, part := range parts {
-		lower := strings.ToLower(part)
-		if lower == "example" || lower == "examples" {
-			return true
-		}
-	}
-	return false
-}
+func IsExamplePath(filePath string, basePath string) bool { _ = "STUB: not implemented"; return false }
 
 // splitPath splits a file path into its components.
-func splitPath(path string) []string {
-	var parts []string
-	for path != "" {
-		dir, file := filepath.Split(path)
-		if file != "" {
-			parts = append([]string{file}, parts...)
-		}
-		if dir == path {
-			break
-		}
-		path = strings.TrimSuffix(dir, string(filepath.Separator))
-	}
-	return parts
-}
+func splitPath(path string) []string { _ = "STUB: not implemented"; return nil }

@@ -26,52 +26,27 @@ type Option func(*BuiltinKnowledge)
 
 // WithVectorStore sets the vector store for similarity search.
 func WithVectorStore(vs vectorstore.VectorStore) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.vectorStore = vs
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEmbedder sets the embedder for generating document embeddings.
-func WithEmbedder(e embedder.Embedder) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.embedder = e
-	}
-}
+func WithEmbedder(e embedder.Embedder) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableSourceSync sets the enable source sync.
-func WithEnableSourceSync(enable bool) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.enableSourceSync = enable
-	}
-}
+func WithEnableSourceSync(enable bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithQueryEnhancer sets a custom query enhancer (optional).
-func WithQueryEnhancer(qe query.Enhancer) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.queryEnhancer = qe
-	}
-}
+func WithQueryEnhancer(qe query.Enhancer) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReranker sets a custom reranker (optional).
-func WithReranker(r reranker.Reranker) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.reranker = r
-	}
-}
+func WithReranker(r reranker.Reranker) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRetriever sets a custom retriever (optional).
-func WithRetriever(r retriever.Retriever) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.retriever = r
-	}
-}
+func WithRetriever(r retriever.Retriever) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSources sets the knowledge sources.
-func WithSources(sources []source.Source) Option {
-	return func(dk *BuiltinKnowledge) {
-		dk.sources = sources
-	}
-}
+func WithSources(sources []source.Source) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // LoadProgressEvent carries structured progress information emitted during Load.
 // It is delivered to the callback registered via WithLoadProgressCallback.
@@ -138,53 +113,32 @@ type loadConfig struct {
 type LoadOption func(*loadConfig)
 
 // WithShowProgress enables or disables progress logging during load.
-func WithShowProgress(show bool) LoadOption {
-	return func(lc *loadConfig) {
-		lc.showProgress = show
-	}
-}
+func WithShowProgress(show bool) LoadOption { _ = "STUB: not implemented"; return *new(LoadOption) }
 
 // WithProgressStepSize sets the granularity of progress updates.
 func WithProgressStepSize(stepSize int) LoadOption {
-	return func(lc *loadConfig) {
-		lc.progressStepSize = stepSize
-	}
+	_ = "STUB: not implemented"
+	return *new(LoadOption)
 }
 
 // WithShowStats enables or disables statistics logging during load.
 // By default statistics are shown.
-func WithShowStats(show bool) LoadOption {
-	return func(lc *loadConfig) {
-		lc.showStats = show
-	}
-}
+func WithShowStats(show bool) LoadOption { _ = "STUB: not implemented"; return *new(LoadOption) }
 
 // WithSourceConcurrency configures how many sources can be loaded in parallel.
 // A value = 1 means sequential processing.
 // The default is min(4, len(sources)) when value is not specified (=0).
-func WithSourceConcurrency(n int) LoadOption {
-	return func(lc *loadConfig) {
-		lc.srcParallelism = n
-	}
-}
+func WithSourceConcurrency(n int) LoadOption { _ = "STUB: not implemented"; return *new(LoadOption) }
 
 // WithDocConcurrency configures how many documents per source can be processed
 // concurrently.
 // A value = 1 means sequential processing.
 // The default is runtime.NumCPU() when value is not specified (=0).
-func WithDocConcurrency(n int) LoadOption {
-	return func(lc *loadConfig) {
-		lc.docParallelism = n
-	}
-}
+func WithDocConcurrency(n int) LoadOption { _ = "STUB: not implemented"; return *new(LoadOption) }
 
 // WithRecreate recreates the vector store before loading documents, be careful to use this option.
 // ATTENTION! This option will delete all documents from the vector store and recreate it.
-func WithRecreate(recreate bool) LoadOption {
-	return func(lc *loadConfig) {
-		lc.recreate = recreate
-	}
-}
+func WithRecreate(recreate bool) LoadOption { _ = "STUB: not implemented"; return *new(LoadOption) }
 
 // WithLoadProgressCallback registers a callback that is invoked at each progress
 // boundary during Load, following the same step-size granularity as
@@ -202,9 +156,8 @@ func WithRecreate(recreate bool) LoadOption {
 // of events across different sources is not guaranteed. Callers must synchronise
 // any shared state accessed inside the callback.
 func WithLoadProgressCallback(cb LoadProgressCallback) LoadOption {
-	return func(lc *loadConfig) {
-		lc.progressCallback = cb
-	}
+	_ = "STUB: not implemented"
+	return *new(LoadOption)
 }
 
 type showDocumentInfoConfig struct {
@@ -218,21 +171,18 @@ type ShowDocumentInfoOption func(*showDocumentInfoConfig)
 
 // WithShowDocumentInfoIDs sets the document ids to show.
 func WithShowDocumentInfoIDs(ids []string) ShowDocumentInfoOption {
-	return func(s *showDocumentInfoConfig) {
-		s.ids = ids
-	}
+	_ = "STUB: not implemented"
+	return *new(ShowDocumentInfoOption)
 }
 
 // WithShowDocumentInfoFilter sets the filter for the document info.
 func WithShowDocumentInfoFilter(filter map[string]any) ShowDocumentInfoOption {
-	return func(s *showDocumentInfoConfig) {
-		s.filter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(ShowDocumentInfoOption)
 }
 
 // WithShowDocumentInfoSourceName sets the source name for the document info.
 func WithShowDocumentInfoSourceName(sourceName string) ShowDocumentInfoOption {
-	return func(s *showDocumentInfoConfig) {
-		s.sourceName = sourceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ShowDocumentInfoOption)
 }

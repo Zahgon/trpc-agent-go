@@ -11,39 +11,14 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strings"
 )
 
 // Tool implementations.
 
 // calculator performs basic operations.
 func (e *toolTimerExample) calculator(ctx context.Context, args *calculatorArgs) (*calculatorResult, error) {
-	var result float64
-	switch strings.ToLower(args.Operation) {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B != 0 {
-			result = args.A / args.B
-		} else {
-			return nil, errors.New("division by zero")
-		}
-	default:
-		return nil, fmt.Errorf("unsupported operation: %s", args.Operation)
-	}
-
-	return &calculatorResult{
-		Operation: args.Operation,
-		A:         args.A,
-		B:         args.B,
-		Result:    result,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Data structures.
@@ -64,5 +39,5 @@ type calculatorResult struct {
 }
 
 // Helper functions for creating pointers to primitive types.
-func intPtr(i int) *int           { return &i }
-func floatPtr(f float64) *float64 { return &f }
+func intPtr(i int) *int           { _ = "STUB: not implemented"; return nil }
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

@@ -12,7 +12,6 @@ package main
 import (
 	"context"
 
-	demotool "trpc.group/trpc-go/trpc-agent-go/examples/agui/server/externaltool/graphagent/tool"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -36,60 +35,11 @@ The server-side internal tool results are now available. Before answering, call 
 const answerInstruction = `You are a helpful assistant. Answer using all available internal and external tool results.`
 
 func buildGraph(modelInstance model.Model, generationConfig model.GenerationConfig) (*graph.Graph, error) {
-	schema := graph.MessagesStateSchema()
-	sg := graph.NewStateGraph(schema)
-	sg.AddLLMNode(
-		nodeInternalCallLLM,
-		modelInstance,
-		internalCallInstruction,
-		demotool.NewInternalTools(),
-		graph.WithGenerationConfig(generationConfig),
-	)
-	sg.AddNode(nodeInternalTool, internalToolNode, graph.WithNodeType(graph.NodeTypeTool))
-	sg.AddLLMNode(
-		nodeExternalCallLLM,
-		modelInstance,
-		externalCallInstruction,
-		demotool.NewExternalTools(),
-		graph.WithGenerationConfig(generationConfig),
-	)
-	sg.AddNode(nodeExternalInterrupt, externalInterruptNode, graph.WithNodeType(graph.NodeTypeTool))
-	sg.AddLLMNode(
-		nodeAnswerLLM,
-		modelInstance,
-		answerInstruction,
-		nil,
-		graph.WithGenerationConfig(generationConfig),
-	)
-	sg.SetEntryPoint(nodeInternalCallLLM)
-	sg.AddConditionalEdges(
-		nodeInternalCallLLM,
-		routeAfterToolCall(nodeInternalTool, nodeExternalCallLLM),
-		map[string]string{
-			nodeInternalTool:    nodeInternalTool,
-			nodeExternalCallLLM: nodeExternalCallLLM,
-		},
-	)
-	sg.AddEdge(nodeInternalTool, nodeExternalCallLLM)
-	sg.AddConditionalEdges(
-		nodeExternalCallLLM,
-		routeAfterToolCall(nodeExternalInterrupt, nodeAnswerLLM),
-		map[string]string{
-			nodeExternalInterrupt: nodeExternalInterrupt,
-			nodeAnswerLLM:         nodeAnswerLLM,
-		},
-	)
-	sg.AddEdge(nodeExternalInterrupt, nodeAnswerLLM)
-	sg.SetFinishPoint(nodeAnswerLLM)
-	return sg.Compile()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func routeAfterToolCall(toolNode, fallbackNode string) func(context.Context, graph.State) (string, error) {
-	return func(_ context.Context, state graph.State) (string, error) {
-		msgs, _ := graph.GetStateValue[[]model.Message](state, graph.StateKeyMessages)
-		if len(latestAssistantToolCalls(msgs)) == 0 {
-			return fallbackNode, nil
-		}
-		return toolNode, nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -71,5 +71,6 @@ func main() {
 }
 
 func sbtiRunOptions(_ context.Context, _ *adapter.RunAgentInput) ([]agent.RunOption, error) {
-	return []agent.RunOption{agent.WithGraphTerminalMessagesOnly(true)}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

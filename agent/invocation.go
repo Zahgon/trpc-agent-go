@@ -10,27 +10,18 @@
 package agent
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"fmt"
-	"math/big"
 	"reflect"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"trpc.group/trpc-go/trpc-agent-go/artifact"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/internal/structuredoutput"
 	"trpc.group/trpc-go/trpc-agent-go/internal/tracecapture"
-	"trpc.group/trpc-go/trpc-agent-go/internal/util"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/searchfilter"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
@@ -188,19 +179,21 @@ type WaitNoticeTimeoutError struct {
 
 // Error implements the error interface.
 func (e *WaitNoticeTimeoutError) Error() string {
-	return e.Message
+	_ = "STUB: not implemented"
+
+	// AsWaitNoticeTimeoutError checks if an error is a AsWaitNoticeTimeoutError using errors.As.
+	return ""
 }
 
-// AsWaitNoticeTimeoutError checks if an error is a AsWaitNoticeTimeoutError using errors.As.
 func AsWaitNoticeTimeoutError(err error) (*WaitNoticeTimeoutError, bool) {
-	var waitNoticeTimeoutErr *WaitNoticeTimeoutError
-	ok := errors.As(err, &waitNoticeTimeoutErr)
-	return waitNoticeTimeoutErr, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // NewWaitNoticeTimeoutError creates a new AsWaitNoticeTimeoutError with the given message.
 func NewWaitNoticeTimeoutError(message string) *WaitNoticeTimeoutError {
-	return &WaitNoticeTimeoutError{Message: message}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunOption is a function that configures a RunOptions.
@@ -223,13 +216,8 @@ type runControlConfig struct {
 
 // NewRunOptions builds a RunOptions value from RunOption functions.
 func NewRunOptions(opts ...RunOption) RunOptions {
-	var runOpts RunOptions
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&runOpts)
-		}
-	}
-	return runOpts
+	_ = "STUB: not implemented"
+	return *new(RunOptions)
 }
 
 // TraceStartedCallback receives the root span context for a run.
@@ -240,69 +228,35 @@ type TraceStartedCallback func(oteltrace.SpanContext)
 // This enables a single runner to serve multiple projects or tenants
 // by isolating session and memory data under different app names.
 // When not set, the runner uses its constructor-provided default app name.
-func WithAppName(name string) RunOption {
-	return func(opts *RunOptions) {
-		opts.AppName = name
-	}
-}
+func WithAppName(name string) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithRuntimeState sets the runtime state for the RunOptions.
 func WithRuntimeState(state map[string]any) RunOption {
-	return func(opts *RunOptions) {
-		opts.RuntimeState = state
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithModelRequestExtraFields merges provider-specific top-level fields into
 // each model request created during this run. Request-level fields take
 // precedence over model-level extra fields in adapters that support merging.
 func WithModelRequestExtraFields(fields map[string]any) RunOption {
-	return func(opts *RunOptions) {
-		if len(fields) == 0 {
-			return
-		}
-		if opts.ModelRequestExtraFields == nil {
-			opts.ModelRequestExtraFields = make(map[string]any, len(fields))
-		}
-		for key, value := range fields {
-			opts.ModelRequestExtraFields[key] = value
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // MergeRuntimeState merges runtime state into existing RunOptions state.
 //
 // When a key already exists, the new value replaces the old one.
 func MergeRuntimeState(state map[string]any) RunOption {
-	return func(opts *RunOptions) {
-		if len(state) == 0 {
-			return
-		}
-		if opts.RuntimeState == nil {
-			opts.RuntimeState = make(
-				map[string]any,
-				len(state),
-			)
-		}
-		for key, value := range state {
-			opts.RuntimeState[key] = value
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithAgent sets the agent instance for this run only.
-func WithAgent(a Agent) RunOption {
-	return func(opts *RunOptions) {
-		opts.Agent = a
-	}
-}
+func WithAgent(a Agent) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithAgentByName sets the agent name that should be resolved for this run.
-func WithAgentByName(name string) RunOption {
-	return func(opts *RunOptions) {
-		opts.AgentByName = name
-	}
-}
+func WithAgentByName(name string) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // GetRuntimeStateValue retrieves a typed value from the runtime state.
 //
@@ -318,33 +272,20 @@ func WithAgentByName(name string) RunOption {
 //	    log.Printf("Room ID: %d", roomID)
 //	}
 func GetRuntimeStateValue[T any](opts *RunOptions, key string) (T, bool) {
-	var zero T
-	if opts == nil || opts.RuntimeState == nil {
-		return zero, false
-	}
-	val, ok := opts.RuntimeState[key]
-	if !ok {
-		return zero, false
-	}
-	typedVal, ok := val.(T)
-	if !ok {
-		return zero, false
-	}
-	return typedVal, true
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
 
 // WithKnowledgeFilter sets the metadata filter for the RunOptions.
 func WithKnowledgeFilter(filter map[string]any) RunOption {
-	return func(opts *RunOptions) {
-		opts.KnowledgeFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithKnowledgeConditionedFilter sets the complex condition filter for the RunOptions.
 func WithKnowledgeConditionedFilter(filter *searchfilter.UniversalFilterCondition) RunOption {
-	return func(opts *RunOptions) {
-		opts.KnowledgeConditionedFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithMessages sets the caller-supplied conversation history for this run.
@@ -354,17 +295,15 @@ func WithKnowledgeConditionedFilter(filter *searchfilter.UniversalFilterConditio
 // Session events and may fall back to a single `invocation.Message` when the
 // Session is empty.
 func WithMessages(messages []model.Message) RunOption {
-	return func(opts *RunOptions) {
-		opts.Messages = messages
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithInjectedContextMessages appends per-run messages that are injected into the
 // model request context but are not persisted into the session transcript.
 func WithInjectedContextMessages(messages []model.Message) RunOption {
-	return func(opts *RunOptions) {
-		opts.InjectedContextMessages = append(opts.InjectedContextMessages, messages...)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // UserMessageRewriteArgs contains stable metadata for one user message rewrite.
@@ -387,20 +326,15 @@ type UserMessageRewriter func(
 // WithUserMessageRewriter rewrites the current-turn input into an ordered
 // message sequence before runner persists it into the session transcript.
 func WithUserMessageRewriter(rewriter UserMessageRewriter) RunOption {
-	return func(opts *RunOptions) {
-		opts.UserMessageRewriter = rewriter
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithResume enables or disables resume mode for this run.
 // When enabled, flows like llmflow may inspect the existing Session history
 // and resume unfinished work (for example, executing pending tool calls)
 // before issuing a new model call.
-func WithResume(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.Resume = enabled
-	}
-}
+func WithResume(enabled bool) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithPersistInterruptedAssistant controls whether a cancelled streaming run
 // persists already-emitted assistant text as a final assistant message.
@@ -409,9 +343,8 @@ func WithResume(enabled bool) RunOption {
 // Runner default is false to preserve the "cancel discards partial text"
 // session semantics.
 func WithPersistInterruptedAssistant(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.PersistInterruptedAssistant = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithGraphEmitFinalModelResponses controls whether graph-based agents emit
@@ -420,9 +353,8 @@ func WithPersistInterruptedAssistant(enabled bool) RunOption {
 // When disabled (default), graph Large Language Model (LLM) nodes only emit
 // streaming chunks (Done=false), which matches the pre-#901 behavior.
 func WithGraphEmitFinalModelResponses(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.GraphEmitFinalModelResponses = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithGraphTerminalMessagesOnly limits caller-visible graph message events to
@@ -431,9 +363,8 @@ func WithGraphEmitFinalModelResponses(enabled bool) RunOption {
 // When disabled (default), all graph Large Language Model (LLM) nodes and
 // sub-agent nodes may emit caller-visible message events.
 func WithGraphTerminalMessagesOnly(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.GraphTerminalMessagesOnly = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithStreamMode sets StreamMode selection for this run.
@@ -443,40 +374,20 @@ func WithGraphTerminalMessagesOnly(enabled bool) RunOption {
 // If you need to override that behavior, call WithGraphEmitFinalModelResponses
 // after WithStreamMode.
 func WithStreamMode(modes ...StreamMode) RunOption {
-	return func(opts *RunOptions) {
-		opts.StreamModeEnabled = true
-		if len(modes) == 0 {
-			opts.StreamModes = nil
-			return
-		}
-		copied := make([]StreamMode, len(modes))
-		copy(copied, modes)
-		opts.StreamModes = copied
-		for _, mode := range copied {
-			if mode == StreamModeMessages {
-				opts.GraphEmitFinalModelResponses = true
-				break
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisableGraphCompletionEvent disables emitting the final graph completion event.
 func WithDisableGraphCompletionEvent(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		cfg := getRunControlConfig(opts)
-		cfg.DisableGraphCompletionEvent = disable
-		setRunControlConfig(opts, cfg)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisableGraphExecutorEvents disables emitting graph executor lifecycle events.
 func WithDisableGraphExecutorEvents(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		cfg := getRunControlConfig(opts)
-		cfg.DisableGraphExecutorEvents = disable
-		setRunControlConfig(opts, cfg)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithEventChannelBufferSize overrides the event channel buffer size for this run
@@ -484,11 +395,8 @@ func WithDisableGraphExecutorEvents(disable bool) RunOption {
 //
 // When size <= 0, supported implementations use their configured default.
 func WithEventChannelBufferSize(size int) RunOption {
-	return func(opts *RunOptions) {
-		cfg := getRunControlConfig(opts)
-		cfg.EventChannelBufferSize = size
-		setRunControlConfig(opts, cfg)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithPropagateChildAgentErrors enables strict propagation for terminal child
@@ -498,64 +406,48 @@ func WithEventChannelBufferSize(size int) RunOption {
 // behavior: child error events remain observable in the stream but do not
 // automatically fail the parent graph.
 func WithPropagateChildAgentErrors(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		cfg := getRunControlConfig(opts)
-		cfg.PropagateChildAgentErrors = enabled
-		setRunControlConfig(opts, cfg)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisableTracing requests supported agent and flow execution paths to skip
 // creating OpenTelemetry spans for this run.
-func WithDisableTracing(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DisableTracing = disable
-	}
-}
+func WithDisableTracing(disable bool) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithDisableResponseUsageTracking disables attaching usage and timing info to streaming responses.
 func WithDisableResponseUsageTracking(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DisableResponseUsageTracking = disable
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisableModelExecutionEvents disables emitting model execution events for this run.
 func WithDisableModelExecutionEvents(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DisableModelExecutionEvents = disable
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisablePartialEventIDs disables generating IDs for partial response events.
 func WithDisablePartialEventIDs(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DisablePartialEventIDs = disable
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDisablePartialEventTimestamps disables generating timestamps for partial response events.
 func WithDisablePartialEventTimestamps(disable bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DisablePartialEventTimestamps = disable
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithRequestID sets the request id for the RunOptions.
-func WithRequestID(requestID string) RunOption {
-	return func(opts *RunOptions) {
-		opts.RequestID = requestID
-	}
-}
+func WithRequestID(requestID string) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithEventFilterKey sets the invocation event filter key for this run.
 //
 // This controls the FilterKey injected into emitted events and the default
 // filter prefix used by ContentRequestProcessor when building LLM context.
 func WithEventFilterKey(filterKey string) RunOption {
-	return func(opts *RunOptions) {
-		opts.EventFilterKey = filterKey
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithDetachedCancel enables running a job that ignores parent context
@@ -564,11 +456,7 @@ func WithEventFilterKey(filterKey string) RunOption {
 // When enabled, Runner will remove the cancellation signal from the
 // execution context while still preserving context values and enforcing
 // timeouts and deadlines.
-func WithDetachedCancel(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.DetachedCancel = enabled
-	}
-}
+func WithDetachedCancel(enabled bool) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithMaxRunDuration sets the maximum duration for a single run.
 //
@@ -576,35 +464,22 @@ func WithDetachedCancel(enabled bool) RunOption {
 //   - the parent context deadline (if any)
 //   - MaxRunDuration (if > 0)
 func WithMaxRunDuration(d time.Duration) RunOption {
-	return func(opts *RunOptions) {
-		opts.MaxRunDuration = d
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithSpanAttributes sets custom span attributes for the RunOptions.
 func WithSpanAttributes(attrs ...attribute.KeyValue) RunOption {
-	return func(opts *RunOptions) {
-		if len(attrs) == 0 {
-			opts.SpanAttributes = nil
-			return
-		}
-		opts.SpanAttributes = append([]attribute.KeyValue(nil), attrs...)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithTraceStartedCallback registers a callback for the run root span.
 func WithTraceStartedCallback(
 	callback TraceStartedCallback,
 ) RunOption {
-	return func(opts *RunOptions) {
-		if callback == nil {
-			return
-		}
-		opts.TraceStartedCallbacks = append(
-			opts.TraceStartedCallbacks,
-			callback,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithModel sets the model for this specific run.
@@ -616,11 +491,7 @@ func WithTraceStartedCallback(
 //	runner.Run(ctx, userID, sessionID, message,
 //	    agent.WithModel(customModel),
 //	)
-func WithModel(m model.Model) RunOption {
-	return func(opts *RunOptions) {
-		opts.Model = m
-	}
-}
+func WithModel(m model.Model) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithModelName sets the model name for this specific run.
 // The agent will look up the model by name from its registered models.
@@ -631,66 +502,50 @@ func WithModel(m model.Model) RunOption {
 //	runner.Run(ctx, userID, sessionID, message,
 //	    agent.WithModelName("gpt-4"),
 //	)
-func WithModelName(name string) RunOption {
-	return func(opts *RunOptions) {
-		opts.ModelName = name
-	}
-}
+func WithModelName(name string) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithModelContextWindow sets the model context window for this specific run.
 // This is useful for user-defined or private models whose names should not be
 // registered in the process-wide model registry.
 func WithModelContextWindow(tokens int) RunOption {
-	return func(opts *RunOptions) {
-		if tokens > 0 {
-			opts.ModelContextWindow = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // ModelContextWindowFromRunOptions returns the context window configured by
 // WithModelContextWindow.
 func ModelContextWindowFromRunOptions(opts *RunOptions) (int, bool) {
-	if opts == nil || opts.ModelContextWindow <= 0 {
-		return 0, false
-	}
-	return opts.ModelContextWindow, true
+	_ = "STUB: not implemented"
+	return 0, false
 }
 
 // WithModelSelector sets the model selector for this specific run.
 // The selector is called before each framework-managed LLM call and takes
 // precedence over any agent-level selector.
 func WithModelSelector(selector ModelSelector) RunOption {
-	return func(opts *RunOptions) {
-		opts.ModelSelector = selector
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithCodeExecutor sets the code executor for this specific run.
 // If set, it temporarily overrides the agent's default code executor for this
 // request only.
 func WithCodeExecutor(exec codeexecutor.CodeExecutor) RunOption {
-	return func(opts *RunOptions) {
-		opts.CodeExecutor = exec
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithStream enables or disables streaming for this specific run.
 //
 // When set, it overrides the agent's default Stream setting for this Run.
-func WithStream(stream bool) RunOption {
-	return func(opts *RunOptions) {
-		opts.Stream = &stream
-	}
-}
+func WithStream(stream bool) RunOption { _ = "STUB: not implemented"; return *new(RunOption) }
 
 // WithInstruction sets the instruction for this specific run.
 // If set, it temporarily overrides the agent's instruction for this request
 // only. This does not modify the agent instance.
 func WithInstruction(instruction string) RunOption {
-	return func(opts *RunOptions) {
-		opts.Instruction = instruction
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithGlobalInstruction sets the global instruction (system prompt) for this
@@ -698,52 +553,26 @@ func WithInstruction(instruction string) RunOption {
 // If set, it temporarily overrides the agent's global instruction for this
 // request only. This does not modify the agent instance.
 func WithGlobalInstruction(instruction string) RunOption {
-	return func(opts *RunOptions) {
-		opts.GlobalInstruction = instruction
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithStructuredOutputJSONSchema sets a JSON schema structured output for this run.
 func WithStructuredOutputJSONSchema(name string, schema map[string]any, strict bool, description string) RunOption {
-	return func(opts *RunOptions) {
-		if schema == nil {
-			return
-		}
-		opts.StructuredOutput = newStructuredOutput(
-			structuredoutput.Name(name),
-			schema,
-			strict,
-			description,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithStructuredOutputJSON sets a JSON schema structured output for this run.
 // The schema is constructed automatically from the provided example type.
 func WithStructuredOutputJSON(examplePtr any, strict bool, description string) RunOption {
-	return func(opts *RunOptions) {
-		name, schema, t := structuredoutput.FromType(examplePtr, strict)
-		if schema == nil {
-			return
-		}
-		opts.StructuredOutput = newStructuredOutput(name, schema, strict, description)
-		opts.StructuredOutputType = t
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 func newStructuredOutput(name string, schema map[string]any, strict bool, description string) *model.StructuredOutput {
-	if schema == nil {
-		return nil
-	}
-	return &model.StructuredOutput{
-		Type: model.StructuredOutputJSONSchema,
-		JSONSchema: &model.JSONSchemaConfig{
-			Name:        name,
-			Schema:      schema,
-			Strict:      strict,
-			Description: description,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithToolFilter sets a custom tool filter function for this specific run.
@@ -786,9 +615,8 @@ func newStructuredOutput(name string, schema map[string]any, strict bool, descri
 // Note: This is a "soft" constraint. Tools should still implement their own
 // authorization logic for security.
 func WithToolFilter(filter tool.FilterFunc) RunOption {
-	return func(opts *RunOptions) {
-		opts.ToolFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithAdditionalTools appends tools that are visible only for this run.
@@ -797,9 +625,8 @@ func WithToolFilter(filter tool.FilterFunc) RunOption {
 // hide them. If an additional tool has the same name as an already available
 // tool, the already available tool wins for that run.
 func WithAdditionalTools(tools []tool.Tool) RunOption {
-	return func(opts *RunOptions) {
-		appendRunTools(opts, tools)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithExternalTools appends caller-executed tools for this run.
@@ -809,17 +636,8 @@ func WithAdditionalTools(tools []tool.Tool) RunOption {
 // after the assistant tool_call response. The caller should execute the tool
 // externally and continue with model.NewToolMessage.
 func WithExternalTools(tools []tool.Tool) RunOption {
-	return func(opts *RunOptions) {
-		if opts == nil {
-			return
-		}
-		for _, tl := range tools {
-			if declarationName(tl) == "" {
-				continue
-			}
-			opts.ExternalTools = append(opts.ExternalTools, tl)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithToolExecutionFilter sets which tools the framework will execute.
@@ -834,49 +652,26 @@ func WithExternalTools(tools []tool.Tool) RunOption {
 // caller can then execute the tool externally and provide a RoleTool
 // message with the tool result to continue.
 func WithToolExecutionFilter(filter tool.FilterFunc) RunOption {
-	return func(opts *RunOptions) {
-		opts.ToolExecutionFilter = filter
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
-func appendRunTools(opts *RunOptions, tools []tool.Tool) {
-	if opts == nil || len(tools) == 0 {
-		return
-	}
-	for _, tl := range tools {
-		if declarationName(tl) == "" {
-			continue
-		}
-		opts.AdditionalTools = append(opts.AdditionalTools, tl)
-	}
-}
+func appendRunTools(opts *RunOptions, tools []tool.Tool) { _ = "STUB: not implemented"; return }
 
-func declarationName(tl tool.Tool) string {
-	if tl == nil {
-		return ""
-	}
-	decl := tl.Declaration()
-	if decl == nil {
-		return ""
-	}
-	return decl.Name
-}
+func declarationName(tl tool.Tool) string { _ = "STUB: not implemented"; return "" }
 
 // WithToolCallArgumentsJSONRepairEnabled enables best-effort JSON repair for tool call arguments.
 func WithToolCallArgumentsJSONRepairEnabled(enabled bool) RunOption {
-	return func(opts *RunOptions) {
-		e := enabled
-		opts.ToolCallArgumentsJSONRepairEnabled = &e
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithA2ARequestOptions sets the A2A request options for the RunOptions.
 // These options will be passed to A2A agent's SendMessage and StreamMessage calls.
 // This allows passing dynamic HTTP headers or other request-specific options for each run.
 func WithA2ARequestOptions(opts ...any) RunOption {
-	return func(runOpts *RunOptions) {
-		runOpts.A2ARequestOptions = append(runOpts.A2ARequestOptions, opts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
 
 // WithCustomAgentConfigs sets custom agent configurations.
@@ -914,33 +709,18 @@ func WithA2ARequestOptions(opts ...any) RunOption {
 //   - This function creates a shallow copy of the configs map to prevent external modifications.
 //   - The stored configuration should be treated as read-only. Do not modify it after retrieval.
 func WithCustomAgentConfigs(configs map[string]any) RunOption {
-	return func(opts *RunOptions) {
-		if configs == nil {
-			opts.CustomAgentConfigs = nil
-			return
-		}
-		// Create a shallow copy to prevent external modifications
-		copied := make(map[string]any, len(configs))
-		for k, v := range configs {
-			copied[k] = v
-		}
-		opts.CustomAgentConfigs = copied
-	}
+	_ = "STUB: not implemented"
+	return *new(RunOption)
 }
+
+// Create a shallow copy to prevent external modifications
 
 func getRunControlConfig(opts *RunOptions) runControlConfig {
-	if opts == nil {
-		return runControlConfig{}
-	}
-	return opts.runControlConfig
+	_ = "STUB: not implemented"
+	return *new(runControlConfig)
 }
 
-func setRunControlConfig(opts *RunOptions, cfg runControlConfig) {
-	if opts == nil {
-		return
-	}
-	opts.runControlConfig = cfg
-}
+func setRunControlConfig(opts *RunOptions, cfg runControlConfig) { _ = "STUB: not implemented"; return }
 
 // RunOptions is the options for the Run method.
 type RunOptions struct {
@@ -1217,321 +997,76 @@ func (opts RunOptions) ShouldExecuteTool(
 	ctx context.Context,
 	tl tool.Tool,
 ) bool {
-	if opts.isExternalTool(tl) {
-		return false
-	}
-	if opts.ToolExecutionFilter == nil {
-		return true
-	}
-	return opts.ToolExecutionFilter(ctx, tl)
-}
-
-func (opts RunOptions) isExternalTool(tl tool.Tool) bool {
-	name := declarationName(tl)
-	if opts.ExternalToolNames != nil {
-		return name != "" && opts.ExternalToolNames[name]
-	}
-	for _, external := range opts.ExternalTools {
-		if sameRunTool(tl, external) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func sameRunTool(a tool.Tool, b tool.Tool) bool {
-	if a == nil || b == nil {
-		return false
-	}
-	av := reflect.ValueOf(a)
-	bv := reflect.ValueOf(b)
-	if av.Type() == bv.Type() && av.Type().Comparable() {
-		return a == b
-	}
-	return false
-}
+func (opts RunOptions) isExternalTool(tl tool.Tool) bool { _ = "STUB: not implemented"; return false }
+
+func sameRunTool(a tool.Tool, b tool.Tool) bool { _ = "STUB: not implemented"; return false }
 
 // IsGraphCompletionEventDisabled reports whether this invocation hides terminal graph completion events.
-func IsGraphCompletionEventDisabled(inv *Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	return getRunControlConfig(&inv.RunOptions).DisableGraphCompletionEvent
-}
+func IsGraphCompletionEventDisabled(inv *Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // IsGraphExecutorEventsDisabled reports whether this invocation hides graph executor lifecycle events.
-func IsGraphExecutorEventsDisabled(inv *Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	return getRunControlConfig(&inv.RunOptions).DisableGraphExecutorEvents
-}
+func IsGraphExecutorEventsDisabled(inv *Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // GetEventChannelBufferSize returns the invocation-specific event channel buffer size override.
-func GetEventChannelBufferSize(inv *Invocation) int {
-	if inv == nil {
-		return 0
-	}
-	return getRunControlConfig(&inv.RunOptions).EventChannelBufferSize
-}
+func GetEventChannelBufferSize(inv *Invocation) int { _ = "STUB: not implemented"; return 0 }
 
 // ShouldPropagateChildAgentErrors reports whether terminal child agent errors
 // should fail the parent graph by default.
-func ShouldPropagateChildAgentErrors(inv *Invocation) bool {
-	if inv == nil {
-		return false
-	}
-	return getRunControlConfig(&inv.RunOptions).PropagateChildAgentErrors
-}
+func ShouldPropagateChildAgentErrors(inv *Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // NewInvocation create a new invocation
 func NewInvocation(invocationOpts ...InvocationOptions) *Invocation {
-	inv := &Invocation{
-		InvocationID:   uuid.NewString(),
-		noticeMu:       &sync.Mutex{},
-		noticeChannels: make(map[string]chan any),
-	}
-
-	for _, opt := range invocationOpts {
-		opt(inv)
-	}
-
-	if inv.Message.Role == "" && model.HasPayload(inv.Message) {
-		log.Warnf(
-			"agent.NewInvocation received a message with empty role; defaulting to user",
-		)
-		inv.Message.Role = model.RoleUser
-	}
-
-	if inv.Branch == "" {
-		inv.Branch = inv.AgentName
-	}
-
-	if inv.eventFilterKey == "" && inv.AgentName != "" {
-		inv.eventFilterKey = inv.AgentName
-	}
-	inv.initializeExecutionTrace()
-
-	return inv
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Clone clone a new invocation
 func (inv *Invocation) Clone(invocationOpts ...InvocationOptions) *Invocation {
-	if inv == nil {
-		return nil
-	}
-	newInv := &Invocation{
-		InvocationID:    uuid.NewString(),
-		Session:         inv.Session,
-		SessionService:  inv.SessionService,
-		Message:         inv.Message,
-		RunOptions:      inv.RunOptions,
-		MemoryService:   inv.MemoryService,
-		ArtifactService: inv.ArtifactService,
-		Plugins:         inv.Plugins,
-		noticeMu:        inv.noticeMu,
-		noticeChannels:  inv.noticeChannels,
-		eventFilterKey:  inv.eventFilterKey,
-		parent:          inv,
-		state:           inv.cloneState(),
-	}
-
-	for _, opt := range invocationOpts {
-		opt(newInv)
-	}
-
-	if newInv.Branch != "" {
-		// seted by WithInvocationBranch
-	} else if inv.Branch != "" && newInv.AgentName != "" {
-		newInv.Branch = inv.Branch + BranchDelimiter + newInv.AgentName
-	} else if newInv.AgentName != "" {
-		newInv.Branch = newInv.AgentName
-	} else {
-		newInv.Branch = inv.Branch
-	}
-
-	if newInv.eventFilterKey == "" && newInv.AgentName != "" {
-		newInv.eventFilterKey = newInv.AgentName
-	}
-	if newInv.RunOptions.ExecutionTraceEnabled && inv.RunOptions.ExecutionTraceEnabled {
-		inv.initializeExecutionTrace()
-		newInv.traceCapture = inv.executionTraceCapture()
-	}
-	if newInv.traceCapture == nil {
-		newInv.initializeExecutionTrace()
-	}
-	if newInv.traceCapture != nil {
-		newInv.traceCapture.RegisterInvocation(inv.InvocationID, newInv.InvocationID)
-		newInv.ensureTraceCaptureMetadata()
-	}
-
-	return newInv
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// seted by WithInvocationBranch
 
 // View returns an isolated invocation view that preserves identity.
 func (inv *Invocation) View(invocationOpts ...InvocationOptions) *Invocation {
-	if inv == nil {
-		return nil
-	}
-	traceCapture, traceNodeID := inv.executionTraceFields()
-	view := &Invocation{
-		Agent:                inv.Agent,
-		AgentName:            inv.AgentName,
-		InvocationID:         inv.InvocationID,
-		Branch:               inv.Branch,
-		EndInvocation:        inv.EndInvocation,
-		Session:              inv.Session,
-		SessionService:       inv.SessionService,
-		Model:                inv.Model,
-		Message:              inv.Message,
-		RunOptions:           inv.RunOptions,
-		TransferInfo:         inv.TransferInfo,
-		Plugins:              inv.Plugins,
-		StructuredOutput:     inv.StructuredOutput,
-		StructuredOutputType: inv.StructuredOutputType,
-		MemoryService:        inv.MemoryService,
-		ArtifactService:      inv.ArtifactService,
-		noticeChannels:       inv.noticeChannels,
-		noticeMu:             inv.noticeMu,
-		eventFilterKey:       inv.eventFilterKey,
-		parent:               inv.parent,
-		traceCapture:         traceCapture,
-		entryPredecessorStepIDs: cloneStringSlice(
-			inv.entryPredecessorStepIDs,
-		),
-		traceNodeID:        traceNodeID,
-		state:              inv.cloneViewState(),
-		MaxLLMCalls:        inv.MaxLLMCalls,
-		MaxToolIterations:  inv.MaxToolIterations,
-		timingInfo:         inv.timingInfo,
-		llmCallCount:       inv.llmCallCount,
-		toolIterationCount: inv.toolIterationCount,
-	}
-	for _, opt := range invocationOpts {
-		opt(view)
-	}
-	return view
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SyncView copies execution-visible state from a view while preserving RunOptions.
-func (inv *Invocation) SyncView(view *Invocation) {
-	if inv == nil || view == nil || inv == view {
-		return
-	}
-	inv.Agent = view.Agent
-	inv.AgentName = view.AgentName
-	inv.InvocationID = view.InvocationID
-	inv.Branch = view.Branch
-	inv.EndInvocation = view.EndInvocation
-	inv.Session = view.Session
-	inv.SessionService = view.SessionService
-	inv.Model = view.Model
-	inv.Message = view.Message
-	inv.TransferInfo = view.TransferInfo
-	inv.Plugins = view.Plugins
-	inv.StructuredOutput = view.StructuredOutput
-	inv.StructuredOutputType = view.StructuredOutputType
-	inv.MemoryService = view.MemoryService
-	inv.ArtifactService = view.ArtifactService
-	inv.noticeChannels = view.noticeChannels
-	inv.noticeMu = view.noticeMu
-	inv.eventFilterKey = view.eventFilterKey
-	inv.parent = view.parent
-	traceCapture, traceNodeID := view.executionTraceFields()
-	inv.traceMu.Lock()
-	inv.traceCapture = traceCapture
-	inv.traceNodeID = traceNodeID
-	inv.traceMu.Unlock()
-	inv.entryPredecessorStepIDs = cloneStringSlice(
-		view.entryPredecessorStepIDs,
-	)
-	inv.MaxLLMCalls = view.MaxLLMCalls
-	inv.MaxToolIterations = view.MaxToolIterations
-	inv.timingInfo = view.timingInfo
-	inv.llmCallCount = view.llmCallCount
-	inv.toolIterationCount = view.toolIterationCount
-	inv.stateMu.Lock()
-	inv.state = view.cloneViewState()
-	inv.stateMu.Unlock()
-}
+func (inv *Invocation) SyncView(view *Invocation) { _ = "STUB: not implemented"; return }
 
-func (inv *Invocation) cloneState() map[string]any {
-	return inv.cloneStateByFilter(isCloneStateKey, keepStateValue)
-}
+func (inv *Invocation) cloneState() map[string]any { _ = "STUB: not implemented"; return nil }
 
-func (inv *Invocation) cloneViewState() map[string]any {
-	return inv.cloneStateByFilter(includeAllStateKeys, cloneViewStateValue)
-}
+func (inv *Invocation) cloneViewState() map[string]any { _ = "STUB: not implemented"; return nil }
 
 func (inv *Invocation) cloneStateByFilter(
 	include func(string) bool,
 	cloneValue func(string, any) any,
 ) map[string]any {
-	if inv == nil {
-		return nil
-	}
-	inv.stateMu.RLock()
-	defer inv.stateMu.RUnlock()
-	if inv.state == nil {
-		return nil
-	}
-	copied := make(map[string]any, len(inv.state))
-	for key, value := range inv.state {
-		if !include(key) {
-			continue
-		}
-		copied[key] = cloneValue(key, value)
-	}
-	return copied
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func includeAllStateKeys(string) bool {
-	return true
-}
+func includeAllStateKeys(string) bool { _ = "STUB: not implemented"; return false }
 
-func keepStateValue(_ string, value any) any {
-	return value
-}
+func keepStateValue(_ string, value any) any { _ = "STUB: not implemented"; return *new(any) }
 
-func cloneViewStateValue(key string, value any) any {
-	if isCloneStateKey(key) {
-		return value
-	}
-	return cloneStateValue(value)
-}
+func cloneViewStateValue(key string, value any) any { _ = "STUB: not implemented"; return *new(any) }
 
-func isCloneStateKey(key string) bool {
-	switch key {
-	case flusherStateKey,
-		barrierStateKey,
-		appenderStateKey,
-		streamHubStateKey,
-		surfaceRootNodeIDStateKey,
-		teamMemberTraceRootStateKey:
-		return true
-	default:
-		return false
-	}
-}
+func isCloneStateKey(key string) bool { _ = "STUB: not implemented"; return false }
 
 // cloneStateValue isolates common mutable custom state for invocation views.
 // Known mutable types such as bytes.Buffer, strings.Builder, and big.Int are
 // copied explicitly. Maps, slices, pointers, arrays, and fully exported
 // structs are cloned recursively. Opaque structs with unexported fields are
 // kept by reference to avoid unsafe copies of no-copy state such as locks.
-func cloneStateValue(value any) any {
-	if value == nil {
-		return nil
-	}
-	cloned, ok := cloneStateReflectValue(
-		reflect.ValueOf(value),
-		map[reflectVisit]reflect.Value{},
-	)
-	if !ok {
-		return value
-	}
-	return cloned.Interface()
-}
+func cloneStateValue(value any) any { _ = "STUB: not implemented"; return *new(any) }
 
 type reflectVisit struct {
 	typ      reflect.Type
@@ -1544,290 +1079,96 @@ func cloneStateReflectValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	if value.IsValid() && value.CanInterface() {
-		if cloned, ok := cloneKnownStateValue(value.Interface()); ok {
-			return reflect.ValueOf(cloned), true
-		}
-	}
-	switch value.Kind() {
-	case reflect.Interface:
-		if value.IsNil() {
-			return value, true
-		}
-		return cloneStateReflectValue(value.Elem(), visited)
-	case reflect.Pointer:
-		return cloneStatePointerValue(value, visited)
-	case reflect.Map:
-		return cloneStateMapValue(value, visited)
-	case reflect.Slice:
-		return cloneStateSliceValue(value, visited)
-	case reflect.Array:
-		return cloneStateArrayValue(value, visited)
-	case reflect.Struct:
-		return cloneStateStructValue(value, visited)
-	default:
-		return value, true
-	}
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
 
 func cloneKnownStateValue(value any) (any, bool) {
-	switch v := value.(type) {
-	case *bytes.Buffer:
-		if v == nil {
-			return v, true
-		}
-		return bytes.NewBuffer(cloneBytes(v.Bytes())), true
-	case bytes.Buffer:
-		return *bytes.NewBuffer(cloneBytes(v.Bytes())), true
-	case *strings.Builder:
-		if v == nil {
-			return v, true
-		}
-		var cloned strings.Builder
-		_, _ = cloned.WriteString(v.String())
-		return &cloned, true
-	case *big.Int:
-		if v == nil {
-			return v, true
-		}
-		return new(big.Int).Set(v), true
-	case big.Int:
-		return *new(big.Int).Set(&v), true
-	default:
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func cloneBytes(value []byte) []byte {
-	if value == nil {
-		return nil
-	}
-	cloned := make([]byte, len(value))
-	copy(cloned, value)
-	return cloned
-}
+func cloneBytes(value []byte) []byte { _ = "STUB: not implemented"; return nil }
 
 func cloneStatePointerValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	if value.IsNil() {
-		return value, true
-	}
-	visit := reflectVisit{
-		typ: value.Type(),
-		ptr: value.Pointer(),
-	}
-	if cloned, ok := visited[visit]; ok {
-		return cloned, true
-	}
-	cloned := reflect.New(value.Type().Elem())
-	visited[visit] = cloned
-	elem, ok := cloneStateReflectValue(value.Elem(), visited)
-	if !ok {
-		delete(visited, visit)
-		return value, false
-	}
-	if elem.Type().AssignableTo(cloned.Elem().Type()) {
-		cloned.Elem().Set(elem)
-		return cloneStateAsType(cloned, value.Type())
-	}
-	if elem.Type().ConvertibleTo(cloned.Elem().Type()) {
-		cloned.Elem().Set(elem.Convert(cloned.Elem().Type()))
-		return cloneStateAsType(cloned, value.Type())
-	}
-	return value, false
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
 
 func cloneStateAsType(
 	value reflect.Value,
 	typ reflect.Type,
 ) (reflect.Value, bool) {
-	if value.Type().AssignableTo(typ) {
-		return value, true
-	}
-	if value.Type().ConvertibleTo(typ) {
-		return value.Convert(typ), true
-	}
-	return value, false
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
 
 func cloneStateMapValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	if value.IsNil() {
-		return value, true
-	}
-	visit := reflectVisit{
-		typ: value.Type(),
-		ptr: value.Pointer(),
-	}
-	if cloned, ok := visited[visit]; ok {
-		return cloned, true
-	}
-	cloned := reflect.MakeMapWithSize(value.Type(), value.Len())
-	visited[visit] = cloned
-	iter := value.MapRange()
-	for iter.Next() {
-		// Keep keys unchanged; cloning pointer keys changes lookup identity.
-		cloned.SetMapIndex(
-			iter.Key(),
-			cloneStateElement(iter.Value(), value.Type().Elem(), visited),
-		)
-	}
-	return cloned, true
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
+
+// Keep keys unchanged; cloning pointer keys changes lookup identity.
 
 func cloneStateElement(
 	value reflect.Value,
 	elemType reflect.Type,
 	visited map[reflectVisit]reflect.Value,
 ) reflect.Value {
-	cloned, ok := cloneStateReflectValue(value, visited)
-	if !ok {
-		return value
-	}
-	if cloned.Type().AssignableTo(elemType) {
-		return cloned
-	}
-	if cloned.Type().ConvertibleTo(elemType) {
-		return cloned.Convert(elemType)
-	}
-	return value
+	_ = "STUB: not implemented"
+	return *new(reflect.Value)
 }
 
 func cloneStateSliceValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	if value.IsNil() {
-		return value, true
-	}
-	visit := reflectVisit{
-		typ:      value.Type(),
-		ptr:      value.Pointer(),
-		length:   value.Len(),
-		capacity: value.Cap(),
-	}
-	if cloned, ok := visited[visit]; ok {
-		return cloned, true
-	}
-	cloned := reflect.MakeSlice(value.Type(), value.Len(), value.Len())
-	visited[visit] = cloned
-	for i := 0; i < value.Len(); i++ {
-		cloned.Index(i).Set(
-			cloneStateElement(
-				value.Index(i),
-				value.Type().Elem(),
-				visited,
-			),
-		)
-	}
-	return cloned, true
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
 
 func cloneStateArrayValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	cloned := reflect.New(value.Type()).Elem()
-	for i := 0; i < value.Len(); i++ {
-		cloned.Index(i).Set(
-			cloneStateElement(
-				value.Index(i),
-				value.Type().Elem(),
-				visited,
-			),
-		)
-	}
-	return cloned, true
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
 
 func cloneStateStructValue(
 	value reflect.Value,
 	visited map[reflectVisit]reflect.Value,
 ) (reflect.Value, bool) {
-	for i := 0; i < value.NumField(); i++ {
-		if value.Type().Field(i).PkgPath != "" {
-			// Opaque structs may carry no-copy state such as locks.
-			return value, false
-		}
-	}
-	cloned := reflect.New(value.Type()).Elem()
-	for i := 0; i < value.NumField(); i++ {
-		target := cloned.Field(i)
-		target.Set(
-			cloneStateElement(
-				value.Field(i),
-				target.Type(),
-				visited,
-			),
-		)
-	}
-	return cloned, true
+	_ = "STUB: not implemented"
+	return *new(reflect.Value), false
 }
+
+// Opaque structs may carry no-copy state such as locks.
 
 // GetEventFilterKey get event filter key.
-func (inv *Invocation) GetEventFilterKey() string {
-	if inv == nil {
-		return ""
-	}
-	return inv.eventFilterKey
-}
+func (inv *Invocation) GetEventFilterKey() string { _ = "STUB: not implemented"; return "" }
 
 // GetParentInvocation get parent invocation.
-func (inv *Invocation) GetParentInvocation() *Invocation {
-	if inv == nil {
-		return nil
-	}
-	return inv.parent
-}
+func (inv *Invocation) GetParentInvocation() *Invocation { _ = "STUB: not implemented"; return nil }
 
 // InjectIntoEvent inject invocation information into event.
-func InjectIntoEvent(inv *Invocation, e *event.Event) {
-	if e == nil || inv == nil {
-		return
-	}
-
-	e.RequestID = inv.RunOptions.RequestID
-	if inv.parent != nil {
-		e.ParentInvocationID = inv.parent.InvocationID
-	}
-	e.InvocationID = inv.InvocationID
-	e.Branch = inv.Branch
-	e.FilterKey = inv.GetEventFilterKey()
-}
+func InjectIntoEvent(inv *Invocation, e *event.Event) { _ = "STUB: not implemented"; return }
 
 // EmitEvent inject invocation information into event and emit it to channel.
 func EmitEvent(ctx context.Context, inv *Invocation, ch chan<- *event.Event,
 	e *event.Event) error {
-	if ch == nil || e == nil {
-		return nil
-	}
-	attachAwaitUserReplyRoute(inv, e)
-	InjectIntoEvent(inv, e)
-	var agentName, requestID string
-	if inv != nil {
-		agentName = inv.AgentName
-		requestID = inv.RunOptions.RequestID
-	}
-	log.Tracef(
-		"[agent.EmitEvent]queue monitoring:RequestID: %s channel capacity: "+
-			"%d, current length: %d, branch: %s, agent name:%s",
-		requestID,
-		cap(ch),
-		len(ch),
-		e.Branch,
-		agentName,
-	)
-	return event.EmitEvent(ctx, ch, e)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetAppendEventNoticeKey get append event notice key.
-func GetAppendEventNoticeKey(eventID string) string {
-	return AppendEventNoticeKeyPrefix + eventID
-}
+func GetAppendEventNoticeKey(eventID string) string { _ = "STUB: not implemented"; return "" }
 
 // SetState sets a value in the invocation state.
 //
@@ -1850,18 +1191,7 @@ func GetAppendEventNoticeKey(eventID string) string {
 //	inv.SetState("tool:calculator:call_abc123:start_time", time.Now())
 //	inv.SetState("middleware:request_id", "req-123")
 //	inv.SetState("custom:user_context", userCtx)
-func (inv *Invocation) SetState(key string, value any) {
-	if inv == nil {
-		return
-	}
-	inv.stateMu.Lock()
-	defer inv.stateMu.Unlock()
-
-	if inv.state == nil {
-		inv.state = make(map[string]any)
-	}
-	inv.state[key] = value
-}
+func (inv *Invocation) SetState(key string, value any) { _ = "STUB: not implemented"; return }
 
 // GetState retrieves a value from the invocation state.
 //
@@ -1876,17 +1206,8 @@ func (inv *Invocation) SetState(key string, value any) {
 //	    duration := time.Since(startTime.(time.Time))
 //	}
 func (inv *Invocation) GetState(key string) (any, bool) {
-	if inv == nil {
-		return nil, false
-	}
-	inv.stateMu.RLock()
-	defer inv.stateMu.RUnlock()
-
-	if inv.state == nil {
-		return nil, false
-	}
-	value, ok := inv.state[key]
-	return value, ok
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 // GetStateValue retrieves a typed value from the invocation state.
@@ -1903,68 +1224,34 @@ func (inv *Invocation) GetState(key string) (any, bool) {
 //	    log.Printf("Request ID: %s", requestID)
 //	}
 func GetStateValue[T any](inv *Invocation, key string) (T, bool) {
-	var zero T
-	if inv == nil {
-		return zero, false
-	}
-	inv.stateMu.RLock()
-	defer inv.stateMu.RUnlock()
-
-	return util.GetMapValue[string, T](inv.state, key)
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
 
 // GetOrCreateTimingInfo gets or creates timing info for this invocation.
 // Only the first LLM call will create and populate timing info; subsequent calls reuse it.
 // This ensures timing metrics only reflect the first LLM call in scenarios with multiple calls (e.g., tool calls).
 func (inv *Invocation) GetOrCreateTimingInfo() *model.TimingInfo {
-	if inv == nil {
-		return nil
-	}
-	if inv.timingInfo == nil {
-		inv.timingInfo = &model.TimingInfo{}
-	}
-	return inv.timingInfo
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IncLLMCallCount increments the LLM call counter for this invocation and
 // enforces the optional MaxLLMCalls limit. When the limit is not set or
 // non-positive, no restriction is applied. When the limit is exceeded, a
 // StopError is returned so callers can terminate the flow early.
-func (inv *Invocation) IncLLMCallCount() error {
-	if inv == nil {
-		return nil
-	}
-	limit := inv.MaxLLMCalls
-	if limit <= 0 {
-		// No limit configured, preserve existing behavior.
-		return nil
-	}
-	inv.llmCallCount++
-	if inv.llmCallCount > limit {
-		return NewStopError(
-			fmt.Sprintf("max LLM calls (%d) exceeded", limit),
-		)
-	}
-	return nil
-}
+func (inv *Invocation) IncLLMCallCount() error { _ = "STUB: not implemented"; return nil }
+
+// No limit configured, preserve existing behavior.
 
 // IncToolIteration increments the tool iteration counter and reports whether
 // the MaxToolIterations limit has been exceeded. A "tool iteration" is
 // defined as an assistant response that contains tool calls and triggers the
 // FunctionCallResponseProcessor. When the limit is not set or non-positive,
 // this method always returns false, preserving existing behavior.
-func (inv *Invocation) IncToolIteration() bool {
-	if inv == nil {
-		return false
-	}
-	limit := inv.MaxToolIterations
-	if limit <= 0 {
-		// No limit configured, preserve existing behavior.
-		return false
-	}
-	inv.toolIterationCount++
-	return inv.toolIterationCount > limit
-}
+func (inv *Invocation) IncToolIteration() bool { _ = "STUB: not implemented"; return false }
+
+// No limit configured, preserve existing behavior.
 
 // DeleteState removes a value from the invocation state.
 //
@@ -1972,147 +1259,37 @@ func (inv *Invocation) IncToolIteration() bool {
 //
 //	inv.DeleteState("agent:start_time")
 //	inv.DeleteState("tool:calculator:call_abc123:start_time")
-func (inv *Invocation) DeleteState(key string) {
-	if inv == nil {
-		return
-	}
-	inv.stateMu.Lock()
-	defer inv.stateMu.Unlock()
-
-	if inv.state != nil {
-		delete(inv.state, key)
-	}
-}
+func (inv *Invocation) DeleteState(key string) { _ = "STUB: not implemented"; return }
 
 // AddNoticeChannelAndWait add notice channel and wait it complete
 func (inv *Invocation) AddNoticeChannelAndWait(ctx context.Context, key string, timeout time.Duration) error {
-	ch := inv.AddNoticeChannel(ctx, key)
-	if ch == nil {
-		return fmt.Errorf("notice channel create failed for %s", key)
-	}
-	if timeout == WaitNoticeWithoutTimeout {
-		// no timeout, maybe wait for ever
-		select {
-		case <-ch:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-		return nil
-	}
-
-	select {
-	case <-ch:
-	case <-time.After(timeout):
-		log.InfofContext(
-			ctx,
-			"[AddNoticeChannelAndWait]: Wait for notification message "+
-				"timeout. key: %s, timeout: %d(s)",
-			key,
-			int64(timeout/time.Second),
-		)
-		return NewWaitNoticeTimeoutError(fmt.Sprintf("Timeout waiting for completion of event %s", key))
-	case <-ctx.Done():
-		return ctx.Err()
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// no timeout, maybe wait for ever
+
 // AddNoticeChannel add a new notice channel
 func (inv *Invocation) AddNoticeChannel(ctx context.Context, key string) chan any {
-	if inv == nil || inv.noticeMu == nil {
-		log.ErrorContext(
-			ctx,
-			"noticeMu is uninitialized, please use agent.NewInvocation or "+
-				"Clone method to create Invocation",
-		)
-		return nil
-	}
-	inv.noticeMu.Lock()
-	defer inv.noticeMu.Unlock()
-
-	if ch, ok := inv.noticeChannels[key]; ok {
-		return ch
-	}
-
-	ch := make(chan any)
-	if inv.noticeChannels == nil {
-		inv.noticeChannels = make(map[string]chan any)
-	}
-	inv.noticeChannels[key] = ch
-
-	return ch
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NotifyCompletion notify completion signal to waiting task
 func (inv *Invocation) NotifyCompletion(ctx context.Context, key string) error {
-	if inv == nil || inv.noticeMu == nil {
-		log.ErrorContext(
-			ctx,
-			"noticeMu is uninitialized, please use agent.NewInvocation or "+
-				"Clone method to create Invocation",
-		)
-		return fmt.Errorf(
-			"noticeMu is uninitialized, please use agent.NewInvocation or "+
-				"Clone method to create Invocation key:%s",
-			key,
-		)
-	}
-	inv.noticeMu.Lock()
-	defer inv.noticeMu.Unlock()
-
-	ch, ok := inv.noticeChannels[key]
-	// channel not found, create a new one and close it.
-	// May involve notification followed by waiting.
-	if !ok {
-		ch = make(chan any)
-		if inv.noticeChannels == nil {
-			inv.noticeChannels = make(map[string]chan any)
-		}
-		inv.noticeChannels[key] = ch
-		close(ch)
-		return nil
-	}
-
-	// channel found, close it if it's not closed
-	select {
-	case _, isOpen := <-ch:
-		if isOpen {
-			close(ch)
-		}
-	default:
-		close(ch)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// channel not found, create a new one and close it.
+// May involve notification followed by waiting.
+
+// channel found, close it if it's not closed
 
 // CleanupNotice cleanup all notice channel
 // The 'Invocation' instance created via the NewInvocation method ​​should be disposed​​
 // upon completion to prevent resource leaks.
-func (inv *Invocation) CleanupNotice(ctx context.Context) {
-	if inv == nil || inv.noticeMu == nil {
-		log.ErrorContext(
-			ctx,
-			"noticeMu is uninitialized, please use agent.NewInvocation or "+
-				"Clone method to create Invocation",
-		)
-		return
-	}
-	inv.noticeMu.Lock()
-	defer inv.noticeMu.Unlock()
-
-	for _, ch := range inv.noticeChannels {
-		select {
-		case _, isOpen := <-ch:
-			if isOpen {
-				close(ch)
-			}
-		default:
-			close(ch)
-		}
-	}
-	inv.noticeChannels = nil
-}
+func (inv *Invocation) CleanupNotice(ctx context.Context) { _ = "STUB: not implemented"; return }
 
 // GetCustomAgentConfig retrieves configuration for a specific custom agent type.
 //
@@ -2134,8 +1311,6 @@ func (inv *Invocation) CleanupNotice(ctx context.Context) {
 //
 // Note: The returned config should be treated as read-only. Do not modify it.
 func (inv *Invocation) GetCustomAgentConfig(agentKey string) any {
-	if inv == nil || inv.RunOptions.CustomAgentConfigs == nil {
-		return nil
-	}
-	return inv.RunOptions.CustomAgentConfigs[agentKey]
+	_ = "STUB: not implemented"
+	return *new(any)
 }

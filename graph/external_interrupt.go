@@ -39,12 +39,8 @@ type GraphInterruptOption func(*graphInterruptOptions)
 func WithGraphInterruptTimeout(
 	timeout time.Duration,
 ) GraphInterruptOption {
-	return func(o *graphInterruptOptions) {
-		if o == nil {
-			return
-		}
-		o.timeout = &timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(GraphInterruptOption)
 }
 
 // WithGraphInterrupt creates a context that can be interrupted externally.
@@ -62,66 +58,19 @@ func WithGraphInterrupt(
 	ctx context.Context,
 	interrupt func(opts ...GraphInterruptOption),
 ) {
-	st := &graphInterruptState{
-		done: make(chan struct{}),
-	}
-	ctx = context.WithValue(parent, graphInterruptKey{}, st)
-
-	interrupt = func(opts ...GraphInterruptOption) {
-		o := &graphInterruptOptions{}
-		for _, opt := range opts {
-			if opt == nil {
-				continue
-			}
-			opt(o)
-		}
-		st.once.Do(func() {
-			st.mu.Lock()
-			st.timeout = o.timeout
-			st.mu.Unlock()
-			close(st.done)
-		})
-	}
-	return ctx, interrupt
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
 
 func graphInterruptFromContext(
 	ctx context.Context,
 ) *graphInterruptState {
-	if ctx == nil {
-		return nil
-	}
-	v, ok := ctx.Value(graphInterruptKey{}).(*graphInterruptState)
-	if !ok {
-		return nil
-	}
-	return v
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (s *graphInterruptState) requested() bool {
-	if s == nil {
-		return false
-	}
-	select {
-	case <-s.done:
-		return true
-	default:
-		return false
-	}
-}
+func (s *graphInterruptState) requested() bool { _ = "STUB: not implemented"; return false }
 
-func (s *graphInterruptState) timeoutOrNil() *time.Duration {
-	if s == nil {
-		return nil
-	}
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.timeout
-}
+func (s *graphInterruptState) timeoutOrNil() *time.Duration { _ = "STUB: not implemented"; return nil }
 
-func (s *graphInterruptState) doneCh() <-chan struct{} {
-	if s == nil {
-		return nil
-	}
-	return s.done
-}
+func (s *graphInterruptState) doneCh() <-chan struct{} { _ = "STUB: not implemented"; return nil }

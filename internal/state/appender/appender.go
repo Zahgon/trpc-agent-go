@@ -35,48 +35,17 @@ type appenderHolder struct {
 	fn Appender
 }
 
-func (h *appenderHolder) set(fn Appender) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.fn = fn
-}
+func (h *appenderHolder) set(fn Appender) { _ = "STUB: not implemented"; return }
 
-func (h *appenderHolder) get() Appender {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return h.fn
-}
+func (h *appenderHolder) get() Appender { _ = "STUB: not implemented"; return *new(Appender) }
 
-func (h *appenderHolder) clear() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.fn = nil
-}
+func (h *appenderHolder) clear() { _ = "STUB: not implemented"; return }
 
 // IsAttached reports whether an appender has been attached to the invocation.
-func IsAttached(inv *agent.Invocation) bool {
-	holder, ok := agent.GetStateValue[*appenderHolder](
-		inv, StateKeyAppendEvent,
-	)
-	if !ok || holder == nil {
-		return false
-	}
-	return holder.get() != nil
-}
+func IsAttached(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // Attach binds an appender to the given invocation.
-func Attach(inv *agent.Invocation, fn Appender) {
-	if inv == nil {
-		return
-	}
-	if holder, ok := agent.GetStateValue[*appenderHolder](
-		inv, StateKeyAppendEvent,
-	); ok && holder != nil {
-		holder.set(fn)
-		return
-	}
-	inv.SetState(StateKeyAppendEvent, &appenderHolder{fn: fn})
-}
+func Attach(inv *agent.Invocation, fn Appender) { _ = "STUB: not implemented"; return }
 
 // Invoke executes the appender stored on the invocation state if present.
 // The boolean return value indicates whether an appender was attached.
@@ -85,29 +54,10 @@ func Invoke(
 	inv *agent.Invocation,
 	evt *event.Event,
 ) (bool, error) {
-	holder, ok := agent.GetStateValue[*appenderHolder](
-		inv, StateKeyAppendEvent,
-	)
-	if !ok || holder == nil {
-		return false, nil
-	}
-	fn := holder.get()
-	if fn == nil {
-		return false, nil
-	}
-	return true, fn(ctx, evt)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // Clear removes any appender stored on the invocation state.
 // This is intended to be called by the runner when the event loop finishes.
-func Clear(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	if holder, ok := agent.GetStateValue[*appenderHolder](
-		inv, StateKeyAppendEvent,
-	); ok && holder != nil {
-		holder.clear()
-	}
-	inv.DeleteState(StateKeyAppendEvent)
-}
+func Clear(inv *agent.Invocation) { _ = "STUB: not implemented"; return }

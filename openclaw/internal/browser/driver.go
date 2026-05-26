@@ -11,8 +11,6 @@ package browser
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -115,113 +113,39 @@ type mcpProfileDriver struct {
 }
 
 func newMCPProfileDriver(profile resolvedProfile) *mcpProfileDriver {
-	options := []mcptool.ToolSetOption{
-		mcptool.WithToolFilterFunc(
-			tool.NewIncludeToolNamesFilter(supportedMCPTools...),
-		),
-	}
-	if profile.Reconnect != nil && profile.Reconnect.Enabled {
-		options = append(
-			options,
-			mcptool.WithSessionReconnect(
-				profile.Reconnect.MaxAttempts,
-			),
-		)
-	}
-
-	return &mcpProfileDriver{
-		toolSet: mcptool.NewMCPToolSet(profile.Connection, options...),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *mcpProfileDriver) Start(
 	ctx context.Context,
 ) (driverStatus, error) {
-	if err := d.toolSet.Init(ctx); err != nil {
-		return driverStatus{}, err
-	}
-
-	d.mu.Lock()
-	d.started = true
-	d.mu.Unlock()
-
-	return driverStatus{
-		State:     stateReady,
-		ToolCount: len(d.toolSet.Tools(ctx)),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(driverStatus), nil
 }
 
 func (d *mcpProfileDriver) Status(
 	ctx context.Context,
 ) (driverStatus, error) {
-	d.mu.RLock()
-	started := d.started
-	d.mu.RUnlock()
-
-	if !started {
-		return driverStatus{State: stateStopped}, nil
-	}
-
-	if err := d.toolSet.Init(ctx); err != nil {
-		return driverStatus{}, err
-	}
-	return driverStatus{
-		State:     stateReady,
-		ToolCount: len(d.toolSet.Tools(ctx)),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(driverStatus), nil
 }
 
-func (d *mcpProfileDriver) Stop() error {
-	if err := d.toolSet.Close(); err != nil {
-		return err
-	}
-	d.mu.Lock()
-	d.started = false
-	d.mu.Unlock()
-	return nil
-}
+func (d *mcpProfileDriver) Stop() error { _ = "STUB: not implemented"; return nil }
 
 func (d *mcpProfileDriver) Call(
 	ctx context.Context,
 	toolName string,
 	args map[string]any,
 ) (any, error) {
-	if _, err := d.Start(ctx); err != nil {
-		return nil, err
-	}
-
-	callable, err := lookupTool(d.toolSet.Tools(ctx), toolName)
-	if err != nil {
-		return nil, err
-	}
-
-	payload, err := json.Marshal(args)
-	if err != nil {
-		return nil, fmt.Errorf("marshal browser args: %w", err)
-	}
-	return callable.Call(ctx, payload)
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func lookupTool(
 	tools []tool.Tool,
 	name string,
 ) (tool.CallableTool, error) {
-	for i := range tools {
-		decl := tools[i].Declaration()
-		if decl == nil || decl.Name != name {
-			continue
-		}
-		callable, ok := tools[i].(tool.CallableTool)
-		if !ok {
-			return nil, fmt.Errorf(
-				"browser backend tool %q is not callable",
-				name,
-			)
-		}
-		return callable, nil
-	}
-	return nil, fmt.Errorf(
-		"browser backend does not expose tool %q",
-		name,
-	)
+	_ = "STUB: not implemented"
+	return *new(tool.CallableTool), nil
 }

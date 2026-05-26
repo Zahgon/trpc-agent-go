@@ -37,78 +37,40 @@ type options struct {
 	responseResultSlimming engine.RunResultSlimming
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{
-		basePath:      defaultBasePath,
-		structurePath: defaultStructurePath,
-		runsPath:      defaultRunsPath,
-		asyncRunsPath: defaultAsyncRunsPath,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithAppName sets the app name exposed by the PromptIter server.
-func WithAppName(name string) Option {
-	return func(opts *options) {
-		opts.appName = name
-	}
-}
+func WithAppName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBasePath sets the base collection path used by the PromptIter server.
-func WithBasePath(path string) Option {
-	return func(opts *options) {
-		opts.basePath = path
-	}
-}
+func WithBasePath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStructurePath sets the structure endpoint path relative to BasePath/appName.
-func WithStructurePath(path string) Option {
-	return func(opts *options) {
-		opts.structurePath = path
-	}
-}
+func WithStructurePath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunsPath sets the runs endpoint path relative to BasePath/appName.
-func WithRunsPath(path string) Option {
-	return func(opts *options) {
-		opts.runsPath = path
-	}
-}
+func WithRunsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAsyncRunsPath sets the asynchronous runs endpoint path relative to BasePath/appName.
-func WithAsyncRunsPath(path string) Option {
-	return func(opts *options) {
-		opts.asyncRunsPath = path
-	}
-}
+func WithAsyncRunsPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the maximum execution time for a PromptIter run request.
-func WithTimeout(timeout time.Duration) Option {
-	return func(opts *options) {
-		opts.timeout = timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEngine sets the PromptIter engine used by the server.
 func WithEngine(promptIterEngine engine.Engine) Option {
-	return func(opts *options) {
-		opts.engine = promptIterEngine
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithManager sets the PromptIter manager used by the server.
 func WithManager(promptIterManager promptitermanager.Manager) Option {
-	return func(opts *options) {
-		opts.manager = promptIterManager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithResponseResultSlimming omits selected fields from run response payloads.
 func WithResponseResultSlimming(slimming engine.RunResultSlimming) Option {
-	return func(opts *options) {
-		opts.responseResultSlimming = slimming
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

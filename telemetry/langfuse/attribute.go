@@ -71,9 +71,7 @@ type usageDetails struct {
 }
 
 // empty reports whether all fields are zero.
-func (u *usageDetails) empty() bool {
-	return *u == (usageDetails{})
-}
+func (u *usageDetails) empty() bool { _ = "STUB: not implemented"; return false }
 
 // observationInputPrompt is the Langfuse observation.input shape.
 //

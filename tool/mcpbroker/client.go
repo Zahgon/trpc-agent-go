@@ -11,9 +11,6 @@ package mcpbroker
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
 	mcpcfg "trpc.group/trpc-go/trpc-agent-go/tool/mcp"
@@ -56,45 +53,13 @@ type operationMetadata struct {
 }
 
 func (b *Broker) buildAdHocConfig(input targetInput) (mcpcfg.ConnectionConfig, string, error) {
-	headers, err := b.sanitizeAdHocHeaders(input.Headers)
-	if err != nil {
-		return mcpcfg.ConnectionConfig{}, "", err
-	}
-
-	cfg, kind, err := normalizeConnectionConfig(mcpcfg.ConnectionConfig{
-		Transport: strings.TrimSpace(input.Transport),
-		ServerURL: strings.TrimSpace(input.URL),
-		Headers:   headers,
-		Timeout:   b.options.adhocHTTPTimeout,
-	}, true)
-	if err != nil {
-		return mcpcfg.ConnectionConfig{}, "", err
-	}
-
-	targetType := targetTypeHTTP
-	if kind == transportStdio {
-		targetType = targetTypeStdio
-	}
-	return cfg, targetType, nil
+	_ = "STUB: not implemented"
+	return *new(mcpcfg.ConnectionConfig), "", nil
 }
 
 func (b *Broker) sanitizeAdHocHeaders(headers map[string]string) (map[string]string, error) {
-	if len(headers) == 0 {
-		return nil, nil
-	}
-
-	result := make(map[string]string, len(headers))
-	for key, value := range headers {
-		normalized := strings.ToLower(strings.TrimSpace(key))
-		if normalized == "" {
-			return nil, fmt.Errorf("ad-hoc header name cannot be empty")
-		}
-		if _, denied := b.options.adhocSensitiveHeaderDenyset[normalized]; denied {
-			return nil, fmt.Errorf("ad-hoc header %q is not allowed", key)
-		}
-		result[http.CanonicalHeaderKey(strings.TrimSpace(key))] = value
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (b *Broker) withPreparedHTTPHeaders(
@@ -102,68 +67,18 @@ func (b *Broker) withPreparedHTTPHeaders(
 	target resolvedTarget,
 	meta operationMetadata,
 ) (mcpcfg.ConnectionConfig, error) {
-	cfg := cloneConnectionConfig(target.Config)
-	if target.TargetType != targetTypeHTTP {
-		return cfg, nil
-	}
-
-	if b.options.httpHeaderInjector == nil {
-		return cfg, nil
-	}
-	isAdHoc := target.Origin == OriginAdhoc
-	injected, err := b.options.httpHeaderInjector(ctx, &HeaderInjectRequest{
-		Selector:  meta.Selector,
-		BaseURL:   meta.BaseURL,
-		ToolName:  meta.ToolName,
-		Phase:     meta.Phase,
-		Transport: cfg.Transport,
-		IsAdHoc:   isAdHoc,
-	})
-	if err != nil {
-		return mcpcfg.ConnectionConfig{}, err
-	}
-	if len(injected) == 0 {
-		return cfg, nil
-	}
-
-	cfg.Headers = mergeHeaders(cfg.Headers, injected)
-	return cfg, nil
+	_ = "STUB: not implemented"
+	return *new(mcpcfg.ConnectionConfig), nil
 }
 
 func mergeHeaders(base map[string]string, extra map[string]string) map[string]string {
-	switch {
-	case len(base) == 0 && len(extra) == 0:
-		return nil
-	case len(base) == 0:
-		return canonicalizeHeaders(extra)
-	case len(extra) == 0:
-		return canonicalizeHeaders(base)
-	}
-
-	result := canonicalizeHeaders(base)
-	for key, value := range extra {
-		trimmed := strings.TrimSpace(key)
-		if trimmed == "" {
-			continue
-		}
-		result[http.CanonicalHeaderKey(trimmed)] = value
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func canonicalizeHeaders(headers map[string]string) map[string]string {
-	if len(headers) == 0 {
-		return nil
-	}
-	result := make(map[string]string, len(headers))
-	for key, value := range headers {
-		trimmed := strings.TrimSpace(key)
-		if trimmed == "" {
-			continue
-		}
-		result[http.CanonicalHeaderKey(trimmed)] = value
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interceptHTTPOperationError(
@@ -173,30 +88,8 @@ func interceptHTTPOperationError(
 	meta operationMetadata,
 	err error,
 ) (bool, error) {
-
-	if err == nil || target.TargetType != targetTypeHTTP || b.options.errorInterceptor == nil {
-		return false, err
-	}
-
-	decision, interceptErr := b.options.errorInterceptor(ctx, &BrokerErrorRequest{
-		Selector:  meta.Selector,
-		BaseURL:   meta.BaseURL,
-		ToolName:  meta.ToolName,
-		Phase:     meta.Phase,
-		Transport: target.Config.Transport,
-		IsAdHoc:   target.Origin == OriginAdhoc,
-		Err:       err,
-	})
-	if interceptErr != nil {
-		return true, interceptErr
-	}
-	if decision == nil || !decision.Handled {
-		return false, err
-	}
-	if decision.WrapError != nil {
-		return true, decision.WrapError
-	}
-	return true, fmt.Errorf("broker error interceptor handled the error but returned no wrapped error")
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (b *Broker) resolveClientOptions(
@@ -206,30 +99,8 @@ func (b *Broker) resolveClientOptions(
 	meta operationMetadata,
 	cfg mcpcfg.ConnectionConfig,
 ) ([]tmcp.ClientOption, []tmcp.StdioClientOption, error) {
-	if b.options.clientOptionsProvider == nil {
-		return nil, nil, nil
-	}
-
-	req := &ClientOptionsRequest{
-		Selector:   selector,
-		ServerName: strings.TrimSpace(target.Name),
-		Origin:     target.Origin,
-		TargetType: target.TargetType,
-		Transport:  strings.TrimSpace(cfg.Transport),
-		BaseURL:    strings.TrimSpace(cfg.ServerURL),
-		ToolName:   meta.ToolName,
-		Phase:      meta.Phase,
-		Config:     cloneConnectionConfig(cfg),
-	}
-
-	out, err := invokeClientOptionsProvider(ctx, b.options.clientOptionsProvider, req)
-	if err != nil {
-		return nil, nil, err
-	}
-	if out == nil {
-		return nil, nil, nil
-	}
-	return filterNilClientOptions(out.HTTP), filterNilStdioClientOptions(out.Stdio), nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 // invokeClientOptionsProvider runs the host-supplied provider with a panic guard so a
@@ -242,105 +113,37 @@ func invokeClientOptionsProvider(
 	fn ClientOptionsProvider,
 	req *ClientOptionsRequest,
 ) (out *ClientOptions, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			out = nil
-			err = fmt.Errorf("%w: %v", ErrClientOptionsProviderPanicked, r)
-		}
-	}()
-	return fn(ctx, req)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // filterNilClientOptions drops nil entries so trpc-mcp-go's option application loop never
 // invokes a nil ClientOption (which would panic). Hosts often build options conditionally,
 // so tolerating sparse slices keeps the contract forgiving.
 func filterNilClientOptions(opts []tmcp.ClientOption) []tmcp.ClientOption {
-	if len(opts) == 0 {
-		return nil
-	}
-	result := make([]tmcp.ClientOption, 0, len(opts))
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-		result = append(result, opt)
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // filterNilStdioClientOptions mirrors filterNilClientOptions for the stdio transport.
 func filterNilStdioClientOptions(opts []tmcp.StdioClientOption) []tmcp.StdioClientOption {
-	if len(opts) == 0 {
-		return nil
-	}
-	result := make([]tmcp.StdioClientOption, 0, len(opts))
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-		result = append(result, opt)
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func createClient(cfg mcpcfg.ConnectionConfig, extraHTTP []tmcp.ClientOption, extraStdio []tmcp.StdioClientOption) (tmcp.Connector, error) {
-	clientInfo := cfg.ClientInfo
-	if clientInfo.Name == "" {
-		clientInfo = defaultClientInfo
-	}
-
-	_, kind, err := normalizeConnectionConfig(cfg, false)
-	if err != nil {
-		return nil, err
-	}
-
-	switch kind {
-	case transportStdio:
-		return tmcp.NewStdioClient(tmcp.StdioTransportConfig{
-			ServerParams: tmcp.StdioServerParameters{
-				Command: cfg.Command,
-				Args:    cfg.Args,
-			},
-			Timeout: cfg.Timeout,
-		}, clientInfo, extraStdio...)
-	case transportSSE:
-		opts := httpHeaderOptions(cfg.Headers)
-		opts = append(opts, extraHTTP...)
-		return tmcp.NewSSEClient(cfg.ServerURL, clientInfo, opts...)
-	case transportStreamable:
-		opts := httpHeaderOptions(cfg.Headers)
-		opts = append(opts, extraHTTP...)
-		return tmcp.NewClient(cfg.ServerURL, clientInfo, opts...)
-	default:
-		return nil, fmt.Errorf("unsupported transport: %s", cfg.Transport)
-	}
+	_ = "STUB: not implemented"
+	return *new(tmcp.Connector), nil
 }
 
 func httpHeaderOptions(headers map[string]string) []tmcp.ClientOption {
-	if len(headers) == 0 {
-		return nil
-	}
-
-	httpHeaders := http.Header{}
-	for key, value := range headers {
-		trimmed := strings.TrimSpace(key)
-		if trimmed == "" {
-			continue
-		}
-		httpHeaders.Set(http.CanonicalHeaderKey(trimmed), value)
-	}
-	return []tmcp.ClientOption{tmcp.WithHTTPHeaders(httpHeaders)}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func withTimeoutContext(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
-	if timeout <= 0 {
-		return ctx, func() {}
-	}
-	timeoutDeadline := time.Now().Add(timeout)
-	if deadline, hasDeadline := ctx.Deadline(); hasDeadline && deadline.Before(timeoutDeadline) {
-		return ctx, func() {}
-	}
-	return context.WithTimeout(ctx, timeout)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 func withOneShotClient[T any](
@@ -350,24 +153,11 @@ func withOneShotClient[T any](
 	extraStdio []tmcp.StdioClientOption,
 	fn func(context.Context, tmcp.Connector) (T, error),
 ) (T, error) {
-	var zero T
+	_ = "STUB: not implemented"
 
 	// Per-call deadline: applied once and shared by Initialize and every MCP
 	// RPC issued inside fn. This matches the user-facing contract that
 	// ConnectionConfig.Timeout / WithAdHocHTTPTimeout bound the total
 	// wall-clock time of a single broker operation.
-	ctx, cancel := withTimeoutContext(ctx, cfg.Timeout)
-	defer cancel()
-
-	client, err := createClient(cfg, extraHTTP, extraStdio)
-	if err != nil {
-		return zero, err
-	}
-	defer client.Close()
-
-	if _, err := client.Initialize(ctx, &tmcp.InitializeRequest{}); err != nil {
-		return zero, fmt.Errorf("initialize MCP client: %w", err)
-	}
-
-	return fn(ctx, client)
+	return *new(T), nil
 }

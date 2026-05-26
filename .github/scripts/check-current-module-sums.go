@@ -11,22 +11,14 @@
 package main
 
 import (
-	"archive/zip"
-	"bytes"
-	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
-	"golang.org/x/mod/sumdb/dirhash"
-	modzip "golang.org/x/mod/zip"
 )
 
 type moduleEntry struct {
@@ -209,177 +201,38 @@ func main() {
 }
 
 func discoverModules(repoRoot string) ([]moduleEntry, []unsupportedEntry, error) {
-	out, err := git(repoRoot, "ls-files", "--", "go.mod", "**/go.mod")
-	if err != nil {
-		return nil, nil, err
-	}
-	lines := splitLines(out)
-	entries := make([]moduleEntry, 0, len(lines))
-	unsupported := []unsupportedEntry{}
-	for _, line := range lines {
-		goModPath := filepath.Join(repoRoot, filepath.FromSlash(line))
-		dir := filepath.Dir(goModPath)
-		modPath, err := readModulePath(goModPath)
-		if err != nil {
-			reason := fmt.Sprintf("unable to read module path: %v", err)
-			if errors.Is(err, os.ErrNotExist) {
-				reason = "go.mod is missing from the working tree"
-			}
-			unsupported = append(unsupported, unsupportedEntry{
-				GoModPath:  rel(repoRoot, goModPath),
-				ModulePath: "(unknown)",
-				Reason:     reason,
-			})
-			continue
-		}
-		entries = append(entries, moduleEntry{
-			GoModPath:  goModPath,
-			Dir:        dir,
-			ModulePath: modPath,
-		})
-	}
-	return entries, unsupported, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
-func readModulePath(goModPath string) (string, error) {
-	data, err := os.ReadFile(goModPath)
-	if err != nil {
-		return "", err
-	}
-	f, err := modfile.Parse(goModPath, data, nil)
-	if err != nil {
-		return "", err
-	}
-	if f.Module == nil || f.Module.Mod.Path == "" {
-		return "", fmt.Errorf("missing module directive")
-	}
-	return f.Module.Mod.Path, nil
-}
+func readModulePath(goModPath string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
-func isDoNotUseGoMod(goModPath string) bool {
-	data, err := os.ReadFile(goModPath)
-	if err != nil {
-		return false
-	}
-	head := data
-	if len(head) > 2048 {
-		head = head[:2048]
-	}
-	return bytes.Contains(head, []byte("DO NOT USE!"))
-}
+func isDoNotUseGoMod(goModPath string) bool { _ = "STUB: not implemented"; return false }
 
 func createModuleZipFromVCS(tmpDir string, m module.Version, repoRoot, revision, subdir string) (string, error) {
-	f, err := os.CreateTemp(tmpDir, "vcs-*.zip")
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	if err := modzip.CreateFromVCS(f, m, repoRoot, revision, subdir); err != nil {
-		_ = os.Remove(f.Name())
-		return "", err
-	}
-	if err := f.Close(); err != nil {
-		_ = os.Remove(f.Name())
-		return "", err
-	}
-
-	return f.Name(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func hashZipAndListFiles(zipPath string) (string, []string, error) {
-	sum, err := dirhash.HashZip(zipPath, dirhash.Hash1)
-	if err != nil {
-		return "", nil, err
-	}
-
-	reader, err := zip.OpenReader(zipPath)
-	if err != nil {
-		return "", nil, err
-	}
-	defer reader.Close()
-
-	files := make([]string, 0, len(reader.File))
-	for _, file := range reader.File {
-		files = append(files, file.Name)
-	}
-	sort.Strings(files)
-	return sum, files, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }
 
 func hashFilesFromWorkingTree(files []string, zipPrefix, repoRoot, moduleDir string) (string, error) {
-	open := func(name string) (io.ReadCloser, error) {
-		if !strings.HasPrefix(name, zipPrefix) {
-			return nil, fmt.Errorf("unexpected zip entry name: %q", name)
-		}
-		inner := strings.TrimPrefix(name, zipPrefix)
-		inner = filepath.FromSlash(inner)
-
-		candidate := filepath.Join(moduleDir, inner)
-		if inner == "LICENSE" {
-			if _, err := os.Stat(candidate); err != nil {
-				candidate = filepath.Join(repoRoot, "LICENSE")
-			}
-		}
-		return os.Open(candidate)
-	}
-	return dirhash.Hash1(files, open)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func humanModuleDir(subdir string) string {
-	if subdir == "" {
-		return "root"
-	}
-	return subdir
-}
+func humanModuleDir(subdir string) string { _ = "STUB: not implemented"; return "" }
 
-func gitRepoRoot() (string, error) {
-	out, err := git("", "rev-parse", "--show-toplevel")
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(out), nil
-}
+func gitRepoRoot() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func git(repoRoot string, args ...string) (string, error) {
-	cmd := exec.Command("git", args...)
-	if repoRoot != "" {
-		cmd.Dir = repoRoot
-	}
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("%s: %w: %s", strings.Join(cmd.Args, " "), err, strings.TrimSpace(string(out)))
-	}
-	return string(out), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func splitLines(s string) []string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return nil
-	}
-	raw := strings.Split(s, "\n")
-	out := make([]string, 0, len(raw))
-	for _, line := range raw {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		out = append(out, line)
-	}
-	return out
-}
+func splitLines(s string) []string { _ = "STUB: not implemented"; return nil }
 
-func rel(base, target string) string {
-	p, err := filepath.Rel(base, target)
-	if err != nil {
-		return target
-	}
-	if p == "" {
-		return "."
-	}
-	return filepath.ToSlash(p)
-}
+func rel(base, target string) string { _ = "STUB: not implemented"; return "" }

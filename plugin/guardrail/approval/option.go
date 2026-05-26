@@ -22,47 +22,22 @@ type options struct {
 	toolPolicies      map[string]ToolPolicy
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		name:              defaultPluginName,
-		defaultToolPolicy: ToolPolicyRequireApproval,
-		toolPolicies:      make(map[string]ToolPolicy),
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithName sets the plugin name.
-func WithName(name string) Option {
-	return func(opts *options) {
-		opts.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReviewer sets the reviewer used for approval-required tool calls.
-func WithReviewer(reviewer review.Reviewer) Option {
-	return func(opts *options) {
-		opts.reviewer = reviewer
-	}
-}
+func WithReviewer(reviewer review.Reviewer) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDefaultToolPolicy sets the default policy used when no explicit tool policy exists.
 func WithDefaultToolPolicy(policy ToolPolicy) Option {
-	return func(opts *options) {
-		opts.defaultToolPolicy = policy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolPolicy sets the policy for a single tool name.
 func WithToolPolicy(name string, policy ToolPolicy) Option {
-	return func(opts *options) {
-		if opts.toolPolicies == nil {
-			opts.toolPolicies = make(map[string]ToolPolicy)
-		}
-		opts.toolPolicies[name] = policy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

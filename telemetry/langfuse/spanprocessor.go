@@ -11,17 +11,14 @@ package langfuse
 
 import (
 	"context"
-	"strings"
 
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 func newSpanProcessor(e sdktrace.SpanExporter) sdktrace.SpanProcessor {
-	return &baggageBatchSpanProcessor{
-		next: sdktrace.NewBatchSpanProcessor(e),
-	}
+	_ = "STUB: not implemented"
+	return *new(sdktrace.SpanProcessor)
 }
 
 // baggageBatchSpanProcessor wraps a BatchSpanProcessor and copies baggage members
@@ -35,14 +32,8 @@ type baggageBatchSpanProcessor struct {
 var _ sdktrace.SpanProcessor = (*baggageBatchSpanProcessor)(nil)
 
 func (p *baggageBatchSpanProcessor) OnStart(ctx context.Context, span sdktrace.ReadWriteSpan) {
-	for _, member := range baggage.FromContext(ctx).Members() {
-		if defaultLangfuseTraceAttributeFilter(member) {
-			span.SetAttributes(attribute.String(member.Key(), member.Value()))
-		}
-	}
-	if p.next != nil {
-		p.next.OnStart(ctx, span)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // defaultLangfuseTraceAttributeFilter limits which baggage entries get propagated
@@ -57,36 +48,24 @@ func (p *baggageBatchSpanProcessor) OnStart(ctx context.Context, span sdktrace.R
 // - release: langfuse.release
 // - tags: langfuse.trace.tags
 func defaultLangfuseTraceAttributeFilter(member baggage.Member) bool {
-	k := member.Key()
-	switch k {
-	case traceUserID, "user.id",
-		traceSessionID, "session.id",
-		version, release,
-		traceTags:
-		return true
-	default:
-		// Only propagate top-level metadata keys.
-		// `traceMetadata` is "langfuse.trace.metadata", so allow "langfuse.trace.metadata.<key>".
-		return strings.HasPrefix(k, traceMetadata+".")
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
+// Only propagate top-level metadata keys.
+// `traceMetadata` is "langfuse.trace.metadata", so allow "langfuse.trace.metadata.<key>".
+
 func (p *baggageBatchSpanProcessor) OnEnd(span sdktrace.ReadOnlySpan) {
-	if p.next != nil {
-		p.next.OnEnd(span)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *baggageBatchSpanProcessor) Shutdown(ctx context.Context) error {
-	if p.next == nil {
-		return nil
-	}
-	return p.next.Shutdown(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *baggageBatchSpanProcessor) ForceFlush(ctx context.Context) error {
-	if p.next == nil {
-		return nil
-	}
-	return p.next.ForceFlush(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -10,10 +10,7 @@
 package admin
 
 import (
-	"fmt"
 	"net/http"
-	"sort"
-	"strings"
 	"time"
 )
 
@@ -134,335 +131,110 @@ type ChatTurnView struct {
 	Visible   bool      `json:"visible"`
 }
 
-func (s *Service) chatsStatus() ChatsStatus {
-	if s == nil || s.cfg.Chats == nil {
-		return ChatsStatus{}
-	}
-	status, err := s.cfg.Chats.ChatsStatus()
-	if err != nil {
-		return ChatsStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-	status.Enabled = true
-	status.TotalCount = len(status.Chats)
-	status.OverrideCount = chatOverrideCount(status.Chats)
-	return status
-}
+func (s *Service) chatsStatus() ChatsStatus { _ = "STUB: not implemented"; return *new(ChatsStatus) }
 
 func (s *Service) handleChatsJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.chatsStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleChatHistoryJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	if s == nil || s.cfg.Chats == nil {
-		http.Error(w, "chat history not available", http.StatusNotFound)
-		return
-	}
-	provider, ok := s.cfg.Chats.(ChatHistoryProvider)
-	if !ok {
-		http.Error(w, "chat history not available", http.StatusNotFound)
-		return
-	}
-	baseSessionID := selectedChatID(r)
-	if baseSessionID == "" {
-		http.Error(w, "chat_id is required", http.StatusBadRequest)
-		return
-	}
-	cursor := strings.TrimSpace(r.URL.Query().Get(queryCursor))
-	page, err := provider.ChatHistory(baseSessionID, cursor)
-	if err != nil {
-		http.Error(
-			w,
-			strings.TrimSpace(err.Error()),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-	writeJSON(w, http.StatusOK, page)
+	_ = "STUB: not implemented"
+	return
 }
 
-func selectedChatID(r *http.Request) string {
-	if r == nil || r.URL == nil {
-		return ""
-	}
-	return strings.TrimSpace(r.URL.Query().Get(queryChatID))
-}
+func selectedChatID(r *http.Request) string { _ = "STUB: not implemented"; return "" }
 
 func selectChatView(
 	status ChatsStatus,
 	selectedID string,
 ) *ChatView {
-	selectedID = strings.TrimSpace(selectedID)
-	if selectedID == "" {
-		if len(status.Chats) == 0 {
-			return nil
-		}
-		selectedID = strings.TrimSpace(status.Chats[0].BaseSessionID)
-	}
-	for i := range status.Chats {
-		chatID := strings.TrimSpace(status.Chats[i].BaseSessionID)
-		if chatID != selectedID {
-			continue
-		}
-		selected := status.Chats[i]
-		return &selected
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func chatDisplayLabel(chat ChatView) string {
-	label := strings.TrimSpace(chat.DisplayLabel)
-	if label != "" {
-		return label
-	}
-	return strings.TrimSpace(chat.BaseSessionID)
-}
+func chatDisplayLabel(chat ChatView) string { _ = "STUB: not implemented"; return "" }
 
-func chatKnownUsers(chat ChatView) string {
-	if len(chat.KnownUsers) != 0 {
-		parts := make([]string, 0, len(chat.KnownUsers))
-		for _, user := range chat.KnownUsers {
-			label := chatKnownUserLabel(user)
-			if label == "" {
-				continue
-			}
-			parts = append(parts, label)
-		}
-		if len(parts) != 0 {
-			return strings.Join(parts, knownUserSeparator)
-		}
-	}
-	if len(chat.KnownUserIDs) == 0 {
-		return "-"
-	}
-	return strings.Join(chat.KnownUserIDs, knownUserSeparator)
-}
+func chatKnownUsers(chat ChatView) string { _ = "STUB: not implemented"; return "" }
 
-func chatKnownUserLabel(user KnownUserView) string {
-	userID := strings.TrimSpace(user.UserID)
-	label := strings.TrimSpace(user.Label)
-	switch {
-	case label != "" && userID != "" && label != userID:
-		return label + " (" + userID + ")"
-	case label != "":
-		return label
-	default:
-		return userID
-	}
-}
+func chatKnownUserLabel(user KnownUserView) string { _ = "STUB: not implemented"; return "" }
 
-func chatNameSourceLabel(chat ChatView) string {
-	source := strings.TrimSpace(chat.NameSource)
-	if source != "" {
-		return source
-	}
-	if strings.TrimSpace(chat.ChatAssistantOverride) != "" {
-		return "Current chat name"
-	}
-	return "Default name"
-}
+func chatNameSourceLabel(chat ChatView) string { _ = "STUB: not implemented"; return "" }
 
-func chatHasTranscript(chat ChatView) bool {
-	return len(chat.Transcript) != 0
-}
+func chatHasTranscript(chat ChatView) bool { _ = "STUB: not implemented"; return false }
 
-func chatHistoryAPIPath() string {
-	return routeChatHistoryJSON
-}
+func chatHistoryAPIPath() string { _ = "STUB: not implemented"; return "" }
 
-func chatVisibleHistory(chat ChatView) []ChatSessionView {
-	return visibleChatSessions(chat.History, true)
-}
+func chatVisibleHistory(chat ChatView) []ChatSessionView { _ = "STUB: not implemented"; return nil }
 
-func chatHiddenHistory(chat ChatView) []ChatSessionView {
-	return visibleChatSessions(chat.History, false)
-}
+func chatHiddenHistory(chat ChatView) []ChatSessionView { _ = "STUB: not implemented"; return nil }
 
 func visibleChatSessions(
 	sessions []ChatSessionView,
 	visible bool,
 ) []ChatSessionView {
-	if len(sessions) == 0 {
-		return nil
-	}
-	result := make([]ChatSessionView, 0, len(sessions))
-	for _, session := range sessions {
-		if session.Visible != visible {
-			continue
-		}
-		result = append(result, session)
-	}
-	if len(result) == 0 {
-		return nil
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func chatVisibleTranscript(chat ChatView) []ChatTranscriptView {
-	return visibleChatTranscript(chat.Transcript, true)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func chatHiddenTranscript(chat ChatView) []ChatTranscriptView {
-	return visibleChatTranscript(chat.Transcript, false)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func visibleChatTranscript(
 	transcript []ChatTranscriptView,
 	visible bool,
 ) []ChatTranscriptView {
-	if len(transcript) == 0 {
-		return nil
-	}
-	result := make([]ChatTranscriptView, 0, len(transcript))
-	for _, view := range transcript {
-		if view.Visible != visible {
-			continue
-		}
-		result = append(result, view)
-	}
-	if len(result) == 0 {
-		return nil
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func chatVisibleTurns(view ChatTranscriptView) []ChatTurnView {
-	return visibleChatTurns(view.Turns, true)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func chatHiddenTurns(view ChatTranscriptView) []ChatTurnView {
-	return visibleChatTurns(view.Turns, false)
-}
+func chatHiddenTurns(view ChatTranscriptView) []ChatTurnView { _ = "STUB: not implemented"; return nil }
 
 func visibleChatTurns(
 	turns []ChatTurnView,
 	visible bool,
 ) []ChatTurnView {
-	if len(turns) == 0 {
-		return nil
-	}
-	result := make([]ChatTurnView, 0, len(turns))
-	for _, turn := range turns {
-		if turn.Visible != visible {
-			continue
-		}
-		result = append(result, turn)
-	}
-	if len(result) == 0 {
-		return nil
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func chatTranscriptSummary(chat ChatView) string {
-	sessionCount := len(chat.Transcript)
-	turnCount := 0
-	for _, transcript := range chat.Transcript {
-		turnCount += len(transcript.Turns)
-	}
-	switch {
-	case sessionCount == 0:
-		return "No recent transcript is currently available."
-	case turnCount == 0:
-		return fmt.Sprintf("%d recent session lines", sessionCount)
-	default:
-		return fmt.Sprintf(
-			"%d recent session lines · %d visible turns",
-			sessionCount,
-			turnCount,
-		)
-	}
-}
+func chatTranscriptSummary(chat ChatView) string { _ = "STUB: not implemented"; return "" }
 
-func chatHistorySummary(chat ChatView) string {
-	count := chat.HistoryTotalCount
-	switch {
-	case count <= 0:
-		return "No tracked sessions are currently available."
-	case count == 1:
-		return "1 tracked session line"
-	default:
-		return fmt.Sprintf("%d tracked session lines", count)
-	}
-}
+func chatHistorySummary(chat ChatView) string { _ = "STUB: not implemented"; return "" }
 
-func chatTranscriptLabel(view ChatTranscriptView) string {
-	switch {
-	case view.Current:
-		return "Current session"
-	case view.Recall:
-		return "Recall session"
-	default:
-		return "Recent session"
-	}
-}
+func chatTranscriptLabel(view ChatTranscriptView) string { _ = "STUB: not implemented"; return "" }
 
-func chatTurnSpeaker(view ChatTurnView) string {
-	speaker := strings.TrimSpace(view.Speaker)
-	if speaker != "" {
-		return speaker
-	}
-	switch strings.TrimSpace(view.Role) {
-	case "user":
-		return "User"
-	case "assistant":
-		return "Assistant"
-	case "system":
-		return "System"
-	default:
-		return "Turn"
-	}
-}
+func chatTurnSpeaker(view ChatTurnView) string { _ = "STUB: not implemented"; return "" }
 
-func hasTime(value time.Time) bool {
-	return !value.IsZero()
-}
+func hasTime(value time.Time) bool { _ = "STUB: not implemented"; return false }
 
 func chatOverrideSample(
 	status ChatsStatus,
 	limit int,
 ) []ChatView {
-	overrides := make([]ChatView, 0, len(status.Chats))
-	for _, chat := range status.Chats {
-		if !chat.OverridesGlobal {
-			continue
-		}
-		overrides = append(overrides, chat)
-	}
-	sort.SliceStable(overrides, func(i, j int) bool {
-		return overrides[i].LastActivity.After(overrides[j].LastActivity)
-	})
-	if limit <= 0 || len(overrides) <= limit {
-		return overrides
-	}
-	return overrides[:limit]
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func chatOverrideCount(chats []ChatView) int {
-	count := 0
-	for _, chat := range chats {
-		if chat.OverridesGlobal {
-			count++
-		}
-	}
-	return count
-}
+func chatOverrideCount(chats []ChatView) int { _ = "STUB: not implemented"; return 0 }
 
 const chatsPageTemplateHTML = `
 {{define "chatsPage"}}

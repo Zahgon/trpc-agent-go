@@ -12,21 +12,10 @@
 package main
 
 import (
-	"bufio"
-	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 )
 
 var (
@@ -59,115 +48,25 @@ type placeRecommendation struct {
 	Notes      string  `json:"notes"`
 }
 
-func run() error {
-	ctx := context.Background()
+func run() error { _ = "STUB: not implemented"; return nil }
 
-	// OpenAI-compatible model.
-	modelInstance := openai.New(*modelName)
+// OpenAI-compatible model.
 
-	// Minimal generation config.
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(800),
-		Temperature: floatPtr(0.3),
-		Stream:      *streaming,
-	}
+// Minimal generation config.
 
-	// Build agent with structured output using a typed struct; schema auto-generated.
-	agentName := "recommender"
-	llmAgent := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("Recommend places with structured output."),
-		llmagent.WithInstruction("When asked for a place, return exactly one recommendation."),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithStructuredOutputJSON(new(placeRecommendation), true, "A single place recommendation."),
-	)
+// Build agent with structured output using a typed struct; schema auto-generated.
 
-	// Runner with in-memory session service.
-	r := runner.NewRunner(
-		"structured-output-demo",
-		llmAgent,
-		runner.WithSessionService(inmemory.NewSessionService()),
-	)
+// Runner with in-memory session service.
 
-	// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
-	defer r.Close()
+// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
 
-	userID := "user"
-	sessionID := fmt.Sprintf("so-session-%d", time.Now().Unix())
-	fmt.Printf("✅ Ready! Session: %s\n\n", sessionID)
+// Minimal event loop: print content as it arrives; show typed payload when available.
 
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		if strings.EqualFold(text, "exit") {
-			fmt.Println("👋 Bye!")
-			return nil
-		}
+// If we got a typed structured output payload, display it succinctly.
 
-		msg := model.NewUserMessage(text)
-		evCh, err := r.Run(ctx, userID, sessionID, msg)
-		if err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-			continue
-		}
+// Print content as normal.
 
-		// Minimal event loop: print content as it arrives; show typed payload when available.
-		var latestJSON string
-		for ev := range evCh {
-			if ev.Error != nil {
-				fmt.Printf("\n❌ Error: %s\n", ev.Error.Message)
-				break
-			}
+// Show raw JSON if not streamed (depends on provider behavior).
 
-			// If we got a typed structured output payload, display it succinctly.
-			if ev.StructuredOutput != nil {
-				if pr, ok := ev.StructuredOutput.(*placeRecommendation); ok {
-					b, _ := json.MarshalIndent(pr, "", "  ")
-					fmt.Printf("\n✅ Typed structured output received:\n%s\n", string(b))
-				}
-			}
-
-			// Print content as normal.
-			if len(ev.Choices) > 0 {
-				if *streaming {
-					delta := ev.Choices[0].Delta.Content
-					if delta != "" {
-						fmt.Print(delta)
-					}
-				} else {
-					content := ev.Choices[0].Message.Content
-					if content != "" {
-						fmt.Println(content)
-						latestJSON = content
-					}
-				}
-			}
-
-			if ev.Object == model.ObjectTypeRunnerCompletion {
-				fmt.Println()
-				break
-			}
-		}
-
-		// Show raw JSON if not streamed (depends on provider behavior).
-		if latestJSON != "" {
-			fmt.Printf("\n🔎 Raw JSON (last message):\n%s\n\n", latestJSON)
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func intPtr(i int) *int           { return &i }
-func floatPtr(f float64) *float64 { return &f }
+func intPtr(i int) *int           { _ = "STUB: not implemented"; return nil }
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

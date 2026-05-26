@@ -14,7 +14,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -74,67 +73,38 @@ type sqlDBClient struct {
 //
 // This function is only exported to allow access from other internal packages
 // within the same module (memory/mysql, etc.).
-func WrapSQLDB(db *sql.DB) Client {
-	return &sqlDBClient{db: db}
-}
+func WrapSQLDB(db *sql.DB) Client { _ = "STUB: not implemented"; return *new(Client) }
 
 // Exec implements Client.Exec.
 func (c *sqlDBClient) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
-	return c.db.ExecContext(ctx, query, args...)
+	_ = "STUB: not implemented"
+	return *new(sql.Result), nil
 }
 
 // Query implements Client.Query using callback pattern.
 func (c *sqlDBClient) Query(ctx context.Context, next NextFunc, query string, args ...any) error {
-	rows, err := c.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	// Iterate all rows, calling the callback function.
-	for rows.Next() {
-		if err := next(rows); err != nil {
-			if errors.Is(err, ErrBreak) {
-				break
-			}
-			return err
-		}
-	}
-
-	return rows.Err()
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Iterate all rows, calling the callback function.
 
 // QueryRow implements Client.QueryRow.
 func (c *sqlDBClient) QueryRow(ctx context.Context, dest []any, query string, args ...any) error {
-	row := c.db.QueryRowContext(ctx, query, args...)
-	return row.Scan(dest...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Transaction implements Client.Transaction using callback pattern.
 func (c *sqlDBClient) Transaction(ctx context.Context, fn TxFunc, opts ...TxOption) error {
-	txOpts := &sql.TxOptions{}
-	for _, opt := range opts {
-		opt(txOpts)
-	}
-
-	tx, err := c.db.BeginTx(ctx, txOpts)
-	if err != nil {
-		return err
-	}
-
-	// Execute user transaction function.
-	if err := fn(tx); err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Execute user transaction function.
 
 // Close implements Client.Close.
-func (c *sqlDBClient) Close() error {
-	return c.db.Close()
-}
+func (c *sqlDBClient) Close() error { _ = "STUB: not implemented"; return nil }
 
 // clientBuilder is the function type for building Client instances.
 type clientBuilder func(builderOpts ...ClientBuilderOpt) (Client, error)
@@ -142,53 +112,25 @@ type clientBuilder func(builderOpts ...ClientBuilderOpt) (Client, error)
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the mysql client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the mysql client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// defaultClientBuilder is the default mysql client builder.
+	new(clientBuilder)
 }
 
-// defaultClientBuilder is the default mysql client builder.
 func defaultClientBuilder(builderOpts ...ClientBuilderOpt) (Client, error) {
-	o := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(o)
-	}
-
-	if o.DSN == "" {
-		return nil, errors.New("mysql: dsn is empty")
-	}
-
-	db, err := sql.Open("mysql", o.DSN)
-	if err != nil {
-		return nil, fmt.Errorf("mysql: open connection %s: %w", o.DSN, err)
-	}
-
-	// Set connection pool settings if provided.
-	if o.MaxOpenConns > 0 {
-		db.SetMaxOpenConns(o.MaxOpenConns)
-	}
-	if o.MaxIdleConns > 0 {
-		db.SetMaxIdleConns(o.MaxIdleConns)
-	}
-	if o.ConnMaxLifetime > 0 {
-		db.SetConnMaxLifetime(o.ConnMaxLifetime)
-	}
-	if o.ConnMaxIdleTime > 0 {
-		db.SetConnMaxIdleTime(o.ConnMaxIdleTime)
-	}
-
-	// Test connection.
-	if err := db.Ping(); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("mysql: ping failed: %w", err)
-	}
-
-	return &sqlDBClient{db: db}, nil
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
+
+// Set connection pool settings if provided.
+
+// Test connection.
 
 // ClientBuilderOpt is the option for the mysql client.
 type ClientBuilderOpt func(*ClientBuilderOpts)
@@ -218,56 +160,49 @@ type ClientBuilderOpts struct {
 
 // WithClientBuilderDSN sets the mysql client DSN for clientBuilder.
 func WithClientBuilderDSN(dsn string) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.DSN = dsn
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithMaxOpenConns sets the maximum number of open connections to the database.
 func WithMaxOpenConns(n int) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.MaxOpenConns = n
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithMaxIdleConns sets the maximum number of connections in the idle connection pool.
 func WithMaxIdleConns(n int) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.MaxIdleConns = n
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithConnMaxLifetime sets the maximum amount of time a connection may be reused.
 func WithConnMaxLifetime(d time.Duration) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ConnMaxLifetime = d
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithConnMaxIdleTime sets the maximum amount of time a connection may be idle.
 func WithConnMaxIdleTime(d time.Duration) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ConnMaxIdleTime = d
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets the mysql client extra options for clientBuilder.
 // this option mainly used for the customized mysql client builder, it will be passed to the builder.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ExtraOptions = append(opts.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // RegisterMySQLInstance registers a mysql instance options.
 func RegisterMySQLInstance(name string, opts ...ClientBuilderOpt) {
-	mysqlRegistry[name] = append(mysqlRegistry[name], opts...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetMySQLInstance gets the mysql instance options.
 func GetMySQLInstance(name string) ([]ClientBuilderOpt, bool) {
-	if _, ok := mysqlRegistry[name]; !ok {
-		return nil, false
-	}
-	return mysqlRegistry[name], true
+	_ = "STUB: not implemented"
+	return nil, false
 }

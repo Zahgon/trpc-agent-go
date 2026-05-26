@@ -13,9 +13,7 @@ import (
 	"context"
 	"sync"
 
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	ametric "trpc.group/trpc-go/trpc-agent-go/telemetry/metric"
 )
 
 const (
@@ -64,28 +62,7 @@ var operationMetrics = []struct {
 }
 
 // initOperationCounters lazily initializes per-operation counters.
-func initOperationCounters() map[string]metric.Int64Counter {
-	operationCountersOnce.Do(func() {
-		mp := ametric.GetMeterProvider()
-		if mp == nil {
-			return
-		}
-		meter := mp.Meter(meterName)
-		operationCounters = make(map[string]metric.Int64Counter, len(operationMetrics))
-		for _, om := range operationMetrics {
-			c, err := meter.Int64Counter(
-				om.metricName,
-				metric.WithDescription(om.description),
-				metric.WithUnit("1"),
-			)
-			if err != nil {
-				c, _ = meter.Int64Counter(om.metricName)
-			}
-			operationCounters[om.operation] = c
-		}
-	})
-	return operationCounters
-}
+func initOperationCounters() map[string]metric.Int64Counter { _ = "STUB: not implemented"; return nil }
 
 // recordStorageRoute increments the per-operation counter with storage as attribute.
 // operation: "create_session", "get_session", "append_event",
@@ -94,20 +71,6 @@ func initOperationCounters() map[string]metric.Int64Counter {
 //
 // storageType: util.StorageTypeHashIdx ("hashidx") or util.StorageTypeZset ("zset")
 func (s *Service) recordStorageRoute(ctx context.Context, operation, storageType string) {
-	if !s.opts.enableTracing {
-		return
-	}
-	counters := initOperationCounters()
-	if counters == nil {
-		return
-	}
-	c, ok := counters[operation]
-	if !ok || c == nil {
-		return
-	}
-	c.Add(ctx, 1,
-		metric.WithAttributes(
-			attribute.String("storage", storageType),
-		),
-	)
+	_ = "STUB: not implemented"
+	return
 }

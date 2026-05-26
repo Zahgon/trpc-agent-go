@@ -7,8 +7,6 @@
 
 package a2ui
 
-import "strings"
-
 // parser splits streaming text into JSONL records.
 //
 // Each non-empty line is treated as one JSONL message.
@@ -21,68 +19,24 @@ type parser struct {
 
 // newParser creates a new JSONL parser.
 func newParser() *parser {
-	return &parser{}
+	_ = "STUB: not implemented"
+
+	// append appends streaming text and returns all completed JSONL lines.
+	//
+	// Incomplete trailing data is buffered until more text arrives or flush is called.
+	return nil
 }
 
-// append appends streaming text and returns all completed JSONL lines.
-//
-// Incomplete trailing data is buffered until more text arrives or flush is called.
-func (p *parser) append(text string) []string {
-	if text == "" {
-		return nil
-	}
-	data := p.pending + text
-	p.pending = ""
-	return p.consume(data, false)
-}
+func (p *parser) append(text string) []string { _ = "STUB: not implemented"; return nil }
 
 // flush returns the final buffered line, if any, and resets the pending state.
 //
 // Blank final content is ignored.
-func (p *parser) flush() []string {
-	if p.pending == "" {
-		return nil
-	}
-	data := p.pending
-	p.pending = ""
-	return p.consume(data, true)
-}
+func (p *parser) flush() []string { _ = "STUB: not implemented"; return nil }
 
 // reset clears all buffered state.
-func (p *parser) reset() {
-	p.pending = ""
-}
+func (p *parser) reset() { _ = "STUB: not implemented"; return }
 
-func (p *parser) consume(data string, flush bool) []string {
-	var out []string
-	start := 0
-	for {
-		i := strings.IndexByte(data[start:], '\n')
-		if i < 0 {
-			break
-		}
-		end := start + i
-		if line := normalizeLine(data[start:end]); line != "" {
-			out = append(out, strings.Clone(line))
-		}
-		start = end + 1
-	}
-	rest := data[start:]
-	if flush {
-		if line := normalizeLine(rest); line != "" {
-			out = append(out, strings.Clone(line))
-		}
-		return out
-	}
-	p.pending = rest
-	return out
-}
+func (p *parser) consume(data string, flush bool) []string { _ = "STUB: not implemented"; return nil }
 
-func normalizeLine(s string) string {
-	s = strings.TrimSuffix(s, "\r")
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return ""
-	}
-	return s
-}
+func normalizeLine(s string) string { _ = "STUB: not implemented"; return "" }

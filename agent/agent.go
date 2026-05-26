@@ -12,7 +12,6 @@ package agent
 
 import (
 	"context"
-	"errors"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	"trpc.group/trpc-go/trpc-agent-go/event"
@@ -43,20 +42,16 @@ type StopError struct {
 
 // Error implements the error interface.
 func (e *StopError) Error() string {
-	return e.Message
+	_ = "STUB: not implemented"
+
+	// AsStopError checks if an error is a StopError using errors.As.
+	return ""
 }
 
-// AsStopError checks if an error is a StopError using errors.As.
-func AsStopError(err error) (*StopError, bool) {
-	var stopErr *StopError
-	ok := errors.As(err, &stopErr)
-	return stopErr, ok
-}
+func AsStopError(err error) (*StopError, bool) { _ = "STUB: not implemented"; return nil, false }
 
 // NewStopError creates a new StopError with the given message.
-func NewStopError(message string) *StopError {
-	return &StopError{Message: message}
-}
+func NewStopError(message string) *StopError { _ = "STUB: not implemented"; return nil }
 
 // Agent is the interface that all agents must implement.
 type Agent interface {

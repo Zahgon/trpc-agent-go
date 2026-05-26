@@ -30,19 +30,13 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
-	"os"
-	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -94,52 +88,22 @@ type chatApp struct {
 // This setup enables both switching methods:
 //   - Method 1: agent.SetModelByName() works because models are registered.
 //   - Method 2: agent.WithModelName() in RunOptions also uses the registry.
-func (a *chatApp) setup(_ context.Context) error {
-	fmt.Printf("🚀 Model Switching Example\n")
-	fmt.Printf("Model: %s\n", a.defaultModel)
-	fmt.Printf("Commands: /switch X, /model X, /new, /exit\n")
-	fmt.Println(strings.Repeat("=", 50))
+func (a *chatApp) setup(_ context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Prepare model map with pre-registered models.
-	// Pre-registration is required for name-based model switching.
-	models := map[string]model.Model{
-		"deepseek-v4-flash": openai.New(
-			"deepseek-v4-flash",
-			openai.WithVariant(openai.VariantDeepSeek),
-		),
-		"deepseek-v4-pro": openai.New(
-			"deepseek-v4-pro",
-			openai.WithVariant(openai.VariantDeepSeek),
-		),
-	}
+// Prepare model map with pre-registered models.
+// Pre-registration is required for name-based model switching.
 
-	// Get the default model instance.
-	defaultModelInstance, ok := models[a.defaultModel]
-	if !ok {
-		return fmt.Errorf("default model %q not found in registered models", a.defaultModel)
-	}
+// Get the default model instance.
 
-	// Create an agent with pre-registered models.
-	// WithModels: registers the model map for name-based lookup.
-	// WithModel: sets the initial default model.
-	a.agent = llmagent.New(
-		"switching-agent",
-		llmagent.WithModels(models),
-		llmagent.WithModel(defaultModelInstance),
-	)
+// Create an agent with pre-registered models.
+// WithModels: registers the model map for name-based lookup.
+// WithModel: sets the initial default model.
 
-	// Store models map for validation in handleModelCommand.
-	a.models = models
+// Store models map for validation in handleModelCommand.
 
-	// Create runner.
-	a.runner = runner.NewRunner("model-switch", a.agent)
+// Create runner.
 
-	// Initialize session ID.
-	a.sessionID = "session-1"
-
-	fmt.Printf("\n✅ Chat ready! Session: %s\n\n", a.sessionID)
-	return nil
-}
+// Initialize session ID.
 
 // startChat runs the interactive conversation loop.
 //
@@ -155,76 +119,18 @@ func (a *chatApp) setup(_ context.Context) error {
 // │ State location  │ Agent instance       │ RunOptions           │
 // │ Typical use     │ User preference      │ A/B testing, fallback│
 // └─────────────────┴──────────────────────┴──────────────────────┘
-func (a *chatApp) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
+func (a *chatApp) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	fmt.Println("💡 Special commands:")
-	fmt.Println("   /switch <model>  - 🔄 Agent-level: change default model for all requests")
-	fmt.Println("   /model <model>   - 🎯 Per-request: use model for next request only")
-	fmt.Println("   /new             - 🆕 Start a new session")
-	fmt.Println("   /exit            - 👋 End the conversation")
-	fmt.Println()
+// Switch command: changes agent's default model (affects all subsequent requests).
 
-	for {
-		fmt.Print("👤 You: ")
-		if !scanner.Scan() {
-			break
-		}
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
+// Model command: sets model for next request only (per-request
+// override).
 
-		// Switch command: changes agent's default model (affects all subsequent requests).
-		if strings.HasPrefix(strings.ToLower(userInput), "/switch") {
-			fields := strings.Fields(userInput)
-			if len(fields) < 2 {
-				fmt.Println("Usage: /switch <model-name>.")
-				continue
-			}
-			if err := a.handleSwitch(fields[1]); err != nil {
-				fmt.Printf("❌ %v\n", err)
-			}
-			continue
-		}
+// New session.
 
-		// Model command: sets model for next request only (per-request
-		// override).
-		if strings.HasPrefix(strings.ToLower(userInput), "/model") {
-			fields := strings.Fields(userInput)
-			if len(fields) < 2 {
-				fmt.Println("Usage: /model <model-name>.")
-				continue
-			}
-			if err := a.handleModelCommand(fields[1]); err != nil {
-				fmt.Printf("❌ %v\n", err)
-			}
-			continue
-		}
+// Exit.
 
-		// New session.
-		if strings.EqualFold(userInput, "/new") {
-			a.startNewSession()
-			continue
-		}
-
-		// Exit.
-		if strings.EqualFold(userInput, "/exit") {
-			fmt.Println("👋 Bye.")
-			return nil
-		}
-
-		// Normal message.
-		if err := a.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-	return nil
-}
+// Normal message.
 
 // processMessage sends a message to the agent via runner.
 //
@@ -240,84 +146,39 @@ func (a *chatApp) startChat(ctx context.Context) error {
 //
 // Note: RunOptions are passed as variadic arguments to runner.Run().
 func (a *chatApp) processMessage(ctx context.Context, text string) error {
+	_ = "STUB: not implemented"
 	// Build run options.
-	var runOpts []agent.RunOption
-
-	// Apply per-request model override if specified.
-	// This demonstrates Method 2: per-request switching.
-	if a.usePerRequestSwitch && a.nextModelName != "" {
-		fmt.Printf("🔧 Per-request override: using model %s for this request only\n", a.nextModelName)
-		// Option 1: Switch by model name (recommended if model is pre-registered).
-		runOpts = append(runOpts, agent.WithModelName(a.nextModelName))
-
-		// Option 2: Switch by model instance (use when you need custom config).
-		// modelInstance := openai.New(a.nextModelName)
-		// runOpts = append(runOpts, agent.WithModel(modelInstance))
-
-		// Reset for next request to ensure this only affects current request.
-		a.nextModelName = ""
-		a.usePerRequestSwitch = false
-	}
-
-	// Run the agent via runner.
-	// The runner will use the per-request model if specified, otherwise
-	// falls back to the agent's default model.
-	events, err := a.runner.Run(
-		ctx,
-		"user",
-		a.sessionID,
-		model.NewUserMessage(text),
-		runOpts...,
-	)
-	if err != nil {
-		return err
-	}
-	return a.processResponse(events)
+	return nil
 }
+
+// Apply per-request model override if specified.
+// This demonstrates Method 2: per-request switching.
+
+// Option 1: Switch by model name (recommended if model is pre-registered).
+
+// Option 2: Switch by model instance (use when you need custom config).
+// modelInstance := openai.New(a.nextModelName)
+// runOpts = append(runOpts, agent.WithModel(modelInstance))
+
+// Reset for next request to ensure this only affects current request.
+
+// Run the agent via runner.
+// The runner will use the per-request model if specified, otherwise
+// falls back to the agent's default model.
 
 // processResponse prints streaming or non-streaming responses.
 func (a *chatApp) processResponse(eventChan <-chan *event.Event) error {
-	var out strings.Builder
-	firstChunk := true
-
-	for ev := range eventChan {
-		if ev.Error != nil {
-			fmt.Printf("\n❌ Error: %s\n", ev.Error.Message)
-			continue
-		}
-		if len(ev.Choices) > 0 {
-			ch := ev.Choices[0]
-			// Handle streaming delta content.
-			if ch.Delta.Content != "" {
-				if firstChunk {
-					fmt.Print("🤖 ")
-					firstChunk = false
-				}
-				fmt.Print(ch.Delta.Content)
-				out.WriteString(ch.Delta.Content)
-			}
-			// Handle non-streaming message content.
-			if ch.Message.Content != "" {
-				out.WriteString(ch.Message.Content)
-			}
-		}
-		if ev.Done {
-			break
-		}
-	}
-
-	resp := strings.TrimSpace(out.String())
-	if resp != "" {
-		// If streaming, we already printed it; just add newline.
-		if !firstChunk {
-			fmt.Println()
-		} else {
-			// Non-streaming: print the complete response.
-			fmt.Printf("🤖 %s\n", resp)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Handle streaming delta content.
+
+// Handle non-streaming message content.
+
+// If streaming, we already printed it; just add newline.
+
+// Non-streaming: print the complete response.
 
 // handleSwitch switches agent's default model (affects all subsequent
 // requests).
@@ -338,22 +199,19 @@ func (a *chatApp) processResponse(eventChan <-chan *event.Event) error {
 //   - Application switches to a different model tier.
 //   - Adapting to different conversation contexts.
 func (a *chatApp) handleSwitch(name string) error {
+	_ = "STUB: not implemented"
 	// Switch model by name using SetModelByName method.
 	// This changes the agent's default model for all subsequent requests.
-	if err := a.agent.SetModelByName(name); err != nil {
-		// List available models on error.
-		fmt.Printf("Available models: deepseek-v4-flash, deepseek-v4-pro\n")
-		return fmt.Errorf("failed to switch model: %w", err)
-	}
-
-	// Alternative: use SetModel to switch by model instance.
-	// This is useful when you need to create a new model with specific
-	// configuration:
-	//   model := openai.New("deepseek-v4-pro")
-	//   a.agent.SetModel(model)
-	fmt.Printf("✅ Agent-level switch: all requests will now use %s\n", name)
 	return nil
 }
+
+// List available models on error.
+
+// Alternative: use SetModel to switch by model instance.
+// This is useful when you need to create a new model with specific
+// configuration:
+//   model := openai.New("deepseek-v4-pro")
+//   a.agent.SetModel(model)
 
 // handleModelCommand sets model for next request only (per-request override).
 //
@@ -375,27 +233,21 @@ func (a *chatApp) handleSwitch(name string) error {
 //   - A/B testing without affecting other users.
 //   - Fallback to a different model for retry scenarios.
 func (a *chatApp) handleModelCommand(name string) error {
+	_ = "STUB: not implemented"
 	// Validate that the model exists in the agent's registered models.
 	// This prevents runtime errors when the request is executed.
-	if _, ok := a.models[name]; !ok {
-		// List available models on error.
-		fmt.Printf("Available models: deepseek-v4-flash, deepseek-v4-pro\n")
-		return fmt.Errorf("model %q not found in registered models", name)
-	}
-
-	// This uses per-request model switching via agent.WithModelName().
-	// The agent's default model remains unchanged.
-	a.nextModelName = name
-	a.usePerRequestSwitch = true
-	fmt.Printf("✅ Per-request mode: next request will use %s (agent default unchanged)\n", name)
 	return nil
 }
 
+// List available models on error.
+
+// This uses per-request model switching via agent.WithModelName().
+// The agent's default model remains unchanged.
+
 // startNewSession creates a new session ID and clears history.
 func (a *chatApp) startNewSession() {
-	old := a.sessionID
+	_ = "STUB: not implemented"
+
 	// Generate a new session ID based on timestamp.
-	a.sessionID = fmt.Sprintf("session-%d", time.Now().Unix())
-	fmt.Printf("🆕 New session started. Previous: %s, Current: %s\n", old, a.sessionID)
-	fmt.Println("   (Session history has been cleared)")
+	return
 }

@@ -15,7 +15,6 @@ import (
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -27,28 +26,19 @@ type BasicRequestProcessor struct {
 
 // NewBasicRequestProcessor creates a new basic request processor with default settings.
 func NewBasicRequestProcessor(opts ...BasicOption) *BasicRequestProcessor {
-	processor := &BasicRequestProcessor{
-		GenerationConfig: model.GenerationConfig{
-			Stream: true,
-		},
-	}
-
-	// Apply options.
-	for _, opt := range opts {
-		opt(processor)
-	}
-
-	return processor
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Apply options.
 
 // BasicOption is a functional option for configuring the BasicRequestProcessor.
 type BasicOption func(*BasicRequestProcessor)
 
 // WithGenerationConfig sets the default generation configuration.
 func WithGenerationConfig(config model.GenerationConfig) BasicOption {
-	return func(p *BasicRequestProcessor) {
-		p.GenerationConfig = config
-	}
+	_ = "STUB: not implemented"
+	return *new(BasicOption)
 }
 
 // ProcessRequest implements the flow.RequestProcessor interface.
@@ -59,54 +49,12 @@ func (p *BasicRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if req == nil {
-		log.ErrorfContext(
-			ctx,
-			"Basic request processor: request is nil",
-		)
-		return
-	}
-
-	if invocation == nil {
-		return
-	}
-
-	log.DebugfContext(
-		ctx,
-		"Basic request processor: processing request for agent %s",
-		invocation.AgentName,
-	)
-
-	// Set generation configuration.
-	req.GenerationConfig = p.GenerationConfig
-	if invocation.RunOptions.Stream != nil {
-		req.GenerationConfig.Stream = *invocation.RunOptions.Stream
-	}
-	if len(invocation.RunOptions.ModelRequestExtraFields) > 0 {
-		if req.ExtraFields == nil {
-			req.ExtraFields = make(
-				map[string]any,
-				len(invocation.RunOptions.ModelRequestExtraFields),
-			)
-		}
-		for key, value := range invocation.RunOptions.ModelRequestExtraFields {
-			req.ExtraFields[key] = value
-		}
-	}
-
-	// Propagate structured output from invocation to request if present.
-	if invocation.StructuredOutput != nil {
-		req.StructuredOutput = invocation.StructuredOutput
-	}
-
-	log.DebugContext(ctx, "Basic request processor: sent preprocessing event")
-	// Send a preprocessing event.
-	if err := agent.EmitEvent(ctx, invocation, ch, event.New(
-		invocation.InvocationID,
-		invocation.AgentName,
-		event.WithObject(model.ObjectTypePreprocessingBasic),
-	)); err != nil {
-		log.DebugContext(ctx, "Basic request processor: context cancelled")
-	}
-
+	_ = "STUB: not implemented"
+	return
 }
+
+// Set generation configuration.
+
+// Propagate structured output from invocation to request if present.
+
+// Send a preprocessing event.

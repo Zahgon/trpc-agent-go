@@ -11,7 +11,6 @@ package manager
 import (
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/engine"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/store"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/workflow/promptiter/store/inmemory"
 )
 
 // Option configures the PromptIter run manager.
@@ -22,26 +21,13 @@ type options struct {
 	storedResultSlimming engine.RunResultSlimming
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		store: inmemory.New(),
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithStore sets the store used to persist PromptIter runs.
-func WithStore(store store.Store) Option {
-	return func(opts *options) {
-		opts.store = store
-	}
-}
+func WithStore(store store.Store) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStoredResultSlimming omits selected fields before runs are persisted.
 func WithStoredResultSlimming(slimming engine.RunResultSlimming) Option {
-	return func(opts *options) {
-		opts.storedResultSlimming = slimming
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

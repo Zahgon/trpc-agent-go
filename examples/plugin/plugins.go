@@ -12,8 +12,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
@@ -35,34 +33,17 @@ type demoPlugin struct {
 	debug bool
 }
 
-func newDemoPlugin(debug bool) plugin.Plugin {
-	return &demoPlugin{debug: debug}
-}
+func newDemoPlugin(debug bool) plugin.Plugin { _ = "STUB: not implemented"; return *new(plugin.Plugin) }
 
-func (p *demoPlugin) Name() string {
-	return demoPluginName
-}
+func (p *demoPlugin) Name() string { _ = "STUB: not implemented"; return "" }
 
-func (p *demoPlugin) Register(r *plugin.Registry) {
-	r.BeforeAgent(p.beforeAgent)
-	r.AfterAgent(p.afterAgent)
-	r.BeforeModel(p.beforeModel)
-	r.BeforeTool(p.beforeTool)
-	r.AfterTool(p.afterTool)
-	r.OnEvent(p.onEvent)
-}
+func (p *demoPlugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *demoPlugin) beforeAgent(
 	ctx context.Context,
 	args *agent.BeforeAgentArgs,
 ) (*agent.BeforeAgentResult, error) {
-	if !p.debug || args == nil || args.Invocation == nil {
-		return nil, nil
-	}
-	fmt.Printf(
-		"[plugin] before_agent agent=%s\n",
-		args.Invocation.AgentName,
-	)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -70,18 +51,7 @@ func (p *demoPlugin) afterAgent(
 	ctx context.Context,
 	args *agent.AfterAgentArgs,
 ) (*agent.AfterAgentResult, error) {
-	if !p.debug || args == nil || args.Invocation == nil {
-		return nil, nil
-	}
-	errText := ""
-	if args.Error != nil {
-		errText = args.Error.Error()
-	}
-	fmt.Printf(
-		"[plugin] after_agent agent=%s err=%s\n",
-		args.Invocation.AgentName,
-		errText,
-	)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -89,63 +59,22 @@ func (p *demoPlugin) beforeModel(
 	ctx context.Context,
 	args *model.BeforeModelArgs,
 ) (*model.BeforeModelResult, error) {
-	if args == nil || args.Request == nil {
-		return nil, nil
-	}
-
-	if !requestHasUserKeyword(args.Request, denyKeyword) {
-		return nil, nil
-	}
-
-	if p.debug {
-		fmt.Printf("[plugin] before_model short_circuit keyword=%s\n",
-			denyKeyword,
-		)
-	}
-
-	return &model.BeforeModelResult{
-		CustomResponse: denyResponse(),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func requestHasUserKeyword(req *model.Request, keyword string) bool {
-	if req == nil {
-		return false
-	}
-	for _, msg := range req.Messages {
-		if msg.Role != model.RoleUser {
-			continue
-		}
-		if strings.Contains(msg.Content, keyword) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func denyResponse() *model.Response {
-	return &model.Response{
-		Done: true,
-		Choices: []model.Choice{{
-			Index:   0,
-			Message: model.NewAssistantMessage(denyText),
-		}},
-	}
-}
+func denyResponse() *model.Response { _ = "STUB: not implemented"; return nil }
 
 func (p *demoPlugin) beforeTool(
 	ctx context.Context,
 	args *tool.BeforeToolArgs,
 ) (*tool.BeforeToolResult, error) {
-	if !p.debug || args == nil {
-		return nil, nil
-	}
-	callID, _ := tool.ToolCallIDFromContext(ctx)
-	fmt.Printf(
-		"[plugin] before_tool tool=%s call_id=%s\n",
-		args.ToolName,
-		callID,
-	)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -153,20 +82,7 @@ func (p *demoPlugin) afterTool(
 	ctx context.Context,
 	args *tool.AfterToolArgs,
 ) (*tool.AfterToolResult, error) {
-	if !p.debug || args == nil {
-		return nil, nil
-	}
-	callID, _ := tool.ToolCallIDFromContext(ctx)
-	errText := ""
-	if args.Error != nil {
-		errText = args.Error.Error()
-	}
-	fmt.Printf(
-		"[plugin] after_tool tool=%s call_id=%s err=%s\n",
-		args.ToolName,
-		callID,
-		errText,
-	)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
@@ -175,44 +91,10 @@ func (p *demoPlugin) onEvent(
 	_ *agent.Invocation,
 	e *event.Event,
 ) (*event.Event, error) {
-	if e == nil {
-		return nil, nil
-	}
-
-	addTag(e, demoTag)
-	addAssistantPrefix(e, assistantPrefix)
-
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func addTag(e *event.Event, tag string) {
-	if e == nil || tag == "" {
-		return
-	}
-	if e.ContainsTag(tag) {
-		return
-	}
-	if e.Tag == "" {
-		e.Tag = tag
-		return
-	}
-	e.Tag = e.Tag + event.TagDelimiter + tag
-}
+func addTag(e *event.Event, tag string) { _ = "STUB: not implemented"; return }
 
-func addAssistantPrefix(e *event.Event, prefix string) {
-	if e == nil || prefix == "" {
-		return
-	}
-	if e.Response == nil || e.IsPartial || len(e.Response.Choices) == 0 {
-		return
-	}
-	msg := e.Response.Choices[0].Message
-	if msg.Role != model.RoleAssistant || msg.Content == "" {
-		return
-	}
-	if strings.HasPrefix(msg.Content, prefix) {
-		return
-	}
-	msg.Content = prefix + msg.Content
-	e.Response.Choices[0].Message = msg
-}
+func addAssistantPrefix(e *event.Event, prefix string) { _ = "STUB: not implemented"; return }

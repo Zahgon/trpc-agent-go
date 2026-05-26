@@ -11,22 +11,9 @@
 package registry
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"sort"
 	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator"
-	finalresponse "trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/finalresponse"
-	llmfinalresponse "trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/finalresponse"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/hallucination"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/rubriccritic"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/rubricknowledgerecall"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/rubricreferencecritic"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/rubricresponse"
-	llmtemplate "trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/template"
-	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/tooltrajectory"
 )
 
 // Registry defines the interface for evaluators registry.
@@ -46,68 +33,21 @@ type registry struct {
 }
 
 // New creates a evaluator registry
-func New() Registry {
-	r := &registry{
-		evaluators: make(map[string]evaluator.Evaluator),
-	}
-	toolTrajectory := tooltrajectory.New()
-	r.Register(toolTrajectory.Name(), toolTrajectory)
-	finalResponse := finalresponse.New()
-	r.Register(finalResponse.Name(), finalResponse)
-	llmfinalResponse := llmfinalresponse.New()
-	r.Register(llmfinalResponse.Name(), llmfinalResponse)
-	rubricCritic := rubriccritic.New()
-	r.Register(rubricCritic.Name(), rubricCritic)
-	rubricResponse := rubricresponse.New()
-	r.Register(rubricResponse.Name(), rubricResponse)
-	rubricReferenceCritic := rubricreferencecritic.New()
-	r.Register(rubricReferenceCritic.Name(), rubricReferenceCritic)
-	rubricKnowledgeRecall := rubricknowledgerecall.New()
-	r.Register(rubricKnowledgeRecall.Name(), rubricKnowledgeRecall)
-	hallucinationEvaluator := hallucination.New()
-	r.Register(hallucinationEvaluator.Name(), hallucinationEvaluator)
-	templateEvaluator := llmtemplate.New()
-	r.Register(templateEvaluator.Name(), templateEvaluator)
-	return r
-}
+func New() Registry { _ = "STUB: not implemented"; return *new(Registry) }
 
 // Register registers an evaluator to the registry.
 // Same name evaluator will be overwritten.
 func (r *registry) Register(name string, e evaluator.Evaluator) error {
-	if e == nil {
-		return errors.New("evaluator is nil")
-	}
-	if name == "" {
-		name = e.Name()
-	}
-	if name == "" {
-		return errors.New("evaluator name is empty")
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.evaluators[name] = e
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // Get gets an evaluator by name.
 // Returns os.ErrNotExist if the evaluator is not found.
 func (r *registry) Get(name string) (evaluator.Evaluator, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	if e, ok := r.evaluators[name]; ok {
-		return e, nil
-	}
-	return nil, fmt.Errorf("get evaluator %s: %w", name, os.ErrNotExist)
+	_ = "STUB: not implemented"
+	return *new(evaluator.Evaluator), nil
 }
 
 // List returns the names of all registered evaluators sorted lexicographically.
-func (r *registry) List() []string {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	names := make([]string, 0, len(r.evaluators))
-	for name := range r.evaluators {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	return names
-}
+func (r *registry) List() []string { _ = "STUB: not implemented"; return nil }

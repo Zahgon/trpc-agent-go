@@ -203,6 +203,4 @@ const (
 )
 
 // IsGroupChat reports whether the chat type represents a group chat.
-func IsGroupChat(chatType string) bool {
-	return chatType == chatTypeGroup || chatType == chatTypeSuperGroup
-}
+func IsGroupChat(chatType string) bool { _ = "STUB: not implemented"; return false }

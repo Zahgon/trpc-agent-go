@@ -29,40 +29,22 @@ type messageMergerPlugin struct {
 }
 
 // New creates a new message merger plugin.
-func New(options ...Option) plugin.Plugin {
-	opts := newOptions(options...)
-	if opts.name == "" {
-		opts.name = defaultPluginName
-	}
-	return &messageMergerPlugin{
-		name:      opts.name,
-		separator: opts.separator,
-	}
-}
+func New(options ...Option) plugin.Plugin { _ = "STUB: not implemented"; return *new(plugin.Plugin) }
 
 // Name implements plugin.Plugin.
 func (p *messageMergerPlugin) Name() string {
-	return p.name
+	_ = "STUB: not implemented"
+
+	// Register implements plugin.Plugin.
+	return ""
 }
 
-// Register implements plugin.Plugin.
-func (p *messageMergerPlugin) Register(r *plugin.Registry) {
-	if p == nil || r == nil {
-		return
-	}
-	r.BeforeModel(p.beforeModel)
-}
+func (p *messageMergerPlugin) Register(r *plugin.Registry) { _ = "STUB: not implemented"; return }
 
 func (p *messageMergerPlugin) beforeModel(
 	_ context.Context,
 	args *model.BeforeModelArgs,
 ) (*model.BeforeModelResult, error) {
-	if p == nil || args == nil || args.Request == nil {
-		return nil, nil
-	}
-	args.Request.Messages = mergeConsecutiveMessages(
-		args.Request.Messages,
-		p.separator,
-	)
+	_ = "STUB: not implemented"
 	return nil, nil
 }

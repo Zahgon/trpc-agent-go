@@ -16,15 +16,7 @@ package fileref
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/artifact"
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	"trpc.group/trpc-go/trpc-agent-go/internal/toolcache"
 )
 
@@ -64,145 +56,24 @@ type Ref struct {
 }
 
 // WorkspaceRef builds a workspace:// reference for the given relative path.
-func WorkspaceRef(rel string) string {
-	return WorkspacePrefix + strings.TrimSpace(rel)
-}
+func WorkspaceRef(rel string) string { _ = "STUB: not implemented"; return "" }
 
 // Parse parses raw into a Ref.
 //
 // When the returned Ref has an empty Scheme, the caller should treat Path as
 // a local path (for example, relative to a tool base directory).
-func Parse(raw string) (Ref, error) {
-	s := strings.TrimSpace(raw)
-	if s == "" {
-		return Ref{Raw: raw}, nil
-	}
-
-	if strings.HasPrefix(s, WorkspacePrefix) {
-		p := strings.TrimPrefix(s, WorkspacePrefix)
-		rel, err := cleanRelPath(p)
-		if err != nil {
-			return Ref{}, err
-		}
-		return Ref{
-			Scheme: SchemeWorkspace,
-			Path:   rel,
-			Raw:    raw,
-		}, nil
-	}
-
-	if strings.HasPrefix(s, ArtifactPrefix) {
-		rest := strings.TrimPrefix(s, ArtifactPrefix)
-		rest = strings.TrimSpace(rest)
-		if rest == "" {
-			return Ref{}, fmt.Errorf(errArtifactNameEmpty)
-		}
-		name, ver, err := codeexecutor.ParseArtifactRef(rest)
-		if err != nil {
-			return Ref{}, err
-		}
-		name = strings.TrimSpace(name)
-		if name == "" {
-			return Ref{}, fmt.Errorf(errArtifactNameEmpty)
-		}
-		return Ref{
-			Scheme:          SchemeArtifact,
-			ArtifactName:    name,
-			ArtifactVersion: ver,
-			Raw:             raw,
-		}, nil
-	}
-
-	if strings.Contains(s, schemeSep) {
-		return Ref{}, fmt.Errorf(
-			"unsupported file ref scheme: %s",
-			raw,
-		)
-	}
-	return Ref{Path: s, Raw: raw}, nil
-}
+func Parse(raw string) (Ref, error) { _ = "STUB: not implemented"; return *new(Ref), nil }
 
 // IsInternalFileRef reports whether raw is an internal or local-only file ref
 // that should not be forwarded to model providers as a provider file_id.
-func IsInternalFileRef(raw string) bool {
-	s := strings.TrimSpace(raw)
-	if s == "" {
-		return false
-	}
-	return strings.HasPrefix(s, ArtifactPrefix) ||
-		strings.HasPrefix(s, WorkspacePrefix) ||
-		strings.HasPrefix(s, HostPrefix) ||
-		strings.HasPrefix(s, filePrefix) ||
-		filepath.IsAbs(s)
-}
+func IsInternalFileRef(raw string) bool { _ = "STUB: not implemented"; return false }
 
 // DisplayName returns a safe basename for a supported internal file ref.
-func DisplayName(raw string) string {
-	s := strings.TrimSpace(raw)
-	if s == "" {
-		return ""
-	}
+func DisplayName(raw string) string { _ = "STUB: not implemented"; return "" }
 
-	switch {
-	case strings.HasPrefix(s, ArtifactPrefix):
-		ref, err := Parse(s)
-		if err != nil {
-			return ""
-		}
-		return refBaseName(ref.ArtifactName)
-	case strings.HasPrefix(s, WorkspacePrefix):
-		ref, err := Parse(s)
-		if err != nil {
-			return ""
-		}
-		return refBaseName(ref.Path)
-	case strings.HasPrefix(s, HostPrefix):
-		return refBaseName(strings.TrimPrefix(s, HostPrefix))
-	case strings.HasPrefix(s, filePrefix):
-		return refBaseName(strings.TrimPrefix(s, filePrefix))
-	case filepath.IsAbs(s):
-		return refBaseName(s)
-	default:
-		return ""
-	}
-}
+func refBaseName(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func refBaseName(raw string) string {
-	base := path.Base(strings.TrimSpace(raw))
-	switch base {
-	case "", ".", "/", "..":
-		return ""
-	default:
-		return base
-	}
-}
-
-func cleanRelPath(p string) (string, error) {
-	s := strings.TrimSpace(p)
-	if s == "" || s == "." {
-		return "", nil
-	}
-	if filepath.IsAbs(s) {
-		return "", fmt.Errorf(
-			"absolute paths are not allowed: %s",
-			p,
-		)
-	}
-
-	clean := filepath.Clean(s)
-	if clean == "." {
-		return "", nil
-	}
-	parent := ".."
-	sep := string(os.PathSeparator)
-	if clean == parent || strings.HasPrefix(clean, parent+sep) {
-		return "", fmt.Errorf(
-			"path traversal is not allowed: %s",
-			p,
-		)
-	}
-	return clean, nil
-}
+func cleanRelPath(p string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // TryRead reads raw if it is a supported file reference.
 //
@@ -212,48 +83,16 @@ func TryRead(
 	ctx context.Context,
 	raw string,
 ) (string, string, bool, error) {
-	ref, err := Parse(raw)
-	if err != nil {
-		return "", "", true, err
-	}
-	switch ref.Scheme {
-	case "":
-		return "", "", false, nil
-	case SchemeWorkspace:
-		content, mime, ok := toolcache.LookupSkillRunOutputFileFromContext(
-			ctx,
-			ref.Path,
-		)
-		if !ok {
-			return "", "", true, fmt.Errorf(
-				"workspace file is not exported: %s",
-				ref.Path,
-			)
-		}
-		return content, mime, true, nil
-	case SchemeArtifact:
-		data, mime, _, err := loadArtifactFromContext(
-			ctx,
-			ref.ArtifactName,
-			ref.ArtifactVersion,
-		)
-		if err != nil {
-			return "", "", true, err
-		}
-		return string(data), mime, true, nil
-	default:
-		return "", "", true, fmt.Errorf(
-			"unsupported file ref scheme: %s",
-			ref.Scheme,
-		)
-	}
+	_ = "STUB: not implemented"
+	return "", "", false, nil
 }
 
 // WorkspaceFiles returns files exported from skill_run output_files in ctx.
 func WorkspaceFiles(
 	ctx context.Context,
 ) []toolcache.SkillRunOutputFile {
-	return toolcache.SkillRunOutputFilesFromContext(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func loadArtifactFromContext(
@@ -261,25 +100,11 @@ func loadArtifactFromContext(
 	name string,
 	version *int,
 ) ([]byte, string, int, error) {
-	ctxIO := withArtifactContext(ctx)
-	return codeexecutor.LoadArtifactHelper(ctxIO, name, version)
+	_ = "STUB: not implemented"
+	return nil, "", 0, nil
 }
 
 func withArtifactContext(ctx context.Context) context.Context {
-	if svc, ok := codeexecutor.ArtifactServiceFromContext(ctx); ok &&
-		svc != nil {
-		return ctx
-	}
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil || inv.ArtifactService == nil ||
-		inv.Session == nil {
-		return ctx
-	}
-	info := artifact.SessionInfo{
-		AppName:   inv.Session.AppName,
-		UserID:    inv.Session.UserID,
-		SessionID: inv.Session.ID,
-	}
-	ctx = codeexecutor.WithArtifactService(ctx, inv.ArtifactService)
-	return codeexecutor.WithArtifactSession(ctx, info)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

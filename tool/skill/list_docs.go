@@ -12,8 +12,6 @@ package skill
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/skill"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -31,54 +29,15 @@ type ListDocsTool struct {
 }
 
 // NewListDocsTool creates a ListDocsTool.
-func NewListDocsTool(repo skill.Repository) *ListDocsTool {
-	return &ListDocsTool{repo: repo}
-}
+func NewListDocsTool(repo skill.Repository) *ListDocsTool { _ = "STUB: not implemented"; return nil }
 
 // Declaration implements tool.Tool.
-func (t *ListDocsTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:        listDocsToolName,
-		Description: "List doc filenames for a skill.",
-		InputSchema: &tool.Schema{
-			Type:        "object",
-			Description: "List docs input",
-			Required:    []string{"skill"},
-			Properties: map[string]*tool.Schema{
-				"skill": skillNameSchema(
-					t.repo, "Skill name",
-				),
-			},
-		},
-		OutputSchema: &tool.Schema{
-			Type:        "array",
-			Description: "Array of doc filenames",
-			Items:       &tool.Schema{Type: "string"},
-		},
-	}
-}
+func (t *ListDocsTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }
 
 // Call returns the list of doc filenames.
 func (t *ListDocsTool) Call(ctx context.Context, args []byte) (any, error) {
-	var in listDocsInput
-	if err := json.Unmarshal(args, &in); err != nil {
-		return nil, fmt.Errorf("invalid args: %w", err)
-	}
-	if in.Skill == "" {
-		return nil, fmt.Errorf("skill is required")
-	}
-	if t.repo == nil {
-		return []string{}, nil
-	}
-	sk, err := skill.GetForContext(ctx, t.repo, in.Skill)
-	if err != nil || sk == nil {
-		return nil, fmt.Errorf("unknown skill: %s", in.Skill)
-	}
-	out := make([]string, 0, len(sk.Docs))
-	for _, d := range sk.Docs {
-		out = append(out, d.Path)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 var _ tool.Tool = (*ListDocsTool)(nil)

@@ -12,7 +12,6 @@ package source
 
 import (
 	"context"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/internal/codeast"
@@ -119,57 +118,26 @@ const MetadataFieldPrefix = "metadata."
 // GetAllMetadata returns all metadata collected from sources with deduplication.
 // Keys are prefixed with "metadata." for use in filter conditions.
 func GetAllMetadata(sources []Source) map[string][]any {
+	_ = "STUB: not implemented"
 	// Use temporary map for deduplication
-	tempMetadataMap := make(map[string]map[string]struct{})
-	allMetadata := make(map[string][]any)
-
-	// Iterate through all sources to collect metadata
-	for _, src := range sources {
-		metadata := src.GetMetadata()
-		for key, value := range metadata {
-			// Add metadata prefix to key
-			prefixedKey := MetadataFieldPrefix + key
-
-			// Initialize key in temporary map
-			if _, exists := tempMetadataMap[prefixedKey]; !exists {
-				tempMetadataMap[prefixedKey] = make(map[string]struct{})
-				allMetadata[prefixedKey] = make([]any, 0)
-			}
-
-			// Create a unique key that includes type information to avoid conflicts
-			valueKey := fmt.Sprintf("%T:%v", value, value)
-			if _, exists := tempMetadataMap[prefixedKey][valueKey]; !exists {
-				allMetadata[prefixedKey] = append(allMetadata[prefixedKey], value)
-				tempMetadataMap[prefixedKey][valueKey] = struct{}{}
-			}
-		}
-	}
-	return allMetadata
+	return nil
 }
+
+// Iterate through all sources to collect metadata
+
+// Add metadata prefix to key
+
+// Initialize key in temporary map
+
+// Create a unique key that includes type information to avoid conflicts
 
 // GetAllMetadataWithoutValues returns all metadata keys with their string values collected from sources with deduplication.
 // Keys are prefixed with "metadata." for use in filter conditions.
 func GetAllMetadataWithoutValues(sources []Source) map[string][]any {
-	result := make(map[string][]any)
-	for _, src := range sources {
-		metadata := src.GetMetadata()
-		for key := range metadata {
-			prefixedKey := MetadataFieldPrefix + key
-			if _, exists := result[prefixedKey]; !exists {
-				result[prefixedKey] = []any{}
-			}
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetAllMetadataKeys returns all metadata keys collected from sources with deduplication.
 // Keys are prefixed with "metadata." for use in filter conditions.
-func GetAllMetadataKeys(sources []Source) []string {
-	allMetadata := GetAllMetadataWithoutValues(sources)
-	result := make([]string, 0)
-	for key := range allMetadata {
-		result = append(result, key)
-	}
-	return result
-}
+func GetAllMetadataKeys(sources []Source) []string { _ = "STUB: not implemented"; return nil }

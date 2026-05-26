@@ -104,13 +104,7 @@ type Options struct {
 //
 // The returned planner is designed to work with thinking-capable models.
 // Ensure your model supports the configured thinking parameters before use.
-func New(opts Options) *Planner {
-	return &Planner{
-		reasoningEffort: opts.ReasoningEffort,
-		thinkingEnabled: opts.ThinkingEnabled,
-		thinkingTokens:  opts.ThinkingTokens,
-	}
-}
+func New(opts Options) *Planner { _ = "STUB: not implemented"; return nil }
 
 // BuildPlanningInstruction applies thinking configuration to the LLM request
 // and builds the system instruction. For the built-in planner, this applies
@@ -125,22 +119,14 @@ func (p *Planner) BuildPlanningInstruction(
 	invocation *agent.Invocation,
 	llmRequest *model.Request,
 ) string {
+	_ = "STUB: not implemented"
 	// Apply thinking configuration to the request.
 	// The model will use these parameters to engage its internal thinking.
-	if p.reasoningEffort != nil {
-		llmRequest.ReasoningEffort = p.reasoningEffort
-	}
-	if p.thinkingEnabled != nil {
-		llmRequest.ThinkingEnabled = p.thinkingEnabled
-	}
-	if p.thinkingTokens != nil {
-		llmRequest.ThinkingTokens = p.thinkingTokens
-	}
-
-	// Return empty string as thinking-capable models handle planning internally.
-	// No explicit planning instruction is needed.
 	return ""
 }
+
+// Return empty string as thinking-capable models handle planning internally.
+// No explicit planning instruction is needed.
 
 // ProcessPlanningResponse processes the LLM response for planning.
 // For the built-in planner, this returns nil as the model handles the
@@ -153,6 +139,7 @@ func (p *Planner) ProcessPlanningResponse(
 	invocation *agent.Invocation,
 	response *model.Response,
 ) *model.Response {
+	_ = "STUB: not implemented"
 	// No response processing needed for thinking-capable models.
 	// The planning is already integrated into the model's response.
 	return nil

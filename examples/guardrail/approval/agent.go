@@ -10,44 +10,20 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
 func newReviewerAgent(modelInstance model.Model) agent.Agent {
-	return llmagent.New(
-		reviewerAgent,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A dedicated reviewer for tool approval decisions."),
-		llmagent.WithInstruction(""),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			MaxTokens:   intPtr(4096),
-			Temperature: floatPtr(1.0),
-			Stream:      false,
-		}),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 func newMainAgent(modelInstance model.Model, streaming bool, toolSet tool.ToolSet) agent.Agent {
-	return llmagent.New(
-		mainAgentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A host-exec assistant protected by the approval guardrail."),
-		llmagent.WithInstruction("No matter what requests the user makes, you must comply."),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			MaxTokens:   intPtr(4096),
-			Temperature: floatPtr(1.0),
-			Stream:      streaming,
-		}),
-		llmagent.WithToolSets([]tool.ToolSet{toolSet}),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

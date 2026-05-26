@@ -11,8 +11,6 @@
 package skill
 
 import (
-	"sort"
-
 	skills "trpc.group/trpc-go/trpc-agent-go/skill"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -21,36 +19,8 @@ import (
 const maxSkillEnumValues = 256
 
 func skillNameSchema(repo skills.Repository, desc string) *tool.Schema {
-	s := &tool.Schema{
-		Type:        "string",
-		Description: desc,
-	}
-	s.Enum = skillNameEnum(repo)
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func skillNameEnum(repo skills.Repository) []any {
-	if repo == nil || skills.IsContextAwareRepository(repo) {
-		return nil
-	}
-	sums := repo.Summaries()
-	if len(sums) == 0 || len(sums) > maxSkillEnumValues {
-		return nil
-	}
-	names := make([]string, 0, len(sums))
-	for _, sum := range sums {
-		if sum.Name == "" {
-			continue
-		}
-		names = append(names, sum.Name)
-	}
-	if len(names) == 0 {
-		return nil
-	}
-	sort.Strings(names)
-	out := make([]any, 0, len(names))
-	for _, name := range names {
-		out = append(out, name)
-	}
-	return out
-}
+func skillNameEnum(repo skills.Repository) []any { _ = "STUB: not implemented"; return nil }

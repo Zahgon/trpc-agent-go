@@ -11,16 +11,7 @@ package workspaceprep
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-	"os"
-	"path"
-	"sort"
-	"strings"
 	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 )
 
 // CommandSpec describes a one-shot bootstrap command to execute during
@@ -75,93 +66,25 @@ type CommandSpec struct {
 
 // NewCommandRequirement builds a Requirement from CommandSpec.
 func NewCommandRequirement(spec CommandSpec) (Requirement, error) {
-	if strings.TrimSpace(spec.Cmd) == "" {
-		return nil, fmt.Errorf(
-			"workspaceprep: CommandSpec.Cmd is required",
-		)
-	}
-	if strings.TrimSpace(spec.Key) == "" {
-		sum := sha256.Sum256([]byte(
-			spec.Cmd + "\x00" + strings.Join(spec.Args, "\x01"),
-		))
-		spec.Key = "cmd:" + hex.EncodeToString(sum[:8])
-	}
-	if spec.MarkerPath != "" {
-		spec.MarkerPath = cleanRel(spec.MarkerPath)
-	}
-	cleaned := make([]string, 0, len(spec.ObservedPaths))
-	for _, p := range spec.ObservedPaths {
-		if rel := cleanRel(p); rel != "" {
-			cleaned = append(cleaned, rel)
-		}
-	}
-	spec.ObservedPaths = cleaned
-	inputs := make([]string, 0, len(spec.FingerprintInputs))
-	for _, p := range spec.FingerprintInputs {
-		if rel := cleanRel(p); rel != "" {
-			inputs = append(inputs, rel)
-		}
-	}
-	sort.Strings(inputs)
-	spec.FingerprintInputs = inputs
-	return &commandRequirement{spec: spec}, nil
+	_ = "STUB: not implemented"
+	return *new(Requirement), nil
 }
 
 type commandRequirement struct {
 	spec CommandSpec
 }
 
-func (r *commandRequirement) Key() string    { return r.spec.Key }
-func (r *commandRequirement) Kind() Kind     { return KindCommand }
-func (r *commandRequirement) Phase() Phase   { return PhaseCommand }
-func (r *commandRequirement) Required() bool { return !r.spec.Optional }
-func (r *commandRequirement) Target() string {
-	if r.spec.MarkerPath != "" {
-		return r.spec.MarkerPath
-	}
-	return r.spec.Cmd
-}
+func (r *commandRequirement) Key() string    { _ = "STUB: not implemented"; return "" }
+func (r *commandRequirement) Kind() Kind     { _ = "STUB: not implemented"; return *new(Kind) }
+func (r *commandRequirement) Phase() Phase   { _ = "STUB: not implemented"; return *new(Phase) }
+func (r *commandRequirement) Required() bool { _ = "STUB: not implemented"; return false }
+func (r *commandRequirement) Target() string { _ = "STUB: not implemented"; return "" }
 
 func (r *commandRequirement) Fingerprint(
 	ctx context.Context, rctx ApplyContext,
 ) (string, error) {
-	h := sha256.New()
-	h.Write([]byte("cmd|"))
-	h.Write([]byte(r.spec.Cmd))
-	h.Write([]byte{0})
-	for _, a := range r.spec.Args {
-		h.Write([]byte(a))
-		h.Write([]byte{0})
-	}
-	keys := make([]string, 0, len(r.spec.Env))
-	for k := range r.spec.Env {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		h.Write([]byte(k))
-		h.Write([]byte{'='})
-		h.Write([]byte(r.spec.Env[k]))
-		h.Write([]byte{0})
-	}
-	h.Write([]byte("cwd|"))
-	h.Write([]byte(r.spec.Cwd))
-	h.Write([]byte{0})
-	h.Write([]byte("salt|"))
-	h.Write([]byte(r.spec.FingerprintSalt))
-	h.Write([]byte{0})
-	for _, rel := range r.spec.FingerprintInputs {
-		h.Write([]byte("input|"))
-		h.Write([]byte(rel))
-		h.Write([]byte{0})
-		data, err := r.readFile(ctx, rctx, rel)
-		if err != nil {
-			return "", err
-		}
-		sum := sha256.Sum256(data)
-		h.Write(sum[:])
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // SentinelExists checks the MarkerPath (if set) and each ObservedPath.
@@ -170,23 +93,8 @@ func (r *commandRequirement) Fingerprint(
 func (r *commandRequirement) SentinelExists(
 	ctx context.Context, rctx ApplyContext,
 ) (bool, error) {
-	paths := append([]string{}, r.spec.ObservedPaths...)
-	if r.spec.MarkerPath != "" {
-		paths = append(paths, r.spec.MarkerPath)
-	}
-	if len(paths) == 0 {
-		return true, nil
-	}
-	for _, rel := range paths {
-		ok, err := r.pathExists(ctx, rctx, rel)
-		if err != nil {
-			return false, err
-		}
-		if !ok {
-			return false, nil
-		}
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // Apply runs the configured command through eng.Runner() and, on
@@ -195,120 +103,26 @@ func (r *commandRequirement) SentinelExists(
 func (r *commandRequirement) Apply(
 	ctx context.Context, rctx ApplyContext,
 ) error {
-	if rctx.Engine == nil || rctx.Engine.Runner() == nil {
-		return fmt.Errorf("workspace runner is not configured")
-	}
-	spec := codeexecutor.RunProgramSpec{
-		Cmd:     r.spec.Cmd,
-		Args:    append([]string{}, r.spec.Args...),
-		Env:     cloneEnv(r.spec.Env),
-		Cwd:     r.spec.Cwd,
-		Timeout: r.spec.Timeout,
-	}
-	if spec.Cwd == "" {
-		spec.Cwd = "."
-	}
-	res, err := rctx.Engine.Runner().RunProgram(ctx, rctx.Workspace, spec)
-	if err != nil {
-		return err
-	}
-	if res.ExitCode != 0 {
-		return fmt.Errorf(
-			"bootstrap command %q exited %d: %s",
-			r.spec.Cmd, res.ExitCode,
-			trimForError(res.Stderr, res.Stdout),
-		)
-	}
-	if r.spec.MarkerPath != "" && rctx.Engine.FS() != nil {
-		content := fmt.Sprintf(
-			"reconciled at %s\n",
-			time.Now().UTC().Format(time.RFC3339),
-		)
-		if err := rctx.Engine.FS().PutFiles(
-			ctx, rctx.Workspace,
-			[]codeexecutor.PutFile{{
-				Path:    r.spec.MarkerPath,
-				Content: []byte(content),
-				Mode:    codeexecutor.DefaultScriptFileMode,
-			}},
-		); err != nil {
-			return fmt.Errorf("write marker: %w", err)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *commandRequirement) readFile(
 	ctx context.Context, rctx ApplyContext, rel string,
 ) ([]byte, error) {
-	if rctx.Workspace.Path != "" {
-		p := path.Join(rctx.Workspace.Path, rel)
-		b, err := os.ReadFile(p)
-		if err == nil {
-			return b, nil
-		}
-		if !os.IsNotExist(err) {
-			// Fall through to FS() for non-local engines.
-			_ = err
-		}
-	}
-	if rctx.Engine == nil || rctx.Engine.FS() == nil {
-		return nil, nil
-	}
-	files, err := rctx.Engine.FS().Collect(
-		ctx, rctx.Workspace, []string{rel},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if len(files) == 0 {
-		return nil, nil
-	}
-	return []byte(files[0].Content), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Fall through to FS() for non-local engines.
 
 func (r *commandRequirement) pathExists(
 	ctx context.Context, rctx ApplyContext, rel string,
 ) (bool, error) {
-	if rctx.Workspace.Path != "" {
-		p := path.Join(rctx.Workspace.Path, rel)
-		if _, err := os.Stat(p); err == nil {
-			return true, nil
-		} else if !os.IsNotExist(err) {
-			_ = err
-		}
-	}
-	if rctx.Engine == nil || rctx.Engine.FS() == nil {
-		return false, nil
-	}
-	files, err := rctx.Engine.FS().Collect(
-		ctx, rctx.Workspace, []string{rel},
-	)
-	if err != nil {
-		return false, err
-	}
-	return len(files) > 0, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func cloneEnv(in map[string]string) map[string]string {
-	if len(in) == 0 {
-		return map[string]string{}
-	}
-	out := make(map[string]string, len(in))
-	for k, v := range in {
-		out[k] = v
-	}
-	return out
-}
+func cloneEnv(in map[string]string) map[string]string { _ = "STUB: not implemented"; return nil }
 
-func trimForError(stderr, stdout string) string {
-	s := strings.TrimSpace(stderr)
-	if s == "" {
-		s = strings.TrimSpace(stdout)
-	}
-	const max = 512
-	if len(s) > max {
-		s = s[:max] + "..."
-	}
-	return s
-}
+func trimForError(stderr, stdout string) string { _ = "STUB: not implemented"; return "" }

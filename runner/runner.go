@@ -12,34 +12,22 @@ package runner
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"runtime/debug"
-	"sort"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/trace"
 	"trpc.group/trpc-go/trpc-agent-go/artifact"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/appender"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/barrier"
 	"trpc.group/trpc-go/trpc-agent-go/internal/state/flush"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/sessionroute"
 	"trpc.group/trpc-go/trpc-agent-go/internal/state/steer"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/plugin"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/telemetry/appid"
 )
 
 // Author types for events.
@@ -73,9 +61,8 @@ type Option func(*Options)
 
 // WithSessionService sets the session service to use.
 func WithSessionService(service session.Service) Option {
-	return func(opts *Options) {
-		opts.sessionService = service
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // AgentFactory creates an agent for a single run.
@@ -89,9 +76,8 @@ type AgentFactory func(
 
 // WithMemoryService sets the memory service to use.
 func WithMemoryService(service memory.Service) Option {
-	return func(opts *Options) {
-		opts.memoryService = service
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSessionIngestor sets the session ingestor that receives completed
@@ -103,24 +89,18 @@ func WithMemoryService(service memory.Service) Option {
 // specific leaves room for additional ingestor flavours (e.g. event-level
 // or user-level) without overloading a single option.
 func WithSessionIngestor(ingestor session.Ingestor) Option {
-	return func(opts *Options) {
-		opts.ingestor = ingestor
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithArtifactService sets the artifact service to use.
 func WithArtifactService(service artifact.Service) Option {
-	return func(opts *Options) {
-		opts.artifactService = service
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAgent adds an agent to the runner registry for name-based lookup.
-func WithAgent(name string, ag agent.Agent) Option {
-	return func(opts *Options) {
-		opts.agents[name] = ag
-	}
-}
+func WithAgent(name string, ag agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentFactory registers an agent factory for name-based lookup.
 //
@@ -128,17 +108,12 @@ func WithAgent(name string, ag agent.Agent) Option {
 // exists for that name, it will fall back to this factory and create a new
 // agent for the current run.
 func WithAgentFactory(name string, factory AgentFactory) Option {
-	return func(opts *Options) {
-		opts.agentFactories[name] = factory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPlugins registers plugins on the runner.
-func WithPlugins(plugins ...plugin.Plugin) Option {
-	return func(opts *Options) {
-		opts.plugins = append(opts.plugins, plugins...)
-	}
-}
+func WithPlugins(plugins ...plugin.Plugin) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAwaitUserReplyRouting enables one-shot next-user-turn routing from
 // session state produced by agent.MarkAwaitingUserReply or the
@@ -150,11 +125,7 @@ func WithPlugins(plugins ...plugin.Plugin) Option {
 // default agent.
 //
 // Default: false.
-func WithAwaitUserReplyRouting(enabled bool) Option {
-	return func(opts *Options) {
-		opts.awaitUserReplyRouting = enabled
-	}
-}
+func WithAwaitUserReplyRouting(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPersistInterruptedAssistant sets the runner default for whether a
 // cancelled streaming run persists already-emitted assistant text as a final
@@ -164,9 +135,8 @@ func WithAwaitUserReplyRouting(enabled bool) Option {
 // expect cancelled partial text not to affect later turns. A single run can
 // override this default with agent.WithPersistInterruptedAssistant.
 func WithPersistInterruptedAssistant(enabled bool) Option {
-	return func(opts *Options) {
-		opts.persistInterruptedAssistantDefault = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // Runner is the interface for running agents.
@@ -221,11 +191,8 @@ func EnqueueUserMessage(
 	requestID string,
 	message model.Message,
 ) error {
-	steerable, ok := r.(SteerableRunner)
-	if !ok {
-		return ErrQueuedUserMessageUnsupported
-	}
-	return steerable.EnqueueUserMessage(requestID, message)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunStatus is a snapshot of a running invocation.
@@ -285,57 +252,19 @@ type Options struct {
 }
 
 // newOptions creates a new Options.
-func newOptions(opt ...Option) Options {
-	opts := Options{
-		agents:         make(map[string]agent.Agent),
-		agentFactories: make(map[string]AgentFactory),
-	}
-	for _, o := range opt {
-		o(&opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) Options { _ = "STUB: not implemented"; return *new(Options) }
 
 // NewRunner creates a new Runner.
 func NewRunner(appName string, ag agent.Agent, opts ...Option) Runner {
-	options := newOptions(opts...)
-	// Track if we created the session service.
-	var ownedSessionService bool
-	if options.sessionService == nil {
-		options.sessionService = inmemory.NewSessionService()
-		ownedSessionService = true
-	}
-	agents := options.agents
-	agents[ag.Info().Name] = ag
-	if options.ralphLoop != nil {
-		wrapAgentsWithRalphLoop(agents, *options.ralphLoop)
-	}
-	var pm agent.PluginManager
-	if len(options.plugins) > 0 {
-		pm = plugin.MustNewManager(options.plugins...)
-	}
-	// Register the default agent for observability defaults.
-	appid.RegisterRunner(appName, ag.Info().Name)
-	// Register all runner identities for observability fallback.
-	for _, a := range agents {
-		appid.RegisterRunner(appName, a.Info().Name)
-	}
-	return &runner{
-		appName:                            appName,
-		defaultAgentName:                   ag.Info().Name,
-		agents:                             agents,
-		agentFactories:                     options.agentFactories,
-		sessionService:                     options.sessionService,
-		memoryService:                      options.memoryService,
-		ingestor:                           options.ingestor,
-		artifactService:                    options.artifactService,
-		pluginManager:                      pm,
-		ralphLoop:                          options.ralphLoop,
-		awaitUserReplyRouting:              options.awaitUserReplyRouting,
-		persistInterruptedAssistantDefault: options.persistInterruptedAssistantDefault,
-		ownedSessionService:                ownedSessionService,
-	}
+	_ = "STUB: not implemented"
+	return *new(Runner)
 }
+
+// Track if we created the session service.
+
+// Register the default agent for observability defaults.
+
+// Register all runner identities for observability fallback.
 
 // NewRunnerWithAgentFactory creates a Runner whose default agent is created
 // on demand for each run.
@@ -349,90 +278,18 @@ func NewRunnerWithAgentFactory(
 	factory AgentFactory,
 	opts ...Option,
 ) Runner {
-	options := newOptions(opts...)
-
-	var ownedSessionService bool
-	if options.sessionService == nil {
-		options.sessionService = inmemory.NewSessionService()
-		ownedSessionService = true
-	}
-
-	options.agentFactories[defaultAgentName] = factory
-
-	if options.ralphLoop != nil {
-		wrapAgentsWithRalphLoop(options.agents, *options.ralphLoop)
-	}
-
-	var pm agent.PluginManager
-	if len(options.plugins) > 0 {
-		pm = plugin.MustNewManager(options.plugins...)
-	}
-
-	appid.RegisterRunner(appName, defaultAgentName)
-	for _, a := range options.agents {
-		appid.RegisterRunner(appName, a.Info().Name)
-	}
-
-	return &runner{
-		appName:                            appName,
-		defaultAgentName:                   defaultAgentName,
-		agents:                             options.agents,
-		agentFactories:                     options.agentFactories,
-		sessionService:                     options.sessionService,
-		memoryService:                      options.memoryService,
-		ingestor:                           options.ingestor,
-		artifactService:                    options.artifactService,
-		pluginManager:                      pm,
-		ralphLoop:                          options.ralphLoop,
-		awaitUserReplyRouting:              options.awaitUserReplyRouting,
-		persistInterruptedAssistantDefault: options.persistInterruptedAssistantDefault,
-		ownedSessionService:                ownedSessionService,
-	}
+	_ = "STUB: not implemented"
+	return *new(Runner)
 }
 
 // Close closes the runner and cleans up owned resources.
 // It's safe to call Close multiple times.
 // Only resources created by this runner will be closed.
-func (r *runner) Close() error {
-	var closeErr error
-	r.closeOnce.Do(func() {
-		r.cancelAllRuns()
-		if r.pluginManager != nil {
-			if err := r.pluginManager.Close(context.Background()); err != nil {
-				closeErr = err
-				log.Errorf("close plugins failed: %v", err)
-			}
-		}
-		// Only close resources that we own (created by this runner).
-		if r.ownedSessionService && r.sessionService != nil {
-			if err := r.sessionService.Close(); err != nil {
-				closeErr = err
-				log.Errorf("close session service failed: %v", err)
-			}
-		}
-	})
-	return closeErr
-}
+func (r *runner) Close() error { _ = "STUB: not implemented"; return nil }
 
-func (r *runner) cancelAllRuns() {
-	r.runsMu.Lock()
-	if len(r.runs) == 0 {
-		r.runsMu.Unlock()
-		return
-	}
-	cancels := make([]context.CancelFunc, 0, len(r.runs))
-	for requestID, handle := range r.runs {
-		if handle != nil && handle.cancel != nil {
-			cancels = append(cancels, handle.cancel)
-		}
-		delete(r.runs, requestID)
-	}
-	r.runsMu.Unlock()
+// Only close resources that we own (created by this runner).
 
-	for _, cancel := range cancels {
-		cancel()
-	}
-}
+func (r *runner) cancelAllRuns() { _ = "STUB: not implemented"; return }
 
 // Run runs the agent.
 func (r *runner) Run(
@@ -442,217 +299,31 @@ func (r *runner) Run(
 	message model.Message,
 	runOpts ...agent.RunOption,
 ) (<-chan *event.Event, error) {
-	if message.Role == "" && model.HasPayload(message) {
-		log.WarnfContext(
-			ctx,
-			"runner.Run received a message with empty role; defaulting to user",
-		)
-		message.Role = model.RoleUser
-	}
-
-	ro := agent.RunOptions{RequestID: uuid.NewString()}
-	for _, opt := range runOpts {
-		opt(&ro)
-	}
-	if ro.RequestID == "" {
-		ro.RequestID = uuid.NewString()
-	}
-	r.applyRunnerRunDefaults(&ro)
-
-	// Resolve per-request app name override. When the caller provides an
-	// AppName via RunOption, it takes precedence over the runner default so
-	// that a single runner can isolate session/memory data across projects.
-	effectiveAppName := r.appName
-	if ro.AppName != "" {
-		effectiveAppName = ro.AppName
-	}
-
-	execCtx, execCancel := r.newExecutionContext(ctx, ro)
-
-	// Resolve or create the session for this user and conversation.
-	sessionKey := session.Key{
-		AppName:   effectiveAppName,
-		UserID:    userID,
-		SessionID: sessionID,
-	}
-
-	sess, err := r.getOrCreateSession(execCtx, sessionKey)
-	if err != nil {
-		execCancel()
-		return nil, err
-	}
-
-	ro, awaitUserReplyRootName, err := r.applyAwaitUserReplyRoute(
-		execCtx,
-		sessionKey,
-		sess,
-		message,
-		ro,
-	)
-	if err != nil {
-		execCancel()
-		return nil, err
-	}
-
-	ag, err := r.selectAgent(execCtx, ro)
-	if err != nil {
-		execCancel()
-		return nil, fmt.Errorf("select agent: %w", err)
-	}
-	invocationMessage, persistedCurrentTurnMessages, err := r.resolveCurrentTurnMessages(
-		execCtx,
-		effectiveAppName,
-		userID,
-		sessionID,
-		message,
-		ro,
-	)
-	if err != nil {
-		execCancel()
-		return nil, err
-	}
-
-	eventFilterKey := effectiveAppName
-	if ro.EventFilterKey != "" {
-		eventFilterKey = ro.EventFilterKey
-	}
-
-	invocation := agent.NewInvocation(
-		agent.WithInvocationSession(sess),
-		agent.WithInvocationSessionService(r.sessionService),
-		agent.WithInvocationMessage(invocationMessage),
-		agent.WithInvocationAgent(ag),
-		agent.WithInvocationRunOptions(ro),
-		agent.WithInvocationStructuredOutput(ro.StructuredOutput),
-		agent.WithInvocationStructuredOutputType(ro.StructuredOutputType),
-		agent.WithInvocationMemoryService(r.memoryService),
-		agent.WithInvocationArtifactService(r.artifactService),
-		agent.WithInvocationEventFilterKey(eventFilterKey),
-		agent.WithInvocationPlugins(r.pluginManager),
-	)
-	if rootLookupName := r.selectedRootLookupName(
-		ro,
-		awaitUserReplyRootName,
-	); rootLookupName != "" {
-		agent.SetAwaitUserReplyRootLookupName(
-			invocation,
-			rootLookupName,
-		)
-	}
-	currentTurnSession, err := sessionroute.ResolveCurrentTurnSession(
-		execCtx,
-		r.sessionService,
-		sess,
-		ag,
-	)
-	if err != nil {
-		execCancel()
-		return nil, err
-	}
-
-	queuedUserMessages := steer.NewQueue()
-	steer.Attach(invocation, queuedUserMessages)
-
-	handle, err := r.registerRun(
-		ro.RequestID,
-		RunStatus{
-			RequestID:    ro.RequestID,
-			InvocationID: invocation.InvocationID,
-			AgentName:    ag.Info().Name,
-			SessionKey:   sessionKey,
-			StartedAt:    time.Now(),
-		},
-		execCancel,
-		queuedUserMessages,
-	)
-	if err != nil {
-		execCancel()
-		return nil, err
-	}
-
-	if err := r.persistCurrentTurnMessages(
-		execCtx,
-		currentTurnSession,
-		invocation,
-		ag,
-		message,
-		persistedCurrentTurnMessages,
-		ro,
-	); err != nil {
-		steer.Clear(invocation)
-		r.unregisterRun(ro.RequestID)
-		execCancel()
-		return nil, err
-	}
-
-	// Ensure the invocation can be accessed by downstream components (e.g., tools)
-	// by embedding it into the context. This is necessary for tools like
-	// transfer_to_agent that rely on agent.InvocationFromContext(ctx).
-	execCtx = agent.NewInvocationContext(execCtx, invocation)
-	execCtx = graph.WithGraphCompletionCapture(execCtx)
-
-	// Create flush channel and attach flusher before agent.Run to ensure cloned invocations inherit it.
-	flushChan := make(chan *flush.FlushRequest)
-	flush.Attach(execCtx, invocation, flushChan)
-	appender.Attach(invocation, func(ctx context.Context, e *event.Event) error {
-		if e == nil {
-			return nil
-		}
-		persistSession, ok := sessionroute.RouteEvent(
-			invocation,
-			e,
-		)
-		if !ok || persistSession == nil {
-			persistSession = sess
-		}
-		return r.sessionService.AppendEvent(ctx, persistSession, e)
-	})
-	barrier.Enable(invocation)
-
-	// Run the agent and get the event channel.
-	agentEventCh, err := agent.RunWithPlugins(execCtx, invocation, ag)
-	if err != nil {
-		// Attempt to persist the error event so the session reflects the failure.
-		errorEvent := event.NewErrorEvent(
-			invocation.InvocationID,
-			ag.Info().Name,
-			model.ErrorTypeRunError,
-			err.Error(),
-		)
-		// Populate content to ensure it is valid for persistence (and viewable by users).
-		ensureErrorEventContent(errorEvent)
-		errorEvent = r.applyEventPlugins(execCtx, invocation, errorEvent)
-
-		appendErr := r.sessionService.AppendEvent(execCtx, currentTurnSession, errorEvent)
-		if appendErr != nil {
-			log.Errorf("failed to append agent run error event: %v", appendErr)
-		}
-
-		steer.Clear(invocation)
-		r.unregisterRun(ro.RequestID)
-		execCancel()
-		invocation.CleanupNotice(execCtx)
-		return nil, err
-	}
-
-	// Process the agent events and emit them to the output channel.
-	return r.processAgentEvents(
-		execCtx,
-		sess,
-		invocation,
-		agentEventCh,
-		flushChan,
-		handle,
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (r *runner) applyRunnerRunDefaults(ro *agent.RunOptions) {
-	if ro == nil || ro.PersistInterruptedAssistant != nil {
-		return
-	}
-	persistInterruptedAssistant := r.persistInterruptedAssistantDefault
-	ro.PersistInterruptedAssistant = &persistInterruptedAssistant
-}
+// Resolve per-request app name override. When the caller provides an
+// AppName via RunOption, it takes precedence over the runner default so
+// that a single runner can isolate session/memory data across projects.
+
+// Resolve or create the session for this user and conversation.
+
+// Ensure the invocation can be accessed by downstream components (e.g., tools)
+// by embedding it into the context. This is necessary for tools like
+// transfer_to_agent that rely on agent.InvocationFromContext(ctx).
+
+// Create flush channel and attach flusher before agent.Run to ensure cloned invocations inherit it.
+
+// Run the agent and get the event channel.
+
+// Attempt to persist the error event so the session reflects the failure.
+
+// Populate content to ensure it is valid for persistence (and viewable by users).
+
+// Process the agent events and emit them to the output channel.
+
+func (r *runner) applyRunnerRunDefaults(ro *agent.RunOptions) { _ = "STUB: not implemented"; return }
 
 // seedSessionHistory persists caller-supplied history messages into an empty
 // session so that subsequent turns and tool calls build on the same canonical
@@ -665,13 +336,8 @@ func (r *runner) seedSessionHistory(
 	ag agent.Agent,
 	ro agent.RunOptions,
 ) (bool, error) {
-	if len(ro.Messages) == 0 || sess.GetEventCount() != 0 {
-		return false, nil
-	}
-	if err := r.appendMessagesAsSessionEvents(ctx, sess, invocation, ag, ro.Messages); err != nil {
-		return false, err
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // appendSessionMessages persists messages into the session transcript in the
@@ -683,7 +349,8 @@ func (r *runner) appendSessionMessages(
 	ag agent.Agent,
 	messages []model.Message,
 ) error {
-	return r.appendMessagesAsSessionEvents(ctx, sess, invocation, ag, messages)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // appendMessagesAsSessionEvents persists messages into session events in the
@@ -695,23 +362,7 @@ func (r *runner) appendMessagesAsSessionEvents(
 	ag agent.Agent,
 	messages []model.Message,
 ) error {
-	for _, msg := range messages {
-		author := ag.Info().Name
-		if msg.Role == model.RoleUser {
-			author = authorUser
-		}
-		current := msg
-		evt := event.NewResponseEvent(
-			invocation.InvocationID,
-			author,
-			&model.Response{Done: false, Choices: []model.Choice{{Index: 0, Message: current}}},
-		)
-		agent.InjectIntoEvent(invocation, evt)
-		evt = r.applyEventPlugins(ctx, invocation, evt)
-		if err := r.sessionService.AppendEvent(ctx, sess, evt); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -725,61 +376,22 @@ func (r *runner) appendIncomingMessage(
 	ro agent.RunOptions,
 	historySeeded bool,
 ) error {
-	if !model.HasPayload(message) {
-		return nil
-	}
-	if historySeeded && !shouldAppendUserMessage(message, ro.Messages) {
-		return nil
-	}
-	evt := event.NewResponseEvent(
-		invocation.InvocationID,
-		authorUser,
-		&model.Response{Done: false, Choices: []model.Choice{{Index: 0, Message: message}}},
-	)
-	agent.InjectIntoEvent(invocation, evt)
-	evt = r.applyEventPlugins(ctx, invocation, evt)
-	return r.sessionService.AppendEvent(ctx, sess, evt)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *runner) Cancel(requestID string) bool {
-	cancel := r.lookupCancel(requestID)
-	if cancel == nil {
-		return false
-	}
-	cancel()
-	return true
-}
+func (r *runner) Cancel(requestID string) bool { _ = "STUB: not implemented"; return false }
 
 func (r *runner) RunStatus(requestID string) (RunStatus, bool) {
-	handle := r.lookupRun(requestID)
-	if handle == nil {
-		return RunStatus{}, false
-	}
-	handle.mu.RLock()
-	defer handle.mu.RUnlock()
-	return handle.status, true
+	_ = "STUB: not implemented"
+	return *new(RunStatus), false
 }
 
 func (r *runner) EnqueueUserMessage(
 	requestID string,
 	message model.Message,
 ) error {
-	if requestID == "" {
-		return fmt.Errorf(errMsgEmptyRequestID)
-	}
-
-	message, err := normalizeQueuedUserMessage(message)
-	if err != nil {
-		return err
-	}
-
-	handle := r.lookupRun(requestID)
-	if handle == nil {
-		return ErrRunNotFound
-	}
-	if handle.queue == nil || !handle.queue.Enqueue(message) {
-		return ErrRunNotFound
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -787,32 +399,8 @@ func (r *runner) newExecutionContext(
 	ctx context.Context,
 	ro agent.RunOptions,
 ) (context.Context, context.CancelFunc) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	timeout := ro.MaxRunDuration
-	hasTimeout := timeout > 0
-	deadline, ok := ctx.Deadline()
-	if ok {
-		remaining := time.Until(deadline)
-		if remaining < 0 {
-			remaining = 0
-		}
-		if !hasTimeout || remaining < timeout {
-			timeout = remaining
-		}
-		hasTimeout = true
-	}
-
-	execCtx := agent.CloneContext(ctx)
-	if ro.DetachedCancel {
-		execCtx = context.WithoutCancel(execCtx)
-	}
-	if hasTimeout {
-		return context.WithTimeout(execCtx, timeout)
-	}
-	return context.WithCancel(execCtx)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 func (r *runner) registerRun(
@@ -821,57 +409,17 @@ func (r *runner) registerRun(
 	cancel context.CancelFunc,
 	queue *steer.Queue,
 ) (*runHandle, error) {
-	if requestID == "" {
-		return nil, fmt.Errorf(errMsgEmptyRequestID)
-	}
-	if cancel == nil {
-		return nil, fmt.Errorf(errMsgNilCancelFunc)
-	}
-
-	r.runsMu.Lock()
-	defer r.runsMu.Unlock()
-	if r.runs == nil {
-		r.runs = make(map[string]*runHandle)
-	}
-	if _, ok := r.runs[requestID]; ok {
-		return nil, fmt.Errorf(
-			"runner: request id %q already running",
-			requestID,
-		)
-	}
-	handle := &runHandle{
-		cancel: cancel,
-		queue:  queue,
-		status: status,
-	}
-	r.runs[requestID] = handle
-	return handle, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (r *runner) unregisterRun(requestID string) {
-	if requestID == "" {
-		return
-	}
-	r.runsMu.Lock()
-	defer r.runsMu.Unlock()
-	delete(r.runs, requestID)
-}
+func (r *runner) unregisterRun(requestID string) { _ = "STUB: not implemented"; return }
 
-func (r *runner) lookupRun(requestID string) *runHandle {
-	if requestID == "" {
-		return nil
-	}
-	r.runsMu.RLock()
-	defer r.runsMu.RUnlock()
-	return r.runs[requestID]
-}
+func (r *runner) lookupRun(requestID string) *runHandle { _ = "STUB: not implemented"; return nil }
 
 func (r *runner) lookupCancel(requestID string) context.CancelFunc {
-	handle := r.lookupRun(requestID)
-	if handle == nil {
-		return nil
-	}
-	return handle.cancel
+	_ = "STUB: not implemented"
+	return *new(context.CancelFunc)
 }
 
 // resolveAgent decides which agent to use for this run.
@@ -879,65 +427,29 @@ func (r *runner) selectAgent(
 	ctx context.Context,
 	ro agent.RunOptions,
 ) (agent.Agent, error) {
-	if ro.Agent != nil {
-		selected := r.wrapSelectedAgent(ro.Agent)
-		appid.RegisterRunner(r.appName, selected.Info().Name)
-		return selected, nil
-	}
-
-	agentName := r.defaultAgentName
-	if ro.AgentByName != "" {
-		agentName = ro.AgentByName
-	}
-
-	if ag, ok, err := r.loadRegisteredAgent(ctx, agentName, ro); err != nil {
-		return nil, err
-	} else if ok {
-		selected := r.wrapSelectedAgent(ag)
-		appid.RegisterRunner(r.appName, selected.Info().Name)
-		return selected, nil
-	}
-	return nil, fmt.Errorf("runner: agent %q not found", agentName)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil
 }
 
 func (r *runner) selectedRootLookupName(
 	ro agent.RunOptions,
 	awaitUserReplyRootName string,
 ) string {
-	if awaitUserReplyRootName != "" {
-		return awaitUserReplyRootName
-	}
-	if ro.Agent != nil {
-		return ""
-	}
-	if ro.AgentByName != "" {
-		return ro.AgentByName
-	}
-	return r.defaultAgentName
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (r *runner) wrapSelectedAgent(ag agent.Agent) agent.Agent {
-	if ag == nil {
-		return nil
-	}
-	if r.ralphLoop == nil {
-		return ag
-	}
-	return wrapAgentWithRalphLoop(ag, *r.ralphLoop)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 // getOrCreateSession returns an existing session or creates a new one.
 func (r *runner) getOrCreateSession(
 	ctx context.Context, key session.Key,
 ) (*session.Session, error) {
-	sess, err := r.sessionService.GetSession(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-	if sess != nil {
-		return sess, nil
-	}
-	return r.sessionService.CreateSession(ctx, key, session.StateMap{})
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // eventLoopContext bundles all channels and state required by the event loop.
@@ -1000,205 +512,47 @@ func (r *runner) processAgentEvents(
 	flushChan chan *flush.FlushRequest,
 	handle *runHandle,
 ) chan *event.Event {
-	processedEventCh := make(chan *event.Event, cap(agentEventCh))
-	loop := &eventLoopContext{
-		sess:                      sess,
-		invocation:                invocation,
-		agentEventCh:              agentEventCh,
-		flushChan:                 flushChan,
-		processedEventCh:          processedEventCh,
-		runHandle:                 handle,
-		baselineFinalResponseID:   baselineFinalResponseID(sess, invocation.RunOptions.RuntimeState),
-		priorAssistantResponseIDs: collectPriorAssistantResponseIDs(sess),
-		streamFilter: graph.NewStreamModeFilter(
-			invocation.RunOptions.StreamModeEnabled,
-			invocation.RunOptions.StreamModes,
-		),
-	}
-	runCtx := agent.CloneContext(ctx)
-	go r.runEventLoop(runCtx, loop)
-	return processedEventCh
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // runEventLoop drives the main event processing loop for a single invocation.
 func (r *runner) runEventLoop(ctx context.Context, loop *eventLoopContext) {
-	defer func() {
-		if rr := recover(); rr != nil {
-			log.Errorf("panic in runner event loop: %v\n%s", rr, string(debug.Stack()))
-		}
-		// Agent event stream completed.
-		steer.Close(loop.invocation)
-		r.safePersistInterruptedAssistant(ctx, loop)
-		r.safeEmitRunnerCompletion(ctx, loop)
-		// Disable further flush requests for this invocation.
-		flush.Clear(loop.invocation)
-		appender.Clear(loop.invocation)
-		steer.Clear(loop.invocation)
-		r.unregisterRun(loop.invocation.RunOptions.RequestID)
-		close(loop.processedEventCh)
-		loop.invocation.CleanupNotice(ctx)
-		if loop.runHandle != nil {
-			loop.runHandle.cancel()
-		}
-	}()
-	for {
-		select {
-		case agentEvent, ok := <-loop.agentEventCh:
-			if !ok {
-				return
-			}
-			if err := r.processSingleAgentEvent(ctx, loop, agentEvent); err != nil {
-				log.Errorf("process single agent event: %v", err)
-				return
-			}
-		case req, ok := <-loop.flushChan:
-			// Flush channel closed, disable further flush handling.
-			if !ok {
-				loop.flushChan = nil
-				continue
-			}
-			if req == nil || req.ACK == nil {
-				log.Errorf("flush request is nil or ACK is nil")
-				continue
-			}
-			// Handle the flush request.
-			if err := r.handleFlushRequest(ctx, loop, req); err != nil {
-				log.Errorf("handle flush request: %v", err)
-			}
-		case <-ctx.Done():
-			return
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Agent event stream completed.
+
+// Disable further flush requests for this invocation.
+
+// Flush channel closed, disable further flush handling.
+
+// Handle the flush request.
 
 // processSingleAgentEvent handles a single agent event.
 func (r *runner) processSingleAgentEvent(ctx context.Context, loop *eventLoopContext, agentEvent *event.Event) error {
-	if agentEvent == nil {
-		// Preserve existing behavior: skip nil events without failing the loop.
-		log.Errorf("agentEvent is nil")
-		return nil
-	}
-	routeEvent := sessionroute.SnapshotEventIdentity(agentEvent)
-	persistSession, routedEvent := sessionroute.RouteEvent(
-		loop.invocation,
-		routeEvent,
-	)
-	if shouldPersistInterruptedAssistant(loop) {
-		r.recordInterruptedAssistantDelta(loop, agentEvent, persistSession)
-	}
-	agentEvent = r.applyEventPlugins(ctx, loop.invocation, agentEvent)
-	if agentEvent == nil {
-		return nil
-	}
-	excludeRootCompletion := routedEvent && !sameSession(persistSession, loop.sess)
-	if excludeRootCompletion {
-		r.captureRoutedCompletionError(loop, agentEvent)
-	} else {
-		// Capture graph-level completion snapshot for final event.
-		if isGraphCompletionSnapshotEvent(agentEvent) {
-			loop.graphCompletionSeen = true
-			loop.finalStateDelta, loop.finalChoices = r.captureGraphCompletion(agentEvent)
-		}
-		r.captureCompletionFallback(loop, agentEvent)
-	}
-	r.markCompletionSnapshotOnly(loop, agentEvent)
-	if shouldSuppressGraphCompletionEvent(loop, agentEvent) {
-		return nil
-	}
-	if shouldSuppressGraphExecutorBarrierEvent(loop, agentEvent) {
-		if agentEvent.RequiresCompletion {
-			completionID := agent.GetAppendEventNoticeKey(agentEvent.ID)
-			loop.invocation.NotifyCompletion(ctx, completionID)
-		}
-		return nil
-	}
-	shouldForwardEvent := loop.streamFilter.Allows(agentEvent)
-
-	// Append qualifying events to session and trigger summarization.
-	persisted := r.handleEventPersistence(
-		ctx,
-		loop.invocation,
-		loop.sess,
-		persistSession,
-		agentEvent,
-	)
-	if !excludeRootCompletion {
-		r.recordPersistedAssistantEvent(
-			loop,
-			agentEvent,
-			persisted,
-		)
-	}
-	r.recordPersistedInterruptedAssistantSessionEvent(
-		loop,
-		persistSession,
-		agentEvent,
-		persisted,
-	)
-
-	// Notify completion if required.
-	if agentEvent.RequiresCompletion {
-		completionID := agent.GetAppendEventNoticeKey(agentEvent.ID)
-		loop.invocation.NotifyCompletion(ctx, completionID)
-	}
-
-	r.recordRunEvent(loop)
-	if !shouldForwardEvent {
-		return nil
-	}
-
-	if !excludeRootCompletion {
-		r.recordEmittedAssistantResponseID(loop, agentEvent)
-		r.recordVisibleCompletionEmission(loop, agentEvent)
-	}
-
-	// Emit event to output channel.
-	if err := event.EmitEvent(ctx, loop.processedEventCh, agentEvent); err != nil {
-		return fmt.Errorf("emit event to output channel: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
+
+	// Preserve existing behavior: skip nil events without failing the loop.
 }
+
+// Capture graph-level completion snapshot for final event.
+
+// Append qualifying events to session and trigger summarization.
+
+// Notify completion if required.
+
+// Emit event to output channel.
 
 func (r *runner) recordPersistedAssistantEvent(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 	persisted bool,
 ) {
-	if loop == nil || agentEvent == nil || !persisted {
-		return
-	}
-	if isGraphCompletionEvent(agentEvent) {
-		return
-	}
-	if !eventHasAssistantMessageContent(agentEvent) {
-		return
-	}
-	if agentEvent.Response == nil {
-		return
-	}
-	if !isSnapshotOnlyVisibleGraphCompletion(agentEvent) {
-		loop.freshAssistantContentProduced = true
-	}
-	if loop.persistedAssistantResponseIDs == nil {
-		loop.persistedAssistantResponseIDs = make(map[string]struct{})
-	}
-	if agentEvent.Response.ID != "" {
-		loop.persistedAssistantResponseIDs[agentEvent.Response.ID] = struct{}{}
-	}
-	if graph.IsVisibleGraphCompletionEvent(agentEvent) {
-		if responseID := finalResponseIDFromStateDelta(agentEvent.StateDelta); responseID != "" {
-			loop.persistedAssistantResponseIDs[responseID] = struct{}{}
-		}
-	}
-	signature := assistantChoiceSignature(agentEvent.Response.Choices)
-	if signature == "" {
-		return
-	}
-	if loop.persistedAssistantChoiceSignatures == nil {
-		loop.persistedAssistantChoiceSignatures = make(map[string]struct{})
-	}
-	loop.persistedAssistantChoiceSignatures[signature] = struct{}{}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) recordPersistedInterruptedAssistantSessionEvent(
@@ -1207,11 +561,8 @@ func (r *runner) recordPersistedInterruptedAssistantSessionEvent(
 	agentEvent *event.Event,
 	persisted bool,
 ) {
-	acc := getInterruptedAssistantAccumulatorForEvent(loop, persistSession, agentEvent)
-	if acc == nil {
-		return
-	}
-	recordPersistedAssistantOnAccumulator(acc, agentEvent, persisted)
+	_ = "STUB: not implemented"
+	return
 }
 
 func recordPersistedAssistantOnAccumulator(
@@ -1219,188 +570,51 @@ func recordPersistedAssistantOnAccumulator(
 	agentEvent *event.Event,
 	persisted bool,
 ) {
-	if acc == nil || agentEvent == nil || !persisted {
-		return
-	}
-	if isGraphCompletionEvent(agentEvent) {
-		return
-	}
-	if !eventHasAssistantMessageContent(agentEvent) || agentEvent.Response == nil {
-		return
-	}
-	if acc.persistedAssistantResponseIDs == nil {
-		acc.persistedAssistantResponseIDs = make(map[string]struct{})
-	}
-	if agentEvent.Response.ID != "" {
-		acc.persistedAssistantResponseIDs[agentEvent.Response.ID] = struct{}{}
-	}
-	if graph.IsVisibleGraphCompletionEvent(agentEvent) {
-		if responseID := finalResponseIDFromStateDelta(agentEvent.StateDelta); responseID != "" {
-			acc.persistedAssistantResponseIDs[responseID] = struct{}{}
-		}
-	}
-	signature := interruptedAssistantSignatureKey(
-		acc.requestID,
-		acc.invocationID,
-		agentEvent.Response.Choices,
-	)
-	if signature == "" {
-		return
-	}
-	if acc.persistedAssistantChoiceSignatures == nil {
-		acc.persistedAssistantChoiceSignatures = make(map[string]struct{})
-	}
-	acc.persistedAssistantChoiceSignatures[signature] = struct{}{}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) recordVisibleCompletionEmission(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) {
-	if loop == nil ||
-		agentEvent == nil ||
-		!graph.IsVisibleGraphCompletionEvent(agentEvent) ||
-		!eventHasAssistantMessageContent(agentEvent) {
-		return
-	}
-	if responseID := finalResponseIDFromStateDelta(agentEvent.StateDelta); responseID != "" {
-		if loop.visibleCompletionResponseIDs == nil {
-			loop.visibleCompletionResponseIDs = make(map[string]struct{})
-		}
-		loop.visibleCompletionResponseIDs[responseID] = struct{}{}
-	}
-	signature := assistantChoiceSignature(agentEvent.Response.Choices)
-	if signature == "" {
-		return
-	}
-	if loop.visibleCompletionChoiceSignatures == nil {
-		loop.visibleCompletionChoiceSignatures = make(map[string]struct{})
-	}
-	loop.visibleCompletionChoiceSignatures[signature] = struct{}{}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (r *runner) recordRunEvent(loop *eventLoopContext) {
-	if loop == nil || loop.runHandle == nil {
-		return
-	}
-	handle := loop.runHandle
-	handle.mu.Lock()
-	defer handle.mu.Unlock()
-	handle.status.LastEventAt = time.Now()
-	handle.status.EventCount++
-}
+func (r *runner) recordRunEvent(loop *eventLoopContext) { _ = "STUB: not implemented"; return }
 
 func (r *runner) applyEventPlugins(
 	ctx context.Context,
 	invocation *agent.Invocation,
 	e *event.Event,
 ) *event.Event {
-	if e == nil {
-		return nil
-	}
-	if invocation == nil || invocation.Plugins == nil {
-		return e
-	}
-	updated, err := invocation.Plugins.OnEvent(ctx, invocation, e)
-	if err != nil {
-		log.ErrorfContext(ctx, "plugin OnEvent failed: %v", err)
-		return e
-	}
-	if updated == nil {
-		return e
-	}
-	copyEventInvocationFields(updated, e)
-	return updated
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func copyEventInvocationFields(dst *event.Event, src *event.Event) {
-	if dst == nil || src == nil {
-		return
-	}
-	if dst.RequestID == "" {
-		dst.RequestID = src.RequestID
-	}
-	if dst.InvocationID == "" {
-		dst.InvocationID = src.InvocationID
-	}
-	if dst.ParentInvocationID == "" {
-		dst.ParentInvocationID = src.ParentInvocationID
-	}
-	if dst.Branch == "" {
-		dst.Branch = src.Branch
-	}
-	if dst.FilterKey == "" {
-		dst.FilterKey = src.FilterKey
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) markCompletionSnapshotOnly(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) {
-	if loop == nil || agentEvent == nil {
-		return
-	}
-	if !isGraphCompletionSnapshotEvent(agentEvent) {
-		return
-	}
-	if !shouldMarkCompletionSnapshotOnly(
-		loop,
-		agentEvent.Response.Choices,
-		agentEvent.StateDelta,
-	) {
-		return
-	}
-	graph.SetCompletionSnapshotOnlyInStateDelta(agentEvent.StateDelta, true)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) recordEmittedAssistantResponseID(
 	loop *eventLoopContext,
 	e *event.Event,
 ) {
-	if loop == nil {
-		return
-	}
-	if loop.invocation == nil {
-		return
-	}
-	if !loop.invocation.RunOptions.GraphEmitFinalModelResponses {
-		return
-	}
-	if isGraphCompletionEvent(e) {
-		return
-	}
-	if !eventHasAssistantMessageContent(e) {
-		return
-	}
-	if e.Response.ID != "" {
-		if loop.emittedAssistantResponseIDs == nil {
-			loop.emittedAssistantResponseIDs = make(map[string]struct{})
-		}
-		loop.emittedAssistantResponseIDs[e.Response.ID] = struct{}{}
-	}
-	signature := assistantChoiceSignature(e.Response.Choices)
-	if signature == "" {
-		return
-	}
-	if loop.emittedAssistantChoiceSignatures == nil {
-		loop.emittedAssistantChoiceSignatures = make(map[string]struct{})
-	}
-	loop.emittedAssistantChoiceSignatures[signature] = struct{}{}
+	_ = "STUB: not implemented"
+	return
 }
 
-func eventHasAssistantMessageContent(e *event.Event) bool {
-	if e == nil || e.Response == nil || e.IsPartial || !e.IsValidContent() {
-		return false
-	}
-	for _, choice := range e.Response.Choices {
-		msg := choice.Message
-		if msg.Role == model.RoleAssistant && msg.Content != "" {
-			return true
-		}
-	}
-	return false
-}
+func eventHasAssistantMessageContent(e *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 type interruptedAssistantMetadata struct {
 	Reason string `json:"reason,omitempty"`
@@ -1410,7 +624,8 @@ func interruptedAssistantAccumulatorForSession(
 	loop *eventLoopContext,
 	persistSession *session.Session,
 ) *interruptedAssistantAccumulator {
-	return interruptedAssistantAccumulatorForLineage(loop, persistSession, "")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantAccumulatorForEvent(
@@ -1418,11 +633,8 @@ func interruptedAssistantAccumulatorForEvent(
 	persistSession *session.Session,
 	agentEvent *event.Event,
 ) *interruptedAssistantAccumulator {
-	return interruptedAssistantAccumulatorForLineage(
-		loop,
-		persistSession,
-		interruptedAssistantLineageKey(loop, agentEvent),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantAccumulatorForLineage(
@@ -1430,36 +642,8 @@ func interruptedAssistantAccumulatorForLineage(
 	persistSession *session.Session,
 	lineageKey string,
 ) *interruptedAssistantAccumulator {
-	if loop == nil {
-		return nil
-	}
-	if persistSession == nil {
-		persistSession = loop.sess
-	}
-	key := interruptedAssistantAccumulatorKey(persistSession, lineageKey)
-	if loop.interruptedAssistants == nil {
-		loop.interruptedAssistants = make(map[string]*interruptedAssistantAccumulator)
-	}
-	if acc := loop.interruptedAssistants[key]; acc != nil {
-		return acc
-	}
-	loop.interruptedAssistantSequence++
-	acc := &interruptedAssistantAccumulator{
-		sequence: loop.interruptedAssistantSequence,
-		sess:     persistSession,
-		persistedAssistantResponseIDs: collectPriorAssistantResponseIDsForLineage(
-			loop,
-			persistSession,
-			lineageKey,
-		),
-		persistedAssistantChoiceSignatures: collectPriorAssistantChoiceSignaturesForLineage(
-			loop,
-			persistSession,
-			lineageKey,
-		),
-	}
-	loop.interruptedAssistants[key] = acc
-	return acc
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getInterruptedAssistantAccumulatorForEvent(
@@ -1467,124 +651,46 @@ func getInterruptedAssistantAccumulatorForEvent(
 	persistSession *session.Session,
 	agentEvent *event.Event,
 ) *interruptedAssistantAccumulator {
-	if loop == nil || len(loop.interruptedAssistants) == 0 {
-		return nil
-	}
-	if persistSession == nil {
-		persistSession = loop.sess
-	}
-	key := interruptedAssistantAccumulatorKey(
-		persistSession,
-		interruptedAssistantLineageKey(loop, agentEvent),
-	)
-	return loop.interruptedAssistants[key]
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getInterruptedAssistantAccumulator(
 	loop *eventLoopContext,
 	persistSession *session.Session,
 ) *interruptedAssistantAccumulator {
-	if loop == nil || len(loop.interruptedAssistants) == 0 {
-		return nil
-	}
-	if persistSession == nil {
-		persistSession = loop.sess
-	}
-	prefix := interruptedAssistantAccumulatorKeyPrefix(persistSession)
-	var matched *interruptedAssistantAccumulator
-	for key, acc := range loop.interruptedAssistants {
-		if !strings.HasPrefix(key, prefix) {
-			continue
-		}
-		if matched != nil {
-			return nil
-		}
-		matched = acc
-	}
-	return matched
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func defaultInterruptedAssistantAccumulator(
 	loop *eventLoopContext,
 ) *interruptedAssistantAccumulator {
-	return getInterruptedAssistantAccumulator(loop, nil)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantSessionKey(sess *session.Session) string {
-	if sess == nil {
-		return ""
-	}
-	return sess.AppName + "\x00" + sess.UserID + "\x00" + sess.ID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func interruptedAssistantAccumulatorKeyPrefix(sess *session.Session) string {
-	return interruptedAssistantSessionKey(sess) + "\x00"
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func interruptedAssistantAccumulatorKey(sess *session.Session, lineageKey string) string {
-	return interruptedAssistantAccumulatorKeyPrefix(sess) + lineageKey
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func interruptedAssistantLineageKey(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) string {
-	if agentEvent == nil {
-		return ""
-	}
-	responseID := ""
-	if agentEvent.Response != nil {
-		responseID = agentEvent.Response.ID
-	}
-	invocationID := agentEvent.InvocationID
-	parentInvocationID := agentEvent.ParentInvocationID
-	branch := agentEvent.Branch
-	filterKey := agentEvent.FilterKey
-	requestID := agentEvent.RequestID
-	author := agentEvent.Author
-	if loop != nil && loop.invocation != nil {
-		inv := loop.invocation
-		if invocationID == "" {
-			invocationID = inv.InvocationID
-		}
-		if parentInvocationID == "" {
-			if parent := inv.GetParentInvocation(); parent != nil {
-				parentInvocationID = parent.InvocationID
-			}
-		}
-		if branch == "" {
-			branch = inv.Branch
-		}
-		if filterKey == "" {
-			filterKey = inv.GetEventFilterKey()
-		}
-		if requestID == "" {
-			requestID = inv.RunOptions.RequestID
-		}
-		if author == "" {
-			author = inv.AgentName
-		}
-	}
-	if responseID != "" {
-		return strings.Join([]string{
-			"response",
-			responseID,
-			requestID,
-			invocationID,
-			parentInvocationID,
-			branch,
-			filterKey,
-		}, "\x00")
-	}
-	return strings.Join([]string{
-		"fallback",
-		requestID,
-		invocationID,
-		parentInvocationID,
-		branch,
-		filterKey,
-		author,
-	}, "\x00")
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (r *runner) recordInterruptedAssistantDelta(
@@ -1592,70 +698,12 @@ func (r *runner) recordInterruptedAssistantDelta(
 	agentEvent *event.Event,
 	persistSession *session.Session,
 ) {
-	if loop == nil || agentEvent == nil || agentEvent.Response == nil {
-		return
-	}
-	rsp := agentEvent.Response
-	if !rsp.IsPartial || rsp.IsToolCallResponse() || rsp.IsToolResultResponse() {
-		return
-	}
-	if !interruptedAssistantHasTextDelta(rsp) {
-		return
-	}
-	acc := interruptedAssistantAccumulatorForEvent(loop, persistSession, agentEvent)
-	if acc == nil {
-		return
-	}
-	responseID := rsp.ID
-	if responseID == "" {
-		responseID = acc.responseID
-	}
-	if responseID == "" {
-		responseID = "interrupted-assistant-" + uuid.NewString()
-	}
-	recorded := false
-	for _, choice := range rsp.Choices {
-		if choice.Delta.Role != "" && choice.Delta.Role != model.RoleAssistant {
-			continue
-		}
-		if choice.Delta.Content == "" {
-			continue
-		}
-		if acc.choiceContent == nil {
-			acc.choiceContent = make(map[int]*strings.Builder)
-		}
-		content := acc.choiceContent[choice.Index]
-		if content == nil {
-			content = &strings.Builder{}
-			acc.choiceContent[choice.Index] = content
-		}
-		content.WriteString(choice.Delta.Content)
-		recorded = true
-	}
-	if !recorded {
-		return
-	}
-	acc.responseID = responseID
-	acc.author = agentEvent.Author
-	captureInterruptedAssistantEventIdentity(acc, agentEvent)
-	fillInterruptedAssistantRequestID(acc, loop)
-	if rsp.Created > 0 {
-		acc.created = rsp.Created
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func interruptedAssistantHasTextDelta(rsp *model.Response) bool {
-	if rsp == nil {
-		return false
-	}
-	for _, choice := range rsp.Choices {
-		if choice.Delta.Role != "" && choice.Delta.Role != model.RoleAssistant {
-			continue
-		}
-		if choice.Delta.Content != "" {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -1663,34 +711,16 @@ func captureInterruptedAssistantEventIdentity(
 	acc *interruptedAssistantAccumulator,
 	agentEvent *event.Event,
 ) {
-	if acc == nil || agentEvent == nil {
-		return
-	}
-	if agentEvent.InvocationID != "" {
-		acc.invocationID = agentEvent.InvocationID
-	}
-	if agentEvent.ParentInvocationID != "" {
-		acc.parentInvocationID = agentEvent.ParentInvocationID
-	}
-	if agentEvent.Branch != "" {
-		acc.branch = agentEvent.Branch
-	}
-	if agentEvent.FilterKey != "" {
-		acc.filterKey = agentEvent.FilterKey
-	}
-	if agentEvent.RequestID != "" {
-		acc.requestID = agentEvent.RequestID
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func fillInterruptedAssistantRequestID(
 	acc *interruptedAssistantAccumulator,
 	loop *eventLoopContext,
 ) {
-	if acc == nil || acc.requestID != "" || loop == nil || loop.invocation == nil {
-		return
-	}
-	acc.requestID = loop.invocation.RunOptions.RequestID
+	_ = "STUB: not implemented"
+	return
 }
 
 func injectInterruptedAssistantEventIdentity(
@@ -1698,123 +728,28 @@ func injectInterruptedAssistantEventIdentity(
 	acc *interruptedAssistantAccumulator,
 	evt *event.Event,
 ) {
-	if evt == nil || acc == nil {
-		return
-	}
-	if acc.invocationID != "" {
-		evt.InvocationID = acc.invocationID
-	}
-	if acc.parentInvocationID != "" {
-		evt.ParentInvocationID = acc.parentInvocationID
-	}
-	if acc.branch != "" {
-		evt.Branch = acc.branch
-	}
-	if acc.filterKey != "" {
-		evt.FilterKey = acc.filterKey
-	}
-	if evt.RequestID != "" {
-		return
-	}
-	if acc.requestID != "" {
-		evt.RequestID = acc.requestID
-		return
-	}
-	if inv == nil {
-		return
-	}
-	evt.RequestID = inv.RunOptions.RequestID
+	_ = "STUB: not implemented"
+	return
 }
 
 // safePersistInterruptedAssistant guards cancellation-time partial persistence
 // against panics from session services.
 func (r *runner) safePersistInterruptedAssistant(ctx context.Context, loop *eventLoopContext) {
-	defer func() {
-		if rr := recover(); rr != nil {
-			log.Errorf("panic persisting interrupted assistant: %v\n%s", rr, string(debug.Stack()))
-		}
-	}()
-	r.persistInterruptedAssistant(ctx, loop)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) persistInterruptedAssistant(ctx context.Context, loop *eventLoopContext) {
-	if ctx.Err() == nil ||
-		loop == nil ||
-		!shouldPersistInterruptedAssistant(loop) {
-		return
-	}
-	persistCtx, cancel := sessionPersistenceContext(ctx)
-	defer cancel()
-	type persistTarget struct {
-		key string
-		acc *interruptedAssistantAccumulator
-	}
-	targets := make([]persistTarget, 0, len(loop.interruptedAssistants))
-	for key, acc := range loop.interruptedAssistants {
-		if acc == nil {
-			continue
-		}
-		targets = append(targets, persistTarget{key: key, acc: acc})
-	}
-	sort.Slice(targets, func(i, j int) bool {
-		if targets[i].acc.sequence != targets[j].acc.sequence {
-			return targets[i].acc.sequence < targets[j].acc.sequence
-		}
-		return targets[i].key < targets[j].key
-	})
-	for _, target := range targets {
-		acc := target.acc
-		persistSession := acc.sess
-		if persistSession == nil {
-			persistSession = loop.sess
-		}
-		if persistSession == nil {
-			continue
-		}
-		interruptedEvent := r.interruptedAssistantEventForAccumulator(ctx, loop, acc)
-		if interruptedEvent == nil {
-			continue
-		}
-		interruptedEvent = r.applyEventPlugins(
-			persistCtx,
-			loop.invocation,
-			interruptedEvent,
-		)
-		if interruptedEvent == nil {
-			continue
-		}
-		if interruptedEvent.Response != nil &&
-			r.interruptedAssistantAlreadyPersistedForAccumulator(
-				acc,
-				interruptedEvent.Response.Choices,
-			) {
-			continue
-		}
-		if !r.handleEventPersistence(
-			persistCtx,
-			loop.invocation,
-			loop.sess,
-			persistSession,
-			interruptedEvent,
-		) {
-			continue
-		}
-		recordPersistedAssistantOnAccumulator(acc, interruptedEvent, true)
-		if sameSession(persistSession, loop.sess) {
-			r.recordPersistedAssistantEvent(loop, interruptedEvent, true)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) interruptedAssistantEvent(
 	ctx context.Context,
 	loop *eventLoopContext,
 ) *event.Event {
-	return r.interruptedAssistantEventForAccumulator(
-		ctx,
-		loop,
-		defaultInterruptedAssistantAccumulator(loop),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *runner) interruptedAssistantEventForAccumulator(
@@ -1822,171 +757,61 @@ func (r *runner) interruptedAssistantEventForAccumulator(
 	loop *eventLoopContext,
 	acc *interruptedAssistantAccumulator,
 ) *event.Event {
-	choices := interruptedAssistantChoicesFromAccumulator(acc)
-	if len(choices) == 0 {
-		return nil
-	}
-	if r.interruptedAssistantAlreadyPersistedForAccumulator(acc, choices) {
-		return nil
-	}
-	created := acc.created
-	if created == 0 {
-		created = time.Now().Unix()
-	}
-	author := acc.author
-	if author == "" && loop.invocation != nil {
-		author = loop.invocation.AgentName
-	}
-	invocationID := acc.invocationID
-	if invocationID == "" && loop.invocation != nil {
-		invocationID = loop.invocation.InvocationID
-	}
-	evt := event.NewResponseEvent(
-		invocationID,
-		author,
-		&model.Response{
-			ID:        acc.responseID,
-			Object:    model.ObjectTypeChatCompletion,
-			Created:   created,
-			Done:      true,
-			IsPartial: false,
-			Choices:   choices,
-		},
-	)
-	injectInterruptedAssistantEventIdentity(loop.invocation, acc, evt)
-	if reason := contextDoneReason(ctx); reason != "" {
-		if payload, err := json.Marshal(
-			interruptedAssistantMetadata{Reason: reason},
-		); err == nil {
-			evt.Extensions = map[string]json.RawMessage{
-				interruptedAssistantExtensionKey: payload,
-			}
-		}
-	}
-	return evt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantChoices(loop *eventLoopContext) []model.Choice {
-	return interruptedAssistantChoicesFromAccumulator(
-		defaultInterruptedAssistantAccumulator(loop),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantChoicesFromAccumulator(
 	acc *interruptedAssistantAccumulator,
 ) []model.Choice {
-	if acc == nil || len(acc.choiceContent) == 0 {
-		return nil
-	}
-	indexes := make([]int, 0, len(acc.choiceContent))
-	for index := range acc.choiceContent {
-		indexes = append(indexes, index)
-	}
-	sort.Ints(indexes)
-	finishReason := interruptedAssistantFinishReason
-	choices := make([]model.Choice, 0, len(indexes))
-	for _, index := range indexes {
-		content := acc.choiceContent[index]
-		if content == nil || content.Len() == 0 {
-			continue
-		}
-		choices = append(choices, model.Choice{
-			Index:        index,
-			Message:      model.NewAssistantMessage(content.String()),
-			FinishReason: &finishReason,
-		})
-	}
-	return choices
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *runner) interruptedAssistantAlreadyPersisted(
 	loop *eventLoopContext,
 	choices []model.Choice,
 ) bool {
-	return r.interruptedAssistantAlreadyPersistedForAccumulator(
-		defaultInterruptedAssistantAccumulator(loop),
-		choices,
-	)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (r *runner) interruptedAssistantAlreadyPersistedForAccumulator(
 	acc *interruptedAssistantAccumulator,
 	choices []model.Choice,
 ) bool {
-	if acc == nil {
-		return false
-	}
-	if acc.responseID != "" {
-		if _, ok := acc.persistedAssistantResponseIDs[acc.responseID]; ok {
-			return true
-		}
-	}
-	signature := interruptedAssistantSignatureKey(
-		acc.requestID,
-		acc.invocationID,
-		choices,
-	)
-	if signature == "" {
-		return false
-	}
-	_, ok := acc.persistedAssistantChoiceSignatures[signature]
-	return ok
+	_ = "STUB: not implemented"
+	return false
 }
 
 func shouldPersistInterruptedAssistant(loop *eventLoopContext) bool {
-	if loop == nil || loop.invocation == nil {
-		return false
-	}
-	enabled := loop.invocation.RunOptions.PersistInterruptedAssistant
-	return enabled != nil && *enabled
+	_ = "STUB: not implemented"
+	return false
 }
 
-func contextDoneReason(ctx context.Context) string {
-	if cause := context.Cause(ctx); cause != nil {
-		return cause.Error()
-	}
-	return ""
-}
+func contextDoneReason(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
 func sessionPersistenceContext(ctx context.Context) (context.Context, context.CancelFunc) {
-	if ctx.Err() == nil {
-		return ctx, func() {}
-	}
-	return context.WithTimeout(
-		context.WithoutCancel(ctx),
-		cancelledSessionPersistenceTimeout,
-	)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 // safeEmitRunnerCompletion guards emitRunnerCompletion against panics from session services.
 func (r *runner) safeEmitRunnerCompletion(ctx context.Context, loop *eventLoopContext) {
-	defer func() {
-		if rr := recover(); rr != nil {
-			log.Errorf("panic emitting runner completion: %v\n%s", rr, string(debug.Stack()))
-		}
-	}()
-	r.emitRunnerCompletion(ctx, loop)
+	_ = "STUB: not implemented"
+	return
 }
 
 // handleFlushRequest drains buffered agent events when a flush request arrives and closes the request's ACK channel
 // once all events currently buffered in the agent event channel have been processed.
 func (r *runner) handleFlushRequest(ctx context.Context, loop *eventLoopContext, req *flush.FlushRequest) error {
-	defer close(req.ACK)
-	for {
-		select {
-		case agentEvent, ok := <-loop.agentEventCh:
-			if !ok {
-				return nil
-			}
-			if err := r.processSingleAgentEvent(ctx, loop, agentEvent); err != nil {
-				return fmt.Errorf("process single agent event: %w", err)
-			}
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			return nil
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // handleEventPersistence appends qualifying events to the session and triggers
@@ -1998,128 +823,67 @@ func (r *runner) handleEventPersistence(
 	persistSession *session.Session,
 	agentEvent *event.Event,
 ) bool {
+	_ = "STUB: not implemented"
 	// Ensure error events have content so they are valid for persistence.
-	ensureErrorEventContent(agentEvent)
-
-	// Append event to session if it's complete (not partial).
-	if !r.shouldPersistEvent(agentEvent) {
-		return false
-	}
-	if persistSession == nil {
-		persistSession = sess
-	}
-
-	persistEvent := agentEvent
-	if isGraphCompletionSnapshotEvent(agentEvent) {
-		eventCopy := *agentEvent
-		if isGraphCompletionEvent(agentEvent) {
-			eventCopy.Response = agentEvent.Response.Clone()
-			eventCopy.Response.Choices = nil
-		}
-		eventCopy.StateDelta = graphCompletionSessionStateDelta(agentEvent.StateDelta)
-		persistEvent = &eventCopy
-	}
-
-	if err := r.sessionService.AppendEvent(
-		ctx,
-		persistSession,
-		persistEvent,
-	); err != nil {
-		log.Errorf("Failed to append event to session: %v", err)
-		return false
-	}
-
-	// Skip user messages, tool call events, and invalid content.
-	// These should not trigger summarization.
-	if agentEvent.IsUserMessage() ||
-		agentEvent.IsToolCallResponse() ||
-		!agentEvent.IsValidContent() {
-		return true
-	}
-
-	// Trigger summary check after tool results to handle long tool call
-	// sequences (ReAct loops). The existing ShouldSummarize checker
-	// (event count / token threshold) decides whether to actually run.
-	// Also trigger after final assistant text responses as before.
-	// Skip if the event explicitly opts out of summarization.
-	if agentEvent.Actions != nil &&
-		agentEvent.Actions.SkipSummarization {
-		return true
-	}
-
-	// When sync intra-run summary is active for this
-	// invocation, the flow already summarises between LLM
-	// iterations. Skip redundant async enqueue for intermediate
-	// tool-result events but still allow the final assistant
-	// response to trigger an async job so the session summary
-	// is up-to-date at turn end.
-	if syncSummaryIntraRun, ok := agent.GetStateValue[bool](
-		invocation, agent.SyncSummaryIntraRunStateKey,
-	); ok && syncSummaryIntraRun && agentEvent.IsToolResultResponse() {
-		return true
-	}
-
-	// Use EnqueueSummaryJob for true asynchronous processing.
-	// Prefer filter-specific summarization to avoid scanning all filters.
-	if err := r.sessionService.EnqueueSummaryJob(
-		ctx, persistSession, agentEvent.FilterKey, false,
-	); err != nil {
-		log.DebugfContext(ctx, "Auto summarize after append skipped or failed: %v.", err)
-	}
-	// Do not enqueue full-session summary here. The worker will cascade
-	// a full-session summarization after a branch update when appropriate.
-
-	// Note: Auto memory extraction is triggered once at runner completion,
-	// not here, to avoid redundant extraction calls.
-	return true
+	return false
 }
+
+// Append event to session if it's complete (not partial).
+
+// Skip user messages, tool call events, and invalid content.
+// These should not trigger summarization.
+
+// Trigger summary check after tool results to handle long tool call
+// sequences (ReAct loops). The existing ShouldSummarize checker
+// (event count / token threshold) decides whether to actually run.
+// Also trigger after final assistant text responses as before.
+// Skip if the event explicitly opts out of summarization.
+
+// When sync intra-run summary is active for this
+// invocation, the flow already summarises between LLM
+// iterations. Skip redundant async enqueue for intermediate
+// tool-result events but still allow the final assistant
+// response to trigger an async job so the session summary
+// is up-to-date at turn end.
+
+// Use EnqueueSummaryJob for true asynchronous processing.
+// Prefer filter-specific summarization to avoid scanning all filters.
+
+// Do not enqueue full-session summary here. The worker will cascade
+// a full-session summarization after a branch update when appropriate.
+
+// Note: Auto memory extraction is triggered once at runner completion,
+// not here, to avoid redundant extraction calls.
 
 // shouldPersistEvent determines if an event should be persisted to the session.
 // Events are persisted if they contain state deltas or are complete, valid
 // responses.
 func (r *runner) shouldPersistEvent(agentEvent *event.Event) bool {
-	return len(agentEvent.StateDelta) > 0 ||
-		(agentEvent.Response != nil && !agentEvent.IsPartial && agentEvent.IsValidContent())
+	_ = "STUB: not implemented"
+	return false
 }
 
-func isGraphCompletionEvent(agentEvent *event.Event) bool {
-	if agentEvent == nil || agentEvent.Response == nil {
-		return false
-	}
-	return agentEvent.Done &&
-		agentEvent.Object == graph.ObjectTypeGraphExecution
-}
+func isGraphCompletionEvent(agentEvent *event.Event) bool { _ = "STUB: not implemented"; return false }
 
 func isGraphCompletionSnapshotEvent(agentEvent *event.Event) bool {
-	return isGraphCompletionEvent(agentEvent) ||
-		graph.IsVisibleGraphCompletionEvent(agentEvent)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func shouldSuppressGraphCompletionEvent(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) bool {
-	if loop == nil || loop.invocation == nil {
-		return false
-	}
-	if !agent.IsGraphCompletionEventDisabled(loop.invocation) {
-		return false
-	}
-	return isGraphCompletionEvent(agentEvent)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func shouldSuppressGraphExecutorBarrierEvent(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) bool {
-	if loop == nil || loop.invocation == nil || agentEvent == nil {
-		return false
-	}
-	if !agent.IsGraphExecutorEventsDisabled(loop.invocation) {
-		return false
-	}
-	return agentEvent.Object == graph.ObjectTypeGraphNodeBarrier ||
-		agentEvent.Object == graph.ObjectTypeGraphBarrier
+	_ = "STUB: not implemented"
+	return false
 }
 
 // captureGraphCompletion captures the final state delta and choices from a
@@ -2127,336 +891,97 @@ func shouldSuppressGraphExecutorBarrierEvent(
 func (r *runner) captureGraphCompletion(
 	agentEvent *event.Event,
 ) (map[string][]byte, []model.Choice) {
-	finalStateDelta := mergeStateDelta(nil, agentEvent.StateDelta)
-
-	var finalChoices []model.Choice
-	if agentEvent.Response != nil && len(agentEvent.Response.Choices) > 0 {
-		finalChoices = agentEvent.Response.Choices
-	}
-	return finalStateDelta, finalChoices
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *runner) captureCompletionFallback(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) {
-	if loop == nil || agentEvent == nil {
-		return
-	}
-	graphCompletionEvent := isGraphCompletionSnapshotEvent(agentEvent)
-	if !graphCompletionEvent && len(agentEvent.StateDelta) > 0 {
-		loop.fallbackStateDelta = mergeCompletionFallbackStateDelta(
-			loop.fallbackStateDelta,
-			agentEvent.StateDelta,
-		)
-	}
-	if agentEvent.Response == nil || agentEvent.IsPartial {
-		return
-	}
-	// A later visible terminal response supersedes any earlier hidden graph completion snapshot.
-	if loop.graphCompletionSeen && !graphCompletionEvent {
-		loop.finalStateDelta = nil
-		loop.finalChoices = nil
-	}
-	if !graphCompletionEvent &&
-		len(agentEvent.Response.Choices) > 0 &&
-		eventHasAssistantMessageContent(agentEvent) {
-		loop.fallbackChoices = cloneChoices(agentEvent.Response.Choices)
-		loop.fallbackResponseID = agentEvent.Response.ID
-	}
-	// The last non-partial response wins so the completion event reflects
-	// the terminal outcome seen by the runner.
-	loop.finalError = cloneResponseError(agentEvent.Response.Error)
-	loop.sawTerminalError = agentEvent.IsTerminalError()
+	_ = "STUB: not implemented"
+	return
 }
+
+// A later visible terminal response supersedes any earlier hidden graph completion snapshot.
+
+// The last non-partial response wins so the completion event reflects
+// the terminal outcome seen by the runner.
 
 func (r *runner) captureRoutedCompletionError(
 	loop *eventLoopContext,
 	agentEvent *event.Event,
 ) {
-	if loop == nil || agentEvent == nil {
-		return
-	}
-	if agentEvent.Response == nil || agentEvent.IsPartial {
-		return
-	}
-	if agentEvent.Response.Error != nil {
-		loop.finalError = cloneResponseError(agentEvent.Response.Error)
-	}
-	loop.sawTerminalError = agentEvent.IsTerminalError()
+	_ = "STUB: not implemented"
+	return
 }
 
 func sameSession(a *session.Session, b *session.Session) bool {
-	if a == nil || b == nil {
-		return a == b
-	}
-	return a.AppName == b.AppName && a.UserID == b.UserID && a.ID == b.ID
+	_ = "STUB: not implemented"
+	return false
 }
 
 func mergeCompletionFallbackStateDelta(
 	dst map[string][]byte,
 	src map[string][]byte,
 ) map[string][]byte {
-	if len(src) == 0 {
-		return dst
-	}
-	for k, v := range src {
-		if !shouldPropagateFallbackStateKey(k) {
-			continue
-		}
-		if dst == nil {
-			dst = make(map[string][]byte, len(src))
-		}
-		if v == nil {
-			dst[k] = nil
-			continue
-		}
-		vv := make([]byte, len(v))
-		copy(vv, v)
-		dst[k] = vv
-	}
-	return dst
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func shouldPropagateFallbackStateKey(key string) bool {
-	switch key {
-	case graph.MetadataKeyNode,
-		graph.MetadataKeyPregel,
-		graph.MetadataKeyChannel,
-		graph.MetadataKeyState,
-		graph.MetadataKeyCompletion,
-		graph.MetadataKeyTool,
-		graph.MetadataKeyModel,
-		graph.MetadataKeyCheckpoint,
-		graph.MetadataKeyCacheHit,
-		graph.MetadataKeyNodeEmitter,
-		graph.MetadataKeyNodeCustom:
-		return false
-	default:
-		return true
-	}
-}
+func shouldPropagateFallbackStateKey(key string) bool { _ = "STUB: not implemented"; return false }
 
 func mergeStateDelta(
 	dst map[string][]byte,
 	src map[string][]byte,
 ) map[string][]byte {
-	if len(src) == 0 {
-		return dst
-	}
-	if dst == nil {
-		dst = make(map[string][]byte, len(src))
-	}
-	for k, v := range src {
-		if v == nil {
-			dst[k] = nil
-			continue
-		}
-		vv := make([]byte, len(v))
-		copy(vv, v)
-		dst[k] = vv
-	}
-	return dst
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneResponseError(err *model.ResponseError) *model.ResponseError {
-	if err == nil {
-		return nil
-	}
-	clone := *err
-	if err.Param != nil {
-		param := *err.Param
-		clone.Param = &param
-	}
-	if err.Code != nil {
-		code := *err.Code
-		clone.Code = &code
-	}
-	return &clone
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shouldPropagateFallbackState(err *model.ResponseError) bool {
-	if err == nil {
-		return false
-	}
-	return err.Type != agent.ErrorTypeStopAgentError
+	_ = "STUB: not implemented"
+	return false
 }
 
 // emitRunnerCompletion creates and emits the final runner completion event,
 // optionally propagating graph-level completion data.
 func (r *runner) emitRunnerCompletion(ctx context.Context, loop *eventLoopContext) {
+	_ = "STUB: not implemented"
 	// Resolve per-request app name override for the completion Author.
-	completionAuthor := r.appName
-	if ro := loop.invocation.RunOptions; ro.AppName != "" {
-		completionAuthor = ro.AppName
-	}
-
-	// Create runner completion event.
-	runnerCompletionEvent := event.NewResponseEvent(
-		loop.invocation.InvocationID,
-		completionAuthor,
-		&model.Response{
-			ID:        "runner-completion-" + uuid.New().String(),
-			Object:    model.ObjectTypeRunnerCompletion,
-			Created:   time.Now().Unix(),
-			Done:      true,
-			IsPartial: false,
-		},
-	)
-	if loop.finalError != nil &&
-		!loop.sawTerminalError &&
-		runnerCompletionEvent.Response != nil {
-		runnerCompletionEvent.Response.Error = cloneResponseError(
-			loop.finalError,
-		)
-	}
-
-	agent.InjectIntoEvent(loop.invocation, runnerCompletionEvent)
-	runnerCompletionEvent = r.applyEventPlugins(
-		ctx,
-		loop.invocation,
-		runnerCompletionEvent,
-	)
-
-	propagateFallbackState := shouldPropagateFallbackState(
-		loop.finalError,
-	)
-	finalStateDelta := loop.finalStateDelta
-	if len(finalStateDelta) == 0 && propagateFallbackState {
-		finalStateDelta = loop.fallbackStateDelta
-	}
-	finalChoices := r.completionChoicesForRunner(loop, finalStateDelta)
-
-	// Propagate graph-level completion data if available.
-	if len(finalStateDelta) > 0 {
-		echoFinalChoices := r.shouldEchoFinalChoicesInCompletion(
-			loop,
-			finalChoices,
-			finalStateDelta,
-		)
-		r.propagateGraphCompletion(
-			runnerCompletionEvent,
-			finalStateDelta,
-			finalChoices,
-			echoFinalChoices,
-		)
-	}
-	if shouldMarkCompletionSnapshotOnly(
-		loop,
-		runnerCompletionEvent.Response.Choices,
-		runnerCompletionEvent.StateDelta,
-	) {
-		graph.SetCompletionSnapshotOnlyInStateDelta(
-			runnerCompletionEvent.StateDelta,
-			true,
-		)
-	}
-	runnerCompletionEvent.ExecutionTrace = agent.BuildExecutionTrace(
-		loop.invocation,
-		resolveExecutionTraceStatus(loop, ctx.Err()),
-	)
-
-	// Append runner completion event to session.
-	persistRunnerCompletionEvent := runnerCompletionEvent
-	if shouldClearRunnerCompletionChoicesInSession(
-		loop,
-		finalChoices,
-		finalStateDelta,
-	) {
-		persistRunnerCompletionEvent = runnerCompletionEvent.Clone()
-		if persistRunnerCompletionEvent.Response != nil {
-			persistRunnerCompletionEvent.Response.Choices = nil
-		}
-	}
-	if len(loop.finalStateDelta) > 0 {
-		if persistRunnerCompletionEvent == runnerCompletionEvent {
-			persistRunnerCompletionEvent = runnerCompletionEvent.Clone()
-		}
-		persistRunnerCompletionEvent.StateDelta = graphCompletionSessionStateDelta(
-			persistRunnerCompletionEvent.StateDelta,
-		)
-	}
-	func() {
-		persistCtx, persistCancel := sessionPersistenceContext(ctx)
-		defer persistCancel()
-		if err := r.sessionService.AppendEvent(
-			persistCtx,
-			loop.sess,
-			persistRunnerCompletionEvent,
-		); err != nil {
-			log.Errorf("Failed to append runner completion event to session: %v", err)
-		}
-	}()
-
-	// Use a context to deliver runner-completion after cancellation without blocking cleanup indefinitely.
-	func() {
-		emitCtx, emitCancel := context.WithTimeout(
-			context.WithoutCancel(ctx),
-			time.Second,
-		)
-		defer emitCancel()
-		if err := agent.EmitEvent(
-			emitCtx, loop.invocation, loop.processedEventCh, runnerCompletionEvent,
-		); err != nil {
-			log.Errorf("Failed to emit runner completion event: %v", err)
-		}
-	}()
-
-	// Enqueue auto memory extraction job if memory service is configured.
-	r.enqueueAutoMemoryJob(ctx, loop.sess)
-	// Enqueue external session ingestion if configured.
-	r.enqueueSessionIngest(ctx, loop.sess, loop.invocation)
+	return
 }
 
+// Create runner completion event.
+
+// Propagate graph-level completion data if available.
+
+// Append runner completion event to session.
+
+// Use a context to deliver runner-completion after cancellation without blocking cleanup indefinitely.
+
+// Enqueue auto memory extraction job if memory service is configured.
+
+// Enqueue external session ingestion if configured.
+
 func graphCompletionSessionStateDelta(stateDelta map[string][]byte) map[string][]byte {
-	if len(stateDelta) == 0 {
-		return nil
-	}
-	filtered := make(map[string][]byte, len(stateDelta))
-	for key, value := range stateDelta {
-		if shouldDropGraphCompletionSessionStateKey(key) {
-			continue
-		}
-		if value == nil {
-			filtered[key] = nil
-			continue
-		}
-		vv := make([]byte, len(value))
-		copy(vv, value)
-		filtered[key] = vv
-	}
-	if len(filtered) == 0 {
-		return nil
-	}
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shouldDropGraphCompletionSessionStateKey(key string) bool {
-	switch key {
-	case graph.StateKeyMessages,
-		graph.StateKeyUserInput,
-		graph.StateKeyLastResponse,
-		graph.StateKeyLastToolResponse,
-		graph.StateKeyNodeResponses,
-		graph.MetadataKeyCompletion:
-		return true
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
 func resolveExecutionTraceStatus(loop *eventLoopContext, ctxErr error) trace.TraceStatus {
-	if loop != nil && loop.finalError != nil {
-		if loop.finalError.Type == agent.ErrorTypeStopAgentError {
-			return trace.TraceStatusCompleted
-		}
-		return trace.TraceStatusFailed
-	}
-	_, isWaitNoticeTimeout := agent.AsWaitNoticeTimeoutError(ctxErr)
-	if ctxErr != nil && !isWaitNoticeTimeout {
-		return trace.TraceStatusIncomplete
-	}
-	return trace.TraceStatusCompleted
+	_ = "STUB: not implemented"
+	return *new(trace.TraceStatus)
 }
 
 // propagateGraphCompletion propagates graph-level completion data (state delta
@@ -2467,56 +992,25 @@ func (r *runner) propagateGraphCompletion(
 	finalChoices []model.Choice,
 	echoFinalChoices bool,
 ) {
+	_ = "STUB: not implemented"
 	// Initialize state delta map if needed.
-	if runnerCompletionEvent.StateDelta == nil {
-		runnerCompletionEvent.StateDelta = make(map[string][]byte, len(finalStateDelta))
-	}
-
-	// Copy state delta with byte ownership.
-	runnerCompletionEvent.StateDelta = mergeStateDelta(
-		runnerCompletionEvent.StateDelta,
-		finalStateDelta,
-	)
-
-	// Optionally echo the final text as a non-streaming assistant message
-	// if graph provided it in its completion.
-	if echoFinalChoices &&
-		runnerCompletionEvent.Response != nil &&
-		len(runnerCompletionEvent.Response.Choices) == 0 &&
-		len(finalChoices) > 0 {
-		// Keep only content to avoid carrying tool deltas etc.
-		// Use JSON marshal/unmarshal to deep-copy minimal fields safely.
-		b, _ := json.Marshal(finalChoices)
-		_ = json.Unmarshal(b, &runnerCompletionEvent.Response.Choices)
-	}
+	return
 }
+
+// Copy state delta with byte ownership.
+
+// Optionally echo the final text as a non-streaming assistant message
+// if graph provided it in its completion.
+
+// Keep only content to avoid carrying tool deltas etc.
+// Use JSON marshal/unmarshal to deep-copy minimal fields safely.
 
 func shouldClearRunnerCompletionChoicesInSession(
 	loop *eventLoopContext,
 	finalChoices []model.Choice,
 	finalStateDelta map[string][]byte,
 ) bool {
-	if loop == nil {
-		return false
-	}
-	finalResponseID := finalResponseIDFromStateDelta(finalStateDelta)
-	if finalResponseID != "" {
-		if _, ok := loop.persistedAssistantResponseIDs[finalResponseID]; ok {
-			return true
-		}
-		return false
-	}
-	if loop.invocation == nil ||
-		!agent.IsGraphCompletionEventDisabled(loop.invocation) {
-		return false
-	}
-	signature := assistantChoiceSignature(finalChoices)
-	if signature == "" {
-		return false
-	}
-	if _, ok := loop.persistedAssistantChoiceSignatures[signature]; ok {
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -2524,30 +1018,8 @@ func (r *runner) completionChoicesForRunner(
 	loop *eventLoopContext,
 	finalStateDelta map[string][]byte,
 ) []model.Choice {
-	if loop == nil {
-		return nil
-	}
-	if len(loop.finalChoices) > 0 {
-		return loop.finalChoices
-	}
-	finalResponseID := finalResponseIDFromStateDelta(finalStateDelta)
-	if finalResponseID != "" {
-		if finalResponseID == loop.fallbackResponseID {
-			return loop.fallbackChoices
-		}
-		return nil
-	}
-	if len(loop.fallbackChoices) == 0 {
-		return nil
-	}
-	finalResponseText := finalResponseTextFromStateDelta(finalStateDelta)
-	if finalResponseText == "" {
-		return nil
-	}
-	if assistantChoicePrimaryContent(loop.fallbackChoices) != finalResponseText {
-		return nil
-	}
-	return loop.fallbackChoices
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // shouldEchoFinalChoicesInCompletion decides whether Runner should copy the
@@ -2566,39 +1038,8 @@ func (r *runner) shouldEchoFinalChoicesInCompletion(
 	finalChoices []model.Choice,
 	finalStateDelta map[string][]byte,
 ) bool {
-	if loop == nil {
-		return true
-	}
-	if len(finalChoices) == 0 {
-		return false
-	}
-	if loop.invocation != nil &&
-		agent.IsGraphCompletionEventDisabled(loop.invocation) &&
-		visibleCompletionAlreadyEmitted(loop, finalChoices, finalStateDelta) {
-		return false
-	}
-	if loop.invocation == nil {
-		return true
-	}
-
-	if !loop.invocation.RunOptions.GraphEmitFinalModelResponses {
-		return true
-	}
-
-	finalResponseID := finalResponseIDFromStateDelta(finalStateDelta)
-	if finalResponseID != "" {
-		_, alreadyEmitted := loop.emittedAssistantResponseIDs[finalResponseID]
-		return !alreadyEmitted
-	}
-	if !agent.IsGraphCompletionEventDisabled(loop.invocation) {
-		return true
-	}
-	signature := assistantChoiceSignature(finalChoices)
-	if signature == "" {
-		return true
-	}
-	_, alreadyEmitted := loop.emittedAssistantChoiceSignatures[signature]
-	return !alreadyEmitted
+	_ = "STUB: not implemented"
+	return false
 }
 
 func visibleCompletionAlreadyEmitted(
@@ -2606,20 +1047,8 @@ func visibleCompletionAlreadyEmitted(
 	finalChoices []model.Choice,
 	finalStateDelta map[string][]byte,
 ) bool {
-	if loop == nil {
-		return false
-	}
-	finalResponseID := finalResponseIDFromStateDelta(finalStateDelta)
-	if finalResponseID != "" {
-		_, alreadyVisible := loop.visibleCompletionResponseIDs[finalResponseID]
-		return alreadyVisible
-	}
-	signature := assistantChoiceSignature(finalChoices)
-	if signature == "" {
-		return false
-	}
-	_, alreadyVisible := loop.visibleCompletionChoiceSignatures[signature]
-	return alreadyVisible
+	_ = "STUB: not implemented"
+	return false
 }
 
 func shouldMarkCompletionSnapshotOnly(
@@ -2627,142 +1056,39 @@ func shouldMarkCompletionSnapshotOnly(
 	choices []model.Choice,
 	finalStateDelta map[string][]byte,
 ) bool {
-	if loop == nil || len(choices) == 0 {
-		return false
-	}
-	if !isResumeRun(loop) {
-		return false
-	}
-	if runProducedAssistantContent(loop) {
-		return false
-	}
-	currentFinalResponseID := finalResponseIDFromStateDelta(finalStateDelta)
-	if currentFinalResponseID == "" {
-		return false
-	}
-	if _, ok := loop.priorAssistantResponseIDs[currentFinalResponseID]; ok {
-		return true
-	}
-	if loop.baselineFinalResponseID == "" {
-		return false
-	}
-	return currentFinalResponseID == loop.baselineFinalResponseID
+	_ = "STUB: not implemented"
+	return false
 }
 
-func isResumeRun(loop *eventLoopContext) bool {
-	if loop == nil || loop.invocation == nil || loop.invocation.RunOptions.RuntimeState == nil {
-		return false
-	}
-	switch cmd := loop.invocation.RunOptions.RuntimeState[graph.StateKeyCommand].(type) {
-	case *graph.Command:
-		return cmd != nil && (cmd.Resume != nil || len(cmd.ResumeMap) > 0)
-	case graph.Command:
-		return cmd.Resume != nil || len(cmd.ResumeMap) > 0
-	case *graph.ResumeCommand:
-		return cmd != nil && (cmd.Resume != nil || len(cmd.ResumeMap) > 0)
-	case graph.ResumeCommand:
-		return cmd.Resume != nil || len(cmd.ResumeMap) > 0
-	default:
-		return false
-	}
-}
+func isResumeRun(loop *eventLoopContext) bool { _ = "STUB: not implemented"; return false }
 
 func runProducedAssistantContent(loop *eventLoopContext) bool {
-	if loop == nil {
-		return false
-	}
-	return loop.freshAssistantContentProduced
+	_ = "STUB: not implemented"
+	return false
 }
 
 func isSnapshotOnlyVisibleGraphCompletion(e *event.Event) bool {
-	return e != nil &&
-		graph.IsVisibleGraphCompletionEvent(e) &&
-		graph.CompletionSnapshotOnlyFromStateDelta(e.StateDelta)
+	_ = "STUB: not implemented"
+	return false
 }
 
-func cloneChoices(choices []model.Choice) []model.Choice {
-	if len(choices) == 0 {
-		return nil
-	}
-	b, _ := json.Marshal(choices)
-	var cloned []model.Choice
-	_ = json.Unmarshal(b, &cloned)
-	return cloned
-}
+func cloneChoices(choices []model.Choice) []model.Choice { _ = "STUB: not implemented"; return nil }
 
-func assistantChoiceSignature(choices []model.Choice) string {
-	if len(choices) == 0 {
-		return ""
-	}
-	type signatureChoice struct {
-		Role    model.Role `json:"role"`
-		Content string     `json:"content"`
-	}
-	var signatureChoices []signatureChoice
-	for _, choice := range choices {
-		if choice.Message.Role != model.RoleAssistant ||
-			choice.Message.Content == "" {
-			continue
-		}
-		signatureChoices = append(signatureChoices, signatureChoice{
-			Role:    choice.Message.Role,
-			Content: choice.Message.Content,
-		})
-	}
-	if len(signatureChoices) == 0 {
-		return ""
-	}
-	b, err := json.Marshal(signatureChoices)
-	if err != nil {
-		return ""
-	}
-	return string(b)
-}
+func assistantChoiceSignature(choices []model.Choice) string { _ = "STUB: not implemented"; return "" }
 
 func finalResponseIDFromStateDelta(finalStateDelta map[string][]byte) string {
-	return graph.FinalResponseIDFromStateDelta(finalStateDelta)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func baselineFinalResponseID(sess *session.Session, runtimeState map[string]any) string {
-	if sess != nil && len(sess.State) > 0 {
-		if responseID := finalResponseIDFromStateDelta(map[string][]byte(sess.State)); responseID != "" {
-			return responseID
-		}
-	}
-	return baselineFinalResponseIDFromRuntimeState(runtimeState)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func collectPriorAssistantResponseIDs(sess *session.Session) map[string]struct{} {
-	if sess == nil || len(sess.Events) == 0 {
-		return nil
-	}
-	var responseIDs map[string]struct{}
-	for i := range sess.Events {
-		evt := &sess.Events[i]
-		if evt.Response == nil || evt.IsPartial {
-			continue
-		}
-		if isGraphCompletionEvent(evt) {
-			continue
-		}
-		if !eventHasAssistantMessageContent(evt) {
-			continue
-		}
-		responseID := evt.Response.ID
-		if graph.IsVisibleGraphCompletionEvent(evt) {
-			if visibleResponseID := finalResponseIDFromStateDelta(evt.StateDelta); visibleResponseID != "" {
-				responseID = visibleResponseID
-			}
-		}
-		if responseID == "" {
-			continue
-		}
-		if responseIDs == nil {
-			responseIDs = make(map[string]struct{})
-		}
-		responseIDs[responseID] = struct{}{}
-	}
-	return responseIDs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func collectPriorAssistantResponseIDsForLineage(
@@ -2770,68 +1096,13 @@ func collectPriorAssistantResponseIDsForLineage(
 	sess *session.Session,
 	lineageKey string,
 ) map[string]struct{} {
-	if sess == nil || len(sess.Events) == 0 {
-		return nil
-	}
-	var responseIDs map[string]struct{}
-	for i := range sess.Events {
-		evt := &sess.Events[i]
-		if interruptedAssistantLineageKey(loop, evt) != lineageKey {
-			continue
-		}
-		if evt.Response == nil || evt.IsPartial {
-			continue
-		}
-		if isGraphCompletionEvent(evt) {
-			continue
-		}
-		if !eventHasAssistantMessageContent(evt) {
-			continue
-		}
-		responseID := evt.Response.ID
-		if graph.IsVisibleGraphCompletionEvent(evt) {
-			if visibleResponseID := finalResponseIDFromStateDelta(evt.StateDelta); visibleResponseID != "" {
-				responseID = visibleResponseID
-			}
-		}
-		if responseID == "" {
-			continue
-		}
-		if responseIDs == nil {
-			responseIDs = make(map[string]struct{})
-		}
-		responseIDs[responseID] = struct{}{}
-	}
-	return responseIDs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func collectPriorAssistantChoiceSignatures(sess *session.Session) map[string]struct{} {
-	if sess == nil || len(sess.Events) == 0 {
-		return nil
-	}
-	var signatures map[string]struct{}
-	for i := range sess.Events {
-		evt := &sess.Events[i]
-		if evt.Response == nil || evt.IsPartial {
-			continue
-		}
-		if isGraphCompletionEvent(evt) || !eventHasAssistantMessageContent(evt) {
-			continue
-		}
-		signature := interruptedAssistantSignatureKey(
-			evt.RequestID,
-			evt.InvocationID,
-			evt.Response.Choices,
-		)
-		if signature == "" {
-			continue
-		}
-		if signatures == nil {
-			signatures = make(map[string]struct{})
-		}
-		signatures[signature] = struct{}{}
-	}
-	return signatures
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func collectPriorAssistantChoiceSignaturesForLineage(
@@ -2839,35 +1110,8 @@ func collectPriorAssistantChoiceSignaturesForLineage(
 	sess *session.Session,
 	lineageKey string,
 ) map[string]struct{} {
-	if sess == nil || len(sess.Events) == 0 {
-		return nil
-	}
-	var signatures map[string]struct{}
-	for i := range sess.Events {
-		evt := &sess.Events[i]
-		if interruptedAssistantLineageKey(loop, evt) != lineageKey {
-			continue
-		}
-		if evt.Response == nil || evt.IsPartial {
-			continue
-		}
-		if isGraphCompletionEvent(evt) || !eventHasAssistantMessageContent(evt) {
-			continue
-		}
-		signature := interruptedAssistantSignatureKey(
-			evt.RequestID,
-			evt.InvocationID,
-			evt.Response.Choices,
-		)
-		if signature == "" {
-			continue
-		}
-		if signatures == nil {
-			signatures = make(map[string]struct{})
-		}
-		signatures[signature] = struct{}{}
-	}
-	return signatures
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func interruptedAssistantSignatureKey(
@@ -2875,118 +1119,29 @@ func interruptedAssistantSignatureKey(
 	invocationID string,
 	choices []model.Choice,
 ) string {
-	signature := assistantChoiceSignature(choices)
-	if signature == "" {
-		return ""
-	}
-	switch {
-	case requestID != "" && invocationID != "":
-		return requestID + "\x00" + invocationID + "\x00" + signature
-	case requestID != "":
-		return requestID + "\x00" + signature
-	case invocationID != "":
-		return invocationID + "\x00" + signature
-	default:
-		return signature
-	}
-}
-
-func baselineFinalResponseIDFromRuntimeState(runtimeState map[string]any) string {
-	if len(runtimeState) == 0 {
-		return ""
-	}
-	if responseID, ok := stringValueFromRuntimeState(runtimeState[graph.StateKeyLastResponseID]); ok {
-		return responseID
-	}
-	return completionMetadataFinalResponseID(runtimeState[graph.MetadataKeyCompletion])
-}
-
-func stringValueFromRuntimeState(value any) (string, bool) {
-	switch v := value.(type) {
-	case string:
-		if v == "" {
-			return "", false
-		}
-		return v, true
-	case []byte:
-		if len(v) == 0 {
-			return "", false
-		}
-		var s string
-		if err := json.Unmarshal(v, &s); err == nil && s != "" {
-			return s, true
-		}
-		raw := strings.TrimSpace(string(v))
-		if raw == "" {
-			return "", false
-		}
-		if strings.HasPrefix(raw, "{") ||
-			strings.HasPrefix(raw, "[") ||
-			strings.HasPrefix(raw, "\"") {
-			return "", false
-		}
-		if raw != "" {
-			return raw, true
-		}
-	}
-	return "", false
-}
-
-func completionMetadataFinalResponseID(value any) string {
-	switch v := value.(type) {
-	case graph.CompletionMetadata:
-		return v.FinalResponseID
-	case *graph.CompletionMetadata:
-		if v != nil {
-			return v.FinalResponseID
-		}
-	case map[string]any:
-		if responseID, ok := v["finalResponseID"].(string); ok {
-			return responseID
-		}
-	case string:
-		if v == "" {
-			return ""
-		}
-		var metadata graph.CompletionMetadata
-		if err := json.Unmarshal([]byte(v), &metadata); err == nil {
-			return metadata.FinalResponseID
-		}
-	case []byte:
-		if len(v) == 0 {
-			return ""
-		}
-		var metadata graph.CompletionMetadata
-		if err := json.Unmarshal(v, &metadata); err == nil {
-			return metadata.FinalResponseID
-		}
-	}
+	_ = "STUB: not implemented"
 	return ""
 }
 
+func baselineFinalResponseIDFromRuntimeState(runtimeState map[string]any) string {
+	_ = "STUB: not implemented"
+	return ""
+}
+
+func stringValueFromRuntimeState(value any) (string, bool) {
+	_ = "STUB: not implemented"
+	return "", false
+}
+
+func completionMetadataFinalResponseID(value any) string { _ = "STUB: not implemented"; return "" }
+
 func finalResponseTextFromStateDelta(finalStateDelta map[string][]byte) string {
-	if finalStateDelta == nil {
-		return ""
-	}
-	raw, ok := finalStateDelta[graph.StateKeyLastResponse]
-	if !ok || len(raw) == 0 {
-		return ""
-	}
-	var responseText string
-	if err := json.Unmarshal(raw, &responseText); err != nil {
-		return ""
-	}
-	return responseText
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func assistantChoicePrimaryContent(choices []model.Choice) string {
-	for _, choice := range choices {
-		if choice.Message.Role != model.RoleAssistant ||
-			choice.Message.Content == "" {
-			continue
-		}
-		return choice.Message.Content
-	}
+	_ = "STUB: not implemented"
 	return ""
 }
 
@@ -2998,28 +1153,8 @@ func (r *runner) rewriteUserMessage(
 	message model.Message,
 	ro agent.RunOptions,
 ) ([]model.Message, error) {
-	if ro.UserMessageRewriter == nil {
-		return []model.Message{message}, nil
-	}
-	rewritten, err := ro.UserMessageRewriter(ctx, &agent.UserMessageRewriteArgs{
-		AppName:         appName,
-		UserID:          userID,
-		SessionID:       sessionID,
-		RequestID:       ro.RequestID,
-		OriginalMessage: message,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(rewritten) == 0 {
-		return nil, fmt.Errorf("runner: user message rewriter returned no messages")
-	}
-	for i := range rewritten {
-		if rewritten[i].Role == "" && model.HasPayload(rewritten[i]) {
-			rewritten[i].Role = model.RoleUser
-		}
-	}
-	return rewritten, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *runner) resolveCurrentTurnMessages(
@@ -3030,21 +1165,8 @@ func (r *runner) resolveCurrentTurnMessages(
 	message model.Message,
 	ro agent.RunOptions,
 ) (model.Message, []model.Message, error) {
-	if ro.UserMessageRewriter == nil {
-		return message, nil, nil
-	}
-	currentTurnMessages, err := r.rewriteUserMessage(
-		ctx,
-		appName,
-		userID,
-		sessionID,
-		message,
-		ro,
-	)
-	if err != nil {
-		return model.Message{}, nil, err
-	}
-	return currentTurnMessages[len(currentTurnMessages)-1], filterPayloadMessages(currentTurnMessages), nil
+	_ = "STUB: not implemented"
+	return *new(model.Message), nil, nil
 }
 
 func (r *runner) persistCurrentTurnMessages(
@@ -3056,139 +1178,52 @@ func (r *runner) persistCurrentTurnMessages(
 	persistedCurrentTurnMessages []model.Message,
 	ro agent.RunOptions,
 ) error {
-	if ro.UserMessageRewriter == nil {
-		historySeeded, err := r.seedSessionHistory(ctx, sess, invocation, ag, ro)
-		if err != nil {
-			return err
-		}
-		return r.appendIncomingMessage(ctx, sess, invocation, message, ro, historySeeded)
-	}
-	if sess.GetEventCount() == 0 {
-		initialMessages := mergeCurrentTurnMessagesIntoSeed(
-			ro.Messages,
-			message,
-			persistedCurrentTurnMessages,
-		)
-		return r.appendSessionMessages(ctx, sess, invocation, ag, initialMessages)
-	}
-	return r.appendSessionMessages(ctx, sess, invocation, ag, persistedCurrentTurnMessages)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // shouldAppendUserMessage checks if the incoming user message should be
 // appended to the session.
 func shouldAppendUserMessage(message model.Message, seed []model.Message) bool {
-	if len(seed) == 0 {
-		return true
-	}
-	if message.Role != model.RoleUser {
-		return true
-	}
-	// Only a trailing seeded user turn can cover the incoming user message.
-	for i := len(seed) - 1; i >= 0; i-- {
-		if (!model.HasPayload(seed[i]) && len(seed[i].ToolCalls) == 0) || seed[i].Role == model.RoleSystem {
-			continue
-		}
-		if seed[i].Role != model.RoleUser {
-			return true
-		}
-		return !model.MessagesEqual(seed[i], message)
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
+
+// Only a trailing seeded user turn can cover the incoming user message.
 
 func mergeCurrentTurnMessagesIntoSeed(
 	seed []model.Message,
 	original model.Message,
 	currentTurn []model.Message,
 ) []model.Message {
-	if len(currentTurn) == 0 {
-		return append([]model.Message(nil), seed...)
-	}
-	if len(seed) == 0 {
-		return append([]model.Message(nil), currentTurn...)
-	}
-	insertIndex := -1
-	for i := len(seed) - 1; i >= 0; i-- {
-		if seed[i].Role != model.RoleUser {
-			continue
-		}
-		if model.MessagesEqual(seed[i], original) {
-			insertIndex = i
-		}
-		break
-	}
-	if insertIndex == -1 {
-		merged := make([]model.Message, 0, len(seed)+len(currentTurn))
-		merged = append(merged, seed...)
-		merged = append(merged, currentTurn...)
-		return merged
-	}
-	merged := make([]model.Message, 0, len(seed)-1+len(currentTurn))
-	merged = append(merged, seed[:insertIndex]...)
-	merged = append(merged, currentTurn...)
-	merged = append(merged, seed[insertIndex+1:]...)
-	return merged
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func filterPayloadMessages(messages []model.Message) []model.Message {
-	if len(messages) == 0 {
-		return nil
-	}
-	filtered := make([]model.Message, 0, len(messages))
-	for _, msg := range messages {
-		if !model.HasPayload(msg) {
-			continue
-		}
-		filtered = append(filtered, msg)
-	}
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func normalizeQueuedUserMessage(
 	message model.Message,
 ) (model.Message, error) {
-	if message.Role == "" && model.HasPayload(message) {
-		message.Role = model.RoleUser
-	}
-	if message.Role != model.RoleUser || !model.HasPayload(message) {
-		return model.Message{}, ErrInvalidQueuedUserMessage
-	}
-	return message, nil
+	_ = "STUB: not implemented"
+	return *new(model.Message), nil
 }
 
 // ensureErrorEventContent ensures that error events have valid content.
 // This is necessary because some models return error responses without content,
 // which would otherwise be discarded by the session service.
-func ensureErrorEventContent(e *event.Event) {
-	if e == nil || e.Response == nil || e.Response.Error == nil {
-		return
-	}
-	// If content is valid (non-empty), do nothing.
-	if e.IsValidContent() {
-		return
-	}
+func ensureErrorEventContent(e *event.Event) { _ = "STUB: not implemented"; return }
 
-	// Ensure Choices slice exists
-	if len(e.Response.Choices) == 0 {
-		e.Response.Choices = []model.Choice{{
-			Index: 0,
-			Message: model.Message{
-				Role: model.RoleAssistant,
-			},
-		}}
-	}
+// If content is valid (non-empty), do nothing.
 
-	// Populate content if empty
-	if e.Response.Choices[0].Message.Content == "" {
-		e.Response.Choices[0].Message.Content = "An error occurred during execution. Please contact the service provider."
-	}
+// Ensure Choices slice exists
 
-	// Ensure FinishReason is set
-	if e.Response.Choices[0].FinishReason == nil {
-		reason := "error"
-		e.Response.Choices[0].FinishReason = &reason
-	}
-}
+// Populate content if empty
+
+// Ensure FinishReason is set
 
 // RunWithMessages is a convenience helper that lets callers pass a full
 // conversation history ([]model.Message) directly. The messages seed the LLM
@@ -3203,29 +1238,18 @@ func RunWithMessages(
 	messages []model.Message,
 	runOpts ...agent.RunOption,
 ) (<-chan *event.Event, error) {
-	runOpts = append(runOpts, agent.WithMessages(messages))
-	// Derive the latest user message for invocation state compatibility
-	// (e.g., used by GraphAgent to set initial user_input).
-	var latestUser model.Message
-	for i := len(messages) - 1; i >= 0; i-- {
-		if messages[i].Role == model.RoleUser && model.HasPayload(messages[i]) {
-			latestUser = messages[i]
-			break
-		}
-	}
-	return r.Run(ctx, userID, sessionID, latestUser, runOpts...)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Derive the latest user message for invocation state compatibility
+// (e.g., used by GraphAgent to set initial user_input).
 
 // enqueueAutoMemoryJob triggers auto memory extraction if memory service is
 // configured.
 func (r *runner) enqueueAutoMemoryJob(ctx context.Context, sess *session.Session) {
-	if r.memoryService == nil || sess == nil {
-		return
-	}
-	if err := r.memoryService.EnqueueAutoMemoryJob(ctx, sess); err != nil {
-		log.DebugfContext(ctx, "Auto memory extraction skipped or failed: %v", err)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *runner) enqueueSessionIngest(
@@ -3233,13 +1257,8 @@ func (r *runner) enqueueSessionIngest(
 	sess *session.Session,
 	inv *agent.Invocation,
 ) {
-	if r.ingestor == nil || sess == nil {
-		return
-	}
-	opts := r.defaultIngestOptions(sess, inv)
-	if err := r.ingestor.IngestSession(ctx, sess, opts...); err != nil {
-		log.DebugfContext(ctx, "Session ingest skipped or failed: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // defaultIngestOptions builds the per-request ingestion options the runner
@@ -3251,19 +1270,6 @@ func (r *runner) defaultIngestOptions(
 	sess *session.Session,
 	inv *agent.Invocation,
 ) []session.IngestOption {
-	var opts []session.IngestOption
-	if sess != nil && sess.ID != "" {
-		opts = append(opts, session.WithIngestRunID(sess.ID))
-	}
-	agentName := ""
-	if inv != nil {
-		agentName = inv.AgentName
-	}
-	if agentName == "" {
-		agentName = r.defaultAgentName
-	}
-	if agentName != "" {
-		opts = append(opts, session.WithIngestAgentID(agentName))
-	}
-	return opts
+	_ = "STUB: not implemented"
+	return nil
 }

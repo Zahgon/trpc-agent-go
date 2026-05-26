@@ -25,14 +25,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/examples/team/internal/chat"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/team"
 )
 
 const (
@@ -130,100 +124,10 @@ func buildRunner(
 	variant string,
 	streaming bool,
 ) (runner.Runner, error) {
-	modelInstance := openai.New(
-		modelName,
-		openai.WithVariant(openai.Variant(variant)),
-	)
-
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(defaultMaxTokens),
-		Temperature: floatPtr(defaultTemperature),
-		Stream:      streaming,
-	}
-
-	optimist := llmagent.New(
-		agentOptimist,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Optimistic and creative. Suggests options and upsides.",
-		),
-		llmagent.WithInstruction(
-			"Discuss the topic from an optimistic, creative angle. "+
-				"Suggest options and potential benefits. When you want "+
-				"another perspective, transfer control. When the "+
-				"discussion is ready to conclude, transfer to "+
-				agentSummarizer+".",
-		),
-	)
-
-	skeptic := llmagent.New(
-		agentSkeptic,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Skeptical and detail-oriented. Challenges assumptions.",
-		),
-		llmagent.WithInstruction(
-			"Challenge assumptions and point out risks, edge cases, "+
-				"and downsides. When you want another perspective, "+
-				"transfer control. When the discussion is ready to "+
-				"conclude, transfer to "+agentSummarizer+".",
-		),
-	)
-
-	pragmatist := llmagent.New(
-		agentPragmatist,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Pragmatic and execution-focused. Grounds ideas in reality.",
-		),
-		llmagent.WithInstruction(
-			"Focus on practical constraints, costs, and execution. "+
-				"Propose a workable plan. When you want another "+
-				"perspective, transfer control. When the discussion is "+
-				"ready to conclude, transfer to "+agentSummarizer+".",
-		),
-	)
-
-	summarizer := llmagent.New(
-		agentSummarizer,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Summarizes the discussion and proposes next steps.",
-		),
-		llmagent.WithInstruction(
-			"Summarize the discussion. Present options, tradeoffs, "+
-				"and a clear recommendation with next steps. Do not "+
-				"transfer control.",
-		),
-	)
-
-	members := []agent.Agent{
-		optimist,
-		skeptic,
-		pragmatist,
-		summarizer,
-	}
-	var teamOpts []team.Option
-	if *crossRequestTransfer {
-		teamOpts = append(teamOpts, team.WithCrossRequestTransfer(true))
-	}
-	teamInstance, err := team.NewSwarm(teamName, entryAgentName, members, teamOpts...)
-	if err != nil {
-		return nil, err
-	}
-
-	sessionService := sessioninmemory.NewSessionService()
-	return runner.NewRunner(
-		appName,
-		teamInstance,
-		runner.WithSessionService(sessionService),
-	), nil
+	_ = "STUB: not implemented"
+	return *new(runner.Runner), nil
 }
 
-func intPtr(v int) *int { return &v }
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(v float64) *float64 { return &v }
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

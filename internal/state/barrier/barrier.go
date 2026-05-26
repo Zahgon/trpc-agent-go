@@ -18,18 +18,7 @@ import (
 const StateKeyBarrier = "__graph_barrier__"
 
 // Enable enables the graph barrier for the invocation.
-func Enable(inv *agent.Invocation) {
-	if inv == nil {
-		return
-	}
-	inv.SetState(StateKeyBarrier, true)
-}
+func Enable(inv *agent.Invocation) { _ = "STUB: not implemented"; return }
 
 // Enabled reports whether the graph barrier is enabled for the invocation.
-func Enabled(inv *agent.Invocation) bool {
-	enabled, ok := agent.GetStateValue[bool](inv, StateKeyBarrier)
-	if !ok {
-		return false
-	}
-	return enabled
-}
+func Enabled(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }

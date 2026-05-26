@@ -14,13 +14,10 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-a2a-go/protocol"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/server/a2a"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -120,48 +117,11 @@ func main() {
 	}
 }
 
-func normalizePublicHost(host string) string {
-	trimmed := strings.TrimSpace(host)
-	trimmed = strings.TrimSuffix(trimmed, "/")
-	if trimmed == "" {
-		log.Printf(
-			"invalid public-host %q, using %q",
-			host,
-			defaultPublicHost,
-		)
-		return defaultPublicHost
-	}
-
-	if strings.HasPrefix(trimmed, httpScheme) ||
-		strings.HasPrefix(trimmed, httpsScheme) {
-		if trimmed == httpScheme || trimmed == httpsScheme {
-			log.Printf(
-				"invalid public-host %q, using %q",
-				host,
-				defaultPublicHost,
-			)
-			return defaultPublicHost
-		}
-		return trimmed
-	}
-	return httpScheme + trimmed
-}
+func normalizePublicHost(host string) string { _ = "STUB: not implemented"; return "" }
 
 func handleIndex(baseURL string) http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		lines := []string{
-			"A2A multi-path server",
-			"",
-			"Math agent: " + baseURL + mathBasePath,
-			"Weather agent: " + baseURL + weatherBasePath,
-			"",
-			"Agent cards:",
-			"- " + baseURL + mathBasePath + protocol.AgentCardPath,
-			"- " + baseURL + weatherBasePath + protocol.AgentCardPath,
-			"",
-		}
-		_, _ = w.Write([]byte(strings.Join(lines, "\n")))
-	}
+	_ = "STUB: not implemented"
+	return *new(http.HandlerFunc)
 }
 
 type echoAgent struct {
@@ -170,57 +130,27 @@ type echoAgent struct {
 }
 
 func newEchoAgent(name, description string) agent.Agent {
-	return &echoAgent{name: name, description: description}
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
-func (a *echoAgent) Info() agent.Info {
-	return agent.Info{
-		Name:        a.name,
-		Description: a.description,
-	}
+func (a *echoAgent) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
+
+func (a *echoAgent) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
+
+func (a *echoAgent) SubAgents() []agent.Agent { _ = "STUB: not implemented"; return nil }
+
+func (a *echoAgent) FindSubAgent(string) agent.Agent {
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
-
-func (a *echoAgent) Tools() []tool.Tool { return nil }
-
-func (a *echoAgent) SubAgents() []agent.Agent { return nil }
-
-func (a *echoAgent) FindSubAgent(string) agent.Agent { return nil }
 
 func (a *echoAgent) Run(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	out := make(chan *event.Event, responseChanSize)
-	go func() {
-		defer close(out)
-		if invocation == nil {
-			return
-		}
-
-		userText := strings.TrimSpace(invocation.Message.Content)
-		content := responsePrefix +
-			a.name +
-			responseMiddle +
-			userText
-
-		rsp := &model.Response{
-			Object:  model.ObjectTypeChatCompletion,
-			Created: time.Now().Unix(),
-			Choices: []model.Choice{{
-				Index: 0,
-				Message: model.NewAssistantMessage(
-					content,
-				),
-				FinishReason: strPtr(finishReasonStop),
-			}},
-			Done:      true,
-			IsPartial: false,
-		}
-
-		evt := event.NewResponseEvent(invocation.InvocationID, a.name, rsp)
-		_ = agent.EmitEvent(ctx, invocation, out, evt)
-	}()
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func strPtr(s string) *string { return &s }
+func strPtr(s string) *string { _ = "STUB: not implemented"; return nil }

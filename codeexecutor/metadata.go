@@ -12,20 +12,8 @@ package codeexecutor
 
 import (
 	"context"
-	cryptorand "crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"io/fs"
-	"os"
-	"path/filepath"
-	"sort"
-	"strconv"
-	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -84,109 +72,33 @@ type workspaceMetadataLock struct {
 	refs int
 }
 
-func newWorkspaceMetadataLocker() *workspaceMetadataLocker {
-	return &workspaceMetadataLocker{
-		locks: make(map[string]*workspaceMetadataLock),
-	}
-}
+func newWorkspaceMetadataLocker() *workspaceMetadataLocker { _ = "STUB: not implemented"; return nil }
 
 // MetadataTempFileName returns a unique workspace-relative temporary file
 // name suitable for atomically replacing metadata.json.
-func MetadataTempFileName() string {
-	id := atomic.AddUint64(&metadataTmpCounter, 1)
-	return fmt.Sprintf(
-		"%s%d.%d.%d.%s%s",
-		metadataTmpPrefix,
-		os.Getpid(),
-		time.Now().UnixNano(),
-		id,
-		metadataRandomSuffix(),
-		metadataTmpSuffix,
-	)
-}
+func MetadataTempFileName() string { _ = "STUB: not implemented"; return "" }
 
 // NewWorkspaceMetadata returns a metadata value initialized with defaults.
 func NewWorkspaceMetadata() WorkspaceMetadata {
-	now := time.Now()
-	return WorkspaceMetadata{
-		Version:    1,
-		CreatedAt:  now,
-		UpdatedAt:  now,
-		LastAccess: now,
-		Skills:     map[string]SkillMeta{},
-	}
+	_ = "STUB: not implemented"
+	return *new(WorkspaceMetadata)
 }
 
 // IsMetadataCorruptError reports whether err came from decoding workspace
 // metadata JSON.
-func IsMetadataCorruptError(err error) bool {
-	var syntaxErr *json.SyntaxError
-	if errors.As(err, &syntaxErr) {
-		return true
-	}
-	var typeErr *json.UnmarshalTypeError
-	return errors.As(err, &typeErr)
-}
+func IsMetadataCorruptError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsMetadataTempFileName reports whether name is a metadata temp file created
 // by MetadataTempFileName.
-func IsMetadataTempFileName(name string) bool {
-	base := filepath.Base(strings.TrimSpace(name))
-	if base == legacyMetadataTmpName {
-		return true
-	}
-	if !strings.HasPrefix(base, metadataTmpPrefix) ||
-		!strings.HasSuffix(base, metadataTmpSuffix) {
-		return false
-	}
-	body := strings.TrimPrefix(base, metadataTmpPrefix)
-	body = strings.TrimSuffix(body, metadataTmpSuffix)
-	parts := strings.Split(body, ".")
-	if len(parts) != metadataTmpPartCount {
-		return false
-	}
-	for _, part := range parts[:metadataTmpPartCount-1] {
-		n, err := strconv.ParseUint(part, 10, 64)
-		if err != nil || n == 0 {
-			return false
-		}
-	}
-	return isMetadataRandomSuffix(parts[metadataTmpPartCount-1])
-}
+func IsMetadataTempFileName(name string) bool { _ = "STUB: not implemented"; return false }
 
 // IsRootMetadataTempPath reports whether rel identifies a root-level
 // workspace metadata temp file.
-func IsRootMetadataTempPath(rel string) bool {
-	rel = filepath.ToSlash(strings.TrimSpace(rel))
-	return !strings.Contains(rel, "/") && IsMetadataTempFileName(rel)
-}
+func IsRootMetadataTempPath(rel string) bool { _ = "STUB: not implemented"; return false }
 
-func metadataRandomSuffix() string {
-	var buf [8]byte
-	if _, err := cryptorand.Read(buf[:]); err != nil {
-		return metadataNoRandomSuffix
-	}
-	return hex.EncodeToString(buf[:])
-}
+func metadataRandomSuffix() string { _ = "STUB: not implemented"; return "" }
 
-func isMetadataRandomSuffix(s string) bool {
-	if s == metadataNoRandomSuffix {
-		return true
-	}
-	if len(s) != metadataRandomHexLen {
-		return false
-	}
-	for _, r := range s {
-		if r >= '0' && r <= '9' {
-			continue
-		}
-		if r >= 'a' && r <= 'f' {
-			continue
-		}
-		return false
-	}
-	return true
-}
+func isMetadataRandomSuffix(s string) bool { _ = "STUB: not implemented"; return false }
 
 // WithWorkspaceMetadataLock serializes metadata read-modify-write operations
 // for the same workspace within this process. The callback should keep the
@@ -196,67 +108,26 @@ func WithWorkspaceMetadataLock(
 	root string,
 	fn func(context.Context) error,
 ) error {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	key := workspaceMetadataLockKey(root)
-	unlock, err := metadataLocks.lock(ctx, key)
-	if err != nil {
-		return err
-	}
-	defer unlock()
-	return fn(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func workspaceMetadataLockKey(root string) string {
-	key := strings.TrimSpace(root)
-	if key == "" {
-		return emptyMetadataLockKey
-	}
-	if abs, err := filepath.Abs(key); err == nil {
-		key = abs
-	}
-	return filepath.Clean(key)
-}
+func workspaceMetadataLockKey(root string) string { _ = "STUB: not implemented"; return "" }
 
 func (k *workspaceMetadataLocker) lock(
 	ctx context.Context,
 	key string,
 ) (func(), error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-	k.mu.Lock()
-	kl, ok := k.locks[key]
-	if !ok {
-		kl = &workspaceMetadataLock{ch: make(chan struct{}, 1)}
-		k.locks[key] = kl
-	}
-	kl.refs++
-	k.mu.Unlock()
-
-	select {
-	case kl.ch <- struct{}{}:
-	case <-ctx.Done():
-		k.releaseRef(key, kl)
-		return nil, ctx.Err()
-	}
-	return func() {
-		<-kl.ch
-		k.releaseRef(key, kl)
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (k *workspaceMetadataLocker) releaseRef(
 	key string,
 	kl *workspaceMetadataLock,
 ) {
-	k.mu.Lock()
-	defer k.mu.Unlock()
-	kl.refs--
-	if kl.refs == 0 {
-		delete(k.locks, key)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // WorkspaceMetadata describes staged skills and recent activity.
@@ -319,124 +190,24 @@ type OutputRecord struct {
 // EnsureLayout creates standard workspace subdirectories and a
 // metadata file when absent. It returns full paths for convenience.
 func EnsureLayout(root string) (map[string]string, error) {
-	paths := map[string]string{
-		DirSkills: filepath.Join(root, DirSkills),
-		DirWork:   filepath.Join(root, DirWork),
-		DirRuns:   filepath.Join(root, DirRuns),
-		DirOut:    filepath.Join(root, DirOut),
-	}
-	for _, p := range paths {
-		if err := os.MkdirAll(p, 0o755); err != nil {
-			return nil, err
-		}
-	}
-	// Initialize metadata if missing.
-	mf := filepath.Join(root, MetaFileName)
-	if _, err := os.Stat(mf); err != nil {
-		if os.IsNotExist(err) {
-			md := NewWorkspaceMetadata()
-			if err := SaveMetadata(root, md); err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
-	}
-	return paths, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Initialize metadata if missing.
 
 // LoadMetadata loads metadata.json from workspace root. When missing,
 // an empty metadata with defaults is returned without error.
 func LoadMetadata(root string) (WorkspaceMetadata, error) {
-	mf := filepath.Join(root, MetaFileName)
-	b, err := os.ReadFile(mf)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return NewWorkspaceMetadata(), nil
-		}
-		return WorkspaceMetadata{}, err
-	}
-	var md WorkspaceMetadata
-	if err := json.Unmarshal(b, &md); err != nil {
-		return WorkspaceMetadata{}, err
-	}
-	return md, nil
+	_ = "STUB: not implemented"
+	return *new(WorkspaceMetadata), nil
 }
 
 // SaveMetadata writes metadata.json to the workspace root.
-func SaveMetadata(root string, md WorkspaceMetadata) error {
-	md.UpdatedAt = time.Now()
-	buf, err := json.MarshalIndent(md, "", "  ")
-	if err != nil {
-		return err
-	}
-	tmp := filepath.Join(root, MetadataTempFileName())
-	f, err := os.OpenFile(
-		tmp,
-		os.O_WRONLY|os.O_CREATE|os.O_EXCL,
-		metadataFileMode,
-	)
-	if err != nil {
-		return err
-	}
-	removeTmp := true
-	defer func() {
-		if removeTmp {
-			_ = os.Remove(tmp)
-		}
-	}()
-	if _, err := f.Write(buf); err != nil {
-		_ = f.Close()
-		return err
-	}
-	if err := f.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmp, filepath.Join(root, MetaFileName)); err != nil {
-		return err
-	}
-	removeTmp = false
-	return nil
-}
+func SaveMetadata(root string, md WorkspaceMetadata) error { _ = "STUB: not implemented"; return nil }
 
 // DirDigest computes a stable digest of a directory tree. It walks
 // the tree, sorts entries, and hashes relative path and contents.
-func DirDigest(root string) (string, error) {
-	var files []string
-	err := filepath.WalkDir(
-		root,
-		func(p string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if d.IsDir() {
-				return nil
-			}
-			rel, err := filepath.Rel(root, p)
-			if err != nil {
-				return err
-			}
-			files = append(files, rel)
-			return nil
-		},
-	)
-	if err != nil {
-		return "", err
-	}
-	sort.Strings(files)
-	h := sha256.New()
-	for _, rel := range files {
-		// Normalize to slash for stability.
-		k := strings.ReplaceAll(rel, string(os.PathSeparator), "/")
-		_, _ = h.Write([]byte(k))
-		_, _ = h.Write([]byte{0})
-		b, err := os.ReadFile(filepath.Join(root, rel))
-		if err != nil {
-			return "", err
-		}
-		_, _ = h.Write(b)
-		_, _ = h.Write([]byte{0})
-	}
-	sum := h.Sum(nil)
-	return hex.EncodeToString(sum), nil
-}
+func DirDigest(root string) (string, error) { _ = "STUB: not implemented"; return "", nil }
+
+// Normalize to slash for stability.

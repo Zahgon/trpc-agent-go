@@ -14,13 +14,4 @@ import "trpc.group/trpc-go/trpc-agent-go/model"
 
 // ResolveContextWindow resolves a model's context window from Info first,
 // then from the process-wide model-name registry.
-func ResolveContextWindow(m model.Model) (int, bool) {
-	if m == nil {
-		return 0, false
-	}
-	info := m.Info()
-	if info.ContextWindow > 0 {
-		return info.ContextWindow, true
-	}
-	return model.LookupModelContextWindow(info.Name)
-}
+func ResolveContextWindow(m model.Model) (int, bool) { _ = "STUB: not implemented"; return 0, false }

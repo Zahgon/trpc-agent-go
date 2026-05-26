@@ -9,9 +9,7 @@
 package review
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"text/template"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -76,69 +74,18 @@ type userMessageTranscriptLine struct {
 }
 
 func renderSystemPrompt(promptTemplateText string, riskThreshold int) (string, error) {
-	promptTemplate := defaultSystemPromptTemplate
-	if promptTemplateText != defaultSystemPromptTemplateText {
-		var err error
-		promptTemplate, err = template.New("approval_system_prompt_custom").
-			Option("missingkey=error").
-			Parse(promptTemplateText)
-		if err != nil {
-			return "", fmt.Errorf("parse system prompt template: %w", err)
-		}
-	}
-	var builder bytes.Buffer
-	err := promptTemplate.Execute(&builder, systemPromptTemplateData{
-		RiskThreshold: riskThreshold,
-	})
-	if err != nil {
-		return "", fmt.Errorf("execute system prompt template: %w", err)
-	}
-	return builder.String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func renderUserMessage(req *Request) (string, error) {
-	actionJSON, err := marshalActionPayload(req.Action)
-	if err != nil {
-		return "", err
-	}
-	lines := make([]userMessageTranscriptLine, 0, len(req.Transcript))
-	for i, entry := range req.Transcript {
-		lines = append(lines, userMessageTranscriptLine{
-			Index:   i + 1,
-			Role:    entry.Role,
-			Content: entry.Content,
-		})
-	}
-	var builder bytes.Buffer
-	err = userMessageTemplate.Execute(&builder, userMessageTemplateData{
-		Transcript: lines,
-		ActionJSON: string(actionJSON),
-	})
-	if err != nil {
-		return "", fmt.Errorf("execute user message template: %w", err)
-	}
-	return builder.String(), nil
-}
+func renderUserMessage(req *Request) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func marshalActionPayload(action Action) ([]byte, error) {
-	payload := actionPayload{
-		ToolName:        action.ToolName,
-		ToolDescription: action.ToolDescription,
-		Arguments:       actionArgumentsForJSON(action.Arguments),
-	}
-	data, err := json.MarshalIndent(payload, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("marshal action payload: %w", err)
-	}
-	return data, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func actionArgumentsForJSON(arguments json.RawMessage) any {
-	if len(arguments) == 0 {
-		return json.RawMessage(`{}`)
-	}
-	if json.Valid(arguments) {
-		return json.RawMessage(arguments)
-	}
-	return string(arguments)
+	_ = "STUB: not implemented"
+	return *new(any)
 }

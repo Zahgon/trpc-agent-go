@@ -14,23 +14,10 @@
 package main
 
 import (
-	"bufio"
-	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	localexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/skill"
 )
 
 var (
@@ -75,111 +62,18 @@ func main() {
 	}
 }
 
-func run() error {
-	ctx := context.Background()
+func run() error { _ = "STUB: not implemented"; return nil }
 
-	// Model (OpenAI-compatible).
-	modelInstance := openai.New(*flagModel)
+// Model (OpenAI-compatible).
 
-	// Skills repository (defaults to ./skills in this directory).
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	skillsRoot := filepath.Join(cwd, defaultSkillsDir)
-	repo, err := skill.NewFSRepository(skillsRoot)
-	if err != nil {
-		return fmt.Errorf("skills repo: %w", err)
-	}
+// Skills repository (defaults to ./skills in this directory).
 
-	// Local workspace executor for skill_run.
-	exec := localexec.New()
+// Local workspace executor for skill_run.
 
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(800),
-		Temperature: floatPtr(0.2),
-		Stream:      *flagStreaming,
-	}
+// The demo calls skill_run to execute scripts/hello.sh, which
+// requires the full skill tool profile; the default profile is
+// knowledge_only and does not register skill_run.
 
-	agentName := "structured-output-skills"
-	a := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithInstruction(instructionText),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithSkills(repo),
-		// The demo calls skill_run to execute scripts/hello.sh, which
-		// requires the full skill tool profile; the default profile is
-		// knowledge_only and does not register skill_run.
-		llmagent.WithSkillToolProfile(llmagent.SkillToolProfileFull),
-		llmagent.WithCodeExecutor(exec),
-		llmagent.WithEnableCodeExecutionResponseProcessor(false),
-		llmagent.WithStructuredOutputJSON(
-			new(helloResult),
-			true,
-			"Run the hello skill and return its output",
-		),
-	)
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-	r := runner.NewRunner(
-		appName,
-		a,
-		runner.WithSessionService(inmemory.NewSessionService()),
-	)
-	defer r.Close()
-
-	userID := "user"
-	sessionID := fmt.Sprintf("so-skill-%d", time.Now().Unix())
-	fmt.Printf("Session: %s\n\n", sessionID)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			break
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		if strings.EqualFold(text, "exit") {
-			return nil
-		}
-
-		evCh, err := r.Run(ctx, userID, sessionID, model.NewUserMessage(text))
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-			continue
-		}
-
-		for ev := range evCh {
-			if ev.Error != nil {
-				fmt.Printf("error: %s\n", ev.Error.Message)
-				break
-			}
-			if ev.StructuredOutput != nil {
-				if out, ok := ev.StructuredOutput.(*helloResult); ok {
-					b, _ := json.MarshalIndent(out, "", "  ")
-					fmt.Printf("\nTyped structured output:\n%s\n", string(b))
-				}
-			}
-			if len(ev.Choices) == 0 {
-				continue
-			}
-			if *flagStreaming {
-				if s := ev.Choices[0].Delta.Content; s != "" {
-					fmt.Print(s)
-				}
-			} else if s := ev.Choices[0].Message.Content; s != "" {
-				fmt.Println(s)
-			}
-		}
-		fmt.Println()
-	}
-
-	return scanner.Err()
-}
-
-func intPtr(v int) *int { return &v }
-
-func floatPtr(v float64) *float64 { return &v }
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

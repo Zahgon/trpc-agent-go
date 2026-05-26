@@ -10,7 +10,6 @@
 package tool
 
 import (
-	"io"
 	"time"
 )
 
@@ -18,13 +17,7 @@ import (
 // The buffer size determines how many StreamChunk items can be queued before
 // the sender blocks. A larger buffer size can improve performance but uses more memory.
 // Returns a Stream struct containing both a Reader and Writer for bidirectional communication.
-func NewStream(bufferSize int) *Stream {
-	s := newStream[StreamChunk](bufferSize)
-	return &Stream{
-		Reader: &StreamReader{s: s},
-		Writer: &StreamWriter{s: s},
-	}
-}
+func NewStream(bufferSize int) *Stream { _ = "STUB: not implemented"; return nil }
 
 // Stream represents a bidirectional streaming connection that supports both
 // reading and writing of StreamChunk data. It provides separate Reader and Writer
@@ -60,19 +53,23 @@ type StreamReader struct {
 //	}
 //	sr.Close()
 func (r *StreamReader) Recv() (StreamChunk, error) {
-	return r.s.recv()
+	_ = "STUB: not implemented"
+
+	// Close closes the receiving side of the stream, indicating that no more
+	// data will be read. This signals to the underlying stream that the reader
+	// is no longer interested in receiving data.
+	return *new(StreamChunk), nil
 }
 
-// Close closes the receiving side of the stream, indicating that no more
-// data will be read. This signals to the underlying stream that the reader
-// is no longer interested in receiving data.
 func (r *StreamReader) Close() {
-	r.s.closeRecv()
+	_ = "STUB: not implemented"
+
+	// StreamWriter provides the writing interface for producing streaming data.
+	// It wraps the underlying stream implementation and provides methods to
+	// send StreamChunk items and close the writing side of the stream.
+	return
 }
 
-// StreamWriter provides the writing interface for producing streaming data.
-// It wraps the underlying stream implementation and provides methods to
-// send StreamChunk items and close the writing side of the stream.
 type StreamWriter struct {
 	s *stream[StreamChunk] // Stream of StreamChunk items
 }
@@ -88,26 +85,30 @@ type StreamWriter struct {
 //		// the stream is closed
 //	}
 func (w *StreamWriter) Send(chunk StreamChunk, err error) (closed bool) {
-	return w.s.send(chunk, err)
+	_ = "STUB: not implemented"
+	return false
+
+	// Close closes the sending side of the stream, indicating that no more
+	// data will be sent. This signals to receivers that the stream has ended
+	// and they should stop waiting for additional data.
+	// e.g.
+	//
+	//	defer sw.Close()
+	//	for i := 0; i < 10; i++ {
+	//		chunk := StreamChunk{Content: fmt.Sprintf("data-%d", i)}
+	//		sw.Send(chunk, nil)
+	//	}
 }
 
-// Close closes the sending side of the stream, indicating that no more
-// data will be sent. This signals to receivers that the stream has ended
-// and they should stop waiting for additional data.
-// e.g.
-//
-//	defer sw.Close()
-//	for i := 0; i < 10; i++ {
-//		chunk := StreamChunk{Content: fmt.Sprintf("data-%d", i)}
-//		sw.Send(chunk, nil)
-//	}
 func (w *StreamWriter) Close() {
-	w.s.closeSend()
+	_ = "STUB: not implemented"
+
+	// StreamChunk represents a single unit of data in a streaming operation.
+	// Each chunk contains content and optional metadata that provides additional
+	// context about the data, such as creation time, processing information, etc.
+	return
 }
 
-// StreamChunk represents a single unit of data in a streaming operation.
-// Each chunk contains content and optional metadata that provides additional
-// context about the data, such as creation time, processing information, etc.
 type StreamChunk struct {
 	// Content holds the actual data being streamed. Each content should be of the same type.
 	Content  any      `json:"content"`
@@ -132,45 +133,16 @@ type streamItem[T any] struct {
 	err   error
 }
 
-func newStream[T any](cap int) *stream[T] {
-	return &stream[T]{
-		items:  make(chan streamItem[T], cap),
-		closed: make(chan struct{}),
-	}
-}
+func newStream[T any](cap int) *stream[T] { _ = "STUB: not implemented"; return nil }
 
-func (s *stream[T]) recv() (chunk T, err error) {
-	item, ok := <-s.items
-
-	if !ok {
-		item.err = io.EOF
-	}
-
-	return item.chunk, item.err
-}
+func (s *stream[T]) recv() (chunk T, err error) { _ = "STUB: not implemented"; return *new(T), nil }
 
 func (s *stream[T]) send(chunk T, err error) (closed bool) {
+	_ = "STUB: not implemented"
 	// if the stream is closed, return immediately
-	select {
-	case <-s.closed:
-		return true
-	default:
-	}
-
-	item := streamItem[T]{chunk, err}
-
-	select {
-	case <-s.closed:
-		return true
-	case s.items <- item:
-		return false
-	}
+	return false
 }
 
-func (s *stream[T]) closeSend() {
-	close(s.items)
-}
+func (s *stream[T]) closeSend() { _ = "STUB: not implemented"; return }
 
-func (s *stream[T]) closeRecv() {
-	close(s.closed)
-}
+func (s *stream[T]) closeRecv() { _ = "STUB: not implemented"; return }

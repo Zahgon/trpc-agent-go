@@ -11,7 +11,6 @@ package transform
 
 import (
 	"regexp"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
 )
@@ -30,83 +29,39 @@ type CharDedup struct {
 //	dedup := transform.NewCharDedup("\t", " ", "\n")
 //	// Input:  "hello\t\t\tworld   foo\n\n\nbar"
 //	// Output: "hello\tworld foo\nbar"
-func NewCharDedup(charsToDedup ...string) *CharDedup {
-	patterns := make([]*regexp.Regexp, 0, len(charsToDedup))
-	replacements := make([]string, 0, len(charsToDedup))
+func NewCharDedup(charsToDedup ...string) *CharDedup { _ = "STUB: not implemented"; return nil }
 
-	for _, char := range charsToDedup {
-		if char == "" {
-			continue
-		}
-		// Escape special regex characters and create pattern for 2+ consecutive occurrences
-		escaped := regexp.QuoteMeta(char)
-		pattern := regexp.MustCompile("(" + escaped + "){2,}")
-		patterns = append(patterns, pattern)
-		replacements = append(replacements, char)
-	}
-
-	return &CharDedup{
-		patterns:     patterns,
-		replacements: replacements,
-	}
-}
+// Escape special regex characters and create pattern for 2+ consecutive occurrences
 
 // Preprocess applies the character deduplication to documents before chunking.
 func (cd *CharDedup) Preprocess(docs []*document.Document) ([]*document.Document, error) {
-	return cd.transform(docs)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Postprocess returns documents unchanged (no-op for CharDedup).
+		nil
 }
 
-// Postprocess returns documents unchanged (no-op for CharDedup).
 func (cd *CharDedup) Postprocess(docs []*document.Document) ([]*document.Document, error) {
-	return docs, nil
+	_ = "STUB: not implemented"
+
+	// transform applies the character deduplication transformation to documents.
+	return nil, nil
 }
 
-// transform applies the character deduplication transformation to documents.
 func (cd *CharDedup) transform(docs []*document.Document) ([]*document.Document, error) {
-	if len(docs) == 0 {
-		return docs, nil
-	}
-
-	result := make([]*document.Document, 0, len(docs))
-	for _, doc := range docs {
-		if doc == nil {
-			continue
-		}
-		deduped := cd.dedupContent(doc.Content)
-		result = append(result, cd.createProcessedDoc(doc, deduped))
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // dedupContent applies all deduplication patterns to the content.
-func (cd *CharDedup) dedupContent(content string) string {
-	result := content
-
-	for i, pattern := range cd.patterns {
-		result = pattern.ReplaceAllLiteralString(result, cd.replacements[i])
-	}
-
-	return result
-}
+func (cd *CharDedup) dedupContent(content string) string { _ = "STUB: not implemented"; return "" }
 
 // createProcessedDoc creates a new document with processed content.
 func (cd *CharDedup) createProcessedDoc(original *document.Document, content string) *document.Document {
-	metadata := make(map[string]any)
-	for k, v := range original.Metadata {
-		metadata[k] = v
-	}
-
-	return &document.Document{
-		ID:        original.ID,
-		Name:      original.Name,
-		Content:   content,
-		Metadata:  metadata,
-		CreatedAt: original.CreatedAt,
-		UpdatedAt: time.Now().UTC(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Name returns the name of this transformer.
-func (cd *CharDedup) Name() string {
-	return "CharDedup"
-}
+func (cd *CharDedup) Name() string { _ = "STUB: not implemented"; return "" }

@@ -17,7 +17,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/adapter"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/aggregator"
-	"trpc.group/trpc-go/trpc-agent-go/server/agui/internal/track"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/translator"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
@@ -67,33 +66,7 @@ type Options struct {
 }
 
 // NewOptions creates a new options instance.
-func NewOptions(opt ...Option) *Options {
-	opts := &Options{
-		UserIDResolver:                         defaultUserIDResolver,
-		TranslatorFactory:                      defaultTranslatorFactory,
-		RunAgentInputHook:                      defaultRunAgentInputHook,
-		AppNameResolver:                        defaultAppNameResolver,
-		StateResolver:                          defaultStateResolver,
-		RunOptionResolver:                      defaultRunOptionResolver,
-		AggregatorFactory:                      aggregator.New,
-		FlushInterval:                          track.DefaultFlushInterval,
-		StartSpan:                              defaultStartSpan,
-		PostRunFinalizationTimeout:             defaultPostRunFinalizationTimeout,
-		Timeout:                                defaultTimeout,
-		GraphNodeLifecycleActivityEnabled:      defaultGraphNodeLifecycleActivityEnabled,
-		GraphNodeInterruptActivityEnabled:      defaultGraphNodeInterruptActivityEnabled,
-		GraphNodeInterruptActivityTopLevelOnly: defaultGraphNodeInterruptActivityTopLevelOnly,
-		ReasoningContentEnabled:                defaultReasoningContentEnabled,
-		EventSourceMetadataEnabled:             defaultEventSourceMetadataEnabled,
-		ToolResultInputTranslationEnabled:      defaultToolResultInputTranslationEnabled,
-		ToolCallDeltaStreamingEnabled:          defaultToolCallDeltaStreamingEnabled,
-		StreamingToolResultActivityEnabled:     defaultStreamingToolResultActivityEnabled,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func NewOptions(opt ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures the options.
 type Option func(*Options)
@@ -102,26 +75,20 @@ type Option func(*Options)
 type UserIDResolver func(ctx context.Context, input *adapter.RunAgentInput) (string, error)
 
 // WithUserIDResolver sets the user ID resolver.
-func WithUserIDResolver(u UserIDResolver) Option {
-	return func(o *Options) {
-		o.UserIDResolver = u
-	}
-}
+func WithUserIDResolver(u UserIDResolver) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 type TranslatorFactory = translator.Factory
 
 // WithTranslatorFactory sets the translator factory.
 func WithTranslatorFactory(factory TranslatorFactory) Option {
-	return func(o *Options) {
-		o.TranslatorFactory = factory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithTranslateCallbacks sets the translate callbacks.
 func WithTranslateCallbacks(c *translator.Callbacks) Option {
-	return func(o *Options) {
-		o.TranslateCallbacks = c
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // RunAgentInputHook allows modifying the run input before processing.
@@ -129,86 +96,60 @@ type RunAgentInputHook func(ctx context.Context, input *adapter.RunAgentInput) (
 
 // WithRunAgentInputHook sets the run input hook.
 func WithRunAgentInputHook(hook RunAgentInputHook) Option {
-	return func(o *Options) {
-		o.RunAgentInputHook = hook
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAppName sets the app name.
-func WithAppName(n string) Option {
-	return func(o *Options) {
-		o.AppName = n
-	}
-}
+func WithAppName(n string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // AppNameResolver is a function that derives the app name for an AG-UI run.
 type AppNameResolver func(ctx context.Context, input *adapter.RunAgentInput) (string, error)
 
 // WithAppNameResolver sets the app name resolver.
-func WithAppNameResolver(r AppNameResolver) Option {
-	return func(o *Options) {
-		o.AppNameResolver = r
-	}
-}
+func WithAppNameResolver(r AppNameResolver) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSessionService sets the session service.
-func WithSessionService(s session.Service) Option {
-	return func(o *Options) {
-		o.SessionService = s
-	}
-}
+func WithSessionService(s session.Service) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // StateResolver is a function that derives runtime state for an AG-UI run.
 type StateResolver func(ctx context.Context, input *adapter.RunAgentInput) (map[string]any, error)
 
 // WithStateResolver sets the runtime state resolver.
-func WithStateResolver(r StateResolver) Option {
-	return func(o *Options) {
-		o.StateResolver = r
-	}
-}
+func WithStateResolver(r StateResolver) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAggregationOption forwards aggregator options to the runner-level factory.
 func WithAggregationOption(option ...aggregator.Option) Option {
-	return func(o *Options) {
-		o.AggregationOption = append(o.AggregationOption, option...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAggregatorFactory sets the aggregator factory used for tracking.
 func WithAggregatorFactory(factory aggregator.Factory) Option {
-	return func(o *Options) {
-		o.AggregatorFactory = factory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFlushInterval sets how often buffered AG-UI events are flushed for a session.
-func WithFlushInterval(d time.Duration) Option {
-	return func(o *Options) {
-		o.FlushInterval = d
-	}
-}
+func WithFlushInterval(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessagesSnapshotFollowEnabled enables or disables tailing persisted track events after a snapshot.
 func WithMessagesSnapshotFollowEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.MessagesSnapshotFollowEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessagesSnapshotFollowMaxDuration sets the maximum duration for snapshot tailing.
 func WithMessagesSnapshotFollowMaxDuration(d time.Duration) Option {
-	return func(o *Options) {
-		o.MessagesSnapshotFollowMaxDuration = d
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessagesSnapshotRunLifecycleEventsEnabled controls whether persisted RUN_* events
 // are included as activity messages in MESSAGES_SNAPSHOT.
 func WithMessagesSnapshotRunLifecycleEventsEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.MessagesSnapshotRunLifecycleEventsEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // RunOptionResolver is a function that resolves the run options for an AG-UI run.
@@ -216,133 +157,124 @@ type RunOptionResolver func(ctx context.Context, input *adapter.RunAgentInput) (
 
 // WithRunOptionResolver sets the run option resolver.
 func WithRunOptionResolver(r RunOptionResolver) Option {
-	return func(o *Options) {
-		o.RunOptionResolver = r
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // StartSpan starts a span for an AG-UI run and returns the updated context.
 type StartSpan func(ctx context.Context, input *adapter.RunAgentInput) (context.Context, trace.Span, error)
 
 // WithStartSpan sets the span starter for AG-UI runs.
-func WithStartSpan(start StartSpan) Option {
-	return func(o *Options) {
-		o.StartSpan = start
-	}
-}
+func WithStartSpan(start StartSpan) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the maximum execution time for a run.
-func WithTimeout(d time.Duration) Option {
-	return func(o *Options) {
-		o.Timeout = d
-	}
-}
+func WithTimeout(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPostRunFinalizationTimeout sets the maximum duration allowed for post-run finalization.
 func WithPostRunFinalizationTimeout(d time.Duration) Option {
-	return func(o *Options) {
-		o.PostRunFinalizationTimeout = d
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCancelOnContextDoneEnabled controls whether a run is canceled when the parent context is done.
 func WithCancelOnContextDoneEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.CancelOnContextDoneEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphNodeLifecycleActivityEnabled enables emitting graph node lifecycle activity events.
 func WithGraphNodeLifecycleActivityEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.GraphNodeLifecycleActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphNodeInterruptActivityEnabled enables emitting graph interrupt activity events.
 func WithGraphNodeInterruptActivityEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.GraphNodeInterruptActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithGraphNodeInterruptActivityTopLevelOnly enables emitting graph interrupt activity events only for the top-level invocation.
 func WithGraphNodeInterruptActivityTopLevelOnly(enabled bool) Option {
-	return func(o *Options) {
-		o.GraphNodeInterruptActivityTopLevelOnly = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithReasoningContentEnabled controls whether the runner emits REASONING_* events.
 func WithReasoningContentEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.ReasoningContentEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEventSourceMetadataEnabled controls whether translated AG-UI events
 // carry source metadata from the original trpc-agent-go event in rawEvent.
 func WithEventSourceMetadataEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.EventSourceMetadataEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolResultInputTranslationEnabled controls whether tool-result inputs are translated before emission.
 func WithToolResultInputTranslationEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.ToolResultInputTranslationEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithToolCallDeltaStreamingEnabled controls whether partial tool-call arguments are emitted.
 func WithToolCallDeltaStreamingEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.ToolCallDeltaStreamingEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithStreamingToolResultActivityEnabled controls whether partial tool-result
 // chunks are emitted as activity events while only the final tool result
 // remains on the tool-result path.
 func WithStreamingToolResultActivityEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.StreamingToolResultActivityEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // defaultUserIDResolver is the default user ID resolver.
 func defaultUserIDResolver(ctx context.Context, input *adapter.RunAgentInput) (string, error) {
-	return "user", nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func defaultTranslatorFactory(ctx context.Context, input *adapter.RunAgentInput,
 	opts ...translator.Option) (translator.Translator, error) {
-	factory := translator.NewFactory()
-	return factory(ctx, input, opts...)
+	_ = "STUB: not implemented"
+	return *new(translator.Translator), nil
 }
 
 // defaultRunAgentInputHook returns the input unchanged.
 func defaultRunAgentInputHook(ctx context.Context, input *adapter.RunAgentInput) (*adapter.RunAgentInput, error) {
-	return input, nil
+	_ = "STUB: not implemented"
+
+	// defaultAppNameResolver returns no dynamic app name.
+	return nil, nil
 }
 
-// defaultAppNameResolver returns no dynamic app name.
 func defaultAppNameResolver(ctx context.Context, input *adapter.RunAgentInput) (string, error) {
+	_ = "STUB: not implemented"
+
+	// defaultRunOptionResolver is the default run option resolver.
 	return "", nil
 }
 
-// defaultRunOptionResolver is the default run option resolver.
 func defaultRunOptionResolver(ctx context.Context, input *adapter.RunAgentInput) ([]agent.RunOption, error) {
+	_ = "STUB: not implemented"
+
+	// defaultStateResolver returns no runtime state.
 	return nil, nil
 }
 
-// defaultStateResolver returns no runtime state.
 func defaultStateResolver(ctx context.Context, input *adapter.RunAgentInput) (map[string]any, error) {
+	_ = "STUB: not implemented"
+
+	// defaultStartSpan returns the original context and a non-recording span.
 	return nil, nil
 }
 
-// defaultStartSpan returns the original context and a non-recording span.
 func defaultStartSpan(ctx context.Context, _ *adapter.RunAgentInput) (context.Context, trace.Span, error) {
-	return ctx, trace.SpanFromContext(ctx), nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(trace.Span), nil
 }

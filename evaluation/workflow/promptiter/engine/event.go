@@ -11,7 +11,6 @@ package engine
 
 import (
 	"context"
-	"fmt"
 )
 
 // EventKind identifies one observable PromptIter runtime event.
@@ -70,15 +69,6 @@ type RoundCompleted struct {
 }
 
 func appendRunEvent(ctx context.Context, observer Observer, kind EventKind, round int, payload any) error {
-	if observer == nil {
-		return nil
-	}
-	if err := observer(ctx, &Event{
-		Kind:    kind,
-		Round:   round,
-		Payload: payload,
-	}); err != nil {
-		return fmt.Errorf("append run event %q: %w", kind, err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

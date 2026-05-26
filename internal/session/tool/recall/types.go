@@ -14,7 +14,6 @@ package recall
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
@@ -119,303 +118,90 @@ type LoadSessionResponse struct {
 }
 
 // SupportsSearch reports whether session_search can be offered for this invocation.
-func SupportsSearch(inv *agent.Invocation) bool {
-	if inv == nil || inv.Session == nil || inv.SessionService == nil {
-		return false
-	}
-	_, ok := inv.SessionService.(session.SearchableService)
-	return ok
-}
+func SupportsSearch(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // SupportsLoad reports whether session_load can be offered for this invocation.
-func SupportsLoad(inv *agent.Invocation) bool {
-	if inv == nil || inv.Session == nil || inv.SessionService == nil {
-		return false
-	}
-	_, ok := inv.SessionService.(session.WindowService)
-	return ok
-}
+func SupportsLoad(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 // SupportsOnDemandSession reports whether both search and load are available.
-func SupportsOnDemandSession(inv *agent.Invocation) bool {
-	return SupportsSearch(inv) && SupportsLoad(inv)
-}
+func SupportsOnDemandSession(inv *agent.Invocation) bool { _ = "STUB: not implemented"; return false }
 
 func invocationFromContext(
 	ctx context.Context,
 ) (*agent.Invocation, error) {
-	inv, ok := agent.InvocationFromContext(ctx)
-	if !ok || inv == nil {
-		return nil, errInvocationContextRequired
-	}
-	if inv.Session == nil {
-		return nil, errSessionRequired
-	}
-	return inv, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func searchableServiceFromContext(
 	ctx context.Context,
 ) (session.SearchableService, *agent.Invocation, error) {
-	inv, err := invocationFromContext(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-	searchable, ok := inv.SessionService.(session.SearchableService)
-	if !ok {
-		return nil, inv, errSearchUnavailable
-	}
-	return searchable, inv, nil
+	_ = "STUB: not implemented"
+	return *new(session.SearchableService), nil, nil
 }
 
 func windowServiceFromContext(
 	ctx context.Context,
 ) (session.WindowService, *agent.Invocation, error) {
-	inv, err := invocationFromContext(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-	windowSvc, ok := inv.SessionService.(session.WindowService)
-	if !ok {
-		return nil, inv, errWindowUnavailable
-	}
-	return windowSvc, inv, nil
+	_ = "STUB: not implemented"
+	return *new(session.WindowService), nil, nil
 }
 
 func optionalWindowServiceFromInvocation(
 	inv *agent.Invocation,
 ) session.WindowService {
-	if inv == nil || inv.SessionService == nil {
-		return nil
-	}
-	windowSvc, ok := inv.SessionService.(session.WindowService)
-	if !ok {
-		return nil
-	}
-	return windowSvc
+	_ = "STUB: not implemented"
+	return *new(session.WindowService)
 }
 
 func currentUserKey(
 	inv *agent.Invocation,
 ) (session.UserKey, error) {
-	if inv == nil || inv.Session == nil {
-		return session.UserKey{}, errSessionRequired
-	}
-	userKey := session.UserKey{
-		AppName: inv.Session.AppName,
-		UserID:  inv.Session.UserID,
-	}
-	if err := userKey.CheckUserKey(); err != nil {
-		return session.UserKey{}, err
-	}
-	return userKey, nil
+	_ = "STUB: not implemented"
+	return *new(session.UserKey), nil
 }
 
 func currentSessionKey(
 	inv *agent.Invocation,
 	sessionID string,
 ) (session.Key, error) {
-	if inv == nil || inv.Session == nil {
-		return session.Key{}, errSessionRequired
-	}
-	sessionID = strings.TrimSpace(sessionID)
-	if sessionID == "" {
-		sessionID = inv.Session.ID
-	}
-	key := session.Key{
-		AppName:   inv.Session.AppName,
-		UserID:    inv.Session.UserID,
-		SessionID: sessionID,
-	}
-	if err := key.CheckSessionKey(); err != nil {
-		return session.Key{}, err
-	}
-	return key, nil
+	_ = "STUB: not implemented"
+	return *new(session.Key), nil
 }
 
-func normalizeScope(scope string) string {
-	switch strings.ToLower(strings.TrimSpace(scope)) {
-	case ScopeCurrentSession:
-		return ScopeCurrentSession
-	case ScopeOtherSessions:
-		return ScopeOtherSessions
-	case ScopeAllSessions:
-		return ScopeAllSessions
-	case ScopeCurrentHidden:
-		fallthrough
-	default:
-		return ScopeCurrentHidden
-	}
-}
+func normalizeScope(scope string) string { _ = "STUB: not implemented"; return "" }
 
 func normalizeSearchMode(mode session.SearchMode) session.SearchMode {
-	switch mode {
-	case session.SearchModeDense:
-		return session.SearchModeDense
-	case session.SearchModeHybrid:
-		fallthrough
-	default:
-		return session.SearchModeHybrid
-	}
+	_ = "STUB: not implemented"
+	return *new(session.SearchMode)
 }
 
-func normalizeTopK(topK int) int {
-	if topK <= 0 {
-		return defaultSearchTopK
-	}
-	if topK > maxSearchTopK {
-		return maxSearchTopK
-	}
-	return topK
-}
+func normalizeTopK(topK int) int { _ = "STUB: not implemented"; return 0 }
 
 func normalizeWindowSize(
 	before, after int,
 ) (int, int) {
-	if before < 0 {
-		before = 0
-	}
-	if after < 0 {
-		after = 0
-	}
-	if before == 0 && after == 0 {
-		before = defaultWindowBefore
-		after = defaultWindowAfter
-	}
-	for before+after > maxWindowSpan {
-		if after >= before && after > 0 {
-			after--
-			continue
-		}
-		if before > 0 {
-			before--
-			continue
-		}
-		break
-	}
-	return before, after
+	_ = "STUB: not implemented"
+	return 0, 0
 }
 
 func currentSummaryCutoff(
 	inv *agent.Invocation,
 ) time.Time {
-	if inv == nil || inv.Session == nil {
-		return time.Time{}
-	}
-	if raw, ok := inv.Session.GetState(summaryLastIncludedTsKey); ok && len(raw) > 0 {
-		if parsed, err := time.Parse(time.RFC3339Nano, string(raw)); err == nil {
-			return parsed
-		}
-	}
-
-	filterKey := strings.TrimSpace(inv.GetEventFilterKey())
-	inv.Session.SummariesMu.RLock()
-	defer inv.Session.SummariesMu.RUnlock()
-
-	if len(inv.Session.Summaries) == 0 {
-		return time.Time{}
-	}
-
-	if sum := inv.Session.Summaries[filterKey]; sum != nil && sum.Summary != "" {
-		return sum.UpdatedAt
-	}
-	if filterKey != "" {
-		var latest time.Time
-		prefix := filterKey + event.FilterKeyDelimiter
-		for key, sum := range inv.Session.Summaries {
-			if sum == nil || sum.Summary == "" {
-				continue
-			}
-			if key != filterKey && !strings.HasPrefix(key, prefix) {
-				continue
-			}
-			if sum.UpdatedAt.After(latest) {
-				latest = sum.UpdatedAt
-			}
-		}
-		if !latest.IsZero() {
-			return latest
-		}
-	}
-	if sum := inv.Session.Summaries[session.SummaryFilterKeyAllContents]; sum != nil && sum.Summary != "" {
-		return sum.UpdatedAt
-	}
-	return time.Time{}
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
 func extractSessionMessageText(
 	evt event.Event,
 ) (string, model.Role, bool) {
-	if evt.Response == nil || evt.Response.IsPartial ||
-		len(evt.Choices) == 0 {
-		return "", "", false
-	}
-
-	msg := evt.Choices[0].Message
-	if len(msg.ToolCalls) > 0 {
-		return "", "", false
-	}
-
-	role := msg.Role
-	if role == "" {
-		role = model.RoleAssistant
-	}
-	if msg.ToolID != "" || role == model.RoleTool {
-		role = model.RoleTool
-	}
-	if role != model.RoleUser && role != model.RoleAssistant && role != model.RoleTool {
-		return "", "", false
-	}
-
-	text := strings.TrimSpace(msg.Content)
-	if text == "" && len(msg.ContentParts) > 0 {
-		var parts []string
-		for _, part := range msg.ContentParts {
-			if part.Text == nil {
-				continue
-			}
-			partText := strings.TrimSpace(*part.Text)
-			if partText == "" {
-				continue
-			}
-			parts = append(parts, partText)
-		}
-		text = strings.TrimSpace(strings.Join(parts, "\n"))
-	}
-	if text == "" {
-		return "", "", false
-	}
-	if role == model.RoleTool {
-		toolName := strings.TrimSpace(msg.ToolName)
-		if toolName != "" {
-			text = toolName + ": " + text
-		}
-	}
-	return text, role, true
+	_ = "STUB: not implemented"
+	return "", *new(model.Role), false
 }
 
 func loadedMessagesFromWindow(
 	window *session.EventWindow,
 ) []LoadedSessionMessage {
-	if window == nil || len(window.Entries) == 0 {
-		return nil
-	}
-
-	messages := make([]LoadedSessionMessage, 0, len(window.Entries))
-	for _, entry := range window.Entries {
-		text, role, ok := extractSessionMessageText(entry.Event)
-		if !ok {
-			continue
-		}
-		messages = append(messages, LoadedSessionMessage{
-			EventID: entry.Event.ID,
-			Role:    role,
-			Created: entry.CreatedAt,
-			Content: text,
-		})
-	}
-	if len(messages) == 0 {
-		return nil
-	}
-	return messages
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -11,32 +11,13 @@ package main
 
 import (
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
 func newHedgeAgent(config appConfig) (*llmagent.LLMAgent, error) {
-	hedgeModel, err := newHedgeModel(config)
-	if err != nil {
-		return nil, err
-	}
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(1200),
-		Temperature: floatPtr(0.7),
-		Stream:      config.streaming,
-	}
-	return llmagent.New(
-		agentName,
-		llmagent.WithModel(hedgeModel),
-		llmagent.WithDescription("A chat assistant backed by a hedged primary and backup model."),
-		llmagent.WithInstruction("You are a concise and reliable assistant. Answer clearly and directly."),
-		llmagent.WithGenerationConfig(genConfig),
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func intPtr(value int) *int {
-	return &value
-}
+func intPtr(value int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(value float64) *float64 {
-	return &value
-}
+func floatPtr(value float64) *float64 { _ = "STUB: not implemented"; return nil }

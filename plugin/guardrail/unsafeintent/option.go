@@ -20,28 +20,10 @@ type options struct {
 	reviewer review.Reviewer
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		name: defaultPluginName,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithName sets the plugin name.
-func WithName(name string) Option {
-	return func(opts *options) {
-		opts.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReviewer sets the mandatory reviewer used for unsafe intent decisions.
-func WithReviewer(reviewer review.Reviewer) Option {
-	return func(opts *options) {
-		opts.reviewer = reviewer
-	}
-}
+func WithReviewer(reviewer review.Reviewer) Option { _ = "STUB: not implemented"; return *new(Option) }

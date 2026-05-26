@@ -18,16 +18,12 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net/http"
-	"reflect"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
 	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui"
 )
@@ -89,193 +85,76 @@ func main() {
 }
 
 // buildGraph creates a graph that demonstrates EventEmitter usage in NodeFunc.
-func buildGraph() (*graph.Graph, error) {
-	schema := graph.NewStateSchema().
-		AddField("input", graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		}).
-		AddField("result", graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		}).
-		AddField("status", graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Reducer: graph.DefaultReducer,
-		})
+func buildGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	sg := graph.NewStateGraph(schema)
+// Node 1: Start - emit custom event with initial status
 
-	// Node 1: Start - emit custom event with initial status
-	sg.AddNode(nodeStart, startNode)
+// Node 2: Process - emit progress events during processing
 
-	// Node 2: Process - emit progress events during processing
-	sg.AddNode(nodeProcess, processNode)
+// Node 3: Analyze - emit streaming text events
 
-	// Node 3: Analyze - emit streaming text events
-	sg.AddNode(nodeAnalyze, analyzeNode)
+// Node 4: Complete - emit final custom event
 
-	// Node 4: Complete - emit final custom event
-	sg.AddNode(nodeComplete, completeNode)
-
-	// Set up edges
-	sg.SetEntryPoint(nodeStart)
-	sg.AddEdge(nodeStart, nodeProcess)
-	sg.AddEdge(nodeProcess, nodeAnalyze)
-	sg.AddEdge(nodeAnalyze, nodeComplete)
-	sg.SetFinishPoint(nodeComplete)
-
-	return sg.Compile()
-}
+// Set up edges
 
 // startNode demonstrates emitting a custom event with payload.
 func startNode(ctx context.Context, state graph.State) (any, error) {
-	log.Info("[startNode] Starting workflow...")
-
-	// Get EventEmitter from state
-	emitter := graph.GetEventEmitter(state)
-
-	// Get user input from messages
-	var userInput string
-	if messages, ok := state[graph.StateKeyMessages].([]model.Message); ok && len(messages) > 0 {
-		for _, msg := range messages {
-			if msg.Role == model.RoleUser {
-				userInput = msg.Content
-			}
-		}
-	}
-	if userInput == "" {
-		userInput = "default input"
-	}
-
-	// Emit custom event: workflow started
-	if err := emitter.EmitCustom("workflow.started", map[string]any{
-		"timestamp":  time.Now().Format(time.DateTime),
-		"user_input": userInput,
-		"version":    "1.0.0",
-	}); err != nil {
-		// Note: Do not return error when event sending fails,
-		// to prevent client disconnection from affecting Agent workflow
-		log.Warnf("Failed to emit custom event: %+v", err)
-	}
-
-	log.Info("[startNode] Emitted 'workflow.started' custom event")
-
-	return graph.State{
-		"input":  userInput,
-		"status": "started",
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Get EventEmitter from state
+
+// Get user input from messages
+
+// Emit custom event: workflow started
+
+// Note: Do not return error when event sending fails,
+// to prevent client disconnection from affecting Agent workflow
 
 // processNode demonstrates emitting progress events during a long-running operation.
 func processNode(ctx context.Context, state graph.State) (any, error) {
-	log.Info("[processNode] Processing data with progress reporting...")
-
-	emitter := graph.GetEventEmitter(state)
-
-	// Simulate a long-running process with progress updates
-	totalSteps := 5
-	for i := 1; i <= totalSteps; i++ {
-		// Check context cancellation
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
-		// Calculate progress percentage
-		progress := float64(i) / float64(totalSteps) * 100
-
-		// Emit progress event
-		if err := emitter.EmitProgress(progress,
-			fmt.Sprintf("Processing step %d of %d", i, totalSteps)); err != nil {
-			log.Warnf("Failed to emit progress event: %v", err)
-		}
-
-		log.Infof("[processNode] Emitted progress: %.0f%% - Step %d/%d", progress, i, totalSteps)
-
-		// Simulate work
-		time.Sleep(time.Second)
-	}
-
-	return graph.State{"status": "processed"}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Simulate a long-running process with progress updates
+
+// Check context cancellation
+
+// Calculate progress percentage
+
+// Emit progress event
+
+// Simulate work
 
 // analyzeNode demonstrates emitting streaming text events.
 func analyzeNode(ctx context.Context, state graph.State) (any, error) {
-	log.Info("[analyzeNode] Analyzing results with streaming output...")
-
-	emitter := graph.GetEventEmitter(state)
-
-	input, _ := state["input"].(string)
-
-	// Simulate streaming analysis output
-	analysisLines := []string{
-		"📊 Starting analysis...\n",
-		fmt.Sprintf("📝 Input received: \"%s\"\n", input),
-		"🔍 Analyzing patterns...\n",
-		"✅ Pattern analysis complete.\n",
-		"📈 Generating insights...\n",
-		"💡 Key findings:\n",
-		"   - Data processed successfully\n",
-		"   - No anomalies detected\n",
-		"   - Performance metrics within expected range\n",
-	}
-
-	for _, line := range analysisLines {
-		// Check context cancellation
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
-		// Emit streaming text event
-		if err := emitter.EmitText(line); err != nil {
-			log.Warnf("Failed to emit text event: %v", err)
-		}
-
-		log.Infof("[analyzeNode] Emitted text: %s", line[:len(line)-1]) // trim newline for log
-
-		// Simulate streaming delay
-		time.Sleep(time.Second)
-	}
-
-	return graph.State{
-		"status": "analyzed",
-		"result": "Analysis completed successfully with no issues found.",
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Simulate streaming analysis output
+
+// Check context cancellation
+
+// Emit streaming text event
+
+// trim newline for log
+
+// Simulate streaming delay
 
 // completeNode demonstrates emitting a final custom event with results.
 func completeNode(ctx context.Context, state graph.State) (any, error) {
-	log.Info("[completeNode] Completing workflow...")
-
-	emitter := graph.GetEventEmitter(state)
-
-	result, _ := state["result"].(string)
-
-	// Emit custom event: workflow completed
-	err := emitter.EmitCustom("workflow.completed", map[string]any{
-		"timestamp":     time.Now().Format(time.RFC3339),
-		"result":        result,
-		"duration_ms":   2500, // Simulated duration
-		"success":       true,
-		"nodes_visited": []string{nodeStart, nodeProcess, nodeAnalyze, nodeComplete},
-	})
-	if err != nil {
-		log.Warnf("Failed to emit custom event: %v", err)
-	}
-
-	log.Info("[completeNode] Emitted 'workflow.completed' custom event")
-
-	// Also emit a final progress event to indicate 100% complete
-	emitter.EmitProgress(100, "Workflow completed successfully!")
-
-	return graph.State{
-		"status": "completed",
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Emit custom event: workflow completed
+
+// Simulated duration
+
+// Also emit a final progress event to indicate 100% complete
 
 // Ensure we implement agent.Agent interface requirements
 var _ agent.Agent = (*graphagent.GraphAgent)(nil)

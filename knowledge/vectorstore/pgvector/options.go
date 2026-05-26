@@ -10,13 +10,7 @@
 package pgvector
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/jackc/pgx/v5"
-	"github.com/pgvector/pgvector-go"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/document"
-	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/vectorstore"
 )
 
@@ -89,37 +83,8 @@ type RRFParams struct {
 type DocBuilderFunc func(row pgx.Row) (*vectorstore.ScoredDocument, []float64, error)
 
 func defaultDocBuilder(row pgx.Row) (*vectorstore.ScoredDocument, []float64, error) {
-	var id, name, content, metadataJSON string
-	var vector pgvector.Vector
-	var createdAt, updatedAt int64
-	var score, vectorScore, textScore float64
-
-	if err := row.Scan(&id, &name, &content, &vector, &metadataJSON, &createdAt, &updatedAt, &vectorScore, &textScore, &score); err != nil {
-		return nil, nil, err
-	}
-	metadata, err := jsonToMap(metadataJSON)
-	if err != nil {
-		return nil, nil, fmt.Errorf("pgvector parse metadata: %w", err)
-	}
-
-	if metadata == nil {
-		metadata = make(map[string]any)
-	}
-	metadata[source.MetadataDenseScore] = vectorScore
-	metadata[source.MetadataSparseScore] = textScore
-
-	doc := &document.Document{
-		ID:        id,
-		Name:      name,
-		Content:   content,
-		Metadata:  metadata,
-		CreatedAt: time.Unix(createdAt, 0),
-		UpdatedAt: time.Unix(updatedAt, 0),
-	}
-	return &vectorstore.ScoredDocument{
-		Document: doc,
-		Score:    score,
-	}, convertToFloat64Vector(vector.Slice()), nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 // options contains the options for pgvector.
@@ -223,75 +188,35 @@ var defaultOptions = options{
 type Option func(*options)
 
 // WithHost sets the PostgreSQL host.
-func WithHost(host string) Option {
-	return func(o *options) {
-		o.host = host
-	}
-}
+func WithHost(host string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPort sets the PostgreSQL port.
-func WithPort(port int) Option {
-	return func(o *options) {
-		o.port = port
-	}
-}
+func WithPort(port int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUser sets the username for authentication.
-func WithUser(user string) Option {
-	return func(o *options) {
-		o.user = user
-	}
-}
+func WithUser(user string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPassword sets the password for authentication.
-func WithPassword(password string) Option {
-	return func(o *options) {
-		o.password = password
-	}
-}
+func WithPassword(password string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDatabase sets the database name.
-func WithDatabase(database string) Option {
-	return func(o *options) {
-		o.database = database
-	}
-}
+func WithDatabase(database string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTable sets the table name.
-func WithTable(table string) Option {
-	return func(o *options) {
-		o.table = table
-	}
-}
+func WithTable(table string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIndexDimension sets the vector dimension for the index.
 // This dimension is used when creating the table schema (vector column definition).
-func WithIndexDimension(dimension int) Option {
-	return func(o *options) {
-		o.indexDimension = dimension
-	}
-}
+func WithIndexDimension(dimension int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSSLMode sets the SSL mode for connection.
-func WithSSLMode(sslMode string) Option {
-	return func(o *options) {
-		o.sslMode = sslMode
-	}
-}
+func WithSSLMode(sslMode string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPGVectorClientDSN sets the DSN for connection.
-func WithPGVectorClientDSN(dsn string) Option {
-	return func(o *options) {
-		o.dsn = dsn
-	}
-}
+func WithPGVectorClientDSN(dsn string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableTSVector sets the enable text search vector.
-func WithEnableTSVector(enableTSVector bool) Option {
-	return func(o *options) {
-		o.enableTSVector = enableTSVector
-	}
-}
+func WithEnableTSVector(enableTSVector bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHybridSearchWeights sets the weights for hybrid search scoring.
 // vectorWeight: Weight for vector similarity (0.0-1.0)
@@ -299,158 +224,88 @@ func WithEnableTSVector(enableTSVector bool) Option {
 // Note: weights will be normalized to sum to 1.0
 // Note: This option only applies when fusionMode is HybridFusionWeighted
 func WithHybridSearchWeights(vectorWeight, textWeight float64) Option {
-	return func(o *options) {
-		// Normalize weights to sum to 1.0
-		total := vectorWeight + textWeight
-		if total > 0 {
-			o.vectorWeight = vectorWeight / total
-			o.textWeight = textWeight / total
-		} else {
-			// Fallback to defaults if invalid weights
-			o.vectorWeight = 0.7
-			o.textWeight = 0.3
-		}
-	}
+	_ = "STUB: not implemented"
+	return *
+
+	// Normalize weights to sum to 1.0
+	new(Option)
 }
+
+// Fallback to defaults if invalid weights
 
 // WithHybridFusionMode sets the fusion mode for hybrid search.
 // Default is HybridFusionWeighted.
 // Use HybridFusionRRF for Reciprocal Rank Fusion.
 func WithHybridFusionMode(mode HybridFusionMode) Option {
-	return func(o *options) {
-		o.fusionMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRRFParams sets the parameters for Reciprocal Rank Fusion.
 // Values <= 0 are ignored (defaults are kept).
 // Note: This option only applies when fusionMode is HybridFusionRRF.
-func WithRRFParams(params *RRFParams) Option {
-	return func(o *options) {
-		if params == nil {
-			return
-		}
-		if params.K > 0 {
-			o.rrfParams.K = params.K
-		}
-		if params.CandidateRatio > 0 {
-			o.rrfParams.CandidateRatio = params.CandidateRatio
-		}
-	}
-}
+func WithRRFParams(params *RRFParams) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLanguageExtension sets the language extension for the index.
 func WithLanguageExtension(languageExtension string) Option {
-	return func(o *options) {
-		o.language = languageExtension
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMaxResults sets the maximum number of search results.
-func WithMaxResults(maxResults int) Option {
-	return func(o *options) {
-		if maxResults <= 0 {
-			maxResults = defaultMaxResults
-		}
-		o.maxResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIDField sets the PostgreSQL field name for ID.
-func WithIDField(field string) Option {
-	return func(o *options) {
-		o.idFieldName = field
-	}
-}
+func WithIDField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNameField sets the PostgreSQL field name for name/title.
-func WithNameField(field string) Option {
-	return func(o *options) {
-		o.nameFieldName = field
-	}
-}
+func WithNameField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentField sets the PostgreSQL field name for content.
-func WithContentField(field string) Option {
-	return func(o *options) {
-		o.contentFieldName = field
-	}
-}
+func WithContentField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEmbeddingField sets the PostgreSQL field name for embedding.
-func WithEmbeddingField(field string) Option {
-	return func(o *options) {
-		o.embeddingFieldName = field
-	}
-}
+func WithEmbeddingField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataField sets the PostgreSQL field name for metadata.
-func WithMetadataField(field string) Option {
-	return func(o *options) {
-		o.metadataFieldName = field
-	}
-}
+func WithMetadataField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCreatedAtField sets the PostgreSQL field name for created_at.
-func WithCreatedAtField(field string) Option {
-	return func(o *options) {
-		o.createdAtFieldName = field
-	}
-}
+func WithCreatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUpdatedAtField sets the PostgreSQL field name for updated_at.
-func WithUpdatedAtField(field string) Option {
-	return func(o *options) {
-		o.updatedAtFieldName = field
-	}
-}
+func WithUpdatedAtField(field string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDocBuilder sets the document builder function.
-func WithDocBuilder(builder DocBuilderFunc) Option {
-	return func(o *options) {
-		o.docBuilder = builder
-	}
-}
+func WithDocBuilder(builder DocBuilderFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPostgresInstance uses a postgres instance from storage/postgres.
 // Note: Direct connection settings (WithHost, WithPort, etc.) have higher priority than WithPostgresInstance.
 // If both are specified, direct connection settings will be used.
 func WithPostgresInstance(instanceName string) Option {
-	return func(o *options) {
-		o.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExtraOptions sets extra options for storage/postgres.
 // This is mainly used for customized postgres client builders.
-func WithExtraOptions(extraOptions ...any) Option {
-	return func(o *options) {
-		o.extraOptions = append(o.extraOptions, extraOptions...)
-	}
-}
+func WithExtraOptions(extraOptions ...any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVectorIndexType sets the type of vector index to use.
 // Supported types: VectorIndexHNSW (default), VectorIndexIVFFlat.
 func WithVectorIndexType(indexType VectorIndexType) Option {
-	return func(o *options) {
-		o.vectorIndexType = indexType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHNSWIndexParams sets HNSW index parameters.
 func WithHNSWIndexParams(params *HNSWIndexParams) Option {
-	return func(o *options) {
-		if params != nil {
-			o.hnswParams = params
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithIVFFlatIndexParams sets IVFFlat index parameters.
 func WithIVFFlatIndexParams(params *IVFFlatIndexParams) Option {
-	return func(o *options) {
-		if params != nil {
-			o.ivfflatParams = params
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

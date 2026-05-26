@@ -12,16 +12,9 @@ package parallelagent
 
 import (
 	"context"
-	"fmt"
-	"runtime/debug"
-	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/graph"
-	istructure "trpc.group/trpc-go/trpc-agent-go/internal/structure"
-	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -45,20 +38,7 @@ type subAgentEventStream struct {
 // New creates a new ParallelAgent with the given name and options.
 // ParallelAgent executes all its sub-agents simultaneously and merges
 // their event streams into a single output channel.
-func New(name string, opts ...Option) *ParallelAgent {
-	cfg := defaultOptions
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&cfg)
-		}
-	}
-	return &ParallelAgent{
-		name:              name,
-		subAgents:         cfg.subAgents,
-		channelBufferSize: cfg.channelBufferSize,
-		agentCallbacks:    cfg.agentCallbacks,
-	}
-}
+func New(name string, opts ...Option) *ParallelAgent { _ = "STUB: not implemented"; return nil }
 
 // createBranchInvocation creates an isolated branch invocation for each sub-agent.
 // This ensures parallel execution doesn't interfere with each other.
@@ -69,33 +49,16 @@ func (a *ParallelAgent) createBranchInvocation(
 	surfaceRootNodeID string,
 	entryPredecessors []string,
 ) *agent.Invocation {
+	_ = "STUB: not implemented"
 	// Create unique invocation ID for this branch.
-	eventFilterKey := baseInvocation.GetEventFilterKey()
-	if eventFilterKey == "" {
-		eventFilterKey = a.name + agent.EventFilterKeyDelimiter + subAgent.Info().Name
-	} else {
-		eventFilterKey += agent.EventFilterKeyDelimiter + subAgent.Info().Name
-	}
-
-	opts := []agent.InvocationOptions{
-		agent.WithInvocationAgent(subAgent),
-		agent.WithInvocationEventFilterKey(eventFilterKey),
-		agent.WithInvocationTraceNodeID(nodeID),
-		agent.WithInvocationEntryPredecessorStepIDs(entryPredecessors),
-	}
-	if surfaceRootNodeID != "" {
-		opts = append(opts, func(inv *agent.Invocation) {
-			agent.SetInvocationSurfaceRootNodeID(inv, surfaceRootNodeID)
-		})
-	}
-	return baseInvocation.Clone(opts...)
+	return nil
 }
 
 // setupInvocation prepares the invocation for execution.
 func (a *ParallelAgent) setupInvocation(invocation *agent.Invocation) {
+	_ = "STUB: not implemented"
 	// Set agent and agent name
-	invocation.Agent = a
-	invocation.AgentName = a.name
+	return
 }
 
 // handleBeforeAgentCallbacks handles pre-execution callbacks.
@@ -105,39 +68,17 @@ func (a *ParallelAgent) handleBeforeAgentCallbacks(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) (context.Context, bool) {
-	if a.agentCallbacks == nil {
-		return ctx, false
-	}
-
-	result, err := a.agentCallbacks.RunBeforeAgent(ctx, &agent.BeforeAgentArgs{
-		Invocation: invocation,
-	})
-	// Use the context from result if provided.
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	var evt *event.Event
-
-	if err != nil {
-		// Send error event.
-		evt = event.NewErrorEvent(
-			invocation.InvocationID,
-			invocation.AgentName,
-			agent.ErrorTypeAgentCallbackError,
-			err.Error(),
-		)
-	} else if result != nil && result.CustomResponse != nil {
-		// Create an event from the custom response and then close.
-		evt = event.NewResponseEvent(invocation.InvocationID, invocation.AgentName, result.CustomResponse)
-	}
-
-	if evt == nil {
-		return ctx, false // Continue execution
-	}
-
-	agent.EmitEvent(ctx, invocation, eventChan, evt)
-	return ctx, true
+	_ = "STUB: not implemented"
+	return *new(context.Context), false
 }
+
+// Use the context from result if provided.
+
+// Send error event.
+
+// Create an event from the custom response and then close.
+
+// Continue execution
 
 // startSubAgents starts all sub-agents in parallel and returns their event channels.
 func (a *ParallelAgent) startSubAgents(
@@ -145,80 +86,25 @@ func (a *ParallelAgent) startSubAgents(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) []subAgentEventStream {
+	_ = "STUB: not implemented"
 	// Start all sub-agents in parallel.
-	var wg sync.WaitGroup
-	eventStreams := make([]subAgentEventStream, len(a.subAgents))
-	pathAllocator := istructure.NewPathAllocator(agent.InvocationTraceNodeID(invocation))
-	surfacePathAllocator := istructure.NewPathAllocator(agent.InvocationSurfaceRootNodeID(invocation))
-	entryPredecessors := agent.NextExecutionTracePredecessors(invocation)
-
-	for i, subAgent := range a.subAgents {
-		childNodeID := pathAllocator.Next(subAgent.Info().Name)
-		childSurfaceRootNodeID := surfacePathAllocator.Next(subAgent.Info().Name)
-		wg.Add(1)
-		runCtx := agent.CloneContext(ctx)
-		go func(ctx context.Context, idx int, sa agent.Agent, nodeID string, surfaceRootNodeID string) {
-			defer wg.Done()
-			// Recover from panics in sub-agent execution to prevent
-			// the whole service from crashing.
-			defer func() {
-				if r := recover(); r != nil {
-					stack := debug.Stack()
-					log.Errorf("Sub-agent execution panic for %s (index: %d, parent: %s): %v\n%s",
-						sa.Info().Name, idx, invocation.AgentName, r, string(stack))
-					// Send error event for the panic.
-					errorEvent := event.NewErrorEvent(
-						invocation.InvocationID,
-						invocation.AgentName,
-						model.ErrorTypeFlowError,
-						fmt.Sprintf("sub-agent %s panic: %v", sa.Info().Name, r),
-					)
-					agent.EmitEvent(ctx, invocation, eventChan, errorEvent)
-				}
-			}()
-
-			// Create branch invocation for this sub-agent.
-			branchInvocation := a.createBranchInvocation(
-				sa,
-				invocation,
-				nodeID,
-				surfaceRootNodeID,
-				entryPredecessors,
-			)
-
-			// Reset invocation information in context
-			branchAgentCtx := graph.WithGraphCompletionCapture(
-				agent.NewInvocationContext(ctx, branchInvocation),
-			)
-
-			// Run the sub-agent.
-			subEventChan, err := agent.RunWithPlugins(
-				branchAgentCtx,
-				branchInvocation,
-				sa,
-			)
-			if err != nil {
-				// Send error event.
-				agent.EmitEvent(ctx, invocation, eventChan, event.NewErrorEvent(
-					invocation.InvocationID,
-					invocation.AgentName,
-					model.ErrorTypeFlowError,
-					err.Error(),
-				))
-				return
-			}
-
-			eventStreams[idx] = subAgentEventStream{
-				author: branchInvocation.AgentName,
-				ch:     subEventChan,
-			}
-		}(runCtx, i, subAgent, childNodeID, childSurfaceRootNodeID)
-	}
-
-	// Wait for all sub-agents to start.
-	wg.Wait()
-	return eventStreams
+	return nil
 }
+
+// Recover from panics in sub-agent execution to prevent
+// the whole service from crashing.
+
+// Send error event for the panic.
+
+// Create branch invocation for this sub-agent.
+
+// Reset invocation information in context
+
+// Run the sub-agent.
+
+// Send error event.
+
+// Wait for all sub-agents to start.
 
 // handleAfterAgentCallbacks handles post-execution callbacks.
 func (a *ParallelAgent) handleAfterAgentCallbacks(
@@ -227,35 +113,15 @@ func (a *ParallelAgent) handleAfterAgentCallbacks(
 	eventChan chan<- *event.Event,
 	fullRespEvent *event.Event,
 ) {
-	if a.agentCallbacks == nil {
-		return
-	}
-
-	result, err := a.agentCallbacks.RunAfterAgent(ctx, &agent.AfterAgentArgs{
-		Invocation:        invocation,
-		Error:             nil,
-		FullResponseEvent: fullRespEvent,
-	})
-	// Use the context from result if provided.
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	var evt *event.Event
-	if err != nil {
-		// Send error event.
-		evt = event.NewErrorEvent(
-			invocation.InvocationID,
-			invocation.AgentName,
-			agent.ErrorTypeAgentCallbackError,
-			err.Error(),
-		)
-	} else if result != nil && result.CustomResponse != nil {
-		// Create an event from the custom response.
-		evt = event.NewResponseEvent(invocation.InvocationID, invocation.AgentName, result.CustomResponse)
-	}
-
-	agent.EmitEvent(ctx, invocation, eventChan, evt)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Use the context from result if provided.
+
+// Send error event.
+
+// Create an event from the custom response.
 
 // Run implements the agent.Agent interface.
 // It executes sub-agents in parallel and merges their event streams.
@@ -263,22 +129,13 @@ func (a *ParallelAgent) Run(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	eventChan := make(chan *event.Event, a.eventChannelBufferSize(invocation))
-
-	runCtx := agent.CloneContext(ctx)
-	go func(ctx context.Context) {
-		defer close(eventChan)
-		a.executeParallelRun(ctx, invocation, eventChan)
-	}(runCtx)
-
-	return eventChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (a *ParallelAgent) eventChannelBufferSize(invocation *agent.Invocation) int {
-	if size := agent.GetEventChannelBufferSize(invocation); size > 0 {
-		return size
-	}
-	return a.channelBufferSize
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // executeParallelRun handles the main execution logic for parallel agent.
@@ -287,26 +144,18 @@ func (a *ParallelAgent) executeParallelRun(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) {
+	_ = "STUB: not implemented"
 	// Setup invocation.
-	a.setupInvocation(invocation)
-
-	// Handle before agent callbacks.
-	var shouldReturn bool
-	ctx, shouldReturn = a.handleBeforeAgentCallbacks(ctx, invocation, eventChan)
-	if shouldReturn {
-		return
-	}
-
-	// Start sub-agents.
-	eventStreams := a.startSubAgents(ctx, invocation, eventChan)
-
-	// Merge events from all sub-agents and collect full response event.
-	var fullRespEvent *event.Event
-	a.mergeEventStreams(ctx, invocation, eventStreams, eventChan, &fullRespEvent)
-
-	// Handle after agent callbacks.
-	a.handleAfterAgentCallbacks(ctx, invocation, eventChan, fullRespEvent)
+	return
 }
+
+// Handle before agent callbacks.
+
+// Start sub-agents.
+
+// Merge events from all sub-agents and collect full response event.
+
+// Handle after agent callbacks.
 
 // mergeEventStreams merges multiple event channels into a single output channel.
 // This implementation processes events as they arrive from different sub-agents.
@@ -317,101 +166,38 @@ func (a *ParallelAgent) mergeEventStreams(
 	outputChan chan<- *event.Event,
 	fullRespEvent **event.Event,
 ) {
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	visibleCtx := graph.WithoutGraphCompletionCapture(ctx)
-
-	// Start a goroutine for each input channel.
-	for _, stream := range eventStreams {
-		if stream.ch == nil {
-			continue
-		}
-
-		runCtx := agent.CloneContext(ctx)
-		wg.Add(1)
-		go func(ctx context.Context, stream subAgentEventStream) {
-			defer wg.Done()
-			var emittedAssistantResponseIDs map[string]struct{}
-			// Recover from potential panics during event merging.
-			defer func() {
-				if r := recover(); r != nil {
-					// Log the panic but don't propagate error events here since
-					// we're already in the event merging phase.
-					log.Errorf("Event merging panic in parallel agent %s: %v", a.name, r)
-				}
-			}()
-			for evt := range stream.ch {
-				if evt != nil && evt.Response != nil && !evt.Response.IsPartial {
-					mu.Lock()
-					*fullRespEvent = evt
-					mu.Unlock()
-				}
-				if graph.ShouldSuppressGraphCompletionEvent(visibleCtx, invocation, evt) {
-					if visibleEvent, callbackFullRespEvent, ok := graph.VisibleGraphCompletionEventsForForwardingWithAuthor(
-						evt,
-						emittedAssistantResponseIDs,
-						stream.author,
-					); ok {
-						if err := event.EmitEvent(ctx, outputChan, visibleEvent); err != nil {
-							return
-						}
-						if callbackFullRespEvent != nil &&
-							callbackFullRespEvent.Response != nil &&
-							!callbackFullRespEvent.Response.IsPartial {
-							mu.Lock()
-							*fullRespEvent = callbackFullRespEvent
-							mu.Unlock()
-						}
-						emittedAssistantResponseIDs = graph.RecordAssistantResponseID(
-							emittedAssistantResponseIDs,
-							visibleEvent,
-						)
-					}
-					continue
-				}
-				if err := event.EmitEvent(ctx, outputChan, evt); err != nil {
-					return
-				}
-				emittedAssistantResponseIDs = graph.RecordAssistantResponseID(
-					emittedAssistantResponseIDs,
-					evt,
-				)
-			}
-		}(runCtx, stream)
-	}
-
-	// Wait for all goroutines to finish.
-	wg.Wait()
+	_ = "STUB: not implemented"
+	return
 }
+
+// Start a goroutine for each input channel.
+
+// Recover from potential panics during event merging.
+
+// Log the panic but don't propagate error events here since
+// we're already in the event merging phase.
+
+// Wait for all goroutines to finish.
 
 // Tools implements the agent.Agent interface.
 // It returns the tools available to this agent.
-func (a *ParallelAgent) Tools() []tool.Tool {
-	return []tool.Tool{}
-}
+func (a *ParallelAgent) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 // Info implements the agent.Agent interface.
 // It returns the basic information about this agent.
-func (a *ParallelAgent) Info() agent.Info {
-	return agent.Info{
-		Name:        a.name,
-		Description: fmt.Sprintf("Parallel agent that runs %d sub-agents concurrently", len(a.subAgents)),
-	}
-}
+func (a *ParallelAgent) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
 
 // SubAgents implements the agent.Agent interface.
 // It returns the list of sub-agents available to this agent.
 func (a *ParallelAgent) SubAgents() []agent.Agent {
-	return a.subAgents
+	_ = "STUB: not implemented"
+
+	// FindSubAgent implements the agent.Agent interface.
+	// It finds a sub-agent by name and returns nil if not found.
+	return nil
 }
 
-// FindSubAgent implements the agent.Agent interface.
-// It finds a sub-agent by name and returns nil if not found.
 func (a *ParallelAgent) FindSubAgent(name string) agent.Agent {
-	for _, subAgent := range a.subAgents {
-		if subAgent.Info().Name == name {
-			return subAgent
-		}
-	}
-	return nil
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }

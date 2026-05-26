@@ -22,20 +22,7 @@ const serviceMetaScopeFilterKey = "summary:scope_filter_key"
 // avoid collisions with other ServiceMeta entries. Callers that need to apply
 // scoped metadata to a live shared session should use a different approach,
 // such as protecting ServiceMeta with a mutex or avoiding in-place mutation.
-func SetScopeFilterKey(sess *session.Session, filterKey string) {
-	if sess == nil || filterKey == "" {
-		return
-	}
-	if sess.ServiceMeta == nil {
-		sess.ServiceMeta = make(map[string]string)
-	}
-	sess.ServiceMeta[serviceMetaScopeFilterKey] = filterKey
-}
+func SetScopeFilterKey(sess *session.Session, filterKey string) { _ = "STUB: not implemented"; return }
 
 // GetScopeFilterKey returns the temporary summary branch scope stored on sess.
-func GetScopeFilterKey(sess *session.Session) string {
-	if sess == nil || sess.ServiceMeta == nil {
-		return ""
-	}
-	return sess.ServiceMeta[serviceMetaScopeFilterKey]
-}
+func GetScopeFilterKey(sess *session.Session) string { _ = "STUB: not implemented"; return "" }

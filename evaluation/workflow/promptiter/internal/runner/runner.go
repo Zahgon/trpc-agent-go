@@ -10,9 +10,6 @@
 package runner
 
 import (
-	"errors"
-	"fmt"
-
 	"trpc.group/trpc-go/trpc-agent-go/event"
 )
 
@@ -26,26 +23,6 @@ type Output struct {
 
 // CaptureOutput consumes one runner event stream and extracts common output artifacts.
 func CaptureOutput(events <-chan *event.Event) (*Output, error) {
-	if events == nil {
-		return nil, errors.New("runner event stream is nil")
-	}
-	output := &Output{}
-	for evt := range events {
-		if evt == nil {
-			continue
-		}
-		if evt.IsError() {
-			if evt.Error != nil {
-				return nil, fmt.Errorf("runner returned error: %w", evt.Error)
-			}
-			return nil, errors.New("runner returned error event")
-		}
-		if evt.StructuredOutput != nil {
-			output.StructuredOutput = evt.StructuredOutput
-		}
-		if len(evt.Choices) > 0 && len(evt.Choices[0].Message.Content) > 0 {
-			output.FinalContent = evt.Choices[0].Message.Content
-		}
-	}
-	return output, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

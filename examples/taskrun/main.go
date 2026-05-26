@@ -16,14 +16,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/taskrun"
 	"trpc.group/trpc-go/trpc-agent-go/agent/taskrun/inprocess"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -79,15 +77,8 @@ func main() {
 }
 
 func serviceOptions(path string) ([]inprocess.Option, error) {
-	path = strings.TrimSpace(path)
-	if path == "" {
-		return nil, nil
-	}
-	store, err := inprocess.NewFileStore(path)
-	if err != nil {
-		return nil, err
-	}
-	return []inprocess.Option{inprocess.WithStore(store)}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type reportAgent struct {
@@ -98,56 +89,22 @@ func (a *reportAgent) Run(
 	ctx context.Context,
 	inv *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	out := make(chan *event.Event, 1)
-	go func() {
-		defer close(out)
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-		out <- responseEvent(inv, a.name)
-	}()
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (a *reportAgent) Tools() []tool.Tool {
-	return nil
-}
+func (a *reportAgent) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
-func (a *reportAgent) Info() agent.Info {
-	return agent.Info{
-		Name:        a.name,
-		Description: agentDesc,
-	}
-}
+func (a *reportAgent) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
 
-func (a *reportAgent) SubAgents() []agent.Agent {
-	return nil
-}
+func (a *reportAgent) SubAgents() []agent.Agent { _ = "STUB: not implemented"; return nil }
 
 func (a *reportAgent) FindSubAgent(name string) agent.Agent {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 func responseEvent(inv *agent.Invocation, name string) *event.Event {
-	task := ""
-	if inv != nil {
-		task = inv.Message.Content
-	}
-	response := &model.Response{
-		Object:  model.ObjectTypeChatCompletion,
-		Created: time.Now().Unix(),
-		Done:    true,
-		Choices: []model.Choice{{
-			Index: 0,
-			Message: model.NewAssistantMessage(
-				fmt.Sprintf("completed delegated task: %s", task),
-			),
-		}},
-	}
-	if inv == nil {
-		return &event.Event{Response: response, Author: name}
-	}
-	return event.NewResponseEvent(inv.InvocationID, name, response)
+	_ = "STUB: not implemented"
+	return nil
 }

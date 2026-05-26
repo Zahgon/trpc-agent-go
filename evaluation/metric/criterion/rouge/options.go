@@ -19,69 +19,31 @@ type options struct {
 	tokenizer      Tokenizer
 }
 
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option configures RougeCriterion.
 type Option func(*options)
 
 // WithIgnore sets the ignore flag.
-func WithIgnore(ignore bool) Option {
-	return func(o *options) {
-		o.ignore = ignore
-	}
-}
+func WithIgnore(ignore bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRougeType sets the ROUGE variant.
-func WithRougeType(rougeType string) Option {
-	return func(o *options) {
-		o.rougeType = rougeType
-	}
-}
+func WithRougeType(rougeType string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMeasure sets the primary ROUGE measure.
-func WithMeasure(measure RougeMeasure) Option {
-	return func(o *options) {
-		o.measure = measure
-	}
-}
+func WithMeasure(measure RougeMeasure) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithThreshold sets the minimum score thresholds.
-func WithThreshold(threshold Score) Option {
-	return func(o *options) {
-		o.threshold = threshold
-	}
-}
+func WithThreshold(threshold Score) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUseStemmer enables Porter stemming for the built-in tokenizer.
-func WithUseStemmer(useStemmer bool) Option {
-	return func(o *options) {
-		o.useStemmer = useStemmer
-	}
-}
+func WithUseStemmer(useStemmer bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSplitSummaries enables sentence splitting for rougeLsum.
-func WithSplitSummaries(splitSummaries bool) Option {
-	return func(o *options) {
-		o.splitSummaries = splitSummaries
-	}
-}
+func WithSplitSummaries(splitSummaries bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenizerName sets the name of the registered tokenizer.
-func WithTokenizerName(tokenizerName string) Option {
-	return func(o *options) {
-		o.tokenizerName = tokenizerName
-	}
-}
+func WithTokenizerName(tokenizerName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTokenizer sets the custom tokenizer.
-func WithTokenizer(tokenizer Tokenizer) Option {
-	return func(o *options) {
-		o.tokenizer = tokenizer
-	}
-}
+func WithTokenizer(tokenizer Tokenizer) Option { _ = "STUB: not implemented"; return *new(Option) }

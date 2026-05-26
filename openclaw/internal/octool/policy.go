@@ -11,9 +11,6 @@ package octool
 
 import (
 	"context"
-	"fmt"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -69,57 +66,18 @@ type CommandPolicy func(context.Context, CommandRequest) error
 // NewChatCommandSafetyPolicy blocks direct access to protected shell and
 // credential paths in chat contexts.
 func NewChatCommandSafetyPolicy() CommandPolicy {
-	return func(
-		_ context.Context,
-		req CommandRequest,
-	) error {
-		if blocksSensitivePathRequest(req) {
-			return fmt.Errorf(
-				errCommandPolicyRejected,
-				reasonSensitivePath,
-			)
-		}
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return *new(CommandPolicy)
 }
 
 func newCommandRequest(params execParams) CommandRequest {
-	return CommandRequest{
-		Command:    strings.TrimSpace(params.Command),
-		Workdir:    strings.TrimSpace(params.Workdir),
-		Env:        params.Env,
-		Pty:        params.Pty,
-		Background: params.Background,
-		YieldMs:    params.YieldMs,
-		TimeoutS:   params.TimeoutS,
-	}
+	_ = "STUB: not implemented"
+	return *new(CommandRequest)
 }
 
-func blocksSensitivePath(command string) bool {
-	return matchesProtectedPathFragments(
-		normalizePolicyCommand(command),
-		protectedPathFragments,
-	)
-}
+func blocksSensitivePath(command string) bool { _ = "STUB: not implemented"; return false }
 
-func blocksSensitivePathRequest(req CommandRequest) bool {
-	workdirFragments := dynamicProtectedWorkdirFragments(req.Env)
-	if blocksSensitivePathValue(
-		req.Workdir,
-		protectedWorkdirFragments(),
-		workdirFragments,
-		req.Env,
-	) {
-		return true
-	}
-
-	return blocksSensitivePathValue(
-		req.Command,
-		protectedPathFragments,
-		dynamicProtectedPathFragments(req.Env),
-		req.Env,
-	)
-}
+func blocksSensitivePathRequest(req CommandRequest) bool { _ = "STUB: not implemented"; return false }
 
 func blocksSensitivePathValue(
 	raw string,
@@ -127,42 +85,17 @@ func blocksSensitivePathValue(
 	dynamicFragments []string,
 	env map[string]string,
 ) bool {
-	value := normalizePolicyCommand(raw)
-	if value == "" {
-		return false
-	}
-	if matchesProtectedPathFragments(value, protectedFragments) {
-		return true
-	}
-	if matchesProtectedPathFragments(value, dynamicFragments) {
-		return true
-	}
-	return matchesProtectedPathFragments(
-		expandProtectedEnvReferences(value, env),
-		dynamicFragments,
-	)
+	_ = "STUB: not implemented"
+	return false
 }
 
-func normalizePolicyCommand(command string) string {
-	trimmed := strings.TrimSpace(command)
-	if trimmed == "" {
-		return ""
-	}
-	return strings.ToLower(filepath.ToSlash(trimmed))
-}
+func normalizePolicyCommand(command string) string { _ = "STUB: not implemented"; return "" }
 
 func blocksSensitivePathWithFragments(
 	command string,
 	fragments []string,
 ) bool {
-	if command == "" {
-		return false
-	}
-	for _, fragment := range fragments {
-		if containsSensitivePathFragment(command, fragment) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -170,94 +103,28 @@ func matchesProtectedPathFragments(
 	command string,
 	fragments []string,
 ) bool {
-	if blocksSensitivePathWithFragments(command, fragments) {
-		return true
-	}
-	unquoted := stripShellQuotes(command)
-	if unquoted == command {
-		return false
-	}
-	return blocksSensitivePathWithFragments(unquoted, fragments)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func dynamicProtectedPathFragments(env map[string]string) []string {
-	out := make([]string, 0, 3)
-	if len(env) == 0 {
-		return out
-	}
-	out = appendProtectedPathFragment(
-		out,
-		env[envTRPCClawEnvFile],
-	)
-
-	stateDir := strings.TrimSpace(env[envTRPCClawStateDir])
-	if stateDir == "" {
-		return out
-	}
-	out = appendProtectedPathFragment(
-		out,
-		filepath.Join(stateDir, protectedRuntimeEnvRelPath),
-	)
-	out = appendProtectedPathFragment(
-		out,
-		filepath.Join(stateDir, protectedGitCredentialFile),
-	)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func protectedWorkdirFragments() []string {
-	out := make([]string, 0, len(protectedPathFragments))
-	for _, fragment := range protectedPathFragments {
-		out = append(
-			out,
-			strings.TrimSuffix(fragment, "/"),
-		)
-	}
-	return out
-}
+func protectedWorkdirFragments() []string { _ = "STUB: not implemented"; return nil }
 
 func dynamicProtectedWorkdirFragments(env map[string]string) []string {
-	out := make([]string, 0, 3)
-	if len(env) == 0 {
-		return out
-	}
-	out = appendProtectedPathDir(
-		out,
-		env[envTRPCClawEnvFile],
-	)
-
-	stateDir := strings.TrimSpace(env[envTRPCClawStateDir])
-	if stateDir == "" {
-		return out
-	}
-	out = appendProtectedPathFragment(out, stateDir)
-	out = appendProtectedPathFragment(
-		out,
-		filepath.Join(
-			stateDir,
-			filepath.Dir(protectedRuntimeEnvRelPath),
-		),
-	)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func expandProtectedEnvReferences(
 	command string,
 	env map[string]string,
 ) string {
-	if command == "" || len(env) == 0 {
-		return command
-	}
-	expanded := expandProtectedEnvReference(
-		command,
-		envTRPCClawEnvFile,
-		env[envTRPCClawEnvFile],
-	)
-	return expandProtectedEnvReference(
-		expanded,
-		envTRPCClawStateDir,
-		env[envTRPCClawStateDir],
-	)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func expandProtectedEnvReference(
@@ -265,85 +132,32 @@ func expandProtectedEnvReference(
 	envName string,
 	value string,
 ) string {
-	fragment := normalizePathFragment(value)
-	if fragment == "" {
-		return command
-	}
-	lowerName := strings.ToLower(envName)
-	replacer := strings.NewReplacer(
-		"$"+lowerName,
-		fragment,
-		"${"+lowerName+"}",
-		fragment,
-	)
-	return replacer.Replace(command)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func appendProtectedPathFragment(out []string, raw string) []string {
-	fragment := normalizePathFragment(raw)
-	if fragment == "" {
-		return out
-	}
-	return append(out, fragment)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func appendProtectedPathDir(out []string, raw string) []string {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return out
-	}
-	dir := filepath.Dir(trimmed)
-	if dir == "." {
-		return out
-	}
-	return appendProtectedPathFragment(out, dir)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func normalizePathFragment(raw string) string {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return ""
-	}
-	return strings.ToLower(filepath.ToSlash(trimmed))
-}
+func normalizePathFragment(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func stripShellQuotes(command string) string {
-	if command == "" {
-		return ""
-	}
-	return strings.Map(func(r rune) rune {
-		if strings.ContainsRune(shellQuoteChars, r) {
-			return -1
-		}
-		return r
-	}, command)
-}
+func stripShellQuotes(command string) string { _ = "STUB: not implemented"; return "" }
 
 func containsSensitivePathFragment(command, fragment string) bool {
-	if fragment == "" {
-		return false
-	}
-	offset := 0
-	for offset < len(command) {
-		idx := strings.Index(command[offset:], fragment)
-		if idx < 0 {
-			return false
-		}
-		idx += offset
-		if hasSensitivePathBoundaryBefore(command, idx) &&
-			hasSensitivePathBoundaryAfter(command, idx+len(fragment), fragment) {
-			return true
-		}
-		offset = idx + 1
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func hasSensitivePathBoundaryBefore(command string, idx int) bool {
-	if idx <= 0 {
-		return true
-	}
-	return isSensitivePathBoundary(command[idx-1])
+	_ = "STUB: not implemented"
+	return false
 }
 
 func hasSensitivePathBoundaryAfter(
@@ -351,18 +165,8 @@ func hasSensitivePathBoundaryAfter(
 	idx int,
 	fragment string,
 ) bool {
-	if strings.HasSuffix(fragment, "/") {
-		return true
-	}
-	if idx >= len(command) {
-		return true
-	}
-	if fragment == ".env" && command[idx] == '.' {
-		return true
-	}
-	return isSensitivePathBoundary(command[idx])
+	_ = "STUB: not implemented"
+	return false
 }
 
-func isSensitivePathBoundary(ch byte) bool {
-	return strings.ContainsRune(sensitivePathBoundaryChars, rune(ch))
-}
+func isSensitivePathBoundary(ch byte) bool { _ = "STUB: not implemented"; return false }

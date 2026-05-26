@@ -26,28 +26,11 @@ type State struct {
 }
 
 // NewState creates a new empty State.
-func NewState() *State {
-	return &State{
-		Value: make(StateMap),
-		Delta: make(StateMap),
-	}
-}
+func NewState() *State { _ = "STUB: not implemented"; return nil }
 
 // Set sets the value of a key in the state.
-func (s *State) Set(key string, value []byte) {
-	s.Value[key] = value
-	s.Delta[key] = value
-}
+func (s *State) Set(key string, value []byte) { _ = "STUB: not implemented"; return }
 
 // Get gets the value of a key in the state.
 // Will return the delta value if it exists, otherwise the value.
-func (s *State) Get(key string) (any, bool) {
-	v, ok := s.Delta[key]
-	if ok {
-		return v, true
-	}
-	if v, ok = s.Value[key]; ok {
-		return v, true
-	}
-	return nil, false
-}
+func (s *State) Get(key string) (any, bool) { _ = "STUB: not implemented"; return *new(any), false }

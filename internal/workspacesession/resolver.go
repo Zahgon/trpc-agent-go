@@ -13,10 +13,7 @@ import (
 	"context"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/artifact"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
-	localexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // Resolver owns shared engine and session-workspace resolution for tools
@@ -32,31 +29,15 @@ func NewResolver(
 	exec codeexecutor.CodeExecutor,
 	reg *codeexecutor.WorkspaceRegistry,
 ) *Resolver {
-	if reg == nil {
-		reg = codeexecutor.NewWorkspaceRegistry()
-	}
-	return &Resolver{
-		exec: exec,
-		reg:  reg,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EnsureEngine gets an engine from the configured executor or falls back
 // to the local runtime when no EngineProvider is available.
 func (r *Resolver) EnsureEngine() codeexecutor.Engine {
-	if r != nil {
-		if ep, ok := r.exec.(codeexecutor.EngineProvider); ok && ep != nil {
-			if e := ep.Engine(); e != nil {
-				return e
-			}
-		}
-	}
-	log.Warnf(
-		"workspacesession: falling back to local engine; " +
-			"executor does not expose EngineProvider",
-	)
-	rt := localexec.NewRuntime("")
-	return codeexecutor.NewEngine(rt, rt, rt)
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.Engine)
 }
 
 // CreateWorkspace acquires the invocation-scoped workspace for a tool run.
@@ -65,19 +46,8 @@ func (r *Resolver) CreateWorkspace(
 	eng codeexecutor.Engine,
 	name string,
 ) (codeexecutor.Workspace, error) {
-	reg := r.reg
-	if reg == nil {
-		reg = codeexecutor.NewWorkspaceRegistry()
-		r.reg = reg
-	}
-	sid := name
-	if inv, ok := agent.InvocationFromContext(ctx); ok && inv != nil {
-		if inv.Session != nil && inv.Session.ID != "" {
-			sid = inv.Session.ID
-		}
-		ctx = withWorkspaceArtifactContext(ctx, inv)
-	}
-	return reg.Acquire(ctx, eng.Manager(), sid)
+	_ = "STUB: not implemented"
+	return *new(codeexecutor.Workspace), nil
 }
 
 // withWorkspaceArtifactContext mirrors internal/workspaceinput.withArtifactContext:
@@ -88,18 +58,6 @@ func withWorkspaceArtifactContext(
 	ctx context.Context,
 	inv *agent.Invocation,
 ) context.Context {
-	if inv == nil {
-		return ctx
-	}
-	if inv.ArtifactService != nil {
-		ctx = codeexecutor.WithArtifactService(ctx, inv.ArtifactService)
-	}
-	if inv.Session == nil {
-		return ctx
-	}
-	return codeexecutor.WithArtifactSession(ctx, artifact.SessionInfo{
-		AppName:   inv.Session.AppName,
-		UserID:    inv.Session.UserID,
-		SessionID: inv.Session.ID,
-	})
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

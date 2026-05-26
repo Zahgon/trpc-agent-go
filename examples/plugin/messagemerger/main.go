@@ -12,15 +12,12 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
 const (
@@ -58,34 +55,6 @@ func main() {
 	}
 }
 
-func demoHistory() []model.Message {
-	return []model.Message{
-		model.NewUserMessage("Plan a one-day Hangzhou trip for me."),
-		model.NewUserMessage("I prefer trains and a budget under 500 RMB."),
-		model.NewAssistantMessage("Sure."),
-		model.NewAssistantMessage("What city are you departing from?"),
-		model.NewUserMessage("I will depart from Shanghai."),
-	}
-}
+func demoHistory() []model.Message { _ = "STUB: not implemented"; return nil }
 
-func runScenario(history []model.Message) error {
-	r := newRunner()
-	defer r.Close()
-	sessionID := fmt.Sprintf("with-plugin-%d", time.Now().UnixNano())
-	evCh, err := runner.RunWithMessages(
-		context.Background(),
-		r,
-		userID,
-		sessionID,
-		history,
-	)
-	if err != nil {
-		return err
-	}
-	finalResponse, err := collectFinalResponse(evCh)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Assistant: %s\n", finalResponse)
-	return nil
-}
+func runScenario(history []model.Message) error { _ = "STUB: not implemented"; return nil }

@@ -91,7 +91,8 @@ var referenceDateKey = contextKey{}
 func WithReferenceDate(
 	ctx context.Context, t time.Time,
 ) context.Context {
-	return context.WithValue(ctx, referenceDateKey, t)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // ReferenceDateFromContext extracts the reference date from ctx.
@@ -100,6 +101,6 @@ func WithReferenceDate(
 func ReferenceDateFromContext(
 	ctx context.Context,
 ) (time.Time, bool) {
-	t, ok := ctx.Value(referenceDateKey).(time.Time)
-	return t, ok
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }

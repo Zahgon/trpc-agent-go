@@ -11,28 +11,17 @@ package tool
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const internalLookupName = "internal_lookup"
 
-func newInternalLookupTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		internalLookup,
-		function.WithName(internalLookupName),
-		function.WithDescription("Look up deterministic server-side context for a subject."),
-	)
-}
+func newInternalLookupTool() agenttool.Tool { _ = "STUB: not implemented"; return *new(agenttool.Tool) }
 
 func internalLookup(_ context.Context, args internalLookupArgs) (internalLookupResult, error) {
-	if args.Subject == "" {
-		return internalLookupResult{}, errors.New("subject is required")
-	}
-	return internalLookupResult{Result: fmt.Sprintf("internal-lookup:%s", args.Subject)}, nil
+	_ = "STUB: not implemented"
+	return *new(internalLookupResult), nil
 }
 
 type internalLookupArgs struct {

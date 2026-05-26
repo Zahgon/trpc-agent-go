@@ -23,67 +23,31 @@ type Option func(*Source)
 // Source.repository, leaves Source.hasRepository set, and records the duplicate
 // configuration in Source.multiRepoError. The deferred error is surfaced by
 // Source.ReadDocuments rather than by the option itself.
-func WithRepository(repository Repository) Option {
-	return func(s *Source) {
-		if s.hasRepository {
-			s.multiRepoError = true
-			return
-		}
-		s.repository = repository
-		s.hasRepository = true
-	}
-}
+func WithRepository(repository Repository) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithName sets the source name.
-func WithName(name string) Option {
-	return func(s *Source) {
-		s.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadata sets custom metadata for the source.
-func WithMetadata(metadata map[string]any) Option {
-	return func(s *Source) {
-		for k, v := range metadata {
-			s.metadata[k] = v
-		}
-	}
-}
+func WithMetadata(metadata map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataValue adds a single metadata key-value pair.
 func WithMetadataValue(key string, value any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		s.metadata[key] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFileExtensions limits processing to the given file extensions.
-func WithFileExtensions(extensions []string) Option {
-	return func(s *Source) {
-		s.fileExtensions = append([]string(nil), extensions...)
-	}
-}
+func WithFileExtensions(extensions []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipDirs configures directory names to skip during scanning.
-func WithSkipDirs(dirs []string) Option {
-	return func(s *Source) {
-		s.skipDirs = append([]string(nil), dirs...)
-	}
-}
+func WithSkipDirs(dirs []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipSuffixes configures file suffixes to skip during scanning.
-func WithSkipSuffixes(suffixes []string) Option {
-	return func(s *Source) {
-		s.skipSuffixes = append([]string(nil), suffixes...)
-	}
-}
+func WithSkipSuffixes(suffixes []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTransformers sets document transformers.
 func WithTransformers(transformers ...transform.Transformer) Option {
-	return func(s *Source) {
-		s.transformers = append(s.transformers, transformers...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

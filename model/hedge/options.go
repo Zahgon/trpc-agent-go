@@ -25,15 +25,7 @@ type options struct {
 	delays        []time.Duration
 }
 
-func newOptions(opt ...Option) options {
-	opts := options{
-		delay: defaultDelay,
-	}
-	for _, o := range opt {
-		o(&opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) options { _ = "STUB: not implemented"; return *new(options) }
 
 // Option configures a hedge model.
 type Option func(*options)
@@ -41,40 +33,20 @@ type Option func(*options)
 // WithCandidates appends hedge candidates in launch order.
 // Multiple calls accumulate candidates instead of replacing them.
 func WithCandidates(candidates ...model.Model) Option {
-	return func(o *options) {
-		o.candidates = append(o.candidates, candidates...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithName sets a stable logical model name for the hedge wrapper.
-func WithName(name string) Option {
-	return func(o *options) {
-		o.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContextWindow sets the model context window size in tokens for this
 // hedge wrapper. If unset, the wrapper reports a context window only when all
 // candidate models report the same positive context window.
-func WithContextWindow(tokens int) Option {
-	return func(o *options) {
-		if tokens > 0 {
-			o.contextWindow = tokens
-		}
-	}
-}
+func WithContextWindow(tokens int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDelay sets a fixed interval between successive hedge launches.
-func WithDelay(delay time.Duration) Option {
-	return func(o *options) {
-		o.delay = delay
-	}
-}
+func WithDelay(delay time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDelays sets absolute launch offsets for candidates[1:].
-func WithDelays(delays ...time.Duration) Option {
-	return func(o *options) {
-		o.delays = make([]time.Duration, len(delays))
-		copy(o.delays, delays)
-	}
-}
+func WithDelays(delays ...time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -10,9 +10,6 @@
 package mysqlvec
 
 import (
-	"errors"
-	"fmt"
-	"maps"
 	"regexp"
 	"time"
 
@@ -84,23 +81,9 @@ type ServiceOpts struct {
 	memoryJobTimeout time.Duration
 }
 
-func (o ServiceOpts) clone() ServiceOpts {
-	opts := o
+func (o ServiceOpts) clone() ServiceOpts { _ = "STUB: not implemented"; return *new(ServiceOpts) }
 
-	opts.toolCreators = make(map[string]memory.ToolCreator, len(o.toolCreators))
-	for name, toolCreator := range o.toolCreators {
-		opts.toolCreators[name] = toolCreator
-	}
-
-	opts.enabledTools = maps.Clone(o.enabledTools)
-	opts.toolExposed = maps.Clone(o.toolExposed)
-	opts.toolHidden = maps.Clone(o.toolHidden)
-
-	// Initialize userExplicitlySet map (empty for new clone).
-	opts.userExplicitlySet = make(map[string]struct{})
-
-	return opts
-}
+// Initialize userExplicitlySet map (empty for new clone).
 
 // ServiceOpt is the option for the mysqlvec memory service.
 type ServiceOpt func(*ServiceOpts)
@@ -110,230 +93,115 @@ type ServiceOpt func(*ServiceOpts)
 //
 // Note: WithMySQLClientDSN has the highest priority.
 // If DSN is specified, WithMySQLInstance will be ignored.
-func WithMySQLClientDSN(dsn string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.dsn = dsn
-	}
-}
+func WithMySQLClientDSN(dsn string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMySQLInstance uses a MySQL instance from storage.
 // The instance must be registered via storage.RegisterMySQLInstance() before use.
 //
 // Note: WithMySQLClientDSN has higher priority than WithMySQLInstance.
 func WithMySQLInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithTableName sets the table name for storing memories.
 // Default is "memories".
 //
 // Panics if the table name is invalid.
-func WithTableName(tableName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if err := validateTableName(tableName); err != nil {
-			panic(fmt.Sprintf("invalid table name: %v", err))
-		}
-		opts.tableName = tableName
-	}
-}
+func WithTableName(tableName string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithIndexDimension sets the vector dimension for the embedding column.
 // Default is 1536.
 func WithIndexDimension(dimension int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if dimension > 0 {
-			opts.indexDimension = dimension
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithMaxResults sets the maximum number of search results.
 // Default is 15.
-func WithMaxResults(maxResults int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if maxResults > 0 {
-			opts.maxResults = maxResults
-		}
-	}
-}
+func WithMaxResults(maxResults int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithSoftDelete enables or disables soft delete behavior.
 // When enabled, delete operations set deleted_at and queries filter deleted rows.
 // Default is disabled (hard delete).
-func WithSoftDelete(enabled bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.softDelete = enabled
-	}
-}
+func WithSoftDelete(enabled bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryLimit sets the limit of memories per user.
-func WithMemoryLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryLimit = limit
-	}
-}
+func WithMemoryLimit(limit int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCustomTool sets a custom memory tool implementation.
 // The tool will be enabled by default.
 func WithCustomTool(toolName string, creator memory.ToolCreator) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) || creator == nil {
-			return
-		}
-		if opts.toolCreators == nil {
-			opts.toolCreators = make(map[string]memory.ToolCreator)
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		opts.toolCreators[toolName] = creator
-		opts.enabledTools[toolName] = struct{}{}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAutoMemoryExposedTools exposes enabled tools via Tools() in auto memory
 // mode so the agent can call them directly. Invalid tool names are ignored.
 func WithAutoMemoryExposedTools(toolNames ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		for _, toolName := range toolNames {
-			WithToolExposed(toolName, true)(opts)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolExposed controls whether an enabled memory tool is exposed via
 // Tools(). Use WithAutoMemoryExposedTools for the common auto memory case.
 func WithToolExposed(toolName string, exposed bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if exposed {
-			if opts.toolExposed == nil {
-				opts.toolExposed = make(map[string]struct{})
-			}
-			opts.toolExposed[toolName] = struct{}{}
-			delete(opts.toolHidden, toolName)
-			return
-		}
-		if opts.toolHidden == nil {
-			opts.toolHidden = make(map[string]struct{})
-		}
-		opts.toolHidden[toolName] = struct{}{}
-		delete(opts.toolExposed, toolName)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolEnabled sets which tool is enabled.
 // User settings via WithToolEnabled take precedence over auto mode
 // defaults, regardless of option order.
 func WithToolEnabled(toolName string, enabled bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		if enabled {
-			opts.enabledTools[toolName] = struct{}{}
-		} else {
-			delete(opts.enabledTools, toolName)
-		}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets extra options passed to the MySQL client builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSkipDBInit skips database initialization (table creation).
-func WithSkipDBInit(skip bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithEmbedder sets the embedder for generating memory embeddings.
 // This is required for vector-based memory search.
 func WithEmbedder(e embedder.Embedder) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.embedder = e
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtractor sets the memory extractor for auto memory mode.
 func WithExtractor(e extractor.MemoryExtractor) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extractor = e
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncMemoryNum sets the number of async memory workers.
-func WithAsyncMemoryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = imemory.DefaultAsyncMemoryNum
-		}
-		opts.asyncMemoryNum = num
-	}
-}
+func WithAsyncMemoryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryQueueSize sets the queue size for memory jobs.
-func WithMemoryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = imemory.DefaultMemoryQueueSize
-		}
-		opts.memoryQueueSize = size
-	}
-}
+func WithMemoryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryJobTimeout sets the timeout for each memory job.
 func WithMemoryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithSimilarityThreshold sets the minimum cosine similarity threshold
 // for search results. Results below this threshold are filtered out.
 // Value should be between 0 and 1. A value of 0 disables filtering.
 func WithSimilarityThreshold(threshold float64) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if threshold >= 0 && threshold <= 1 {
-			opts.similarityThreshold = threshold
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // tableNamePattern is the regex pattern for validating table names.
 var tableNamePattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // validateTableName validates the table name to prevent SQL injection.
-func validateTableName(tableName string) error {
-	if tableName == "" {
-		return errors.New("table name cannot be empty")
-	}
-	const maxTableNameLength = 64
-	if len(tableName) > maxTableNameLength {
-		return fmt.Errorf("table name too long: %d characters (max %d)", len(tableName), maxTableNameLength)
-	}
-	if !tableNamePattern.MatchString(tableName) {
-		return fmt.Errorf("invalid table name: %s (must start with letter/underscore and contain only alphanumeric characters and underscores)", tableName)
-	}
-	return nil
-}
+func validateTableName(tableName string) error { _ = "STUB: not implemented"; return nil }

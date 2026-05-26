@@ -27,11 +27,4 @@ type Criterion struct {
 }
 
 // New creates a Criterion with the provided options.
-func New(opt ...Option) *Criterion {
-	opts := newOptions(opt...)
-	return &Criterion{
-		ToolTrajectory: opts.toolTrajectory,
-		FinalResponse:  opts.finalResponse,
-		LLMJudge:       opts.llmJudge,
-	}
-}
+func New(opt ...Option) *Criterion { _ = "STUB: not implemented"; return nil }

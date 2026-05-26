@@ -9,13 +9,6 @@
 
 package deps
 
-import (
-	"fmt"
-	"slices"
-	"sort"
-	"strings"
-)
-
 const (
 	ProfilePDF             = "pdf"
 	ProfileOffice          = "office"
@@ -305,291 +298,63 @@ func systemInstall(
 	label string,
 	bins ...string,
 ) InstallAction {
-	return InstallAction{
-		ID:      pkg,
-		Kind:    kind,
-		Formula: pkg,
-		Bins:    append([]string(nil), bins...),
-		Label:   label,
-	}
+	_ = "STUB: not implemented"
+	return *new(InstallAction)
 }
 
-func Profiles() []Profile {
-	names := make([]string, 0, len(builtinProfiles))
-	for name := range builtinProfiles {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+func Profiles() []Profile { _ = "STUB: not implemented"; return nil }
 
-	out := make([]Profile, 0, len(names))
-	for _, name := range names {
-		out = append(out, normalizeProfile(builtinProfiles[name]))
-	}
-	return out
-}
+func DefaultProfiles() []string { _ = "STUB: not implemented"; return nil }
 
-func DefaultProfiles() []string {
-	return []string{ProfileCommonFileTools}
-}
-
-func ResolveProfiles(names []string) ([]Profile, error) {
-	normalized := normalizeProfileNames(names)
-	if len(normalized) == 0 {
-		normalized = DefaultProfiles()
-	}
-
-	seen := map[string]struct{}{}
-	out := make([]Profile, 0, len(normalized))
-	for _, name := range normalized {
-		if err := appendProfile(&out, seen, name); err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
+func ResolveProfiles(names []string) ([]Profile, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func SourcesForProfiles(names []string) ([]Source, error) {
-	profiles, err := ResolveProfiles(names)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]Source, 0, len(profiles))
-	for _, profile := range profiles {
-		out = append(out, Source{
-			Name:        profile.Name,
-			Description: profile.Description,
-			Requires:    profile.Requires,
-			Install:     profile.Install,
-		})
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func ProfileNames() []string {
-	profiles := Profiles()
-	out := make([]string, 0, len(profiles))
-	for _, profile := range profiles {
-		out = append(out, profile.Name)
-	}
-	return out
-}
+func ProfileNames() []string { _ = "STUB: not implemented"; return nil }
 
-func normalizeProfileNames(names []string) []string {
-	out := make([]string, 0, len(names))
-	for _, raw := range names {
-		for _, part := range strings.Split(raw, ",") {
-			name := strings.ToLower(strings.TrimSpace(part))
-			if name == "" {
-				continue
-			}
-			out = append(out, name)
-		}
-	}
-	return out
-}
+func normalizeProfileNames(names []string) []string { _ = "STUB: not implemented"; return nil }
 
 func appendProfile(
 	dst *[]Profile,
 	seen map[string]struct{},
 	name string,
 ) error {
-	profile, ok := builtinProfiles[name]
-	if !ok {
-		return fmt.Errorf("unknown dependency profile: %s", name)
-	}
-	if _, ok := seen[name]; ok {
-		return nil
-	}
-	seen[name] = struct{}{}
-
-	expanded := normalizeProfile(profile)
-	for _, child := range expanded.Expands {
-		if err := appendProfile(dst, seen, child); err != nil {
-			return err
-		}
-	}
-	if len(expanded.Expands) > 0 &&
-		isAggregateProfile(expanded) {
-		return nil
-	}
-
-	*dst = append(*dst, expanded)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func isAggregateProfile(profile Profile) bool {
-	return len(profile.Expands) > 0 &&
-		len(profile.Requires.Bins) == 0 &&
-		len(profile.Requires.AnyBins) == 0 &&
-		len(profile.Requires.Env) == 0 &&
-		len(profile.Requires.Config) == 0 &&
-		len(profile.Requires.Python) == 0 &&
-		len(profile.Install) == 0
-}
+func isAggregateProfile(profile Profile) bool { _ = "STUB: not implemented"; return false }
 
-func normalizeProfile(profile Profile) Profile {
-	profile.Name = strings.TrimSpace(profile.Name)
-	profile.Description = strings.TrimSpace(profile.Description)
-	profile.Expands = normalizeStrings(profile.Expands)
-	profile.Requires = normalizeRequirement(profile.Requires)
-	profile.Install = normalizeInstallActions(profile.Install)
-	return profile
-}
+func normalizeProfile(profile Profile) Profile { _ = "STUB: not implemented"; return *new(Profile) }
 
-func normalizeSource(source Source) Source {
-	source.Name = strings.TrimSpace(source.Name)
-	source.Description = strings.TrimSpace(source.Description)
-	source.Requires = normalizeRequirement(source.Requires)
-	source.Install = normalizeInstallActions(source.Install)
-	return source
-}
+func normalizeSource(source Source) Source { _ = "STUB: not implemented"; return *new(Source) }
 
 func normalizeRequirement(req Requirement) Requirement {
-	req.Bins = normalizeStrings(req.Bins)
-	req.AnyBins = normalizeStrings(req.AnyBins)
-	req.Env = normalizeStrings(req.Env)
-	req.Config = normalizeStrings(req.Config)
-	req.Python = normalizePythonPackages(req.Python)
-	return req
+	_ = "STUB: not implemented"
+	return *new(Requirement)
 }
 
 func normalizePythonPackages(
 	pkgs []PythonPackage,
 ) []PythonPackage {
-	out := make([]PythonPackage, 0, len(pkgs))
-	seen := map[string]struct{}{}
-	for _, raw := range pkgs {
-		pkg := PythonPackage{
-			Module:  strings.TrimSpace(raw.Module),
-			Package: strings.TrimSpace(raw.Package),
-			Label:   strings.TrimSpace(raw.Label),
-		}
-		if pkg.Module == "" && pkg.Package == "" {
-			continue
-		}
-		if pkg.Module == "" {
-			pkg.Module = pkg.Package
-		}
-		if pkg.Package == "" {
-			pkg.Package = pkg.Module
-		}
-		key := pkg.Module + "\x00" + pkg.Package
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = struct{}{}
-		out = append(out, pkg)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func normalizeInstallActions(
 	actions []InstallAction,
 ) []InstallAction {
-	out := make([]InstallAction, 0, len(actions))
-	seen := map[string]struct{}{}
-	for _, raw := range actions {
-		action := InstallAction{
-			ID:              strings.TrimSpace(raw.ID),
-			Kind:            strings.ToLower(strings.TrimSpace(raw.Kind)),
-			Formula:         strings.TrimSpace(raw.Formula),
-			Package:         strings.TrimSpace(raw.Package),
-			Packages:        normalizeStrings(raw.Packages),
-			Bins:            normalizeStrings(raw.Bins),
-			Label:           strings.TrimSpace(raw.Label),
-			Tap:             strings.TrimSpace(raw.Tap),
-			Module:          strings.TrimSpace(raw.Module),
-			URL:             strings.TrimSpace(raw.URL),
-			Archive:         strings.ToLower(strings.TrimSpace(raw.Archive)),
-			TargetDir:       strings.TrimSpace(raw.TargetDir),
-			OS:              normalizeOSList(raw.OS),
-			Extract:         raw.Extract,
-			StripComponents: raw.StripComponents,
-		}
-		if action.Kind == "" {
-			continue
-		}
-		if action.StripComponents < 0 {
-			action.StripComponents = 0
-		}
-		key := strings.Join([]string{
-			action.Kind,
-			action.ID,
-			action.Formula,
-			action.Package,
-			action.Tap,
-			action.Module,
-			action.URL,
-			action.Archive,
-			action.TargetDir,
-			strings.Join(action.OS, ","),
-			fmt.Sprintf("%t", action.Extract),
-			fmt.Sprintf("%d", action.StripComponents),
-			strings.Join(action.Packages, ","),
-		}, "\x00")
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = struct{}{}
-		out = append(out, action)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func normalizeStrings(values []string) []string {
-	out := make([]string, 0, len(values))
-	seen := map[string]struct{}{}
-	for _, raw := range values {
-		value := strings.TrimSpace(raw)
-		if value == "" {
-			continue
-		}
-		if _, ok := seen[value]; ok {
-			continue
-		}
-		seen[value] = struct{}{}
-		out = append(out, value)
-	}
-	return out
-}
+func normalizeStrings(values []string) []string { _ = "STUB: not implemented"; return nil }
 
-func normalizeOSList(values []string) []string {
-	out := make([]string, 0, len(values))
-	seen := map[string]struct{}{}
-	for _, raw := range values {
-		value := normalizeOSName(raw)
-		if value == "" {
-			continue
-		}
-		if _, ok := seen[value]; ok {
-			continue
-		}
-		seen[value] = struct{}{}
-		out = append(out, value)
-	}
-	return out
-}
+func normalizeOSList(values []string) []string { _ = "STUB: not implemented"; return nil }
 
-func normalizeOSName(raw string) string {
-	value := strings.ToLower(strings.TrimSpace(raw))
-	if value == "win32" {
-		return "windows"
-	}
-	return value
-}
+func normalizeOSName(raw string) string { _ = "STUB: not implemented"; return "" }
 
-func MergeSources(sources ...Source) []Source {
-	out := make([]Source, 0, len(sources))
-	for _, source := range sources {
-		source = normalizeSource(source)
-		if source.Name == "" {
-			continue
-		}
-		out = append(out, source)
-	}
-	sort.Slice(out, func(i, j int) bool {
-		return out[i].Name < out[j].Name
-	})
-	return slices.Clip(out)
-}
+func MergeSources(sources ...Source) []Source { _ = "STUB: not implemented"; return nil }

@@ -10,16 +10,11 @@
 package evaluation
 
 import (
-	"errors"
-
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalresult"
-	evalresultinmemory "trpc.group/trpc-go/trpc-agent-go/evaluation/evalresult/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
-	evalsetinmemory "trpc.group/trpc-go/trpc-agent-go/evaluation/evalset/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/registry"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/metric"
-	metricinmemory "trpc.group/trpc-go/trpc-agent-go/evaluation/metric/inmemory"
 	metricregistry "trpc.group/trpc-go/trpc-agent-go/evaluation/metric/registry"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/service"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/usersimulation"
@@ -55,190 +50,98 @@ type options struct {
 
 // newOptions creates a new options with the default values.
 func newOptions(opt ...Option) *options {
+	_ = "STUB: not implemented"
 	// Initialize options with default values.
-	opts := &options{
-		numRuns:           defaultNumRuns,
-		evalSetManager:    evalsetinmemory.New(),
-		evalResultManager: evalresultinmemory.New(),
-		metricManager:     metricinmemory.New(),
-		registry:          registry.New(),
-		metricRegistry:    metricregistry.New(),
-	}
-	// Apply user options.
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
+	return nil
 }
+
+// Apply user options.
 
 // Option defines a function type for configuring the evaluation.
 type Option func(*options)
 
 // WithEvalSetManager sets the eval set manager.
-func WithEvalSetManager(m evalset.Manager) Option {
-	return func(o *options) {
-		o.evalSetManager = m
-	}
-}
+func WithEvalSetManager(m evalset.Manager) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEvalResultManager sets the eval result manager.
 func WithEvalResultManager(m evalresult.Manager) Option {
-	return func(o *options) {
-		o.evalResultManager = m
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMetricManager sets the metric manager.
-func WithMetricManager(m metric.Manager) Option {
-	return func(o *options) {
-		o.metricManager = m
-	}
-}
+func WithMetricManager(m metric.Manager) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRegistry sets the evaluator registry.
-func WithRegistry(r registry.Registry) Option {
-	return func(o *options) {
-		o.registry = r
-	}
-}
+func WithRegistry(r registry.Registry) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetricRegistry sets the metric runtime registry.
 func WithMetricRegistry(r metricregistry.Registry) Option {
-	return func(o *options) {
-		o.metricRegistry = r
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvaluationService sets the evaluation service.
 func WithEvaluationService(s service.Service) Option {
-	return func(o *options) {
-		o.evalService = s
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithUserSimulator sets the simulator used for conversation scenarios.
 func WithUserSimulator(sim usersimulation.Simulator) Option {
-	return func(o *options) {
-		o.userSimulator = sim
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCallbacks sets evaluation callbacks for evaluation service.
-func WithCallbacks(c *service.Callbacks) Option {
-	return func(o *options) {
-		o.callbacks = c
-	}
-}
+func WithCallbacks(c *service.Callbacks) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithJudgeRunner injects a judge runner for all LLM judge evaluators.
-func WithJudgeRunner(judge runner.Runner) Option {
-	return func(o *options) {
-		o.judgeRunner = judge
-	}
-}
+func WithJudgeRunner(judge runner.Runner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithJudgeRunnerNumSamples sets how many samples to collect from the judge runner.
 func WithJudgeRunnerNumSamples(numSamples int) Option {
-	return func(o *options) {
-		o.judgeRunnerNumSamples = &numSamples
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExpectedRunner sets the runner used to generate dynamic expected outputs.
-func WithExpectedRunner(r runner.Runner) Option {
-	return func(o *options) {
-		o.expectedRunner = r
-	}
-}
+func WithExpectedRunner(r runner.Runner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNumRuns sets the number of runs.
-func WithNumRuns(numRuns int) Option {
-	return func(o *options) {
-		o.numRuns = numRuns
-	}
-}
+func WithNumRuns(numRuns int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEvalCaseIDs limits evaluation to the specified eval case IDs.
-func WithEvalCaseIDs(evalCaseIDs ...string) Option {
-	return func(o *options) {
-		o.evalCaseIDs = append([]string(nil), evalCaseIDs...)
-	}
-}
+func WithEvalCaseIDs(evalCaseIDs ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNumRunsParallelEnabled enables or disables parallel execution across evaluation runs.
 func WithNumRunsParallelEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.numRunsParallelEnabled = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalCaseParallelism sets the maximum number of eval cases processed in parallel.
 func WithEvalCaseParallelism(parallelism int) Option {
-	return func(o *options) {
-		o.evalCaseParallelism = &parallelism
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalCaseParallelInferenceEnabled enables or disables parallel inference across eval cases.
 func WithEvalCaseParallelInferenceEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.evalCaseParallelInferenceEnabled = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalCaseParallelEvaluationEnabled enables or disables parallel evaluation across eval cases.
 func WithEvalCaseParallelEvaluationEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.evalCaseParallelEvaluationEnabled = &enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRunDetailsEnabled enables or disables per-run inference details in evaluation results.
-func WithRunDetailsEnabled(enabled bool) Option {
-	return func(o *options) {
-		o.runDetailsEnabled = enabled
-	}
-}
+func WithRunDetailsEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunOptions appends agent.RunOption values that will be applied to every runner.Run call during inference.
-func WithRunOptions(opt ...agent.RunOption) Option {
-	return func(o *options) {
-		o.runOptions = append(o.runOptions, opt...)
-	}
-}
+func WithRunOptions(opt ...agent.RunOption) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func (o *options) validate(requireEvalService bool) error {
-	if o == nil {
-		return errors.New("options is nil")
-	}
-	if o.numRuns <= 0 {
-		return errors.New("num runs must be greater than 0")
-	}
-	if o.judgeRunnerNumSamples != nil && *o.judgeRunnerNumSamples <= 0 {
-		return errors.New("judge runner num samples must be greater than 0")
-	}
-	parallelInferenceEnabled := o.evalCaseParallelInferenceEnabled != nil && *o.evalCaseParallelInferenceEnabled
-	parallelEvaluationEnabled := o.evalCaseParallelEvaluationEnabled != nil && *o.evalCaseParallelEvaluationEnabled
-	if (parallelInferenceEnabled || parallelEvaluationEnabled) && o.evalCaseParallelism != nil && *o.evalCaseParallelism <= 0 {
-		return errors.New("eval case parallelism must be greater than 0")
-	}
-	if o.evalSetManager == nil {
-		return errors.New("eval set manager is nil")
-	}
-	if o.metricManager == nil {
-		return errors.New("metric manager is nil")
-	}
-	if o.evalResultManager == nil {
-		return errors.New("eval result manager is nil")
-	}
-	if o.registry == nil {
-		return errors.New("registry is nil")
-	}
-	if o.metricRegistry == nil {
-		return errors.New("metric registry is nil")
-	}
-	if requireEvalService && o.evalService == nil {
-		return errors.New("eval service is nil")
-	}
-	return nil
-}
+func (o *options) validate(requireEvalService bool) error { _ = "STUB: not implemented"; return nil }

@@ -11,9 +11,6 @@
 package redis
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/redis/go-redis/v9"
 )
 
@@ -28,55 +25,20 @@ type clientBuilder func(builderOpts ...ClientBuilderOpt) (redis.UniversalClient,
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the redis client builder.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the redis client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// defaultClientBuilder is the default redis client builder.
+	new(clientBuilder)
 }
 
-// defaultClientBuilder is the default redis client builder.
 func defaultClientBuilder(builderOpts ...ClientBuilderOpt) (redis.UniversalClient, error) {
-	o := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(o)
-	}
-
-	if o.URL == "" {
-		return nil, errors.New("redis: url is empty")
-	}
-
-	opts, err := redis.ParseURL(o.URL)
-	if err != nil {
-		return nil, fmt.Errorf("redis: parse url %s: %w", o.URL, err)
-	}
-	universalOpts := &redis.UniversalOptions{
-		Addrs:                 []string{opts.Addr},
-		DB:                    opts.DB,
-		Username:              opts.Username,
-		Password:              opts.Password,
-		Protocol:              opts.Protocol,
-		ClientName:            opts.ClientName,
-		TLSConfig:             opts.TLSConfig,
-		MaxRetries:            opts.MaxRetries,
-		MinRetryBackoff:       opts.MinRetryBackoff,
-		MaxRetryBackoff:       opts.MaxRetryBackoff,
-		DialTimeout:           opts.DialTimeout,
-		ReadTimeout:           opts.ReadTimeout,
-		WriteTimeout:          opts.WriteTimeout,
-		ContextTimeoutEnabled: opts.ContextTimeoutEnabled,
-		PoolFIFO:              opts.PoolFIFO,
-		PoolSize:              opts.PoolSize,
-		PoolTimeout:           opts.PoolTimeout,
-		MinIdleConns:          opts.MinIdleConns,
-		MaxIdleConns:          opts.MaxIdleConns,
-		MaxActiveConns:        opts.MaxActiveConns,
-		ConnMaxIdleTime:       opts.ConnMaxIdleTime,
-		ConnMaxLifetime:       opts.ConnMaxLifetime,
-	}
-	return redis.NewUniversalClient(universalOpts), nil
+	_ = "STUB: not implemented"
+	return *new(redis.UniversalClient), nil
 }
 
 // ClientBuilderOpt is the option for the redis client.
@@ -93,26 +55,25 @@ type ClientBuilderOpts struct {
 
 // WithClientBuilderURL sets the redis client url for clientBuilder.
 func WithClientBuilderURL(url string) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.URL = url
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets the redis client extra options for clientBuilder.
 // this option mainly used for the customized redis client builder, it will be passed to the builder.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(opts *ClientBuilderOpts) {
-		opts.ExtraOptions = append(opts.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // RegisterRedisInstance registers a redis instance options.
 func RegisterRedisInstance(name string, opts ...ClientBuilderOpt) {
-	redisRegistry[name] = append(redisRegistry[name], opts...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetRedisInstance gets the redis instance options.
 func GetRedisInstance(name string) ([]ClientBuilderOpt, bool) {
-	instance, ok := redisRegistry[name]
-	return instance, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }

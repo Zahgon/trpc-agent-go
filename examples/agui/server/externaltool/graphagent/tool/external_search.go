@@ -11,25 +11,18 @@ package tool
 
 import (
 	"context"
-	"errors"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 // ExternalSearchName is the caller-executed external search tool name.
 const ExternalSearchName = "external_search"
 
-func newExternalSearchTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		externalSearchNotImplemented,
-		function.WithName(ExternalSearchName),
-		function.WithDescription("Search an external system for information."),
-	)
-}
+func newExternalSearchTool() agenttool.Tool { _ = "STUB: not implemented"; return *new(agenttool.Tool) }
 
 func externalSearchNotImplemented(context.Context, externalSearchArgs) (externalSearchResult, error) {
-	return externalSearchResult{}, errors.New("external_search is executed by the caller")
+	_ = "STUB: not implemented"
+	return *new(externalSearchResult), nil
 }
 
 type externalSearchArgs struct {

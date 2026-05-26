@@ -10,9 +10,6 @@
 package browser
 
 import (
-	"errors"
-	"fmt"
-	"strings"
 	"time"
 
 	mcptool "trpc.group/trpc-go/trpc-agent-go/tool/mcp"
@@ -100,82 +97,13 @@ type serverTargetConfig struct {
 }
 
 func resolveConfig(cfg Config) (resolvedConfig, error) {
-	if len(cfg.Profiles) == 0 {
-		return resolvedConfig{}, errors.New(
-			"browser provider requires at least one profile",
-		)
-	}
-
-	out := resolvedConfig{
-		DefaultProfile: strings.TrimSpace(cfg.DefaultProfile),
-	}
-	if cfg.EvaluateEnabled != nil {
-		out.EvaluateEnabled = *cfg.EvaluateEnabled
-	}
-	out.Navigation = resolveNavigationPolicy(cfg)
-	out.HostServer = resolveServerTarget(
-		targetHost,
-		cfg.ServerURL,
-		cfg.AuthToken,
-	)
-	out.SandboxServer = resolveServerTarget(
-		targetSandbox,
-		cfg.SandboxServerURL,
-		cfg.SandboxAuthToken,
-	)
-	out.NodeTargets = resolveNodeTargets(cfg.Nodes)
-	allowEmptyProfileConnection := out.HostServer != nil ||
-		out.SandboxServer != nil ||
-		len(out.NodeTargets) > 0
-
-	seen := make(map[string]struct{}, len(cfg.Profiles))
-	out.Profiles = make([]resolvedProfile, 0, len(cfg.Profiles))
-	for i := range cfg.Profiles {
-		resolved, err := resolveProfile(
-			cfg.Profiles[i],
-			i,
-			allowEmptyProfileConnection,
-		)
-		if err != nil {
-			return resolvedConfig{}, err
-		}
-		if _, ok := seen[resolved.Name]; ok {
-			return resolvedConfig{}, fmt.Errorf(
-				"browser profile %q is duplicated",
-				resolved.Name,
-			)
-		}
-		seen[resolved.Name] = struct{}{}
-		out.Profiles = append(out.Profiles, resolved)
-	}
-
-	if out.DefaultProfile == "" {
-		out.DefaultProfile = out.Profiles[0].Name
-	}
-	if _, ok := seen[out.DefaultProfile]; !ok {
-		return resolvedConfig{}, fmt.Errorf(
-			"browser default_profile %q is not defined",
-			out.DefaultProfile,
-		)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return *new(resolvedConfig), nil
 }
 
 func resolveNavigationPolicy(cfg Config) navigationPolicy {
-	policy := navigationPolicy{
-		AllowedDomains: normalizeDomains(cfg.AllowedDomains),
-		BlockedDomains: normalizeDomains(cfg.BlockedDomains),
-	}
-	if cfg.AllowLoopback != nil {
-		policy.AllowLoopback = *cfg.AllowLoopback
-	}
-	if cfg.AllowPrivateNet != nil {
-		policy.AllowPrivateNet = *cfg.AllowPrivateNet
-	}
-	if cfg.AllowFileURLs != nil {
-		policy.AllowFileURLs = *cfg.AllowFileURLs
-	}
-	return policy
+	_ = "STUB: not implemented"
+	return *new(navigationPolicy)
 }
 
 func resolveProfile(
@@ -183,64 +111,8 @@ func resolveProfile(
 	index int,
 	allowEmptyConnection bool,
 ) (resolvedProfile, error) {
-	name := strings.TrimSpace(cfg.Name)
-	if name == "" {
-		if index == 0 {
-			name = defaultProfileName
-		} else {
-			return resolvedProfile{}, fmt.Errorf(
-				"browser profile at index %d is missing name",
-				index,
-			)
-		}
-	}
-
-	conn := mcptool.ConnectionConfig{
-		Transport: strings.TrimSpace(cfg.Transport),
-		ServerURL: strings.TrimSpace(cfg.ServerURL),
-		Headers:   cfg.Headers,
-		Command:   strings.TrimSpace(cfg.Command),
-		Args:      cfg.Args,
-		Timeout:   cfg.Timeout,
-	}
-	browserServerURL := strings.TrimSpace(cfg.BrowserServerURL)
-	if browserServerURL != "" {
-		if conn.Transport != "" {
-			return resolvedProfile{}, fmt.Errorf(
-				"browser profile %q cannot mix browser_server_url "+
-					"with transport",
-				name,
-			)
-		}
-		return resolvedProfile{
-			Name:             name,
-			Description:      strings.TrimSpace(cfg.Description),
-			BrowserServerURL: browserServerURL,
-			AuthToken:        strings.TrimSpace(cfg.AuthToken),
-		}, nil
-	}
-	if conn.Transport == "" && allowEmptyConnection {
-		return resolvedProfile{
-			Name:        name,
-			Description: strings.TrimSpace(cfg.Description),
-			AuthToken:   strings.TrimSpace(cfg.AuthToken),
-		}, nil
-	}
-	if err := validateConnection(conn); err != nil {
-		return resolvedProfile{}, fmt.Errorf(
-			"browser profile %q: %w",
-			name,
-			err,
-		)
-	}
-
-	return resolvedProfile{
-		Name:        name,
-		Description: strings.TrimSpace(cfg.Description),
-		AuthToken:   strings.TrimSpace(cfg.AuthToken),
-		Connection:  conn,
-		Reconnect:   cfg.Reconnect,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(resolvedProfile), nil
 }
 
 func resolveServerTarget(
@@ -248,67 +120,15 @@ func resolveServerTarget(
 	serverURL string,
 	authToken string,
 ) *serverTargetConfig {
-	serverURL = strings.TrimSpace(serverURL)
-	if serverURL == "" {
-		return nil
-	}
-	return &serverTargetConfig{
-		ID:        id,
-		ServerURL: serverURL,
-		AuthToken: strings.TrimSpace(authToken),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func resolveNodeTargets(
 	nodes []NodeConfig,
 ) map[string]serverTargetConfig {
-	if len(nodes) == 0 {
-		return nil
-	}
-
-	out := make(map[string]serverTargetConfig, len(nodes))
-	for i := range nodes {
-		node := nodes[i]
-		serverURL := strings.TrimSpace(node.ServerURL)
-		if serverURL == "" {
-			continue
-		}
-		id := strings.TrimSpace(node.ID)
-		if id == "" {
-			id = strings.TrimSpace(node.Name)
-		}
-		if id == "" {
-			continue
-		}
-		out[id] = serverTargetConfig{
-			ID:        id,
-			ServerURL: serverURL,
-			AuthToken: strings.TrimSpace(node.AuthToken),
-		}
-	}
-	if len(out) == 0 {
-		return nil
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func validateConnection(cfg mcptool.ConnectionConfig) error {
-	transport := strings.ToLower(strings.TrimSpace(cfg.Transport))
-	switch transport {
-	case transportStdio:
-		if strings.TrimSpace(cfg.Command) == "" {
-			return errors.New("stdio transport requires command")
-		}
-		return nil
-	case transportSSE, transportStreamable, transportStreamHTTP:
-		if strings.TrimSpace(cfg.ServerURL) == "" {
-			return errors.New("network transport requires server_url")
-		}
-		return nil
-	default:
-		return fmt.Errorf(
-			"unsupported transport %q",
-			cfg.Transport,
-		)
-	}
-}
+func validateConnection(cfg mcptool.ConnectionConfig) error { _ = "STUB: not implemented"; return nil }

@@ -48,41 +48,24 @@ type IngestOption func(*IngestOptions)
 // request. Repeated calls merge the maps; later values overwrite earlier
 // values for duplicate keys. Empty maps are ignored.
 func WithIngestMetadata(metadata map[string]any) IngestOption {
-	return func(o *IngestOptions) {
-		if len(metadata) == 0 {
-			return
-		}
-		if o.Metadata == nil {
-			o.Metadata = make(map[string]any, len(metadata))
-		}
-		for k, v := range metadata {
-			o.Metadata[k] = v
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(IngestOption)
 }
 
 // WithIngestAgentID labels the ingestion batch with an agent identifier.
 // Backends that support per-agent partitioning use it to scope memories.
 // Empty values are ignored.
 func WithIngestAgentID(agentID string) IngestOption {
-	return func(o *IngestOptions) {
-		if agentID == "" {
-			return
-		}
-		o.AgentID = agentID
-	}
+	_ = "STUB: not implemented"
+	return *new(IngestOption)
 }
 
 // WithIngestRunID labels the ingestion batch with a run identifier so the
 // backend can group memories produced within the same conversation/run.
 // Empty values are ignored.
 func WithIngestRunID(runID string) IngestOption {
-	return func(o *IngestOptions) {
-		if runID == "" {
-			return
-		}
-		o.RunID = runID
-	}
+	_ = "STUB: not implemented"
+	return *new(IngestOption)
 }
 
 // Ingestor ingests a completed session transcript into an external long-term

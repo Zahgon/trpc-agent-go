@@ -12,9 +12,6 @@
 package app
 
 import (
-	"errors"
-	"strings"
-
 	"trpc.group/trpc-go/trpc-agent-go/session"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
@@ -24,16 +21,6 @@ func newSQLiteSessionBackend(
 	_ registry.SessionDeps,
 	spec registry.SessionBackendSpec,
 ) (session.Service, error) {
-	var cfg sqliteSessionConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-	dsn := strings.TrimSpace(cfg.DSN)
-	if dsn == "" {
-		dsn = strings.TrimSpace(cfg.Path)
-	}
-	if dsn == "" {
-		return nil, errors.New(sqliteSessionConfigErrMissingPath)
-	}
-	return nil, errors.New(sqliteSessionBackendErrCgoRequired)
+	_ = "STUB: not implemented"
+	return *new(session.Service), nil
 }

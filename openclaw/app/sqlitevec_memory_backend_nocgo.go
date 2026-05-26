@@ -12,8 +12,6 @@
 package app
 
 import (
-	"errors"
-
 	"trpc.group/trpc-go/trpc-agent-go/memory"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
 )
@@ -24,18 +22,6 @@ func newSQLiteVecMemoryBackend(
 	_ registry.MemoryDeps,
 	spec registry.MemoryBackendSpec,
 ) (memory.Service, error) {
-	var cfg sqliteVecMemoryConfig
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	_, _, err := resolveSQLiteDSN(
-		cfg.Path,
-		cfg.DSN,
-		sqliteVecMemoryConfigErrMissingPath,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return nil, errors.New(sqliteVecMemoryBackendErrCgoRequired)
+	_ = "STUB: not implemented"
+	return *new(memory.Service), nil
 }

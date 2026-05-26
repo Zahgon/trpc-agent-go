@@ -10,7 +10,6 @@
 package redis
 
 import (
-	"maps"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/memory"
@@ -61,93 +60,44 @@ type ServiceOpts struct {
 	memoryJobTimeout time.Duration
 }
 
-func (o ServiceOpts) clone() ServiceOpts {
-	opts := o
+func (o ServiceOpts) clone() ServiceOpts { _ = "STUB: not implemented"; return *new(ServiceOpts) }
 
-	opts.toolCreators = make(map[string]memory.ToolCreator, len(o.toolCreators))
-	for name, toolCreator := range o.toolCreators {
-		opts.toolCreators[name] = toolCreator
-	}
-
-	opts.enabledTools = maps.Clone(o.enabledTools)
-	opts.toolExposed = maps.Clone(o.toolExposed)
-	opts.toolHidden = maps.Clone(o.toolHidden)
-
-	// Initialize userExplicitlySet map (empty for new clone).
-	opts.userExplicitlySet = make(map[string]struct{})
-
-	return opts
-}
+// Initialize userExplicitlySet map (empty for new clone).
 
 // ServiceOpt is the option for the redis memory service.
 type ServiceOpt func(*ServiceOpts)
 
 // WithRedisClientURL creates a redis client from URL and sets it to the service.
-func WithRedisClientURL(url string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.url = url
-	}
-}
+func WithRedisClientURL(url string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithRedisInstance uses a redis instance from storage.
 // Note: WithRedisClientURL has higher priority than WithRedisInstance.
 // If both are specified, WithRedisClientURL will be used.
 func WithRedisInstance(instanceName string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.instanceName = instanceName
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithMemoryLimit sets the limit of memories per user.
-func WithMemoryLimit(limit int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryLimit = limit
-	}
-}
+func WithMemoryLimit(limit int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMinSearchScore sets the minimum keyword-search score. Scores below
 // this value are filtered out. Default is 0.3.
 func WithMinSearchScore(score float64) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if score < 0 {
-			return
-		}
-		opts.searchMinScore = score
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithMaxResults sets the maximum number of keyword-search results.
 // Default is 10. Use 0 to disable truncation.
-func WithMaxResults(maxResults int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if maxResults < 0 {
-			return
-		}
-		opts.maxSearchResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithCustomTool sets a custom memory tool implementation.
 // The tool will be enabled by default.
 // If the tool name is invalid or creator is nil, this option will do nothing.
 func WithCustomTool(toolName string, creator memory.ToolCreator) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) || creator == nil {
-			return
-		}
-		if opts.toolCreators == nil {
-			opts.toolCreators = make(map[string]memory.ToolCreator)
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		opts.toolCreators[toolName] = creator
-		opts.enabledTools[toolName] = struct{}{}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolEnabled sets which tool is enabled.
@@ -155,100 +105,49 @@ func WithCustomTool(toolName string, creator memory.ToolCreator) ServiceOpt {
 // User settings via WithToolEnabled take precedence over auto mode
 // defaults, regardless of option order.
 func WithToolEnabled(toolName string, enabled bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if opts.enabledTools == nil {
-			opts.enabledTools = make(map[string]struct{})
-		}
-		if opts.userExplicitlySet == nil {
-			opts.userExplicitlySet = make(map[string]struct{})
-		}
-		if enabled {
-			opts.enabledTools[toolName] = struct{}{}
-		} else {
-			delete(opts.enabledTools, toolName)
-		}
-		opts.userExplicitlySet[toolName] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAutoMemoryExposedTools exposes enabled tools via Tools() in auto memory
 // mode so the agent can call them directly. Invalid tool names are ignored.
 func WithAutoMemoryExposedTools(toolNames ...string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		for _, toolName := range toolNames {
-			WithToolExposed(toolName, true)(opts)
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithToolExposed controls whether an enabled memory tool is exposed via
 // Tools(). Use WithAutoMemoryExposedTools for the common auto memory case.
 func WithToolExposed(toolName string, exposed bool) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if !imemory.IsValidToolName(toolName) {
-			return
-		}
-		if exposed {
-			if opts.toolExposed == nil {
-				opts.toolExposed = make(map[string]struct{})
-			}
-			opts.toolExposed[toolName] = struct{}{}
-			delete(opts.toolHidden, toolName)
-			return
-		}
-		if opts.toolHidden == nil {
-			opts.toolHidden = make(map[string]struct{})
-		}
-		opts.toolHidden[toolName] = struct{}{}
-		delete(opts.toolExposed, toolName)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtraOptions sets the extra options for the redis session service.
 // this option mainly used for the customized redis client builder, it will be passed to the builder.
 func WithExtraOptions(extraOptions ...any) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extraOptions = append(opts.extraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithExtractor sets the memory extractor for auto memory mode.
 // When enabled, auto mode defaults are applied to enabledTools,
 // but user settings via WithToolEnabled (before or after) take precedence.
 func WithExtractor(e extractor.MemoryExtractor) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.extractor = e
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithAsyncMemoryNum sets the number of async memory workers.
-func WithAsyncMemoryNum(num int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if num < 1 {
-			num = imemory.DefaultAsyncMemoryNum
-		}
-		opts.asyncMemoryNum = num
-	}
-}
+func WithAsyncMemoryNum(num int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryQueueSize sets the queue size for memory jobs.
-func WithMemoryQueueSize(size int) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		if size < 1 {
-			size = imemory.DefaultMemoryQueueSize
-		}
-		opts.memoryQueueSize = size
-	}
-}
+func WithMemoryQueueSize(size int) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }
 
 // WithMemoryJobTimeout sets the timeout for each memory job.
 func WithMemoryJobTimeout(timeout time.Duration) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.memoryJobTimeout = timeout
-	}
+	_ = "STUB: not implemented"
+	return *new(ServiceOpt)
 }
 
 // WithKeyPrefix sets the prefix for all redis keys.
@@ -256,8 +155,4 @@ func WithMemoryJobTimeout(timeout time.Duration) ServiceOpt {
 // followed by a colon. For example, if keyPrefix is
 // "myapp", key "mem:{app:user}" becomes
 // "myapp:mem:{app:user}".
-func WithKeyPrefix(prefix string) ServiceOpt {
-	return func(opts *ServiceOpts) {
-		opts.keyPrefix = prefix
-	}
-}
+func WithKeyPrefix(prefix string) ServiceOpt { _ = "STUB: not implemented"; return *new(ServiceOpt) }

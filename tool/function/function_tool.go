@@ -12,12 +12,7 @@ package function
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"reflect"
 
-	itool "trpc.group/trpc-go/trpc-agent-go/internal/tool"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -60,51 +55,27 @@ type functionToolOptions struct {
 // - Use only English letters, numbers, underscores, and hyphens
 //
 // Best practice: Use ^[a-zA-Z0-9_-]+ only to ensure maximum compatibility.
-func WithName(name string) Option {
-	return func(opts *functionToolOptions) {
-		opts.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDescription sets the description of the function tool.
-func WithDescription(description string) Option {
-	return func(opts *functionToolOptions) {
-		opts.description = description
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithLongRunning sets whether the function tool is long-running.
 // A long-running function tool indicates that it may take a significant amount of time to complete.
-func WithLongRunning(longRunning bool) Option {
-	return func(opts *functionToolOptions) {
-		opts.longRunning = longRunning
-	}
-}
+func WithLongRunning(longRunning bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipSummarization sets whether the outer flow should skip the
 // summarization step after this tool returns a result. When true, the
 // tool.response event will be annotated and the current turn ends.
-func WithSkipSummarization(skip bool) Option {
-	return func(opts *functionToolOptions) {
-		opts.skipSummarization = skip
-	}
-}
+func WithSkipSummarization(skip bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInputSchema sets a custom input schema for the function tool.
 // When provided, the automatic schema generation will be skipped.
-func WithInputSchema(schema *tool.Schema) Option {
-	return func(opts *functionToolOptions) {
-		opts.inputSchema = schema
-	}
-}
+func WithInputSchema(schema *tool.Schema) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithOutputSchema sets a custom output schema for the function tool.
 // When provided, the automatic schema generation will be skipped.
-func WithOutputSchema(schema *tool.Schema) Option {
-	return func(opts *functionToolOptions) {
-		opts.outputSchema = schema
-	}
-}
+func WithOutputSchema(schema *tool.Schema) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // NewFunctionTool creates and returns a new instance of FunctionTool with the specified
 // function implementation and optional configuration.
@@ -115,52 +86,12 @@ func WithOutputSchema(schema *tool.Schema) Option {
 // Returns:
 //   - A pointer to the newly created FunctionTool.
 func NewFunctionTool[I, O any](fn func(context.Context, I) (O, error), opts ...Option) *FunctionTool[I, O] {
+	_ = "STUB: not implemented"
 	// Set default options
-	options := &functionToolOptions{
-		unmarshaler: &jsonUnmarshaler{},
-	}
-
-	// Apply provided options
-	for _, opt := range opts {
-		opt(options)
-	}
-	if options.name == "" {
-		log.Warnf("FunctionTool: name is empty")
-	}
-	if options.description == "" {
-		log.Warnf("FunctionTool: description is empty")
-	}
-
-	var (
-		emptyI I
-		emptyO O
-	)
-
-	var iSchema *tool.Schema
-	if options.inputSchema != nil {
-		iSchema = options.inputSchema
-	} else {
-		iSchema = itool.GenerateJSONSchema(reflect.TypeOf(emptyI))
-	}
-
-	var oSchema *tool.Schema
-	if options.outputSchema != nil {
-		oSchema = options.outputSchema
-	} else {
-		oSchema = itool.GenerateJSONSchema(reflect.TypeOf(emptyO))
-	}
-
-	return &FunctionTool[I, O]{
-		name:              options.name,
-		description:       options.description,
-		longRunning:       options.longRunning,
-		fn:                fn,
-		unmarshaler:       options.unmarshaler,
-		inputSchema:       iSchema,
-		outputSchema:      oSchema,
-		skipSummarization: options.skipSummarization,
-	}
+	return nil
 }
+
+// Apply provided options
 
 // Call executes the function tool with the provided JSON arguments.
 // It unmarshals the given arguments into the tool's input type,
@@ -173,23 +104,16 @@ func NewFunctionTool[I, O any](fn func(context.Context, I) (O, error), opts ...O
 // Returns:
 //   - The result of the function execution or an error if unmarshalling fails.
 func (ft *FunctionTool[I, O]) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	var input I
-	if err := ft.unmarshaler.Unmarshal(jsonArgs, &input); err != nil {
-		return nil, err
-	}
-	return ft.fn(ctx, input)
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 // LongRunning indicates whether the function tool is expected to run for a long time.
-func (ft *FunctionTool[I, O]) LongRunning() bool {
-	return ft.longRunning
-}
+func (ft *FunctionTool[I, O]) LongRunning() bool { _ = "STUB: not implemented"; return false }
 
 // SkipSummarization reports whether this tool prefers skipping the
 // outer-agent summarization after tool.response.
-func (ft *FunctionTool[I, O]) SkipSummarization() bool {
-	return ft.skipSummarization
-}
+func (ft *FunctionTool[I, O]) SkipSummarization() bool { _ = "STUB: not implemented"; return false }
 
 // Declaration returns the tool's declaration information.
 // It provides metadata about the tool including its name, description,
@@ -205,12 +129,8 @@ func (ft *FunctionTool[I, O]) SkipSummarization() bool {
 // Returns:
 //   - A Declaration struct containing the tool's metadata.
 func (ft *FunctionTool[I, O]) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:         ft.name,
-		Description:  ft.description,
-		InputSchema:  ft.inputSchema,
-		OutputSchema: ft.outputSchema,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StreamableFunctionTool implements the CallableTool interface for executing functions
@@ -238,46 +158,12 @@ type StreamableFunctionTool[I, O any] struct {
 // Returns:
 //   - A pointer to the newly created StreamableFunctionTool.
 func NewStreamableFunctionTool[I, O any](fn func(context.Context, I) (*tool.StreamReader, error), opts ...Option) *StreamableFunctionTool[I, O] {
+	_ = "STUB: not implemented"
 	// Set default options
-	options := &functionToolOptions{
-		unmarshaler: &jsonUnmarshaler{},
-	}
-
-	// Apply provided options
-	for _, opt := range opts {
-		opt(options)
-	}
-
-	var (
-		emptyI I
-		emptyO O
-	)
-
-	var iSchema *tool.Schema
-	if options.inputSchema != nil {
-		iSchema = options.inputSchema
-	} else {
-		iSchema = itool.GenerateJSONSchema(reflect.TypeOf(emptyI))
-	}
-
-	var oSchema *tool.Schema
-	if options.outputSchema != nil {
-		oSchema = options.outputSchema
-	} else {
-		oSchema = itool.GenerateJSONSchema(reflect.TypeOf(emptyO))
-	}
-
-	return &StreamableFunctionTool[I, O]{
-		name:              options.name,
-		description:       options.description,
-		longRunning:       options.longRunning,
-		fn:                fn,
-		unmarshaler:       options.unmarshaler,
-		inputSchema:       iSchema,
-		outputSchema:      oSchema,
-		skipSummarization: options.skipSummarization,
-	}
+	return nil
 }
+
+// Apply provided options
 
 // StreamableCall executes the streamable function tool with JSON arguments.
 // It unmarshals the arguments, calls the underlying function, and returns
@@ -290,15 +176,9 @@ func NewStreamableFunctionTool[I, O any](fn func(context.Context, I) (*tool.Stre
 // Returns:
 //   - A StreamReader[string] containing JSON-encoded results, or an error.
 func (t *StreamableFunctionTool[I, O]) StreamableCall(ctx context.Context, jsonArgs []byte) (*tool.StreamReader, error) {
+	_ = "STUB: not implemented"
 	// FunctionTool does not support streaming calls, so we return an error.
-	var input I
-	if err := t.unmarshaler.Unmarshal(jsonArgs, &input); err != nil {
-		return nil, err
-	}
-	if t.fn == nil {
-		return nil, fmt.Errorf("FunctionTool: %s does not support streaming calls", t.name)
-	}
-	return t.fn(ctx, input)
+	return nil, nil
 }
 
 // Declaration returns the tool's declaration information.
@@ -315,23 +195,18 @@ func (t *StreamableFunctionTool[I, O]) StreamableCall(ctx context.Context, jsonA
 // Returns:
 //   - A Declaration struct containing the tool's metadata.
 func (t *StreamableFunctionTool[I, O]) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:         t.name,
-		Description:  t.description,
-		InputSchema:  t.inputSchema,
-		OutputSchema: t.outputSchema,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // LongRunning indicates whether the streamable function tool is expected to run for a long time.
-func (t *StreamableFunctionTool[I, O]) LongRunning() bool {
-	return t.longRunning
-}
+func (t *StreamableFunctionTool[I, O]) LongRunning() bool { _ = "STUB: not implemented"; return false }
 
 // SkipSummarization reports whether this tool prefers skipping the
 // outer-agent summarization after tool.response.
 func (t *StreamableFunctionTool[I, O]) SkipSummarization() bool {
-	return t.skipSummarization
+	_ = "STUB: not implemented"
+	return false
 }
 
 type unmarshaler interface {
@@ -342,5 +217,6 @@ type jsonUnmarshaler struct{}
 
 // Unmarshal unmarshals JSON data into the provided interface.
 func (j *jsonUnmarshaler) Unmarshal(data []byte, v any) error {
-	return json.Unmarshal(data, v)
+	_ = "STUB: not implemented"
+	return nil
 }

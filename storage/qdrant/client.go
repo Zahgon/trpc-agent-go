@@ -42,24 +42,6 @@ type Client interface {
 //	    qdrant.WithPort(6334),
 //	)
 func NewClient(_ context.Context, opts ...ClientBuilderOpt) (Client, error) {
-	cfg := &ClientBuilderOpts{
-		Host: defaultHost,
-		Port: defaultPort,
-	}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-
-	if cfg.Host == "" {
-		return nil, ErrEmptyHost
-	}
-
-	config := &qdrant.Config{
-		Host:   cfg.Host,
-		Port:   cfg.Port,
-		APIKey: cfg.APIKey,
-		UseTLS: cfg.UseTLS,
-	}
-
-	return qdrant.NewClient(config)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }

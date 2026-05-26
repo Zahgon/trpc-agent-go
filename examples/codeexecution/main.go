@@ -15,7 +15,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
@@ -147,20 +146,16 @@ You should NEVER install any package on your own like pip install ....
 
 // intPtr returns a pointer to the given int value.
 func intPtr(i int) *int {
-	return &i
+	_ = "STUB: not implemented"
+
+	// floatPtr returns a pointer to the given float64 value.
+	return nil
 }
 
-// floatPtr returns a pointer to the given float64 value.
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }
 
 func baseSystemInstruction() string {
+	_ = "STUB: not implemented"
 	// Read content from instruction.md file.
-	content, err := os.ReadFile("instruction.md")
-	if err != nil {
-		log.Printf("Failed to read instruction.md: %v", err)
-		return ""
-	}
-	return string(content)
+	return ""
 }

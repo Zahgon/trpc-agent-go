@@ -12,10 +12,7 @@ package clickhouse
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
@@ -27,31 +24,8 @@ type BatchFn func(batch driver.Batch) error
 // defaultClientBuilder is the default ClickHouse client builder.
 // It creates a native ClickHouse client using the official Go driver.
 func defaultClientBuilder(builderOpts ...ClientBuilderOpt) (Client, error) {
-	o := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(o)
-	}
-
-	if o.DSN == "" {
-		return nil, errors.New("clickhouse: DSN is empty")
-	}
-
-	opts, err := clickhouse.ParseDSN(o.DSN)
-	if err != nil {
-		return nil, fmt.Errorf("clickhouse: parse DSN failed: %w", err)
-	}
-
-	conn, err := clickhouse.Open(opts)
-	if err != nil {
-		return nil, fmt.Errorf("clickhouse: connect failed: %w", err)
-	}
-
-	if err := conn.Ping(context.Background()); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("clickhouse: ping failed: %w", err)
-	}
-
-	return newDefaultClient(conn), nil
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // Client defines the interface for ClickHouse operations.
@@ -92,63 +66,49 @@ type defaultClient struct {
 }
 
 // newDefaultClient creates a new defaultClient with the given driver.Conn.
-func newDefaultClient(conn driver.Conn) *defaultClient {
-	return &defaultClient{
-		conn: conn,
-	}
-}
+func newDefaultClient(conn driver.Conn) *defaultClient { _ = "STUB: not implemented"; return nil }
 
 // Exec implements Client.Exec.
 func (c *defaultClient) Exec(ctx context.Context, query string, args ...any) error {
-	return c.conn.Exec(ctx, query, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Query implements Client.Query.
 func (c *defaultClient) Query(ctx context.Context, query string, args ...any) (driver.Rows, error) {
-	return c.conn.Query(ctx, query, args...)
+	_ = "STUB: not implemented"
+	return *new(driver.Rows), nil
 }
 
 // QueryRow implements Client.QueryRow.
 func (c *defaultClient) QueryRow(ctx context.Context, dest []any, query string, args ...any) error {
-	return c.conn.QueryRow(ctx, query, args...).Scan(dest...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // QueryToStruct implements Client.QueryToStruct.
 func (c *defaultClient) QueryToStruct(ctx context.Context, dest any, query string, args ...any) error {
-	return c.conn.QueryRow(ctx, query, args...).ScanStruct(dest)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // QueryToStructs implements Client.QueryToStructs.
 func (c *defaultClient) QueryToStructs(ctx context.Context, dest any, query string, args ...any) error {
-	return c.conn.Select(ctx, dest, query, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // BatchInsert implements Client.BatchInsert.
 func (c *defaultClient) BatchInsert(ctx context.Context, query string, fn BatchFn, opts ...driver.PrepareBatchOption) error {
-	batch, err := c.conn.PrepareBatch(ctx, query, opts...)
-	if err != nil {
-		return fmt.Errorf("clickhouse: prepare batch failed: %w", err)
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			batch.Abort()
-			panic(p)
-		}
-	}()
-
-	if err := fn(batch); err != nil {
-		batch.Abort()
-		return err
-	}
-	return batch.Send()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AsyncInsert implements Client.AsyncInsert.
 func (c *defaultClient) AsyncInsert(ctx context.Context, query string, wait bool, args ...any) error {
-	return c.conn.AsyncInsert(ctx, query, wait, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Close implements Client.Close.
-func (c *defaultClient) Close() error {
-	return c.conn.Close()
-}
+func (c *defaultClient) Close() error { _ = "STUB: not implemented"; return nil }

@@ -10,26 +10,17 @@
 package app
 
 import (
-	"errors"
-	"fmt"
 	"net"
-	"os"
-	"runtime"
-	"strconv"
-	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/session"
 
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/admin"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/channel"
-	ocbrowser "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/browser"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/cron"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/octool"
 	ocskills "trpc.group/trpc-go/trpc-agent-go/openclaw/internal/skills"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
 )
 
 const adminAutoPortSearchSpan = 32
@@ -45,69 +36,11 @@ func openAdminBinding(
 	addr string,
 	autoPort bool,
 ) (*adminBinding, error) {
-	preferred := strings.TrimSpace(addr)
-	if preferred == "" {
-		return nil, fmt.Errorf("admin: empty listen address")
-	}
-
-	listener, err := net.Listen("tcp", preferred)
-	if err == nil {
-		actual := listener.Addr().String()
-		return &adminBinding{
-			listener: listener,
-			addr:     actual,
-			url:      listenURL(actual),
-		}, nil
-	}
-	if !autoPort || !isAddressInUse(err) {
-		return nil, fmt.Errorf("admin: listen on %s: %w", preferred, err)
-	}
-
-	host, portRaw, splitErr := net.SplitHostPort(preferred)
-	if splitErr != nil {
-		return nil, fmt.Errorf("admin: listen on %s: %w", preferred, err)
-	}
-	basePort, convErr := strconv.Atoi(portRaw)
-	if convErr != nil || basePort <= 0 || basePort >= 65535 {
-		return nil, fmt.Errorf("admin: listen on %s: %w", preferred, err)
-	}
-
-	maxPort := basePort + adminAutoPortSearchSpan
-	if maxPort > 65535 {
-		maxPort = 65535
-	}
-	for port := basePort + 1; port <= maxPort; port++ {
-		candidate := net.JoinHostPort(host, strconv.Itoa(port))
-		listener, err = net.Listen("tcp", candidate)
-		if err == nil {
-			actual := listener.Addr().String()
-			return &adminBinding{
-				listener:  listener,
-				addr:      actual,
-				url:       listenURL(actual),
-				relocated: actual != preferred,
-			}, nil
-		}
-		if !isAddressInUse(err) {
-			return nil, fmt.Errorf(
-				"admin: listen on %s: %w",
-				candidate,
-				err,
-			)
-		}
-	}
-	return nil, fmt.Errorf(
-		"admin: listen on %s failed and no free port was found "+
-			"in the next %d ports: %w",
-		preferred,
-		adminAutoPortSearchSpan,
-		err,
-	)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func isAddressInUse(err error) bool {
-	return errors.Is(err, syscall.EADDRINUSE)
-}
+func isAddressInUse(err error) bool { _ = "STUB: not implemented"; return false }
 
 func buildAdminConfig(
 	opts runOptions,
@@ -130,156 +63,26 @@ func buildAdminConfig(
 	memoryFiles admin.MemoryFileStore,
 	sessionSvc session.Service,
 ) admin.Config {
-	identity := buildAdminIdentityProvider(
-		stateDir,
-		opts.AppName,
-	)
-	return admin.Config{
-		AppName:        opts.AppName,
-		InstanceID:     instanceID,
-		StartedAt:      startedAt,
-		Hostname:       runtimeHostname(),
-		PID:            os.Getpid(),
-		GoVersion:      runtime.Version(),
-		AgentType:      strings.TrimSpace(agentType),
-		ModelMode:      strings.TrimSpace(opts.ModelMode),
-		ModelName:      adminModelName(opts, agentType),
-		SessionBackend: strings.TrimSpace(opts.SessionBackend),
-		MemoryBackend:  resolveMemoryBackendType(opts.MemoryBackend),
-		GatewayAddr:    opts.HTTPAddr,
-		GatewayURL:     listenURL(opts.HTTPAddr),
-		AdminAddr:      strings.TrimSpace(adminAddr),
-		AdminURL:       strings.TrimSpace(adminURL),
-		AdminAutoPort:  opts.AdminAutoPort,
-		Langfuse:       langfuse,
-		StateDir:       stateDir,
-		DebugDir:       debugDir,
-		Channels:       channelIDs(channels),
-		GatewayRoutes:  routes,
-		Skills: buildAdminSkillsProvider(
-			opts,
-			stateDir,
-			skillsRepo,
-			skillsWatch,
-		),
-		Prompts: buildAdminPromptProvider(
-			opts,
-			promptController,
-		),
-		Identity: identity,
-		Chats: buildAdminChatsProvider(
-			identity,
-			opts.AppName,
-			sessionSvc,
-		),
-		MemoryFiles: memoryFiles,
-		Browser: buildBrowserAdminConfig(
-			opts.ToolProviders,
-			browserManaged,
-		),
-		Cron: cronSvc,
-		Exec: execMgr,
-	}
+	_ = "STUB: not implemented"
+	return *new(admin.Config)
 }
 
 func buildBrowserAdminConfig(
 	specs []pluginSpec,
 	managed admin.BrowserManagedStatusProvider,
 ) admin.BrowserConfig {
-	providers := make([]admin.BrowserProvider, 0, len(specs))
-	for i := range specs {
-		spec := specs[i]
-		if strings.TrimSpace(spec.Type) != toolProviderBrowser {
-			continue
-		}
-
-		var cfg ocbrowser.Config
-		if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-			continue
-		}
-
-		provider := admin.BrowserProvider{
-			Name:             strings.TrimSpace(spec.Name),
-			DefaultProfile:   strings.TrimSpace(cfg.DefaultProfile),
-			HostServerURL:    strings.TrimSpace(cfg.ServerURL),
-			SandboxServerURL: strings.TrimSpace(cfg.SandboxServerURL),
-		}
-		if cfg.EvaluateEnabled != nil {
-			provider.EvaluateEnabled = *cfg.EvaluateEnabled
-		}
-		if cfg.AllowLoopback != nil {
-			provider.AllowLoopback = *cfg.AllowLoopback
-		}
-		if cfg.AllowPrivateNet != nil {
-			provider.AllowPrivateNet = *cfg.AllowPrivateNet
-		}
-		if cfg.AllowFileURLs != nil {
-			provider.AllowFileURLs = *cfg.AllowFileURLs
-		}
-
-		if len(cfg.Profiles) > 0 {
-			provider.Profiles = make(
-				[]admin.BrowserProfile,
-				0,
-				len(cfg.Profiles),
-			)
-		}
-		for j := range cfg.Profiles {
-			profile := cfg.Profiles[j]
-			provider.Profiles = append(
-				provider.Profiles,
-				admin.BrowserProfile{
-					Name: strings.TrimSpace(profile.Name),
-					Description: strings.TrimSpace(
-						profile.Description,
-					),
-					Transport: strings.TrimSpace(profile.Transport),
-					ServerURL: strings.TrimSpace(profile.ServerURL),
-					BrowserServerURL: strings.TrimSpace(
-						profile.BrowserServerURL,
-					),
-				},
-			)
-		}
-
-		if len(cfg.Nodes) > 0 {
-			provider.Nodes = make(
-				[]admin.BrowserNode,
-				0,
-				len(cfg.Nodes),
-			)
-		}
-		for j := range cfg.Nodes {
-			node := cfg.Nodes[j]
-			provider.Nodes = append(provider.Nodes, admin.BrowserNode{
-				ID:        strings.TrimSpace(node.ID),
-				ServerURL: strings.TrimSpace(node.ServerURL),
-			})
-		}
-		providers = append(providers, provider)
-	}
-	return admin.BrowserConfig{
-		Providers: providers,
-		Managed:   managed,
-	}
+	_ = "STUB: not implemented"
+	return *new(admin.BrowserConfig)
 }
 
-func runtimeHostname() string {
-	host, err := os.Hostname()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(host)
-}
+func runtimeHostname() string { _ = "STUB: not implemented"; return "" }
 
 func adminModelName(
 	opts runOptions,
 	agentType string,
 ) string {
-	if strings.TrimSpace(agentType) != agentTypeLLM {
-		return ""
-	}
-	return strings.TrimSpace(opts.OpenAIModel)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 type adminSkillsProvider struct {
@@ -300,20 +103,6 @@ func buildAdminSkillsProvider(
 	repo *ocskills.Repository,
 	watch *ocskills.WatchService,
 ) admin.SkillsStatusProvider {
-	cwd, _ := os.Getwd()
-	cfg := agentConfig{
-		SkillsRoot:      opts.SkillsRoot,
-		SkillsExtraDirs: splitCSV(opts.SkillsExtraDir),
-		StateDir:        stateDir,
-	}
-	return &adminSkillsProvider{
-		configPath:   adminWritableConfigPath(opts.ConfigPath),
-		repo:         repo,
-		watch:        watch,
-		roots:        resolveSkillRoots(cwd, cfg),
-		bundledRoot:  resolveBundledSkillsRoot(cwd, stateDir),
-		configKeys:   resolveSkillConfigKeys(opts),
-		allowBundled: splitCSV(opts.SkillsAllowBundled),
-		skillConfigs: opts.SkillConfigs,
-	}
+	_ = "STUB: not implemented"
+	return *new(admin.SkillsStatusProvider)
 }

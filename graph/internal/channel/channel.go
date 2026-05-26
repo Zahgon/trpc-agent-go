@@ -11,7 +11,6 @@
 package channel
 
 import (
-	"sort"
 	"sync"
 )
 
@@ -49,230 +48,55 @@ type Channel struct {
 
 // NewChannel creates a new channel with the specified behavior.
 func NewChannel(name string, channelBehavior Behavior) *Channel {
-	return &Channel{
-		Name:            name,
-		Behavior:        channelBehavior,
-		Values:          make([]any, 0),
-		BarrierSet:      make(map[string]bool),
-		Available:       false,
-		LastUpdatedStep: StepUnmarked,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetBarrierExpected sets the sender set required to satisfy this barrier.
 // The expected names are copied and sorted to avoid external mutation.
-func (c *Channel) SetBarrierExpected(expected []string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	names := append([]string(nil), expected...)
-	sort.Strings(names)
-	names = dedupeSortedStrings(names)
-
-	c.BarrierExpected = names
-}
+func (c *Channel) SetBarrierExpected(expected []string) { _ = "STUB: not implemented"; return }
 
 // SetBarrierSeen restores the set of senders that have been observed so far.
 // The barrier availability is recomputed after applying the set.
-func (c *Channel) SetBarrierSeen(seen []string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.BarrierSet == nil {
-		c.BarrierSet = make(map[string]bool)
-	}
-	for k := range c.BarrierSet {
-		delete(c.BarrierSet, k)
-	}
-	for _, name := range seen {
-		if name == "" {
-			continue
-		}
-		c.BarrierSet[name] = true
-	}
-	c.Available = c.isBarrierSatisfiedLocked()
-}
+func (c *Channel) SetBarrierSeen(seen []string) { _ = "STUB: not implemented"; return }
 
 // BarrierSeenSnapshot returns a stable, sorted snapshot of the seen set.
-func (c *Channel) BarrierSeenSnapshot() []string {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	if len(c.BarrierSet) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(c.BarrierSet))
-	for name := range c.BarrierSet {
-		out = append(out, name)
-	}
-	sort.Strings(out)
-	return out
-}
+func (c *Channel) BarrierSeenSnapshot() []string { _ = "STUB: not implemented"; return nil }
 
 // Update updates the channel with new values.
-func (c *Channel) Update(values []any, step int) bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	switch c.Behavior {
-	case BehaviorLastValue:
-		if len(values) > 0 {
-			c.Value = values[len(values)-1]
-			c.Version++
-			c.Available = true
-			c.LastUpdatedStep = step
-			return true
-		}
-		return false
-	case BehaviorTopic:
-		c.Values = append(c.Values, values...)
-		c.Version++
-		c.Available = true
-		c.LastUpdatedStep = step
-		return true
-	case BehaviorEphemeral:
-		if len(values) > 0 {
-			c.Value = values[0]
-			c.Version++
-			c.Available = true
-			c.LastUpdatedStep = step
-			return true
-		}
-		return false
-	case BehaviorBarrier:
-		if c.BarrierSet == nil {
-			c.BarrierSet = make(map[string]bool)
-		}
-		for _, value := range values {
-			if sender, ok := value.(string); ok {
-				c.BarrierSet[sender] = true
-			}
-		}
-		c.Version++
-		c.Available = c.isBarrierSatisfiedLocked()
-		c.LastUpdatedStep = step
-		return true
-	}
-	return false
-}
+func (c *Channel) Update(values []any, step int) bool { _ = "STUB: not implemented"; return false }
 
 // Get retrieves the current value from the channel.
-func (c *Channel) Get() any {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	switch c.Behavior {
-	case BehaviorLastValue, BehaviorEphemeral:
-		return c.Value
-	case BehaviorTopic:
-		return c.Values
-	case BehaviorBarrier:
-		return c.BarrierSet
-	}
-	return nil
-}
+func (c *Channel) Get() any { _ = "STUB: not implemented"; return *new(any) }
 
 // Consume consumes the channel value (for ephemeral channels).
-func (c *Channel) Consume() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.Behavior == BehaviorEphemeral {
-		c.Value = nil
-		c.Available = false
-		return true
-	}
-	return false
-}
+func (c *Channel) Consume() bool { _ = "STUB: not implemented"; return false }
 
 // IsAvailable checks if the channel has data available.
-func (c *Channel) IsAvailable() bool {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.Available
-}
+func (c *Channel) IsAvailable() bool { _ = "STUB: not implemented"; return false }
 
 // IsUpdatedInStep returns true if the channel was updated in the specified step.
-func (c *Channel) IsUpdatedInStep(step int) bool {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.LastUpdatedStep == step
-}
+func (c *Channel) IsUpdatedInStep(step int) bool { _ = "STUB: not implemented"; return false }
 
 // ClearStepMark clears the step update mark, typically called after checkpoint creation.
-func (c *Channel) ClearStepMark() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.LastUpdatedStep = StepUnmarked
-}
+func (c *Channel) ClearStepMark() { _ = "STUB: not implemented"; return }
 
 // Finish marks the channel as finished (for barrier channels).
-func (c *Channel) Finish() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.Available = false
-	return true
-}
+func (c *Channel) Finish() bool { _ = "STUB: not implemented"; return false }
 
 // Acknowledge marks the channel as consumed for this step so it doesn't
 // retrigger planning in the next step.
-func (c *Channel) Acknowledge() {
-	c.mu.Lock()
-	c.Available = false
-	if c.Behavior == BehaviorBarrier {
-		for k := range c.BarrierSet {
-			delete(c.BarrierSet, k)
-		}
-	}
-	c.mu.Unlock()
-}
+func (c *Channel) Acknowledge() { _ = "STUB: not implemented"; return }
 
 // ConsumeIfAvailable atomically consumes the availability marker.
 //
 // This is similar to IsAvailable() followed by Acknowledge(), but it avoids
 // losing updates when planning runs concurrently with channel updates.
-func (c *Channel) ConsumeIfAvailable() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Channel) ConsumeIfAvailable() bool { _ = "STUB: not implemented"; return false }
 
-	if !c.Available {
-		return false
-	}
+func (c *Channel) isBarrierSatisfiedLocked() bool { _ = "STUB: not implemented"; return false }
 
-	c.Available = false
-	if c.Behavior == BehaviorBarrier {
-		for k := range c.BarrierSet {
-			delete(c.BarrierSet, k)
-		}
-	}
-	return true
-}
-
-func (c *Channel) isBarrierSatisfiedLocked() bool {
-	if len(c.BarrierExpected) == 0 {
-		return true
-	}
-	for _, name := range c.BarrierExpected {
-		if !c.BarrierSet[name] {
-			return false
-		}
-	}
-	return true
-}
-
-func dedupeSortedStrings(in []string) []string {
-	if len(in) < 2 {
-		return in
-	}
-	out := in[:0]
-	var prev string
-	for i, s := range in {
-		if i == 0 || s != prev {
-			out = append(out, s)
-			prev = s
-		}
-	}
-	return out
-}
+func dedupeSortedStrings(in []string) []string { _ = "STUB: not implemented"; return nil }
 
 // Manager manages all channels in the graph.
 type Manager struct {
@@ -281,37 +105,19 @@ type Manager struct {
 }
 
 // NewChannelManager creates a new channel manager.
-func NewChannelManager() *Manager {
-	return &Manager{
-		channels: make(map[string]*Channel),
-	}
-}
+func NewChannelManager() *Manager { _ = "STUB: not implemented"; return nil }
 
 // AddChannel adds a channel to the manager.
 func (m *Manager) AddChannel(name string, channelBehavior Behavior) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if _, exists := m.channels[name]; exists {
-		return
-	}
-	m.channels[name] = NewChannel(name, channelBehavior)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetChannel retrieves a channel by name.
 func (m *Manager) GetChannel(name string) (*Channel, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	channel, exists := m.channels[name]
-	return channel, exists
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // GetAllChannels returns all channels.
-func (m *Manager) GetAllChannels() map[string]*Channel {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	result := make(map[string]*Channel)
-	for k, v := range m.channels {
-		result[k] = v
-	}
-	return result
-}
+func (m *Manager) GetAllChannels() map[string]*Channel { _ = "STUB: not implemented"; return nil }

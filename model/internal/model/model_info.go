@@ -11,7 +11,6 @@
 package model
 
 import (
-	"strings"
 	"sync"
 )
 
@@ -540,73 +539,18 @@ var ModelContextWindows = map[string]int{
 // - Exact match (case-insensitive) first
 // - Prefix-based fallback second at a model-ID boundary
 // - Returns ok=false when the model is unknown
-func LookupContextWindow(modelName string) (int, bool) {
-	if modelName == "" {
-		return 0, false
-	}
+func LookupContextWindow(modelName string) (int, bool) { _ = "STUB: not implemented"; return 0, false }
 
-	ModelMutex.RLock()
-	defer ModelMutex.RUnlock()
-
-	key := strings.ToLower(modelName)
-	if w, ok := ModelContextWindows[key]; ok {
-		return w, true
-	}
-
-	// Prefer the longest matching prefix so specific snapshots/variants win.
-	bestWindow := 0
-	bestPrefixLen := 0
-	for k, w := range ModelContextWindows {
-		if !isModelPrefixMatch(key, k) {
-			continue
-		}
-		if len(k) <= bestPrefixLen {
-			continue
-		}
-		bestWindow = w
-		bestPrefixLen = len(k)
-	}
-	if bestPrefixLen > 0 {
-		return bestWindow, true
-	}
-	return 0, false
-}
+// Prefer the longest matching prefix so specific snapshots/variants win.
 
 // ResolveContextWindow returns the context window size for a given model name.
 // It falls back to defaultContextWindow when the model is unknown.
-func ResolveContextWindow(modelName string) int {
-	if w, ok := LookupContextWindow(modelName); ok {
-		return w
-	}
-	return defaultContextWindow
-}
+func ResolveContextWindow(modelName string) int { _ = "STUB: not implemented"; return 0 }
 
 // isModelPrefixMatch reports whether prefix matches a full model name or is
 // followed by a separator used by common snapshot/provider suffixes.
-func isModelPrefixMatch(modelName, prefix string) bool {
-	if !strings.HasPrefix(modelName, prefix) {
-		return false
-	}
-	if len(modelName) == len(prefix) {
-		return true
-	}
-	switch modelName[len(prefix)] {
-	case '-', '@', ':':
-		return true
-	default:
-		return false
-	}
-}
+func isModelPrefixMatch(modelName, prefix string) bool { _ = "STUB: not implemented"; return false }
 
 // GetAllModelContextWindows returns a copy of all model context window mappings.
 // This is useful for debugging and testing.
-func GetAllModelContextWindows() map[string]int {
-	ModelMutex.RLock()
-	defer ModelMutex.RUnlock()
-
-	result := make(map[string]int, len(ModelContextWindows))
-	for k, v := range ModelContextWindows {
-		result[k] = v
-	}
-	return result
-}
+func GetAllModelContextWindows() map[string]int { _ = "STUB: not implemented"; return nil }

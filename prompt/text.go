@@ -10,9 +10,6 @@ package prompt
 
 import (
 	"context"
-	"fmt"
-	"sort"
-	"strings"
 
 	promptcore "trpc.group/trpc-go/trpc-agent-go/internal/prompt/core"
 )
@@ -110,9 +107,8 @@ type RenderOption func(*renderConfig)
 
 // WithUnknownBehavior configures how unresolved placeholders are handled.
 func WithUnknownBehavior(behavior UnknownBehavior) RenderOption {
-	return func(cfg *renderConfig) {
-		cfg.unknownBehavior = behavior
-	}
+	_ = "STUB: not implemented"
+	return *new(RenderOption)
 }
 
 type renderConfig struct {
@@ -122,133 +118,27 @@ type renderConfig struct {
 // Render replaces known placeholders with values from the render environment.
 // Unknown placeholders are preserved by default so later stages can still see them.
 func (t Text) Render(env RenderEnv, opts ...RenderOption) (string, error) {
-	cfg := renderConfig{unknownBehavior: PreserveUnknown}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&cfg)
-		}
-	}
-	return promptcore.Render(
-		t.Template,
-		toCoreSyntax(t.Syntax),
-		promptcore.Env{
-			Vars: env.Vars,
-			Resolve: func(name string) (string, bool, error) {
-				if env.Resolver == nil {
-					return "", false, nil
-				}
-				return env.Resolver.Resolve(Ref{Name: name})
-			},
-		},
-		toCoreUnknownBehavior(cfg.unknownBehavior),
-	)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // ValidateRequired checks that the template contains all required placeholders.
-func (t Text) ValidateRequired(names ...string) error {
-	if len(names) == 0 {
-		return nil
-	}
-	present := make(map[string]struct{})
-	for _, name := range promptcore.PlaceholderNames(
-		t.Template,
-		toCoreSyntax(t.Syntax),
-	) {
-		present[name] = struct{}{}
-	}
+func (t Text) ValidateRequired(names ...string) error { _ = "STUB: not implemented"; return nil }
 
-	var missing []string
-	for _, name := range normalizeNames(names) {
-		if _, ok := present[name]; ok {
-			continue
-		}
-		missing = append(missing, name)
-	}
-	if len(missing) == 0 {
-		return nil
-	}
-	return fmt.Errorf(
-		"prompt: missing required placeholders: %s",
-		strings.Join(formatPlaceholderNames(missing), ", "),
-	)
-}
+func normalizeNames(names []string) []string { _ = "STUB: not implemented"; return nil }
 
-func normalizeNames(names []string) []string {
-	if len(names) == 0 {
-		return nil
-	}
-	trimmed := make([]string, 0, len(names))
-	for _, name := range names {
-		name = strings.TrimSpace(name)
-		if name == "" {
-			continue
-		}
-		trimmed = append(trimmed, name)
-	}
-	return uniqueSortedNames(trimmed)
-}
+func uniqueSortedNames(names []string) []string { _ = "STUB: not implemented"; return nil }
 
-func uniqueSortedNames(names []string) []string {
-	if len(names) == 0 {
-		return nil
-	}
-	seen := make(map[string]struct{}, len(names))
-	out := make([]string, 0, len(names))
-	for _, name := range names {
-		if _, ok := seen[name]; ok {
-			continue
-		}
-		seen[name] = struct{}{}
-		out = append(out, name)
-	}
-	sort.Strings(out)
-	return out
-}
+func uniqueSortedStrings(values []string) []string { _ = "STUB: not implemented"; return nil }
 
-func uniqueSortedStrings(values []string) []string {
-	if len(values) == 0 {
-		return nil
-	}
-	seen := make(map[string]struct{}, len(values))
-	out := make([]string, 0, len(values))
-	for _, value := range values {
-		if _, ok := seen[value]; ok {
-			continue
-		}
-		seen[value] = struct{}{}
-		out = append(out, value)
-	}
-	sort.Strings(out)
-	return out
-}
-
-func formatPlaceholderNames(names []string) []string {
-	if len(names) == 0 {
-		return nil
-	}
-	formatted := make([]string, len(names))
-	for i, name := range names {
-		formatted[i] = "{" + name + "}"
-	}
-	return formatted
-}
+func formatPlaceholderNames(names []string) []string { _ = "STUB: not implemented"; return nil }
 
 func toCoreSyntax(s Syntax) promptcore.SyntaxMode {
-	switch s {
-	case SyntaxSingleBrace:
-		return promptcore.SyntaxModeSingleBrace
-	case SyntaxDoubleBrace:
-		return promptcore.SyntaxModeDoubleBrace
-	default:
-		return promptcore.SyntaxModeMixedBrace
-	}
+	_ = "STUB: not implemented"
+	return *new(promptcore.SyntaxMode)
 }
 
 func toCoreUnknownBehavior(b UnknownBehavior) promptcore.UnknownBehavior {
-	switch b {
-	case ErrorOnUnknown:
-		return promptcore.ErrorOnUnknown
-	default:
-		return promptcore.PreserveUnknown
-	}
+	_ = "STUB: not implemented"
+	return *new(promptcore.UnknownBehavior)
 }

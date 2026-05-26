@@ -10,11 +10,6 @@
 // used by both the telemetry exporter and the prompt provider.
 package config
 
-import (
-	"os"
-	"strings"
-)
-
 // ConnectionConfig holds the credentials and endpoint needed to connect to a
 // Langfuse instance. It is shared across telemetry and prompt-provider packages
 // so that both can be configured from a single source.
@@ -31,35 +26,8 @@ type ConnectionConfig struct {
 //   - LANGFUSE_SECRET_KEY
 //   - LANGFUSE_BASE_URL
 //   - LANGFUSE_HOST (fallback; converted to a base URL when BASE_URL is unset)
-func FromEnv() ConnectionConfig {
-	baseURL := getEnv("LANGFUSE_BASE_URL", "")
-	if baseURL == "" {
-		baseURL = hostToBaseURL(getEnv("LANGFUSE_HOST", ""))
-	}
-	return ConnectionConfig{
-		PublicKey: getEnv("LANGFUSE_PUBLIC_KEY", ""),
-		SecretKey: getEnv("LANGFUSE_SECRET_KEY", ""),
-		BaseURL:   baseURL,
-	}
-}
+func FromEnv() ConnectionConfig { _ = "STUB: not implemented"; return *new(ConnectionConfig) }
 
-func hostToBaseURL(host string) string {
-	host = strings.TrimSpace(host)
-	if host == "" {
-		return ""
-	}
-	if strings.Contains(host, "://") {
-		return strings.TrimRight(host, "/")
-	}
-	if strings.HasPrefix(host, "localhost") || strings.HasPrefix(host, "127.0.0.1") {
-		return "http://" + host
-	}
-	return "https://" + host
-}
+func hostToBaseURL(host string) string { _ = "STUB: not implemented"; return "" }
 
-func getEnv(key, defaultValue string) string {
-	if v, ok := os.LookupEnv(key); ok {
-		return v
-	}
-	return defaultValue
-}
+func getEnv(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }

@@ -15,7 +15,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 	"time"
 
@@ -113,152 +112,38 @@ func runOnce(
 	r runner.Runner,
 	sessionID string,
 ) {
-	msg := model.NewUserMessage("demo")
-	events, err := r.Run(ctx, userID, sessionID, msg)
-	if err != nil {
-		log.Fatalf("run: %v", err)
-	}
-	for evt := range events {
-		printSelectedEvent(evt)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func printSelectedEvent(evt *event.Event) {
-	if evt == nil || evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return
-	}
-	if evt.Object == model.ObjectTypeStateUpdate {
-		fmt.Println("state.update")
-		return
-	}
-
-	ch := evt.Response.Choices[0]
-	if len(ch.Message.ToolCalls) > 0 {
-		fmt.Println("tool calls:")
-		for _, tc := range ch.Message.ToolCalls {
-			fmt.Printf("  - %s id=%s args=%s\n",
-				tc.Function.Name,
-				tc.ID,
-				string(tc.Function.Arguments),
-			)
-		}
-		return
-	}
-	if ch.Message.Role == model.RoleTool && ch.Message.Content != "" {
-		content := strings.TrimSpace(ch.Message.Content)
-		firstLine, _, _ := strings.Cut(content, "\n")
-		extra := ""
-		if strings.Contains(content, "[Loaded]") {
-			extra = " (materialized skill content)"
-		}
-		fmt.Printf("tool result: %s%s\n", firstLine, extra)
-		return
-	}
-	if ch.Message.Role == model.RoleAssistant && ch.Message.Content != "" {
-		fmt.Printf("assistant: %s\n", strings.TrimSpace(ch.Message.Content))
-	}
-}
+func printSelectedEvent(evt *event.Event) { _ = "STUB: not implemented"; return }
 
 func printSkillState(
 	ctx context.Context,
 	svc session.Service,
 	sessionID string,
 ) {
-	key := session.Key{
-		AppName:   appName,
-		UserID:    userID,
-		SessionID: sessionID,
-	}
-	sess, err := svc.GetSession(ctx, key)
-	if err != nil {
-		log.Fatalf("get session: %v", err)
-	}
-
-	keys := listSkillStateKeys(sess.State)
-	fmt.Println("skill state keys:")
-	if len(keys) == 0 {
-		fmt.Println("  (none)")
-		return
-	}
-	for _, k := range keys {
-		v := sess.State[k]
-		if len(v) == 0 {
-			fmt.Printf("  - %s = <cleared>\n", k)
-			continue
-		}
-		if string(v) == stateValueOne {
-			fmt.Printf("  - %s = %s\n", k, stateValueOne)
-			continue
-		}
-		fmt.Printf("  - %s = %s\n", k, string(v))
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func listSkillStateKeys(state session.StateMap) []string {
-	if len(state) == 0 {
-		return nil
-	}
-	var out []string
-	for k := range state {
-		if strings.HasPrefix(k, skill.StateKeyLoadedPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyDocsPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyLoadedOrderPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyLoadedByAgentPrefix) ||
-			strings.HasPrefix(k, skill.StateKeyDocsByAgentPrefix) ||
-			strings.HasPrefix(
-				k,
-				skill.StateKeyLoadedOrderByAgentPrefix,
-			) {
-			out = append(out, k)
-		}
-	}
-	sort.Strings(out)
-	return out
-}
+func listSkillStateKeys(state session.StateMap) []string { _ = "STUB: not implemented"; return nil }
 
 type stepModel struct {
 	skill string
 	step  int
 }
 
-func newStepModel(skillName string) *stepModel {
-	return &stepModel{skill: skillName}
-}
+func newStepModel(skillName string) *stepModel { _ = "STUB: not implemented"; return nil }
 
-func (m *stepModel) Info() model.Info {
-	return model.Info{Name: "skillloadmode-mock-model"}
-}
+func (m *stepModel) Info() model.Info { _ = "STUB: not implemented"; return *new(model.Info) }
 
 func (m *stepModel) GenerateContent(
 	ctx context.Context,
 	_ *model.Request,
 ) (<-chan *model.Response, error) {
-	m.step++
-
-	var rsp *model.Response
-	switch m.step {
-	case 1:
-		rsp = toolCallResponse(
-			"call-1",
-			"skill_load",
-			[]byte(fmt.Sprintf(`{"skill":%q}`, m.skill)),
-		)
-	case 2:
-		rsp = assistantResponse("loaded and ready")
-	default:
-		rsp = assistantResponse("done")
-	}
-
-	ch := make(chan *model.Response, 1)
-	go func() {
-		defer close(ch)
-		select {
-		case <-ctx.Done():
-			return
-		case ch <- rsp:
-		}
-	}()
-	return ch, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func toolCallResponse(
@@ -266,42 +151,8 @@ func toolCallResponse(
 	toolName string,
 	args []byte,
 ) *model.Response {
-	return &model.Response{
-		ID:        id,
-		Object:    model.ObjectTypeChatCompletion,
-		Created:   time.Now().Unix(),
-		Done:      true,
-		IsPartial: false,
-		Choices: []model.Choice{{
-			Index: 0,
-			Message: model.Message{
-				Role: model.RoleAssistant,
-				ToolCalls: []model.ToolCall{{
-					Type: "function",
-					ID:   id,
-					Function: model.FunctionDefinitionParam{
-						Name:      toolName,
-						Arguments: args,
-					},
-				}},
-			},
-		}},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func assistantResponse(content string) *model.Response {
-	return &model.Response{
-		ID:        "assistant",
-		Object:    model.ObjectTypeChatCompletion,
-		Created:   time.Now().Unix(),
-		Done:      true,
-		IsPartial: false,
-		Choices: []model.Choice{{
-			Index: 0,
-			Message: model.Message{
-				Role:    model.RoleAssistant,
-				Content: content,
-			},
-		}},
-	}
-}
+func assistantResponse(content string) *model.Response { _ = "STUB: not implemented"; return nil }

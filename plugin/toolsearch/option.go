@@ -32,37 +32,23 @@ type Option func(*Config)
 
 // WithName sets the plugin name for ToolSearch.
 // Names must be unique per Runner.
-func WithName(name string) Option {
-	return func(c *Config) { c.Name = name }
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithToolKnowledge sets the tool knowledge used for tool selection.
-func WithToolKnowledge(k *ToolKnowledge) Option {
-	return func(c *Config) { c.toolKnowledge = k }
-}
+func WithToolKnowledge(k *ToolKnowledge) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSystemPrompt sets the system prompt used for tool selection.
-func WithSystemPrompt(prompt string) Option {
-	return func(c *Config) { c.SystemPrompt = prompt }
-}
+func WithSystemPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxTools sets the maximum number of tools to select.
 // If maxTools <= 0, the maximum number of tools is defaultMaxTools.
-func WithMaxTools(maxTools int) Option {
-	return func(c *Config) { c.MaxTools = maxTools }
-}
+func WithMaxTools(maxTools int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 const defaultMaxTools = 10000
 
 // WithAlwaysInclude adds tool names that are always included regardless of
 // selection. These do not count against `maxTools`.
-func WithAlwaysInclude(names ...string) Option {
-	return func(c *Config) {
-		c.AlwaysInclude = append(c.AlwaysInclude, names...)
-	}
-}
+func WithAlwaysInclude(names ...string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFailOpen enables fail-open behavior: ToolSearch will not return an error and will not mutate req.Tools.
-func WithFailOpen() Option {
-	return func(c *Config) { c.FailOpen = true }
-}
+func WithFailOpen() Option { _ = "STUB: not implemented"; return *new(Option) }

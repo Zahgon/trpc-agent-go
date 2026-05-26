@@ -12,33 +12,18 @@ package llmflow
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"runtime/debug"
-	"sort"
 	"time"
 
-	"github.com/google/uuid"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	atrace "trpc.group/trpc-go/trpc-agent-go/agent/trace"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/internal/flow"
 	"trpc.group/trpc-go/trpc-agent-go/internal/flow/processor"
-	"trpc.group/trpc-go/trpc-agent-go/internal/jsonmap"
-	"trpc.group/trpc-go/trpc-agent-go/internal/jsonrepair"
-	"trpc.group/trpc-go/trpc-agent-go/internal/modelcontext"
-	"trpc.group/trpc-go/trpc-agent-go/internal/responseusage"
-	"trpc.group/trpc-go/trpc-agent-go/internal/state/steer"
 	itelemetry "trpc.group/trpc-go/trpc-agent-go/internal/telemetry"
-	"trpc.group/trpc-go/trpc-agent-go/internal/toolcall"
-	itrace "trpc.group/trpc-go/trpc-agent-go/internal/trace"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const (
@@ -72,10 +57,8 @@ const (
 // InvocationHasFilteredUserTools reports whether the cached filtered tool
 // snapshot for this invocation still contains any user tool.
 func InvocationHasFilteredUserTools(invocation *agent.Invocation) (bool, bool) {
-	if invocation == nil {
-		return false, false
-	}
-	return agent.GetStateValue[bool](invocation, stateKeyHasFilteredUserTools)
+	_ = "STUB: not implemented"
+	return false, false
 }
 
 // Options contains configuration options for creating a Flow.
@@ -141,190 +124,61 @@ func New(
 	responseProcessors []flow.ResponseProcessor,
 	opts Options,
 ) *Flow {
-	return &Flow{
-		requestProcessors:       requestProcessors,
-		responseProcessors:      responseProcessors,
-		channelBufferSize:       opts.ChannelBufferSize,
-		modelCallbacks:          opts.ModelCallbacks,
-		baseModelResolver:       opts.BaseModelResolver,
-		modelSelector:           opts.ModelSelector,
-		syncSummaryIntraRun:     opts.SyncSummaryIntraRun,
-		enableContextCompaction: opts.EnableContextCompaction,
-		contextCompactionThresholdRatio: normalizeContextCompactionThresholdRatio(
-			opts.ContextCompactionThresholdRatio,
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Run executes the flow in a loop until completion.
 func (f *Flow) Run(ctx context.Context, invocation *agent.Invocation) (<-chan *event.Event, error) {
-	eventChan := make(chan *event.Event, f.channelBufferSize) // Configurable buffered channel for events.
-
-	runCtx := agent.CloneContext(ctx)
-	go func(ctx context.Context) {
-		defer close(eventChan)
-		defer steer.Close(invocation)
-		defer recoverFlowRunPanic(ctx, invocation, eventChan)
-
-		// Mark the invocation so the runner skips redundant async
-		// summary enqueue when sync intra-run summary handles it.
-		if f.syncSummaryIntraRun && invocation != nil {
-			invocation.SetState(
-				agent.SyncSummaryIntraRunStateKey, true,
-			)
-		}
-
-		// Optionally resume from pending tool calls before starting a new
-		// LLM cycle. This covers scenarios where the previous run stopped
-		// after an assistant tool_call response but before tools executed.
-		f.maybeResumePendingToolCalls(ctx, invocation, eventChan)
-
-		firstIteration := true
-		for {
-			// emit start event and wait for completion notice.
-			if err := f.emitStartEventAndWait(ctx, invocation, eventChan); err != nil {
-				return
-			}
-
-			// Run sync intra-run summary only between iterations.
-			if !firstIteration {
-				f.maybeSyncSummaryIntraRun(ctx, invocation)
-			}
-			firstIteration = false
-
-			if err := f.maybeConsumeQueuedUserMessages(
-				ctx,
-				invocation,
-				eventChan,
-			); err != nil {
-				return
-			}
-
-			// Run one step (one LLM call cycle).
-			lastEvent, err := f.runOneStep(ctx, invocation, eventChan)
-			if err != nil {
-				steer.Close(invocation)
-				// Treat context cancellation as graceful termination (common in streaming
-				// pipelines where the client closes the stream after final event).
-				if errors.Is(err, context.Canceled) {
-					log.DebugfContext(
-						ctx,
-						"Flow context canceled for agent %s; exiting "+
-							"without error",
-						invocation.AgentName,
-					)
-					return
-				}
-				var errorEvent *event.Event
-				if _, ok := agent.AsStopError(err); ok {
-					errorEvent = event.NewErrorEvent(
-						invocation.InvocationID,
-						invocation.AgentName,
-						agent.ErrorTypeStopAgentError,
-						err.Error(),
-					)
-					log.ErrorfContext(
-						ctx,
-						"Flow step stopped for agent %s: %v",
-						invocation.AgentName,
-						err,
-					)
-				} else {
-					// Send error event through channel instead of just logging.
-					errorEvent = event.NewErrorEvent(
-						invocation.InvocationID,
-						invocation.AgentName,
-						model.ErrorTypeFlowError,
-						err.Error(),
-					)
-					log.ErrorfContext(
-						ctx,
-						"Flow step failed for agent %s: %v",
-						invocation.AgentName,
-						err,
-					)
-				}
-
-				agent.EmitEvent(ctx, invocation, eventChan, errorEvent)
-				return
-			}
-
-			// Exit conditions.
-			// If no events were produced in this step, treat as terminal to avoid busy loop.
-			// Also break when EndInvocation is set or a final response is observed.
-			if lastEvent == nil || invocation.EndInvocation || lastEvent.IsFinalResponse() {
-				steer.Close(invocation)
-				break
-			}
-		}
-	}(runCtx)
-
-	return eventChan, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Configurable buffered channel for events.
+
+// Mark the invocation so the runner skips redundant async
+// summary enqueue when sync intra-run summary handles it.
+
+// Optionally resume from pending tool calls before starting a new
+// LLM cycle. This covers scenarios where the previous run stopped
+// after an assistant tool_call response but before tools executed.
+
+// emit start event and wait for completion notice.
+
+// Run sync intra-run summary only between iterations.
+
+// Run one step (one LLM call cycle).
+
+// Treat context cancellation as graceful termination (common in streaming
+// pipelines where the client closes the stream after final event).
+
+// Send error event through channel instead of just logging.
+
+// Exit conditions.
+// If no events were produced in this step, treat as terminal to avoid busy loop.
+// Also break when EndInvocation is set or a final response is observed.
 
 func recoverFlowRunPanic(
 	ctx context.Context,
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) {
-	recovered := recover()
-	if recovered == nil {
-		return
-	}
-
-	stack := debug.Stack()
-	log.ErrorfContext(
-		ctx,
-		flowRunPanicLogFmt,
-		flowInvocationID(invocation),
-		flowAgentName(invocation),
-		recovered,
-		string(stack),
-	)
-
-	errorEvent := event.NewErrorEvent(
-		flowInvocationID(invocation),
-		flowAgentName(invocation),
-		model.ErrorTypeFlowError,
-		fmt.Sprintf(flowRunPanicErrFmt, recovered),
-	)
-	agent.EmitEvent(ctx, invocation, eventChan, errorEvent)
+	_ = "STUB: not implemented"
+	return
 }
 
-func flowInvocationID(invocation *agent.Invocation) string {
-	if invocation == nil {
-		return ""
-	}
-	return invocation.InvocationID
-}
+func flowInvocationID(invocation *agent.Invocation) string { _ = "STUB: not implemented"; return "" }
 
-func flowAgentName(invocation *agent.Invocation) string {
-	if invocation == nil {
-		return ""
-	}
-	return invocation.AgentName
-}
+func flowAgentName(invocation *agent.Invocation) string { _ = "STUB: not implemented"; return "" }
 
 func traceSnapshotFromMessages(messages []model.Message) *atrace.Snapshot {
-	if len(messages) == 0 {
-		return nil
-	}
-	bytes, err := json.Marshal(messages)
-	if err != nil {
-		return nil
-	}
-	return &atrace.Snapshot{Text: string(bytes)}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func traceSnapshotFromEvent(evt *event.Event) *atrace.Snapshot {
-	if evt == nil || evt.Response == nil {
-		return nil
-	}
-	bytes, err := json.Marshal(evt.Response)
-	if err != nil {
-		return nil
-	}
-	return &atrace.Snapshot{Text: string(bytes)}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *Flow) maybeConsumeQueuedUserMessages(
@@ -332,67 +186,13 @@ func (f *Flow) maybeConsumeQueuedUserMessages(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) error {
-	if !steer.IsAttached(invocation) {
-		return nil
-	}
-
-	messages := steer.Drain(invocation)
-	if len(messages) == 0 {
-		return nil
-	}
-
-	for _, message := range messages {
-		invocation.Message = message
-
-		evt := event.NewResponseEvent(
-			invocation.InvocationID,
-			queuedUserAuthor,
-			&model.Response{
-				Done: false,
-				Choices: []model.Choice{{
-					Index:   0,
-					Message: message,
-				}},
-			},
-		)
-		evt.RequiresCompletion = true
-
-		if err := agent.EmitEvent(
-			ctx,
-			invocation,
-			eventChan,
-			evt,
-		); err != nil {
-			return err
-		}
-
-		completionID := agent.GetAppendEventNoticeKey(evt.ID)
-		err := invocation.AddNoticeChannelAndWait(
-			ctx,
-			completionID,
-			flowEventWaitTimeout(ctx),
-		)
-		if errors.Is(err, context.Canceled) ||
-			errors.Is(err, context.DeadlineExceeded) {
-			return err
-		}
-		if err != nil {
-			log.WarnfContext(
-				ctx,
-				"Wait for queued user message persistence failed: %v",
-				err,
-			)
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func flowEventWaitTimeout(ctx context.Context) time.Duration {
-	if deadline, ok := ctx.Deadline(); ok {
-		return time.Until(deadline)
-	}
-	return eventCompletionTimeout
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 // maybeResumePendingToolCalls inspects the latest session events and, when
@@ -405,122 +205,33 @@ func (f *Flow) maybeResumePendingToolCalls(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) {
-	if invocation == nil || !invocation.RunOptions.Resume {
-		return
-	}
-	if invocation.Session == nil {
-		return
-	}
-
-	invocation.Session.EventMu.RLock()
-	events := invocation.Session.Events
-	var lastResp *model.Response
-	if len(events) > 0 {
-		last := events[len(events)-1]
-		if last.Response != nil && !last.IsPartial &&
-			last.IsValidContent() && last.Response.IsToolCallResponse() {
-			lastResp = last.Response
-		}
-	}
-	invocation.Session.EventMu.RUnlock()
-
-	if lastResp == nil {
-		return
-	}
-
-	req := &model.Request{
-		Tools: make(map[string]tool.Tool),
-	}
-	for _, t := range f.getFilteredTools(ctx, invocation) {
-		req.Tools[t.Declaration().Name] = t
-	}
-
-	for _, rp := range f.responseProcessors {
-		if toolRP, ok := rp.(*processor.FunctionCallResponseProcessor); ok {
-			toolRP.ProcessResponse(ctx, invocation, req, lastResp, eventChan)
-			break
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *Flow) maybeSyncSummaryIntraRun(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) {
-	if !f.syncSummaryIntraRun || invocation == nil || invocation.Session == nil ||
-		invocation.SessionService == nil {
-		return
-	}
-
-	if err := invocation.SessionService.CreateSessionSummary(
-		ctx,
-		invocation.Session,
-		invocation.GetEventFilterKey(),
-		false,
-	); err != nil {
-		log.DebugfContext(
-			ctx,
-			"Intra-run summary skipped or failed for agent %s: %v",
-			invocation.AgentName,
-			err,
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *Flow) emitStartEventAndWait(ctx context.Context, invocation *agent.Invocation,
 	eventChan chan<- *event.Event) error {
-	invocationID, agentName := "", ""
-	if invocation != nil {
-		invocationID = invocation.InvocationID
-		agentName = invocation.AgentName
-	}
-	startEvent := event.New(invocationID, agentName)
-	startEvent.RequiresCompletion = true
-	agent.EmitEvent(ctx, invocation, eventChan, startEvent)
-
-	// Wait for completion notice.
-	// Ensure that the events of the previous agent or the previous step have been synchronized to the session.
-	completionID := agent.GetAppendEventNoticeKey(startEvent.ID)
-	err := invocation.AddNoticeChannelAndWait(ctx, completionID, eventCompletionTimeout)
-	if errors.Is(err, context.Canceled) {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Wait for completion notice.
+// Ensure that the events of the previous agent or the previous step have been synchronized to the session.
 
 func (f *Flow) selectModelForStep(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (model.Model, error) {
-	if invocation == nil {
-		return nil, nil
-	}
-	resolution := ModelBaseResolution{
-		Model:              invocation.Model,
-		AllowAgentSelector: true,
-	}
-	if f.baseModelResolver != nil {
-		resolution = f.baseModelResolver(invocation)
-	}
-	baseModel := resolution.Model
-	selector := invocation.RunOptions.ModelSelector
-	if selector == nil && resolution.AllowAgentSelector {
-		selector = f.modelSelector
-	}
-	if selector == nil {
-		return baseModel, nil
-	}
-	originalModel := invocation.Model
-	invocation.Model = baseModel
-	selected, err := runModelSelector(ctx, selector, invocation)
-	invocation.Model = originalModel
-	if err != nil {
-		return baseModel, fmt.Errorf("model selector failed: %w", err)
-	}
-	if selected == nil {
-		return baseModel, nil
-	}
-	return selected, nil
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 func runModelSelector(
@@ -528,13 +239,8 @@ func runModelSelector(
 	selector agent.ModelSelector,
 	invocation *agent.Invocation,
 ) (selected model.Model, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Errorf("model selector panic: %v\n%s", r, debug.Stack())
-			err = fmt.Errorf("panic: %v", r)
-		}
-	}()
-	return selector(ctx, invocation)
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }
 
 // runOneStep executes one step of the flow (one LLM call cycle).
@@ -544,73 +250,20 @@ func (f *Flow) runOneStep(
 	invocation *agent.Invocation,
 	eventChan chan<- *event.Event,
 ) (*event.Event, error) {
-	var lastEvent *event.Event
-	// Initialize empty LLM request.
-	llmRequest := &model.Request{
-		Tools: make(map[string]tool.Tool), // Initialize tools map
-	}
-	callModel, err := f.selectModelForStep(ctx, invocation)
-	if err != nil {
-		return nil, err
-	}
-	if invocation != nil {
-		originalModel := invocation.Model
-		invocation.Model = callModel
-		defer func() {
-			invocation.Model = originalModel
-		}()
-	}
-	// 1. Preprocess (prepare request).
-	rebuildPlan := f.preprocess(ctx, invocation, llmRequest, eventChan)
-	if invocation.EndInvocation {
-		return lastEvent, nil
-	}
-	llmRequest = f.maybeCompactContextBeforeLLM(
-		ctx,
-		invocation,
-		llmRequest,
-		rebuildPlan,
-	)
-	if invocation.EndInvocation {
-		return lastEvent, nil
-	}
-	observabilityInvocation := invocationViewForModel(invocation, callModel)
-	stepID := agent.StartExecutionTraceStep(
-		invocation,
-		agent.InvocationTraceNodeID(invocation),
-		traceSnapshotFromMessages(llmRequest.Messages),
-		nil,
-	)
-	agent.SetExecutionTraceStepAppliedSurfaceIDs(invocation, stepID)
-	var span oteltrace.Span
-	var modelName string
-	if callModel != nil {
-		modelName = callModel.Info().Name
-	}
-	_, span, startedSpan := itrace.StartSpan(ctx, invocation, itelemetry.NewChatSpanName(modelName))
-	if startedSpan {
-		defer span.End()
-	}
-	// 2. Call LLM (get response sequence).
-	ctx, responseSeq, err := f.callLLM(ctx, invocation, llmRequest, callModel)
-	if err != nil {
-		agent.FinishExecutionTraceStep(invocation, stepID, nil, err)
-		return nil, err
-	}
-	// 3. Process streaming responses.
-	lastEvent, err = f.processStreamingResponses(
-		ctx,
-		invocation,
-		observabilityInvocation,
-		llmRequest,
-		responseSeq,
-		eventChan,
-		span,
-		startedSpan,
-	)
-	agent.FinishExecutionTraceStep(invocation, stepID, traceSnapshotFromEvent(lastEvent), err)
-	return lastEvent, err
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Initialize empty LLM request.
+		nil
 }
+
+// Initialize tools map
+
+// 1. Preprocess (prepare request).
+
+// 2. Call LLM (get response sequence).
+
+// 3. Process streaming responses.
 
 // processStreamingResponses handles the streaming response processing logic.
 func (f *Flow) processStreamingResponses(
@@ -623,148 +276,19 @@ func (f *Flow) processStreamingResponses(
 	span oteltrace.Span,
 	startedSpan bool,
 ) (lastEvent *event.Event, err error) {
-	currentInvocation := invocationFromContextOrDefault(ctx, invocation)
-	metricsInvocation := observabilityInvocation
-	if metricsInvocation == nil {
-		metricsInvocation = invocation
-	}
-	if metricsInvocation == nil {
-		metricsInvocation = currentInvocation
-	}
-	var tracker *itelemetry.ChatMetricsTracker
-	var timingInfo *model.TimingInfo
-	var partialUsageState responseusage.PartialState
-	if metricsInvocation != nil {
-		timingInfo = responseUsageTimingInfo(currentInvocation)
-		tracker = itelemetry.NewChatMetricsTracker(
-			ctx,
-			metricsInvocation,
-			llmRequest,
-			timingInfo,
-			nil,
-			&err,
-		)
-		defer tracker.RecordMetrics()()
-	}
-
-	responseSeq(func(response *model.Response) bool {
-		currentInvocation = invocationFromContextOrDefault(
-			ctx,
-			currentInvocation,
-		)
-		timingInfo = responseUsageTimingInfo(currentInvocation)
-		if tracker != nil {
-			tracker.SetInvocationState(
-				metricsInvocationForCurrent(
-					currentInvocation,
-					observabilityInvocation,
-				),
-				timingInfo,
-			)
-		}
-		trackModelResponseTelemetry(
-			response,
-			tracker,
-		)
-		callbackTimingAttachment := responseusage.AttachTimingForCallback(
-			response,
-			timingInfo,
-			&partialUsageState,
-		)
-		eventInvocation := invocation
-		if eventInvocation == nil {
-			eventInvocation = currentInvocation
-		}
-		// Handle after model callbacks.
-		updatedCtx, customResp, cbErr := f.handleAfterModelCallbacks(
-			ctx,
-			eventInvocation,
-			currentInvocation,
-			llmRequest,
-			response,
-			eventChan,
-		)
-		if cbErr != nil {
-			err = cbErr
-			return false
-		}
-		ctx = updatedCtx
-		responseReplaced := customResp != nil
-		if responseReplaced {
-			callbackTimingAttachment.Restore()
-			response = customResp
-		}
-		currentInvocation = invocationFromContextOrDefault(
-			ctx,
-			currentInvocation,
-		)
-		timingInfo = responseUsageTimingInfo(currentInvocation)
-		if tracker != nil {
-			tracker.SetInvocationState(
-				metricsInvocationForCurrent(
-					currentInvocation,
-					observabilityInvocation,
-				),
-				timingInfo,
-			)
-		}
-		if !responseReplaced {
-			callbackTimingAttachment.RestoreIfTimingInfoChanged(timingInfo)
-		}
-		responseusage.AttachTiming(response, timingInfo, &partialUsageState)
-		// Repair tool call arguments in place when needed.
-		if currentInvocation != nil &&
-			jsonrepair.IsToolCallArgumentsJSONRepairEnabled(currentInvocation) {
-			jsonrepair.RepairResponseToolCallArgumentsInPlace(ctx, response)
-		}
-		// 4. Create and send LLM response using the clean constructor.
-		llmResponseEvent := f.createLLMResponseEvent(
-			eventInvocation,
-			currentInvocation,
-			response,
-			llmRequest,
-		)
-		agent.EmitEvent(ctx, eventInvocation, eventChan, llmResponseEvent)
-		lastEvent = llmResponseEvent
-		if tracker != nil {
-			tracker.SetLastEvent(lastEvent)
-		}
-		// 5. Check context cancellation.
-		if err = agent.CheckContextCancelled(ctx); err != nil {
-			return false
-		}
-		// 6. Postprocess response.
-		f.postprocess(
-			ctx,
-			eventInvocation,
-			llmRequest,
-			response,
-			eventChan,
-		)
-		if ctxErr := agent.CheckContextCancelled(ctx); ctxErr != nil {
-			err = ctxErr
-			return false
-		}
-		var ttfb time.Duration
-		if tracker != nil {
-			ttfb = tracker.FirstTokenTimeDuration()
-		}
-		if startedSpan {
-			itelemetry.TraceChat(span, &itelemetry.TraceChatAttributes{
-				Invocation:       observabilityInvocationForCurrent(eventInvocation, observabilityInvocation),
-				Request:          llmRequest,
-				Response:         response,
-				EventID:          llmResponseEvent.ID,
-				TimeToFirstToken: ttfb,
-			})
-		}
-		return true
-	})
-	if err != nil {
-		return nil, err
-	}
-	return lastEvent, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Handle after model callbacks.
+
+// Repair tool call arguments in place when needed.
+
+// 4. Create and send LLM response using the clean constructor.
+
+// 5. Check context cancellation.
+
+// 6. Postprocess response.
 
 // handleAfterModelCallbacks processes after model callbacks.
 func (f *Flow) handleAfterModelCallbacks(
@@ -775,31 +299,8 @@ func (f *Flow) handleAfterModelCallbacks(
 	response *model.Response,
 	eventChan chan<- *event.Event,
 ) (context.Context, *model.Response, error) {
-	ctx, customResp, err := f.runAfterModelCallbacks(
-		ctx,
-		invocation,
-		llmRequest,
-		response,
-	)
-	if err != nil {
-		if _, ok := agent.AsStopError(err); ok {
-			return ctx, nil, err
-		}
-		log.ErrorfContext(
-			ctx,
-			"After model callback failed for agent %s: %v",
-			flowAgentName(eventInvocation),
-			err,
-		)
-		agent.EmitEvent(ctx, eventInvocation, eventChan, event.NewErrorEvent(
-			flowInvocationID(eventInvocation),
-			flowAgentName(eventInvocation),
-			model.ErrorTypeFlowError,
-			err.Error(),
-		))
-		return ctx, nil, err
-	}
-	return ctx, customResp, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 // createLLMResponseEvent creates a new LLM response event.
@@ -809,89 +310,53 @@ func (f *Flow) createLLMResponseEvent(
 	response *model.Response,
 	llmRequest *model.Request,
 ) *event.Event {
-	invocationID, agentName := "", ""
-	if eventInvocation != nil {
-		invocationID = eventInvocation.InvocationID
-		agentName = eventInvocation.AgentName
-	}
-	llmResponseEvent := event.New(
-		invocationID,
-		agentName,
-		event.WithResponse(response),
-	)
-	applyPartialEventMetadataOverrides(
-		llmResponseEvent,
-		response,
-		optionsInvocation,
-	)
-	if len(response.Choices) > 0 && len(response.Choices[0].Message.ToolCalls) > 0 {
-		llmResponseEvent.LongRunningToolIDs = collectLongRunningToolIDs(response.Choices[0].Message.ToolCalls, llmRequest.Tools)
-	}
-	return llmResponseEvent
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func invocationFromContextOrDefault(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) *agent.Invocation {
-	if updatedInvocation, ok := agent.InvocationFromContext(ctx); ok &&
-		updatedInvocation != nil {
-		return updatedInvocation
-	}
-	return invocation
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func invocationViewForModel(
 	invocation *agent.Invocation,
 	callModel model.Model,
 ) *agent.Invocation {
-	if invocation == nil {
-		return nil
-	}
-	return invocation.View(agent.WithInvocationModel(callModel))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func metricsInvocationForCurrent(
 	current *agent.Invocation,
 	base *agent.Invocation,
 ) *agent.Invocation {
-	if base == nil {
-		return current
-	}
-	return observabilityInvocationForCurrent(current, base)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func observabilityInvocationForCurrent(
 	current *agent.Invocation,
 	base *agent.Invocation,
 ) *agent.Invocation {
-	if base == nil {
-		return current
-	}
-	if current == nil || current.Session == nil {
-		return base
-	}
-	return base.View(
-		agent.WithInvocationSession(current.Session),
-		agent.WithInvocationModel(base.Model),
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func trackModelResponseTelemetry(
 	response *model.Response,
 	tracker *itelemetry.ChatMetricsTracker,
 ) {
-	if tracker == nil || response == nil {
-		return
-	}
-	tracker.TrackResponse(response)
+	_ = "STUB: not implemented"
+	return
 }
 
 func responseUsageTimingInfo(invocation *agent.Invocation) *model.TimingInfo {
-	if invocation == nil || invocation.RunOptions.DisableResponseUsageTracking {
-		return nil
-	}
-	return invocation.GetOrCreateTimingInfo()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func applyPartialEventMetadataOverrides(
@@ -899,33 +364,13 @@ func applyPartialEventMetadataOverrides(
 	response *model.Response,
 	invocation *agent.Invocation,
 ) {
-	if ev == nil || response == nil || !response.IsPartial || invocation == nil {
-		return
-	}
-	if invocation.RunOptions.DisablePartialEventIDs {
-		ev.ID = ""
-	}
-	if invocation.RunOptions.DisablePartialEventTimestamps {
-		ev.Timestamp = response.Timestamp
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func collectLongRunningToolIDs(ToolCalls []model.ToolCall, tools map[string]tool.Tool) map[string]struct{} {
-	longRunningToolIDs := make(map[string]struct{})
-	for _, toolCall := range ToolCalls {
-		t, ok := tools[toolCall.Function.Name]
-		if !ok {
-			continue
-		}
-		caller, ok := t.(function.LongRunner)
-		if !ok {
-			continue
-		}
-		if caller.LongRunning() {
-			longRunningToolIDs[toolCall.ID] = struct{}{}
-		}
-	}
-	return longRunningToolIDs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *Flow) runAfterModelCallbacks(
@@ -934,33 +379,8 @@ func (f *Flow) runAfterModelCallbacks(
 	req *model.Request,
 	response *model.Response,
 ) (context.Context, *model.Response, error) {
-	var (
-		override bool
-		err      error
-	)
-	if invocation != nil && invocation.Plugins != nil {
-		callbacks := invocation.Plugins.ModelCallbacks()
-		ctx, response, override, err = runAfterModelCallbackSet(
-			ctx,
-			callbacks,
-			req,
-			response,
-		)
-		if err != nil {
-			return ctx, nil, err
-		}
-		if override {
-			return ctx, response, nil
-		}
-	}
-
-	ctx, response, _, err = runAfterModelCallbackSet(
-		ctx,
-		f.modelCallbacks,
-		req,
-		response,
-	)
-	return ctx, response, err
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 func runAfterModelCallbackSet(
@@ -969,34 +389,8 @@ func runAfterModelCallbackSet(
 	req *model.Request,
 	response *model.Response,
 ) (context.Context, *model.Response, bool, error) {
-	if callbacks == nil {
-		return ctx, response, false, nil
-	}
-
-	var modelErr error
-	if response != nil && response.Error != nil {
-		modelErr = fmt.Errorf(
-			"%s: %s",
-			response.Error.Type,
-			response.Error.Message,
-		)
-	}
-
-	result, err := callbacks.RunAfterModel(ctx, &model.AfterModelArgs{
-		Request:  req,
-		Response: response,
-		Error:    modelErr,
-	})
-	if err != nil {
-		return ctx, nil, false, err
-	}
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	if result != nil && result.CustomResponse != nil {
-		return ctx, result.CustomResponse, true, nil
-	}
-	return ctx, response, false, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, false, nil
 }
 
 // preprocess handles pre-LLM call preparation using request processors.
@@ -1006,48 +400,19 @@ func (f *Flow) preprocess(
 	llmRequest *model.Request,
 	eventChan chan<- *event.Event,
 ) *contextCompactionRebuildPlan {
-	var rebuildPlan *contextCompactionRebuildPlan
-
-	// Run request processors - they send events directly to the channel.
-	for _, requestProcessor := range f.requestProcessors {
-		if rebuildPlan == nil {
-			contentProcessor, ok := requestProcessor.(*processor.ContentRequestProcessor)
-			if ok &&
-				contentProcessor.AddSessionSummary &&
-				contentProcessor.TimelineFilterMode == processor.TimelineFilterAll {
-				rebuildPlan = &contextCompactionRebuildPlan{
-					beforeContent:    cloneRequestForContextCompaction(llmRequest),
-					contentProcessor: contentProcessor,
-				}
-			}
-		} else {
-			tailProcessor, ok := requestProcessor.(contextCompactionTailProcessor)
-			if !ok ||
-				!tailProcessor.SupportsContextCompactionRebuild(invocation) {
-				rebuildPlan = nil
-			} else {
-				rebuildPlan.tailProcessors = append(rebuildPlan.tailProcessors, tailProcessor)
-			}
-		}
-		requestProcessor.ProcessRequest(ctx, invocation, llmRequest, eventChan)
-	}
-	// Add tools to the request with optional filtering.
-	if invocation.Agent != nil {
-		tools := f.getFilteredTools(ctx, invocation)
-		for _, t := range tools {
-			llmRequest.Tools[t.Declaration().Name] = t
-		}
-	}
-	// Sanitize invalid tool calls in history to avoid poisoning future requests.
-	llmRequest.Messages = toolcall.SanitizeMessagesWithTools(llmRequest.Messages, llmRequest.Tools)
-	return rebuildPlan
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Run request processors - they send events directly to the channel.
+
+// Add tools to the request with optional filtering.
+
+// Sanitize invalid tool calls in history to avoid poisoning future requests.
+
 func normalizeContextCompactionThresholdRatio(ratio float64) float64 {
-	if ratio > 0 && ratio <= 1 {
-		return ratio
-	}
-	return defaultContextCompactionThresholdRatio
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (f *Flow) maybeCompactContextBeforeLLM(
@@ -1056,73 +421,8 @@ func (f *Flow) maybeCompactContextBeforeLLM(
 	req *model.Request,
 	rebuildPlan *contextCompactionRebuildPlan,
 ) *model.Request {
-	if req == nil || !f.enableContextCompaction || invocation == nil ||
-		invocation.Session == nil || invocation.SessionService == nil ||
-		!f.supportsSyncSummaryRetry() || rebuildPlan == nil ||
-		rebuildPlan.beforeContent == nil || rebuildPlan.contentProcessor == nil {
-		return req
-	}
-	if !shouldSyncCompactContext(
-		ctx,
-		invocation,
-		req,
-		f.contextCompactionThresholdRatio,
-		rebuildPlan.contentProcessor.ContextCompactionConfig.TokenCounter,
-	) {
-		return req
-	}
-
-	filterKey := invocation.GetEventFilterKey()
-	before := snapshotSummary(invocation.Session, filterKey)
-	err := invocation.SessionService.CreateSessionSummary(
-		ctx,
-		invocation.Session,
-		filterKey,
-		false,
-	)
-	after := snapshotSummary(invocation.Session, filterKey)
-	if !before.advanced(after) {
-		if err != nil {
-			log.DebugfContext(
-				ctx,
-				"Pre-LLM context compaction skipped for agent %s: %v",
-				invocation.AgentName,
-				err,
-			)
-		}
-		return req
-	}
-
-	rebuilt := f.rebuildRequestForContextCompaction(
-		ctx,
-		invocation,
-		rebuildPlan,
-	)
-	if rebuilt == nil {
-		log.DebugfContext(
-			ctx,
-			"Pre-LLM context compaction skipped for agent %s: safe rebuild unavailable",
-			invocation.AgentName,
-		)
-		return req
-	}
-
-	if err != nil {
-		log.WarnfContext(
-			ctx,
-			"Pre-LLM context compaction rebuilt request for agent %s after in-memory summary update; persistence failed: %v",
-			invocation.AgentName,
-			err,
-		)
-		return rebuilt
-	}
-
-	log.DebugfContext(
-		ctx,
-		"Pre-LLM context compaction rebuilt request for agent %s",
-		invocation.AgentName,
-	)
-	return rebuilt
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *Flow) rebuildRequestForContextCompaction(
@@ -1130,231 +430,77 @@ func (f *Flow) rebuildRequestForContextCompaction(
 	invocation *agent.Invocation,
 	rebuildPlan *contextCompactionRebuildPlan,
 ) *model.Request {
-	if rebuildPlan == nil || rebuildPlan.beforeContent == nil ||
-		rebuildPlan.contentProcessor == nil {
-		return nil
-	}
-
-	rebuilt := cloneRequestForContextCompaction(rebuildPlan.beforeContent)
-	if rebuilt == nil {
-		return nil
-	}
-	if rebuilt.Tools == nil {
-		rebuilt.Tools = make(map[string]tool.Tool)
-	}
-	rebuildPlan.contentProcessor.ProcessRequest(ctx, invocation, rebuilt, nil)
-	for _, tailProcessor := range rebuildPlan.tailProcessors {
-		tailProcessor.RebuildRequestForContextCompaction(
-			ctx,
-			invocation,
-			rebuilt,
-		)
-	}
-	if invocation.Agent != nil {
-		for _, t := range f.getFilteredTools(ctx, invocation) {
-			rebuilt.Tools[t.Declaration().Name] = t
-		}
-	}
-	rebuilt.Messages = toolcall.SanitizeMessagesWithTools(
-		rebuilt.Messages,
-		rebuilt.Tools,
-	)
-	return rebuilt
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (f *Flow) supportsSyncSummaryRetry() bool {
-	for _, requestProcessor := range f.requestProcessors {
-		contentProcessor, ok := requestProcessor.(*processor.ContentRequestProcessor)
-		if !ok {
-			continue
-		}
-		if contentProcessor.AddSessionSummary &&
-			contentProcessor.TimelineFilterMode == processor.TimelineFilterAll {
-			return true
-		}
-	}
-	return false
-}
+func (f *Flow) supportsSyncSummaryRetry() bool { _ = "STUB: not implemented"; return false }
 
 func cloneRequestForContextCompaction(req *model.Request) *model.Request {
-	if req == nil {
-		return nil
-	}
-
-	cloned := *req
-	cloned.Messages = cloneMessagesForContextCompaction(req.Messages)
-	cloned.GenerationConfig = cloneGenerationConfigForContextCompaction(
-		req.GenerationConfig,
-	)
-	cloned.StructuredOutput = cloneStructuredOutputForContextCompaction(
-		req.StructuredOutput,
-	)
-	cloned.ExtraFields = cloneJSONMapForContextCompaction(req.ExtraFields)
-	if req.Tools != nil {
-		cloned.Tools = make(map[string]tool.Tool, len(req.Tools))
-		for name, t := range req.Tools {
-			cloned.Tools[name] = t
-		}
-	}
-	return &cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneMessagesForContextCompaction(msgs []model.Message) []model.Message {
-	if msgs == nil {
-		return nil
-	}
-
-	cloned := make([]model.Message, len(msgs))
-	for i := range msgs {
-		cloned[i] = cloneMessageForContextCompaction(msgs[i])
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneMessageForContextCompaction(msg model.Message) model.Message {
-	cloned := msg
-	cloned.ContentParts = cloneContentPartsForContextCompaction(
-		msg.ContentParts,
-	)
-	cloned.ToolCalls = cloneToolCallsForContextCompaction(msg.ToolCalls)
-	return cloned
+	_ = "STUB: not implemented"
+	return *new(model.Message)
 }
 
 func cloneContentPartsForContextCompaction(
 	parts []model.ContentPart,
 ) []model.ContentPart {
-	if parts == nil {
-		return nil
-	}
-
-	cloned := make([]model.ContentPart, len(parts))
-	for i := range parts {
-		cloned[i] = cloneContentPartForContextCompaction(parts[i])
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneContentPartForContextCompaction(
 	part model.ContentPart,
 ) model.ContentPart {
-	cloned := part
-	if part.Text != nil {
-		text := *part.Text
-		cloned.Text = &text
-	}
-	if part.Image != nil {
-		image := *part.Image
-		if part.Image.Data != nil {
-			image.Data = append([]byte(nil), part.Image.Data...)
-		}
-		cloned.Image = &image
-	}
-	if part.Audio != nil {
-		audio := *part.Audio
-		if part.Audio.Data != nil {
-			audio.Data = append([]byte(nil), part.Audio.Data...)
-		}
-		cloned.Audio = &audio
-	}
-	if part.File != nil {
-		file := *part.File
-		if part.File.Data != nil {
-			file.Data = append([]byte(nil), part.File.Data...)
-		}
-		cloned.File = &file
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return *new(model.ContentPart)
 }
 
 func cloneToolCallsForContextCompaction(
 	toolCalls []model.ToolCall,
 ) []model.ToolCall {
-	if toolCalls == nil {
-		return nil
-	}
-
-	cloned := make([]model.ToolCall, len(toolCalls))
-	for i := range toolCalls {
-		cloned[i] = toolCalls[i]
-		if toolCalls[i].Function.Arguments != nil {
-			cloned[i].Function.Arguments = append(
-				[]byte(nil),
-				toolCalls[i].Function.Arguments...,
-			)
-		}
-		if toolCalls[i].Index != nil {
-			index := *toolCalls[i].Index
-			cloned[i].Index = &index
-		}
-		cloned[i].ExtraFields = cloneJSONMapForContextCompaction(
-			toolCalls[i].ExtraFields,
-		)
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneGenerationConfigForContextCompaction(
 	cfg model.GenerationConfig,
 ) model.GenerationConfig {
-	cloned := cfg
-	if cfg.Stop != nil {
-		cloned.Stop = append([]string(nil), cfg.Stop...)
-	}
-	return cloned
+	_ = "STUB: not implemented"
+	return *new(model.GenerationConfig)
 }
 
 func cloneStructuredOutputForContextCompaction(
 	out *model.StructuredOutput,
 ) *model.StructuredOutput {
-	if out == nil {
-		return nil
-	}
-
-	cloned := *out
-	if out.JSONSchema != nil {
-		schema := *out.JSONSchema
-		schema.Schema = cloneJSONMapForContextCompaction(out.JSONSchema.Schema)
-		cloned.JSONSchema = &schema
-	}
-	return &cloned
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func cloneJSONMapForContextCompaction(
 	src map[string]any,
 ) map[string]any {
-	return jsonmap.Clone(src)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func snapshotSummary(sess *session.Session, filterKey string) summarySnapshot {
-	if sess == nil {
-		return summarySnapshot{}
-	}
-
-	sess.SummariesMu.RLock()
-	defer sess.SummariesMu.RUnlock()
-
-	summary := sess.Summaries[filterKey]
-	if summary == nil {
-		return summarySnapshot{}
-	}
-	return summarySnapshot{
-		exists:    true,
-		summary:   summary.Summary,
-		updatedAt: summary.UpdatedAt,
-	}
+	_ = "STUB: not implemented"
+	return *new(summarySnapshot)
 }
 
 func (s summarySnapshot) advanced(next summarySnapshot) bool {
-	if !next.exists {
-		return false
-	}
-	if !s.exists {
-		return true
-	}
-	if next.updatedAt.After(s.updatedAt) {
-		return true
-	}
-	return next.summary != s.summary
+	_ = "STUB: not implemented"
+	return false
 }
 
 func shouldSyncCompactContext(
@@ -1364,48 +510,13 @@ func shouldSyncCompactContext(
 	ratio float64,
 	counter model.TokenCounter,
 ) bool {
-	if inv == nil || inv.Model == nil || req == nil || len(req.Messages) == 0 {
-		return false
-	}
-
-	if counter == nil {
-		counter = model.NewSimpleTokenCounter()
-	}
-	tokens, err := counter.CountTokensRange(ctx, req.Messages, 0, len(req.Messages))
-	if err != nil {
-		return false
-	}
-
-	threshold := contextCompactionThreshold(inv, ratio)
-	return tokens >= threshold
+	_ = "STUB: not implemented"
+	return false
 }
 
 func contextCompactionThreshold(inv *agent.Invocation, ratio float64) int {
-	contextWindow := contextCompactionFallbackWindow
-	if inv != nil {
-		if window, ok := agent.ModelContextWindowFromRunOptions(
-			&inv.RunOptions,
-		); ok {
-			contextWindow = window
-		} else if inv.Model != nil {
-			if window, ok := modelcontext.ResolveContextWindow(inv.Model); ok {
-				contextWindow = window
-			}
-		}
-	}
-
-	if contextWindow <= 0 {
-		contextWindow = contextCompactionFallbackWindow
-	}
-
-	threshold := int(float64(contextWindow) * normalizeContextCompactionThresholdRatio(ratio))
-	if threshold < contextCompactionMinTokens {
-		threshold = contextCompactionMinTokens
-	}
-	if threshold > contextWindow {
-		threshold = contextWindow
-	}
-	return threshold
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // UserToolsProvider is an optional interface that agents can implement to expose
@@ -1444,101 +555,28 @@ type InvocationToolSurfaceProvider interface {
 //
 // This method is called during the preprocess stage, before sending the request to the model.
 func (f *Flow) getFilteredTools(ctx context.Context, invocation *agent.Invocation) []tool.Tool {
-	if invocation == nil || invocation.Agent == nil {
-		return nil
-	}
-
-	if cached, ok := agent.GetStateValue[[]tool.Tool](
-		invocation,
-		stateKeyToolsSnapshot,
-	); ok && cached != nil {
-		return cached
-	}
-
-	var allTools []tool.Tool
-	var userToolNames map[string]bool
-	hasUserToolTracking := false
-	if provider, ok := invocation.Agent.(InvocationToolSurfaceProvider); ok {
-		allTools, userToolNames = provider.InvocationToolSurface(
-			ctx,
-			invocation,
-		)
-		hasUserToolTracking = userToolNames != nil
-	} else if provider, ok := invocation.Agent.(ToolFilterProvider); ok {
-		allTools = provider.FilterTools(ctx)
-	} else {
-		allTools = invocation.Agent.Tools()
-	}
-
-	// Get user tools (if the agent supports it).
-	// User tools are those explicitly registered via WithTools and
-	// WithToolSets. Framework tools (Knowledge, SubAgents) are never filtered.
-	if invocation.RunOptions.ToolFilter != nil && !hasUserToolTracking {
-		if provider, ok := invocation.Agent.(UserToolsProvider); ok {
-			userTools := provider.UserTools()
-			hasUserToolTracking = true
-			userToolNames = make(map[string]bool, len(userTools))
-			for _, t := range userTools {
-				userToolNames[t.Declaration().Name] = true
-			}
-		}
-	}
-	allTools, userToolNames, hasUserToolTracking, externalToolNames :=
-		appendRunOptionTools(
-			allTools,
-			userToolNames,
-			hasUserToolTracking,
-			invocation.RunOptions,
-		)
-
-	// If no filter is specified, return all tools for this invocation.
-	if invocation.RunOptions.ToolFilter == nil {
-		setVisibleExternalToolNames(invocation, allTools, externalToolNames)
-		invocation.SetState(stateKeyToolsSnapshot, allTools)
-		invocation.SetState(
-			stateKeyHasFilteredUserTools,
-			hasTrackedUserTool(allTools, hasUserToolTracking, userToolNames),
-		)
-		return allTools
-	}
-
-	// Apply the filter function to each tool.
-	// Framework tools are never filtered.
-	filtered := make([]tool.Tool, 0, len(allTools))
-	for _, t := range allTools {
-		toolName := t.Declaration().Name
-
-		// Determine if this is a user tool or framework tool.
-		isUserTool := !hasUserToolTracking || userToolNames[toolName]
-
-		// Framework tools are always included (never filtered).
-		if !isUserTool {
-			filtered = append(filtered, t)
-			continue
-		}
-
-		// User tool: apply the filter function.
-		if invocation.RunOptions.ToolFilter(ctx, t) {
-			filtered = append(filtered, t)
-		}
-	}
-
-	// Sort tools by name to ensure stable order for better prompt cache hit rate.
-	// Map iteration order is random in Go, so sorting ensures consistent tool ordering
-	// across requests, which improves cache efficiency.
-	sort.Slice(filtered, func(i, j int) bool {
-		return filtered[i].Declaration().Name < filtered[j].Declaration().Name
-	})
-
-	setVisibleExternalToolNames(invocation, filtered, externalToolNames)
-	invocation.SetState(stateKeyToolsSnapshot, filtered)
-	invocation.SetState(
-		stateKeyHasFilteredUserTools,
-		hasTrackedUserTool(filtered, hasUserToolTracking, userToolNames),
-	)
-
-	return filtered
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Get user tools (if the agent supports it).
+// User tools are those explicitly registered via WithTools and
+// WithToolSets. Framework tools (Knowledge, SubAgents) are never filtered.
+
+// If no filter is specified, return all tools for this invocation.
+
+// Apply the filter function to each tool.
+// Framework tools are never filtered.
+
+// Determine if this is a user tool or framework tool.
+
+// Framework tools are always included (never filtered).
+
+// User tool: apply the filter function.
+
+// Sort tools by name to ensure stable order for better prompt cache hit rate.
+// Map iteration order is random in Go, so sorting ensures consistent tool ordering
+// across requests, which improves cache efficiency.
 
 func appendRunOptionTools(
 	allTools []tool.Tool,
@@ -1546,42 +584,8 @@ func appendRunOptionTools(
 	hasUserToolTracking bool,
 	opts agent.RunOptions,
 ) ([]tool.Tool, map[string]bool, bool, map[string]bool) {
-	if len(opts.AdditionalTools) == 0 && len(opts.ExternalTools) == 0 {
-		return allTools, userToolNames, hasUserToolTracking, nil
-	}
-	allTools = append([]tool.Tool(nil), allTools...)
-	if hasUserToolTracking {
-		userToolNames = copyToolNames(userToolNames)
-	}
-	serverNames := collectToolNames(allTools)
-	seen := copyToolNames(serverNames)
-	allTools, userToolNames = appendRunOptionToolList(
-		allTools,
-		userToolNames,
-		hasUserToolTracking,
-		seen,
-		opts.AdditionalTools,
-	)
-	externalNames := make(map[string]bool, len(opts.ExternalTools))
-	for _, tl := range opts.ExternalTools {
-		name := toolName(tl)
-		if name == "" || serverNames[name] {
-			continue
-		}
-		if seen[name] {
-			continue
-		}
-		seen[name] = true
-		allTools = append(allTools, tl)
-		externalNames[name] = true
-		if hasUserToolTracking {
-			if userToolNames == nil {
-				userToolNames = make(map[string]bool)
-			}
-			userToolNames[name] = true
-		}
-	}
-	return allTools, userToolNames, hasUserToolTracking, externalNames
+	_ = "STUB: not implemented"
+	return nil, nil, false, nil
 }
 
 func appendRunOptionToolList(
@@ -1591,89 +595,31 @@ func appendRunOptionToolList(
 	seen map[string]bool,
 	tools []tool.Tool,
 ) ([]tool.Tool, map[string]bool) {
-	for _, tl := range tools {
-		name := toolName(tl)
-		if name == "" || seen[name] {
-			continue
-		}
-		seen[name] = true
-		allTools = append(allTools, tl)
-		if hasUserToolTracking {
-			if userToolNames == nil {
-				userToolNames = make(map[string]bool)
-			}
-			userToolNames[name] = true
-		}
-	}
-	return allTools, userToolNames
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func collectToolNames(tools []tool.Tool) map[string]bool {
-	names := make(map[string]bool, len(tools))
-	for _, tl := range tools {
-		if name := toolName(tl); name != "" {
-			names[name] = true
-		}
-	}
-	return names
-}
+func collectToolNames(tools []tool.Tool) map[string]bool { _ = "STUB: not implemented"; return nil }
 
-func copyToolNames(src map[string]bool) map[string]bool {
-	dst := make(map[string]bool, len(src))
-	for name, ok := range src {
-		dst[name] = ok
-	}
-	return dst
-}
+func copyToolNames(src map[string]bool) map[string]bool { _ = "STUB: not implemented"; return nil }
 
 func setVisibleExternalToolNames(
 	invocation *agent.Invocation,
 	tools []tool.Tool,
 	externalNames map[string]bool,
 ) {
-	if invocation == nil || externalNames == nil {
-		return
-	}
-	visible := make(map[string]bool, len(externalNames))
-	for _, tl := range tools {
-		name := toolName(tl)
-		if name != "" && externalNames[name] {
-			visible[name] = true
-		}
-	}
-	invocation.RunOptions.ExternalToolNames = visible
+	_ = "STUB: not implemented"
+	return
 }
 
-func toolName(tl tool.Tool) string {
-	if tl == nil {
-		return ""
-	}
-	decl := tl.Declaration()
-	if decl == nil {
-		return ""
-	}
-	return decl.Name
-}
+func toolName(tl tool.Tool) string { _ = "STUB: not implemented"; return "" }
 
 func hasTrackedUserTool(
 	tools []tool.Tool,
 	hasUserToolTracking bool,
 	userToolNames map[string]bool,
 ) bool {
-	if len(tools) == 0 {
-		return false
-	}
-	if !hasUserToolTracking {
-		return true
-	}
-	for _, tl := range tools {
-		if tl == nil || tl.Declaration() == nil {
-			continue
-		}
-		if userToolNames[tl.Declaration().Name] {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -1684,84 +630,32 @@ func (f *Flow) callLLM(
 	llmRequest *model.Request,
 	callModel model.Model,
 ) (context.Context, model.Seq[*model.Response], error) {
-	if callModel == nil {
-		return ctx, nil, errors.New("no model available for LLM call")
-	}
-	log.DebugfContext(
-		ctx,
-		"Calling LLM for agent %s",
-		invocation.AgentName,
-	)
-	// Enforce optional per-invocation LLM call limit. When the limit is not
-	// configured (<= 0), this is a no-op and preserves existing behavior.
-	if err := invocation.IncLLMCallCount(); err != nil {
-		log.Errorf("LLM call limit exceeded for agent %s: %v", invocation.AgentName, err)
-		return ctx, nil, err
-	}
-	// Run before model callbacks if they exist.
-	ctx, customResp, err := f.runBeforeModelCallbacks(ctx, invocation, llmRequest)
-	if err != nil {
-		return ctx, nil, err
-	}
-	if customResp != nil {
-		return ctx, func(yield func(*model.Response) bool) {
-			yield(customResp)
-		}, nil
-	}
-	seq, err := f.generateContentSeq(ctx, invocation, llmRequest, callModel)
-	if err != nil {
-		return ctx, nil, err
-	}
-	return ctx, seq, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
+
+// Enforce optional per-invocation LLM call limit. When the limit is not
+// configured (<= 0), this is a no-op and preserves existing behavior.
+
+// Run before model callbacks if they exist.
 
 func (f *Flow) runBeforeModelCallbacks(
 	ctx context.Context,
 	invocation *agent.Invocation,
 	llmRequest *model.Request,
 ) (context.Context, *model.Response, error) {
-	var pluginCallbacks *model.Callbacks
-	if invocation != nil && invocation.Plugins != nil {
-		pluginCallbacks = invocation.Plugins.ModelCallbacks()
-	}
-	callbacksAttached := pluginCallbacks != nil || f.modelCallbacks != nil
-	if !callbacksAttached {
-		return ctx, nil, nil
-	}
-	callbackCtx := withInvocationContextIfMissing(ctx, invocation)
-	ctx, resp, err := runBeforeModelCallbacksWith(callbackCtx, invocation, llmRequest, pluginCallbacks)
-	if err != nil {
-		log.ErrorfContext(ctx, "Before model plugin failed for agent %s: %v", invocation.AgentName, err)
-		return ctx, nil, err
-	}
-	if resp != nil {
-		return withInvocationContextIfMissing(ctx, invocation), resp, nil
-	}
-	ctx = withInvocationContextIfMissing(ctx, invocation)
-	newCtx, resp, err := runBeforeModelCallbacksWith(ctx, invocation, llmRequest, f.modelCallbacks)
-	if err != nil {
-		log.ErrorfContext(newCtx, "Before model callback failed for agent %s: %v", invocation.AgentName, err)
-	}
-	return withInvocationContextIfMissing(newCtx, invocation), resp, err
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 func withInvocationContextIfMissing(ctx context.Context, invocation *agent.Invocation) context.Context {
-	if invocation == nil {
-		return ctx
-	}
-	existingInvocation, ok := agent.InvocationFromContext(ctx)
-	if ok && existingInvocation != nil {
-		return ctx
-	}
-	return agent.NewInvocationContext(ctx, invocation)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 func invocationFromContextOrFallback(ctx context.Context, fallback *agent.Invocation) *agent.Invocation {
-	existingInvocation, ok := agent.InvocationFromContext(ctx)
-	if ok && existingInvocation != nil {
-		return existingInvocation
-	}
-	return fallback
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runBeforeModelCallbacksWith(
@@ -1770,52 +664,16 @@ func runBeforeModelCallbacksWith(
 	llmRequest *model.Request,
 	callbacks *model.Callbacks,
 ) (context.Context, *model.Response, error) {
-	if callbacks == nil {
-		return ctx, nil, nil
-	}
-	result, err := wrapBeforeModelCallbacksWithInvocation(callbacks, invocation).
-		RunBeforeModel(ctx, &model.BeforeModelArgs{Request: llmRequest})
-	if err != nil {
-		return ctx, nil, err
-	}
-	if result != nil && result.Context != nil {
-		ctx = result.Context
-	}
-	if result != nil && result.CustomResponse != nil {
-		return ctx, result.CustomResponse, nil
-	}
-	return ctx, nil, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 func wrapBeforeModelCallbacksWithInvocation(
 	callbacks *model.Callbacks,
 	invocation *agent.Invocation,
 ) *model.Callbacks {
-	if callbacks == nil || invocation == nil || len(callbacks.BeforeModel) == 0 {
-		return callbacks
-	}
-	wrapped := *callbacks
-	wrapped.BeforeModel = make([]model.BeforeModelCallbackStructured, len(callbacks.BeforeModel))
-	for i, cb := range callbacks.BeforeModel {
-		callback := cb
-		wrapped.BeforeModel[i] = func(
-			ctx context.Context,
-			args *model.BeforeModelArgs,
-		) (*model.BeforeModelResult, error) {
-			ctx = withInvocationContextIfMissing(ctx, invocation)
-			result, err := callback(ctx, args)
-			if result != nil && result.Context != nil {
-				clonedResult := *result
-				clonedResult.Context = withInvocationContextIfMissing(
-					result.Context,
-					invocationFromContextOrFallback(ctx, invocation),
-				)
-				return &clonedResult, err
-			}
-			return result, err
-		}
-	}
-	return &wrapped
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *Flow) generateContentSeq(
@@ -1824,82 +682,21 @@ func (f *Flow) generateContentSeq(
 	llmRequest *model.Request,
 	callModel model.Model,
 ) (model.Seq[*model.Response], error) {
-	if iterModel, ok := callModel.(model.IterModel); ok {
-		seq, err := iterModel.GenerateContentIter(ctx, llmRequest)
-		if err != nil {
-			log.ErrorfContext(
-				ctx,
-				"LLM call failed for agent %s: %v",
-				invocation.AgentName,
-				err,
-			)
-			return nil, err
-		}
-		if seq == nil {
-			return nil, errors.New(errMsgNoModelResponse)
-		}
-		return normalizeResponseIDs(seq), nil
-	}
-
-	responseChan, err := callModel.GenerateContent(ctx, llmRequest)
-	if err != nil {
-		log.ErrorfContext(
-			ctx,
-			"LLM call failed for agent %s: %v",
-			invocation.AgentName,
-			err,
-		)
-		return nil, err
-	}
-
-	return normalizeResponseIDs(func(yield func(*model.Response) bool) {
-		for resp := range responseChan {
-			if !yield(resp) {
-				return
-			}
-		}
-	}), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func normalizeResponseIDs(seq model.Seq[*model.Response]) model.Seq[*model.Response] {
-	if seq == nil {
-		return nil
-	}
-	return func(yield func(*model.Response) bool) {
-		currentID := ""
-		seq(func(resp *model.Response) bool {
-			normalized := normalizeResponseID(resp, &currentID)
-			keepGoing := yield(normalized)
-			if normalized != nil && normalized.Done && !normalized.IsPartial {
-				currentID = ""
-			}
-			return keepGoing
-		})
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func normalizeResponseID(resp *model.Response, currentID *string) *model.Response {
-	if resp == nil {
-		return nil
-	}
-	if currentID == nil {
-		return resp
-	}
-	// Preserve one stable ID for the entire active response stream.
-	if *currentID == "" {
-		if resp.ID != "" {
-			*currentID = resp.ID
-		} else {
-			*currentID = generatedResponseIDPrefix + uuid.NewString()
-		}
-	}
-	if resp.ID == *currentID {
-		return resp
-	}
-	cloned := resp.Clone()
-	cloned.ID = *currentID
-	return cloned
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Preserve one stable ID for the entire active response stream.
 
 // postprocess handles post-LLM call processing using response processors.
 func (f *Flow) postprocess(
@@ -1909,21 +706,15 @@ func (f *Flow) postprocess(
 	llmResponse *model.Response,
 	eventChan chan<- *event.Event,
 ) {
-	if llmResponse == nil {
-		return
-	}
-
-	// Run response processors - they send events directly to the channel.
-	for _, processor := range f.responseProcessors {
-		processor.ProcessResponse(ctx, invocation, llmRequest, llmResponse, eventChan)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Run response processors - they send events directly to the channel.
 
 // WaitEventTimeout returns the remaining time until the context deadline.
 // If the context has no deadline, it returns the default event completion timeout.
 func WaitEventTimeout(ctx context.Context) time.Duration {
-	if deadline, ok := ctx.Deadline(); ok {
-		return time.Until(deadline)
-	}
-	return eventCompletionTimeout
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }

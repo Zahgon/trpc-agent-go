@@ -36,24 +36,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"math"
 	"net/http"
-	"os"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent/a2aagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/log"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	a2aserver "trpc.group/trpc-go/trpc-agent-go/server/a2a"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui"
 	"trpc.group/trpc-go/trpc-agent-go/server/agui/adapter"
 	aguirunner "trpc.group/trpc-go/trpc-agent-go/server/agui/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 var (
@@ -108,71 +100,16 @@ func main() {
 }
 
 // startA2AServer creates and starts an A2A Server with a local LLM Agent.
-func startA2AServer() {
-	modelInstance := openai.New(*modelName)
-	calculatorTool := function.NewFunctionTool(
-		calculator,
-		function.WithName("calculator"),
-		function.WithDescription(
-			"A calculator tool. Parameters: a (first number), b (second number), "+
-				"operation (add, subtract, multiply, divide, power)."),
-	)
-	localAgent := llmagent.New(
-		"calculator-agent",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("An assistant with calculator capabilities"),
-		llmagent.WithInstruction("You are a helpful assistant with a calculator tool. Use it when asked to compute."),
-		llmagent.WithTools([]tool.Tool{calculatorTool}),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			MaxTokens:   intPtr(1024),
-			Temperature: floatPtr(0.7),
-			Stream:      *enableStream,
-		}),
-	)
-
-	server, err := a2aserver.New(
-		a2aserver.WithHost(*a2aAddr),
-		a2aserver.WithAgent(localAgent, *enableStream),
-	)
-	if err != nil {
-		log.Fatalf("Failed to create A2A server: %v", err)
-	}
-
-	go func() {
-		log.Infof("A2A server listening on %s", *a2aAddr)
-		server.Start(*a2aAddr)
-	}()
-}
+func startA2AServer() { _ = "STUB: not implemented"; return }
 
 func userIDResolver(_ context.Context, input *adapter.RunAgentInput) (string, error) {
-	if props, ok := input.ForwardedProps.(map[string]any); ok {
-		if user, ok := props["userId"].(string); ok && user != "" {
-			return user, nil
-		}
-	}
-	return "anonymous", nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func calculator(_ context.Context, args calculatorArgs) (calculatorResult, error) {
-	var result float64
-	switch args.Operation {
-	case "add", "+":
-		result = args.A + args.B
-	case "subtract", "-":
-		result = args.A - args.B
-	case "multiply", "*":
-		result = args.A * args.B
-	case "divide", "/":
-		if args.B == 0 {
-			return calculatorResult{}, fmt.Errorf("division by zero")
-		}
-		result = args.A / args.B
-	case "power", "^":
-		result = math.Pow(args.A, args.B)
-	default:
-		return calculatorResult{}, fmt.Errorf("unsupported operation: %s", args.Operation)
-	}
-	return calculatorResult{Result: result}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResult), nil
 }
 
 type calculatorArgs struct {
@@ -185,11 +122,6 @@ type calculatorResult struct {
 	Result float64 `json:"result"`
 }
 
-func intPtr(i int) *int           { return &i }
-func floatPtr(f float64) *float64 { return &f }
-func getEnvOrDefault(key, defaultValue string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return defaultValue
-}
+func intPtr(i int) *int                               { _ = "STUB: not implemented"; return nil }
+func floatPtr(f float64) *float64                     { _ = "STUB: not implemented"; return nil }
+func getEnvOrDefault(key, defaultValue string) string { _ = "STUB: not implemented"; return "" }

@@ -12,19 +12,11 @@ package wikipedia
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
-	"net/url"
-	"regexp"
-	"strings"
 	"time"
 
-	"github.com/JohannesKaufmann/html-to-markdown/v2/converter"
-	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/base"
-	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/commonmark"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 	"trpc.group/trpc-go/trpc-agent-go/tool/wikipedia/internal/client"
 )
 
@@ -54,68 +46,34 @@ type config struct {
 type Option func(*config)
 
 // WithLanguage sets the Wikipedia language (e.g., "en", "zh", "es")
-func WithLanguage(language string) Option {
-	return func(c *config) {
-		c.language = language
-		// Update baseURL to use the specified language
-		c.baseURL = fmt.Sprintf("https://%s.wikipedia.org/w/api.php", language)
-	}
-}
+func WithLanguage(language string) Option { _ = "STUB: not implemented"; return *new(Option) }
+
+// Update baseURL to use the specified language
 
 // WithMaxResults sets the maximum number of search results
-func WithMaxResults(maxResults int) Option {
-	return func(c *config) {
-		c.maxResults = maxResults
-	}
-}
+func WithMaxResults(maxResults int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHTTPClient sets the HTTP client used to call the Wikipedia API.
 // When combined with WithTimeout, the caller's *http.Client is never mutated -
 // a shallow copy is used to apply timeout overrides, preserving custom
 // Transport/Proxy/Jar settings. Passing nil falls back to a default client
 // with the default 30s timeout.
-func WithHTTPClient(c *http.Client) Option {
-	return func(cfg *config) {
-		cfg.httpClient = c
-	}
-}
+func WithHTTPClient(c *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the HTTP request timeout. When combined with WithHTTPClient,
 // the custom client's Transport/Proxy/Jar settings are preserved via shallow
 // copy - the caller's original *http.Client is never mutated.
 // Passing 0 explicitly disables the default 30s timeout (Go http.Client
 // treats Timeout==0 as "no timeout"). Negative values are ignored.
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *config) {
-		if timeout < 0 {
-			return
-		}
-		c.timeout = &timeout
-	}
-}
+func WithTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUserAgent sets the User-Agent string for requests
-func WithUserAgent(userAgent string) Option {
-	return func(c *config) {
-		c.userAgent = userAgent
-	}
-}
+func WithUserAgent(userAgent string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // resolveHTTPClient builds the final *http.Client from config, applying
 // nil fallback and timeout override via shallow copy - the caller's
 // original client is never mutated.
-func resolveHTTPClient(cfg *config) *http.Client {
-	httpClient := cfg.httpClient
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: defaultTimeout}
-	}
-	if cfg.timeout != nil {
-		cloned := *httpClient
-		cloned.Timeout = *cfg.timeout
-		httpClient = &cloned
-	}
-	return httpClient
-}
+func resolveHTTPClient(cfg *config) *http.Client { _ = "STUB: not implemented"; return nil }
 
 // WikipediaToolSet implements the ToolSet interface for Wikipedia operations.
 type WikipediaToolSet struct {
@@ -124,44 +82,35 @@ type WikipediaToolSet struct {
 
 // Tools implements the ToolSet interface.
 func (w *WikipediaToolSet) Tools(_ context.Context) []tool.Tool {
-	return w.tools
+	_ = "STUB: not implemented"
+
+	// Name implements the ToolSet interface.
+	return nil
 }
 
-// Name implements the ToolSet interface.
 func (w *WikipediaToolSet) Name() string {
-	return defaultName
+	_ = "STUB: not implemented"
+
+	// Close implements the ToolSet interface.
+	return ""
 }
 
-// Close implements the ToolSet interface.
 func (w *WikipediaToolSet) Close() error {
+	_ = "STUB: not implemented"
 	// No resources to clean up for Wikipedia tools.
 	return nil
 }
 
 // NewToolSet creates a new Wikipedia tool set with the given options.
 func NewToolSet(opts ...Option) (*WikipediaToolSet, error) {
+	_ = "STUB: not implemented"
 	// Apply default configuration
-	cfg := &config{
-		baseURL:   defaultBaseURL,
-		userAgent: defaultUserAgent,
-		httpClient: &http.Client{
-			Timeout: defaultTimeout,
-		},
-		language:   defaultLanguage,
-		maxResults: maxResults,
-	}
-	// Apply user-provided options
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	// Create the client
-	wikipediaClient := client.New(cfg.baseURL, cfg.userAgent, resolveHTTPClient(cfg))
-	tools := []tool.Tool{createWikipediaSearchTool(wikipediaClient, cfg)}
-
-	return &WikipediaToolSet{
-		tools: tools,
-	}, nil
+	return nil, nil
 }
+
+// Apply user-provided options
+
+// Create the client
 
 // ===== Wikipedia Search Tool =====
 
@@ -191,103 +140,24 @@ type wikipediaResultItem struct {
 }
 
 func createWikipediaSearchTool(wikipediaClient *client.Client, cfg *config) tool.CallableTool {
-	searchFunc := func(ctx context.Context, req wikipediaSearchRequest) (wikipediaSearchResponse, error) {
-		limit := req.Limit
-		if limit <= 0 || limit > cfg.maxResults {
-			limit = cfg.maxResults // use configured max as upper bound
-		}
-
-		startTime := time.Now()
-		response, err := wikipediaClient.DetailedSearch(req.Query, limit, req.IncludeAll)
-		searchDuration := time.Since(startTime)
-
-		if err != nil {
-			return wikipediaSearchResponse{
-				Query:   req.Query,
-				Results: []wikipediaResultItem{},
-				Summary: fmt.Sprintf("Error: %v", err),
-			}, err
-		}
-
-		var results []wikipediaResultItem
-		for _, page := range response.Query.Search {
-			snippetContent, processErr := convertHTMLToMarkdown(strings.NewReader(page.Snippet))
-			// convert to plain text if markdown conversion fails
-			if processErr != nil {
-				snippetContent = cleanHTMLTags(page.Snippet)
-			}
-			item := wikipediaResultItem{
-				Title:       page.Title,
-				URL:         fmt.Sprintf("https://%s.wikipedia.org/wiki/%s", cfg.language, strings.ReplaceAll(url.PathEscape(page.Title), "%20", "_")),
-				Description: snippetContent,
-				PageID:      page.PageID,
-				WordCount:   page.WordCount,
-				Size:        page.Size,
-				Timestamp:   page.Timestamp,
-				Namespace:   page.NS,
-			}
-			results = append(results, item)
-		}
-
-		return wikipediaSearchResponse{
-			Query:      req.Query,
-			Results:    results,
-			TotalHits:  response.Query.SearchInfo.TotalHits,
-			Summary:    fmt.Sprintf("Found %d results (total: %d)", len(results), response.Query.SearchInfo.TotalHits),
-			SearchTime: fmt.Sprintf("%.2fms", float64(searchDuration.Microseconds())/1000.0),
-		}, nil
-	}
-
-	return function.NewFunctionTool(
-		searchFunc,
-		function.WithName("wikipedia_search"),
-		function.WithDescription(fmt.Sprintf("🔍 WIKIPEDIA SEARCH - Comprehensive Wikipedia search with rich metadata. "+
-			"Use when: you need detailed information about any topic, want article statistics, or need to research a subject. "+
-			"Returns: title, URL, description, page ID, word count, page size, last modified date, namespace, and more. "+
-			"Best for: research, fact-checking, getting comprehensive information about topics, academic use. "+
-			"Default limit: %d results.", cfg.maxResults)),
-	)
+	_ = "STUB: not implemented"
+	return *new(tool.CallableTool)
 }
+
+// use configured max as upper bound
+
+// convert to plain text if markdown conversion fails
 
 // convert wikipedia search API response html to markdown
-func convertHTMLToMarkdown(r io.Reader) (string, error) {
-	conv := converter.NewConverter(
-		converter.WithPlugins(
-			base.NewBasePlugin(),
-			commonmark.NewCommonmarkPlugin(),
-		),
-	)
-
-	bodyBytes, err := io.ReadAll(r)
-	if err != nil {
-		return "", err
-	}
-
-	markdown, err := conv.ConvertString(string(bodyBytes))
-	if err != nil {
-		return "", err
-	}
-
-	return markdown, nil
-}
+func convertHTMLToMarkdown(r io.Reader) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // cleanHTMLTags removes HTML tags from text
 func cleanHTMLTags(text string) string {
+	_ = "STUB: not implemented"
 	// Remove HTML tags
-	re := regexp.MustCompile(`<[^>]*>`)
-	cleaned := re.ReplaceAllString(text, "")
-
-	// Replace common HTML entities
-	cleaned = strings.ReplaceAll(cleaned, "&amp;", "&")
-	cleaned = strings.ReplaceAll(cleaned, "&lt;", "<")
-	cleaned = strings.ReplaceAll(cleaned, "&gt;", ">")
-	cleaned = strings.ReplaceAll(cleaned, "&quot;", "\"")
-	cleaned = strings.ReplaceAll(cleaned, "&#39;", "'")
-	cleaned = strings.ReplaceAll(cleaned, "&nbsp;", " ")
-
-	// Clean up extra whitespace
-	cleaned = regexp.MustCompile(`\s+`).ReplaceAllString(cleaned, " ")
-	cleaned = strings.TrimSpace(cleaned)
-
-	return cleaned
+	return ""
 }
+
+// Replace common HTML entities
+
+// Clean up extra whitespace

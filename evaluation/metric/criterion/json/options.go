@@ -25,69 +25,37 @@ type options struct {
 }
 
 // newOptions creates a Options with the provided options.
-func newOptions(opt ...Option) *options {
-	opts := &options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func newOptions(opt ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures JSONCriterion.
 type Option func(*options)
 
 // WithIgnore sets the ignore flag.
-func WithIgnore(ignore bool) Option {
-	return func(o *options) {
-		o.ignore = ignore
-	}
-}
+func WithIgnore(ignore bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithIgnoreTree sets the ignore tree.
 func WithIgnoreTree(ignoreTree map[string]any) Option {
-	return func(o *options) {
-		o.ignoreTree = ignoreTree
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithOnlyTree sets the only tree.
-func WithOnlyTree(onlyTree map[string]any) Option {
-	return func(o *options) {
-		o.onlyTree = onlyTree
-	}
-}
+func WithOnlyTree(onlyTree map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMatchStrategy sets the match strategy.
 func WithMatchStrategy(matchStrategy JSONMatchStrategy) Option {
-	return func(o *options) {
-		o.matchStrategy = matchStrategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithNumberTolerance sets the number tolerance.
-func WithNumberTolerance(tolerance float64) Option {
-	return func(o *options) {
-		o.numberTolerance = &tolerance
-	}
-}
+func WithNumberTolerance(tolerance float64) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithValid sets the raw JSON validity flag.
-func WithValid(valid bool) Option {
-	return func(o *options) {
-		o.valid = valid
-	}
-}
+func WithValid(valid bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompareName sets the name of the registered compare function.
-func WithCompareName(compareName string) Option {
-	return func(o *options) {
-		o.compareName = compareName
-	}
-}
+func WithCompareName(compareName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCompare sets the compare function.
-func WithCompare(compare CompareFunc) Option {
-	return func(o *options) {
-		o.compare = compare
-	}
-}
+func WithCompare(compare CompareFunc) Option { _ = "STUB: not implemented"; return *new(Option) }

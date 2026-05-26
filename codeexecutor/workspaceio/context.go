@@ -19,10 +19,8 @@ type workspaceCtxKey struct{}
 // callers don't accidentally mask "no executor configured" with a
 // non-nil sentinel.
 func WithWorkspace(ctx context.Context, w *Workspace) context.Context {
-	if ctx == nil || w == nil {
-		return ctx
-	}
-	return context.WithValue(ctx, workspaceCtxKey{}, w)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // WorkspaceFromContext returns the Workspace previously bound via
@@ -30,12 +28,6 @@ func WithWorkspace(ctx context.Context, w *Workspace) context.Context {
 // installed for the current invocation, allowing callers to gracefully
 // fall back when the agent has no code executor configured.
 func WorkspaceFromContext(ctx context.Context) (*Workspace, bool) {
-	if ctx == nil {
-		return nil, false
-	}
-	w, ok := ctx.Value(workspaceCtxKey{}).(*Workspace)
-	if !ok || w == nil {
-		return nil, false
-	}
-	return w, true
+	_ = "STUB: not implemented"
+	return nil, false
 }

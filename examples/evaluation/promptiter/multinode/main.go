@@ -10,16 +10,11 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"fmt"
 	"log"
-	"os"
-	"strings"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 )
 
 var (
@@ -51,40 +46,9 @@ func main() {
 	}
 }
 
-func run(ctx context.Context) error {
-	modelInstance, err := loadOpenAIModel(*modelName)
-	if err != nil {
-		return fmt.Errorf("load model: %w", err)
-	}
-	judgeModelInstance, err := loadOpenAIModel(*judgeModelName)
-	if err != nil {
-		return fmt.Errorf("load judge model: %w", err)
-	}
-	workerModelInstance, err := loadOpenAIModel(*workerModelName)
-	if err != nil {
-		return fmt.Errorf("load worker model: %w", err)
-	}
-	result, err := runPromptIter(ctx, modelInstance, judgeModelInstance, workerModelInstance)
-	if err != nil {
-		return err
-	}
-	printRunSummary(result, candidateSurfaceIDs())
-	return nil
-}
+func run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func loadOpenAIModel(modelName string) (model.Model, error) {
-	name := strings.TrimSpace(modelName)
-	apiKey := strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
-	baseURL := strings.TrimSpace(os.Getenv("OPENAI_BASE_URL"))
-	if name == "" {
-		return nil, errors.New("model name is empty")
-	}
-	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is empty")
-	}
-	options := []openai.Option{openai.WithAPIKey(apiKey)}
-	if baseURL != "" {
-		options = append(options, openai.WithBaseURL(baseURL))
-	}
-	return openai.New(name, options...), nil
+	_ = "STUB: not implemented"
+	return *new(model.Model), nil
 }

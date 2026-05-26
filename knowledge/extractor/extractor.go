@@ -77,27 +77,10 @@ type Options struct {
 }
 
 // WithOutputFormat sets the desired output format for extraction.
-func WithOutputFormat(format string) Option {
-	return func(o *Options) {
-		o.OutputFormat = format
-	}
-}
+func WithOutputFormat(format string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // ApplyOptions applies the given options to an Options struct and returns it.
-func ApplyOptions(opts ...Option) *Options {
-	o := &Options{}
-	for _, opt := range opts {
-		opt(o)
-	}
-	return o
-}
+func ApplyOptions(opts ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Supports checks if the extractor supports the given file extension.
-func Supports(e Extractor, ext string) bool {
-	for _, f := range e.SupportedFormats() {
-		if f == ext {
-			return true
-		}
-	}
-	return false
-}
+func Supports(e Extractor, ext string) bool { _ = "STUB: not implemented"; return false }

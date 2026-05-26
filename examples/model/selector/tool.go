@@ -11,12 +11,8 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 const calculatorDescription = "Run a basic arithmetic calculation."
@@ -32,44 +28,14 @@ type calculatorOutput struct {
 	Result     float64 `json:"result" jsonschema:"description=Calculation result"`
 }
 
-func calculatorTools() []tool.Tool {
-	calculatorTool := function.NewFunctionTool(
-		calculate,
-		function.WithName("calculator"),
-		function.WithDescription(calculatorDescription),
-	)
-	return []tool.Tool{calculatorTool}
-}
+func calculatorTools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 func calculate(ctx context.Context, input calculatorInput) (calculatorOutput, error) {
-	operation := strings.ToLower(strings.TrimSpace(input.Operation))
-	result, expression, err := calculateResult(input.A, input.B, operation)
-	if err != nil {
-		return calculatorOutput{}, err
-	}
-	if inv, ok := agent.InvocationFromContext(ctx); ok {
-		inv.SetState(calculatorCalledStateKey, true)
-	}
-	return calculatorOutput{
-		Expression: expression,
-		Result:     result,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorOutput), nil
 }
 
 func calculateResult(a, b float64, operation string) (float64, string, error) {
-	switch operation {
-	case "add", "+", "plus":
-		return a + b, fmt.Sprintf("%g + %g", a, b), nil
-	case "subtract", "-", "minus":
-		return a - b, fmt.Sprintf("%g - %g", a, b), nil
-	case "multiply", "*", "times":
-		return a * b, fmt.Sprintf("%g * %g", a, b), nil
-	case "divide", "/", "over":
-		if b == 0 {
-			return 0, "", fmt.Errorf("division by zero")
-		}
-		return a / b, fmt.Sprintf("%g / %g", a, b), nil
-	default:
-		return 0, "", fmt.Errorf("unsupported operation: %s", operation)
-	}
+	_ = "STUB: not implemented"
+	return 0, "", nil
 }

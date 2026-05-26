@@ -190,76 +190,46 @@ var (
 )
 
 // WithDescription sets the description of the agent.
-func WithDescription(description string) Option {
-	return func(opts *Options) {
-		opts.Description = description
-	}
-}
+func WithDescription(description string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgentCallbacks sets the agent callbacks.
 func WithAgentCallbacks(callbacks *agent.Callbacks) Option {
-	return func(opts *Options) {
-		opts.AgentCallbacks = callbacks
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithInitialState sets the initial state for graph execution.
-func WithInitialState(state graph.State) Option {
-	return func(opts *Options) {
-		opts.InitialState = state
-	}
-}
+func WithInitialState(state graph.State) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChannelBufferSize sets the buffer size for event channels.
-func WithChannelBufferSize(size int) Option {
-	return func(opts *Options) {
-		if size < 0 {
-			size = defaultChannelBufferSize
-		}
-		opts.ChannelBufferSize = size
-	}
-}
+func WithChannelBufferSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMaxConcurrency sets the maximum number of graph tasks executed in
 // parallel.
 //
 // When max <= 0, GraphAgent uses the Executor default.
-func WithMaxConcurrency(max int) Option {
-	return func(opts *Options) {
-		opts.MaxConcurrency = max
-	}
-}
+func WithMaxConcurrency(max int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSubAgents sets the list of sub-agents available to this agent.
-func WithSubAgents(subAgents []agent.Agent) Option {
-	return func(opts *Options) {
-		opts.SubAgents = subAgents
-	}
-}
+func WithSubAgents(subAgents []agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCheckpointSaver sets the checkpoint saver for the executor.
 func WithCheckpointSaver(saver graph.CheckpointSaver) Option {
-	return func(opts *Options) {
-		opts.CheckpointSaver = saver
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExecutionEngine sets the execution engine for graph scheduling.
 //
 // When not set, GraphAgent uses the Executor default (BSP).
 func WithExecutionEngine(engine graph.ExecutionEngine) Option {
-	return func(opts *Options) {
-		opts.ExecutionEngine = engine
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithAddSessionSummary controls whether to prepend the current-branch summary
 // as a system message when available (default: false).
-func WithAddSessionSummary(addSummary bool) Option {
-	return func(opts *Options) {
-		opts.AddSessionSummary = addSummary
-	}
-}
+func WithAddSessionSummary(addSummary bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSessionSummaryInjectionMode sets the injection mode for session summaries.
 //
@@ -268,47 +238,35 @@ func WithAddSessionSummary(addSummary bool) Option {
 //   - processor.SessionSummaryInjectionUser: injects as a user message that
 //     participates in token-budget trimming for sliding-window behavior.
 func WithSessionSummaryInjectionMode(mode processor.SessionSummaryInjectionMode) Option {
-	return func(opts *Options) {
-		opts.SessionSummaryInjectionMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMaxHistoryRuns sets the maximum number of history messages when AddSessionSummary is false.
 // When 0 (default), no limit is applied.
-func WithMaxHistoryRuns(maxRuns int) Option {
-	return func(opts *Options) {
-		opts.MaxHistoryRuns = maxRuns
-	}
-}
+func WithMaxHistoryRuns(maxRuns int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEnableContextCompaction enables prompt-side context compaction.
 // Historical oversized tool results can be compacted during request
 // projection even when AddSessionSummary is false.
 func WithEnableContextCompaction(enable bool) Option {
-	return func(opts *Options) {
-		opts.EnableContextCompaction = enable
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionToolResultMaxTokens sets the token threshold above
 // which
 // historical tool results are replaced with a placeholder.
 func WithContextCompactionToolResultMaxTokens(tokens int) Option {
-	return func(opts *Options) {
-		if tokens >= 0 {
-			opts.ContextCompactionToolResultMaxTokens = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionKeepRecentRequests preserves the latest N completed
 // requests in full when request-side context compaction is enabled.
 func WithContextCompactionKeepRecentRequests(n int) Option {
-	return func(opts *Options) {
-		if n >= 0 {
-			opts.ContextCompactionKeepRecentRequests = n
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionOversizedToolResultMaxTokens sets the token threshold
@@ -321,67 +279,39 @@ func WithContextCompactionKeepRecentRequests(n int) Option {
 // when opting in is processor.DefaultContextCompactionOversizedToolResultMaxTokens
 // (8192).
 func WithContextCompactionOversizedToolResultMaxTokens(tokens int) Option {
-	return func(opts *Options) {
-		if tokens >= 0 {
-			opts.ContextCompactionOversizedToolResultMaxTokens = tokens
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithContextCompactionTokenCounter sets the token counter used by context
 // compaction to decide whether tool results exceed configured budgets.
 func WithContextCompactionTokenCounter(counter model.TokenCounter) Option {
-	return func(opts *Options) {
-		if counter != nil {
-			opts.ContextCompactionTokenCounter = counter
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessageTimelineFilterMode sets the message timeline filter mode.
 func WithMessageTimelineFilterMode(mode string) Option {
-	return func(opts *Options) {
-		opts.messageTimelineFilterMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessageBranchFilterMode sets the message branch filter mode.
 func WithMessageBranchFilterMode(mode string) Option {
-	return func(opts *Options) {
-		opts.messageBranchFilterMode = mode
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMessageFilterMode sets the message filter mode.
 func WithMessageFilterMode(mode MessageFilterMode) Option {
-	return func(opts *Options) {
-		switch mode {
-		case FullContext:
-			opts.messageBranchFilterMode = BranchFilterModePrefix
-			opts.messageTimelineFilterMode = TimelineFilterAll
-		case RequestContext:
-			opts.messageBranchFilterMode = BranchFilterModePrefix
-			opts.messageTimelineFilterMode = TimelineFilterCurrentRequest
-		case IsolatedRequest:
-			opts.messageBranchFilterMode = BranchFilterModeExact
-			opts.messageTimelineFilterMode = TimelineFilterCurrentRequest
-		case IsolatedInvocation:
-			opts.messageBranchFilterMode = BranchFilterModeExact
-			opts.messageTimelineFilterMode = TimelineFilterCurrentInvocation
-		default:
-			panic("invalid option value")
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithReasoningContentMode sets the reasoning content mode for handling reasoning_content
 // in multi-turn conversations. This is useful for models like DeepSeek that output
 // reasoning_content in thinking mode.
-func WithReasoningContentMode(mode string) Option {
-	return func(opts *Options) {
-		opts.ReasoningContentMode = mode
-	}
-}
+func WithReasoningContentMode(mode string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSummaryFormatter sets a custom formatter for session summary content.
 // This allows users to customize how summaries are presented to the model.
@@ -391,18 +321,16 @@ func WithReasoningContentMode(mode string) Option {
 //	    return fmt.Sprintf("## Previous Context\n\n%s", summary)
 //	})
 func WithSummaryFormatter(formatter func(summary string) string) Option {
-	return func(opts *Options) {
-		opts.summaryFormatter = formatter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithPreserveForeignMessages controls whether messages authored by other
 // agents should preserve their original assistant/tool roles and order instead
 // of being rewritten into user context when graph history is seeded.
 func WithPreserveForeignMessages(preserve bool) Option {
-	return func(opts *Options) {
-		opts.PreserveForeignMessages = preserve
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEventMessageProjector rewrites one event-derived message before
@@ -410,9 +338,8 @@ func WithPreserveForeignMessages(preserve bool) Option {
 func WithEventMessageProjector(
 	projector EventMessageProjector,
 ) Option {
-	return func(opts *Options) {
-		opts.EventMessageProjector = projector
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExecutorOptions allows passing executor options directly to the underlying graph executor.
@@ -437,7 +364,6 @@ func WithEventMessageProjector(
 //	    ),
 //	)
 func WithExecutorOptions(opts ...graph.ExecutorOption) Option {
-	return func(options *Options) {
-		options.ExecutorOptions = append(options.ExecutorOptions, opts...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

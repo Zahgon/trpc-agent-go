@@ -21,12 +21,8 @@ package gateway
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 
@@ -38,7 +34,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/memoryfile"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/persona"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/internal/uploads"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/runtimeprofile"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -104,20 +99,8 @@ type InboundMessage struct {
 //   - Direct message:  "<channel>:dm:<from>"
 //   - Thread message:  "<channel>:thread:<thread>"
 func DefaultSessionID(msg InboundMessage) (string, error) {
-	channel := strings.TrimSpace(msg.Channel)
-	if channel == "" {
-		channel = defaultChannelName
-	}
-
-	from := strings.TrimSpace(msg.From)
-	thread := strings.TrimSpace(msg.Thread)
-	if thread != "" {
-		return fmt.Sprintf("%s:%s:%s", channel, threadKindThread, thread), nil
-	}
-	if from == "" {
-		return "", errors.New("gateway: missing from for dm session id")
-	}
-	return fmt.Sprintf("%s:%s:%s", channel, threadKindDM, from), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // Server provides an HTTP gateway server.
@@ -160,193 +143,52 @@ type Server struct {
 
 // New creates a gateway server with the provided runner.
 func New(r runner.Runner, opts ...Option) (*Server, error) {
-	if r == nil {
-		return nil, errors.New("gateway: runner must not be nil")
-	}
-
-	options := newOptions(opts...)
-	if options.requireMention && len(options.mentionPatterns) == 0 {
-		return nil, errors.New(
-			"gateway: require mention enabled without patterns",
-		)
-	}
-
-	messagesPath, err := joinURLPath(options.basePath, options.messagesPath)
-	if err != nil {
-		return nil, fmt.Errorf("gateway: join messages path: %w", err)
-	}
-	streamPath, err := joinURLPath(options.basePath, options.streamPath)
-	if err != nil {
-		return nil, fmt.Errorf("gateway: join stream path: %w", err)
-	}
-	statusPath, err := joinURLPath(options.basePath, options.statusPath)
-	if err != nil {
-		return nil, fmt.Errorf("gateway: join status path: %w", err)
-	}
-	cancelPath, err := joinURLPath(options.basePath, options.cancelPath)
-	if err != nil {
-		return nil, fmt.Errorf("gateway: join cancel path: %w", err)
-	}
-
-	sessionIDFunc := options.sessionIDFunc
-	if sessionIDFunc == nil {
-		sessionIDFunc = DefaultSessionID
-	}
-
-	var managed runner.ManagedRunner
-	if mr, ok := r.(runner.ManagedRunner); ok {
-		managed = mr
-	}
-
-	policy := partURLPolicy{
-		allowPrivate:    options.allowPrivatePartURLs,
-		allowedPatterns: options.allowedPartPatterns,
-	}
-	fetcher := options.partFetcher
-	if fetcher == nil {
-		fetcher = newURLPartFetcher(policy)
-	} else {
-		fetcher = validatingFetcher{
-			next:   fetcher,
-			policy: policy,
-		}
-	}
-	audioTranscriber := options.audioTranscriber
-	if audioTranscriber == nil {
-		audioTranscriber = newDefaultAudioTranscriber()
-	}
-
-	s := &Server{
-		basePath:          options.basePath,
-		messagesPath:      messagesPath,
-		streamPath:        streamPath,
-		statusPath:        statusPath,
-		cancelPath:        cancelPath,
-		healthPath:        options.healthPath,
-		maxBodyBytes:      options.maxBodyBytes,
-		maxPartBytes:      options.maxPartBytes,
-		partFetcher:       fetcher,
-		runner:            r,
-		managed:           managed,
-		appName:           strings.TrimSpace(options.appName),
-		sessionIDFunc:     sessionIDFunc,
-		allowUsers:        options.allowUsers,
-		requireMention:    options.requireMention,
-		mentionPatterns:   options.mentionPatterns,
-		runOptionResolver: options.runOptionResolver,
-		lanes:             newLaneLocker(),
-		canceled:          newCancelTracker(),
-		recorder:          options.recorder,
-		uploads:           options.uploads,
-		audioTranscriber:  audioTranscriber,
-		personaStore:      options.personaStore,
-		memoryFileStore:   options.memoryFileStore,
-	}
-
-	mux := http.NewServeMux()
-	s.setupRoutes(mux)
-	s.handler = mux
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Handler returns the HTTP handler for the gateway server.
 func (s *Server) Handler() http.Handler {
-	return s.handler
+	_ = "STUB: not implemented"
+
+	// BasePath returns the configured base path.
+	return *new(http.Handler)
 }
 
-// BasePath returns the configured base path.
 func (s *Server) BasePath() string {
-	return s.basePath
+	_ = "STUB: not implemented"
+
+	// MessagesPath returns the full path for the messages endpoint.
+	return ""
 }
 
-// MessagesPath returns the full path for the messages endpoint.
-func (s *Server) MessagesPath() string {
-	return s.messagesPath
-}
+func (s *Server) MessagesPath() string { _ = "STUB: not implemented"; return "" }
 
 // MessagesStreamPath returns the full path for the streaming messages
 // endpoint.
-func (s *Server) MessagesStreamPath() string {
-	return s.streamPath
-}
+func (s *Server) MessagesStreamPath() string { _ = "STUB: not implemented"; return "" }
 
 // StatusPath returns the full path for the status endpoint.
-func (s *Server) StatusPath() string {
-	return s.statusPath
-}
+func (s *Server) StatusPath() string { _ = "STUB: not implemented"; return "" }
 
 // CancelPath returns the full path for the cancel endpoint.
-func (s *Server) CancelPath() string {
-	return s.cancelPath
-}
+func (s *Server) CancelPath() string { _ = "STUB: not implemented"; return "" }
 
 // HealthPath returns the health check endpoint path.
-func (s *Server) HealthPath() string {
-	return s.healthPath
-}
+func (s *Server) HealthPath() string { _ = "STUB: not implemented"; return "" }
 
-func (s *Server) setupRoutes(mux *http.ServeMux) {
-	mux.HandleFunc(s.messagesPath, s.handleMessages)
-	mux.HandleFunc(s.messagesPath+"/", s.handleMessages)
-	mux.HandleFunc(s.streamPath, s.handleMessagesStream)
-	mux.HandleFunc(s.streamPath+"/", s.handleMessagesStream)
+func (s *Server) setupRoutes(mux *http.ServeMux) { _ = "STUB: not implemented"; return }
 
-	mux.HandleFunc(s.statusPath, s.handleStatus)
-	mux.HandleFunc(s.statusPath+"/", s.handleStatus)
-
-	mux.HandleFunc(s.cancelPath, s.handleCancel)
-	mux.HandleFunc(s.cancelPath+"/", s.handleCancel)
-
-	mux.HandleFunc(s.healthPath, s.handleHealth)
-	mux.HandleFunc(s.healthPath+"/", s.handleHealth)
-}
-
-func joinURLPath(basePath, path string) (string, error) {
-	return url.JoinPath(basePath, path)
-}
+func joinURLPath(basePath, path string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.Header().Set(headerAllow, methodGet)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Header().Set(headerContentType, contentTypeJSON)
-	_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.Header().Set(headerAllow, methodGet)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if s.managed == nil {
-		s.writeError(w, gwproto.APIError{
-			Type:    errTypeUnsupported,
-			Message: "runner does not support status",
-		}, http.StatusNotImplemented)
-		return
-	}
-
-	requestID := strings.TrimSpace(r.URL.Query().Get(queryRequestID))
-	if requestID == "" {
-		s.writeError(w, gwproto.APIError{
-			Type:    errTypeInvalidRequest,
-			Message: "missing request_id",
-		}, http.StatusBadRequest)
-		return
-	}
-
-	status, ok := s.managed.RunStatus(requestID)
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set(headerContentType, contentTypeJSON)
-	_ = json.NewEncoder(w).Encode(status)
+	_ = "STUB: not implemented"
+	return
 }
 
 type cancelRequest struct {
@@ -354,95 +196,27 @@ type cancelRequest struct {
 }
 
 func (s *Server) handleCancel(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set(headerAllow, methodPost)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if s.managed == nil {
-		s.writeError(w, gwproto.APIError{
-			Type:    errTypeUnsupported,
-			Message: "runner does not support cancel",
-		}, http.StatusNotImplemented)
-		return
-	}
-
-	var req cancelRequest
-	if err := s.decodeJSON(r, &req); err != nil {
-		s.writeError(w, gwproto.APIError{
-			Type:    errTypeInvalidRequest,
-			Message: err.Error(),
-		}, http.StatusBadRequest)
-		return
-	}
-
-	canceled, apiErr, status := s.CancelRequest(r.Context(), req.RequestID)
-	if apiErr != nil {
-		s.writeError(w, *apiErr, status)
-		return
-	}
-
-	w.Header().Set(headerContentType, contentTypeJSON)
-	_ = json.NewEncoder(w).Encode(map[string]bool{"canceled": canceled})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set(headerAllow, methodPost)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req gwproto.MessageRequest
-	if err := s.decodeJSON(r, &req); err != nil {
-		s.writeError(w, gwproto.APIError{
-			Type:    errTypeInvalidRequest,
-			Message: err.Error(),
-		}, http.StatusBadRequest)
-		return
-	}
-
-	rsp, status := s.ProcessMessage(r.Context(), req)
-	s.writeJSON(w, rsp, status)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *Server) isUserAllowed(userID string) bool {
-	if s.allowUsers == nil {
-		return true
-	}
-	_, ok := s.allowUsers[userID]
-	return ok
-}
+func (s *Server) isUserAllowed(userID string) bool { _ = "STUB: not implemented"; return false }
 
-func containsAny(text string, patterns []string) bool {
-	for _, pattern := range patterns {
-		if pattern == "" {
-			continue
-		}
-		if strings.Contains(text, pattern) {
-			return true
-		}
-	}
-	return false
-}
+func containsAny(text string, patterns []string) bool { _ = "STUB: not implemented"; return false }
 
 func (s *Server) decodeJSON(r *http.Request, target any) error {
-	if r == nil {
-		return errors.New("nil request")
-	}
-	reader := io.LimitReader(r.Body, s.maxBodyBytes)
-	decoder := json.NewDecoder(reader)
-	if err := decoder.Decode(target); err != nil {
-		return fmt.Errorf("decode json: %w", err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *Server) writeJSON(w http.ResponseWriter, payload any, status int) {
-	w.Header().Set(headerContentType, contentTypeJSON)
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(payload)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) writeError(
@@ -450,152 +224,40 @@ func (s *Server) writeError(
 	err gwproto.APIError,
 	status int,
 ) {
-	s.writeJSON(
-		w,
-		gwproto.MessageResponse{Error: &err},
-		status,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) run(
 	ctx context.Context,
 	run preparedMessageRun,
 ) (string, string, *gwproto.Usage, error) {
-	var (
-		reply    string
-		resolved string
-		usage    *gwproto.Usage
-		runErr   error
-	)
-	s.lanes.withLock(run.sessionID, func() {
-		reply, resolved, usage, runErr = s.runLocked(
-			ctx,
-			run,
-		)
-	})
-	return reply, resolved, usage, runErr
+	_ = "STUB: not implemented"
+	return "", "", nil, nil
 }
 
 func (s *Server) runLocked(
 	ctx context.Context,
 	run preparedMessageRun,
 ) (string, string, *gwproto.Usage, error) {
-	trace := debugrecorder.TraceFromContext(ctx)
-
-	if trace != nil {
-		_ = trace.Record(
-			debugrecorder.KindGatewayRun,
-			map[string]any{
-				"user_id":    run.userID,
-				"session_id": run.sessionID,
-				"request_id": run.requestID,
-			},
-		)
-	}
-
-	ctx, runOpts, err := s.resolveRunOptions(ctx, run)
-	if err != nil {
-		if trace != nil {
-			_ = trace.RecordError(err)
-		}
-		return "", "", nil, err
-	}
-	recordRuntimeProfile(trace, ctx)
-	events, err := s.runner.Run(
-		ctx,
-		run.userID,
-		run.sessionID,
-		run.userMsg,
-		runOpts...,
-	)
-	if err != nil {
-		if trace != nil {
-			_ = trace.RecordError(err)
-		}
-		return "", "", nil, err
-	}
-
-	result := newReplyAccumulator()
-	for evt := range events {
-		if trace != nil && evt != nil {
-			_ = trace.Record(debugrecorder.KindRunnerEvent, evt)
-		}
-		result.Consume(evt)
-	}
-
-	if result.Error != nil {
-		if trace != nil {
-			_ = trace.RecordError(result.Error)
-		}
-		return "", result.RequestID, cloneGatewayUsage(result.Usage), result.Error
-	}
-	if result.Text == "" {
-		if trace != nil {
-			_ = trace.RecordError(errEmptyReplyValue)
-		}
-		return "", result.RequestID, cloneGatewayUsage(result.Usage), errEmptyReplyValue
-	}
-	return result.Text, result.RequestID, cloneGatewayUsage(result.Usage), nil
+	_ = "STUB: not implemented"
+	return "", "", nil, nil
 }
 
 func (s *Server) resolveRunOptions(
 	ctx context.Context,
 	run preparedMessageRun,
 ) (context.Context, []agent.RunOption, error) {
-	extra := []agent.RunOption(nil)
-	if s != nil && s.runOptionResolver != nil {
-		resolvedCtx, resolvedOpts, err := s.runOptionResolver(
-			ctx,
-			RunOptionInput{
-				Inbound:   run.inbound,
-				UserID:    run.userID,
-				SessionID: run.sessionID,
-				RequestID: run.requestID,
-				Message:   run.userMsg,
-				Trace:     debugrecorder.TraceFromContext(ctx),
-				Extensions: cloneExtensions(
-					run.extensions,
-				),
-			},
-		)
-		if err != nil {
-			return ctx, nil, err
-		}
-		if resolvedCtx != nil {
-			ctx = resolvedCtx
-		}
-		extra = resolvedOpts
-	}
-	runOpts := s.runOptions(
-		ctx,
-		run.userID,
-		run.sessionID,
-		run.requestID,
-		run.requestSystemPrompt,
-	)
-	if len(extra) == 0 {
-		return ctx, runOpts, nil
-	}
-	runOpts = append(runOpts, extra...)
-	return ctx, runOpts, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil, nil
 }
 
 func recordRuntimeProfile(
 	trace *debugrecorder.Trace,
 	ctx context.Context,
 ) {
-	if trace == nil {
-		return
-	}
-	profile, ok := runtimeprofile.ProfileFromContext(ctx)
-	if !ok {
-		return
-	}
-	fields := runtimeprofile.TraceFields(profile)
-	if len(fields) == 0 {
-		return
-	}
-	_ = trace.Record(debugrecorder.KindRuntimeProfile, fields)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Server) runOptions(
@@ -605,22 +267,8 @@ func (s *Server) runOptions(
 	requestID string,
 	requestSystemPrompt string,
 ) []agent.RunOption {
-	runOpts := make([]agent.RunOption, 0, 1)
-	if requestID != "" {
-		runOpts = append(runOpts, agent.WithRequestID(requestID))
-	}
-	if messages := s.injectedContextMessages(
-		ctx,
-		userID,
-		sessionID,
-		requestSystemPrompt,
-	); len(messages) > 0 {
-		runOpts = append(
-			runOpts,
-			agent.WithInjectedContextMessages(messages),
-		)
-	}
-	return runOpts
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type replyAccumulator struct {
@@ -633,157 +281,37 @@ type replyAccumulator struct {
 	builder  strings.Builder
 }
 
-func newReplyAccumulator() *replyAccumulator {
-	return &replyAccumulator{}
-}
+func newReplyAccumulator() *replyAccumulator { _ = "STUB: not implemented"; return nil }
 
-func (a *replyAccumulator) Consume(evt *event.Event) {
-	if evt == nil {
-		return
-	}
-	if evt.RequestID != "" {
-		a.RequestID = evt.RequestID
-	}
-	if evt.Response == nil {
-		return
-	}
-	a.captureUsage(evt.Response)
-	if evt.Error != nil {
-		a.Error = errors.New(evt.Error.Message)
-		return
-	}
-	switch evt.Object {
-	case model.ObjectTypeChatCompletion:
-		a.consumeFull(evt.Response)
-	case model.ObjectTypeChatCompletionChunk:
-		a.consumeDelta(evt.Response)
-	default:
-		return
-	}
-}
+func (a *replyAccumulator) Consume(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-func (a *replyAccumulator) consumeFull(rsp *model.Response) {
-	if rsp == nil {
-		return
-	}
-	if responseHasPublicContent(rsp) {
-		a.builder.Reset()
-		a.Text = ""
-		return
-	}
-	if len(rsp.Choices) == 0 {
-		return
-	}
-	content := rsp.Choices[0].Message.Content
-	if content == "" {
-		return
-	}
-	a.Text = content
-	a.seenFull = true
-}
+func (a *replyAccumulator) consumeFull(rsp *model.Response) { _ = "STUB: not implemented"; return }
 
-func (a *replyAccumulator) consumeDelta(rsp *model.Response) {
-	if rsp == nil {
-		return
-	}
-	if responseHasPublicContent(rsp) {
-		a.builder.Reset()
-		a.Text = ""
-		return
-	}
-	if a.seenFull {
-		return
-	}
-	for _, choice := range rsp.Choices {
-		if choice.Delta.Content == "" {
-			continue
-		}
-		a.builder.WriteString(choice.Delta.Content)
-	}
-	a.Text = a.builder.String()
-}
+func (a *replyAccumulator) consumeDelta(rsp *model.Response) { _ = "STUB: not implemented"; return }
 
-func (a *replyAccumulator) captureUsage(rsp *model.Response) {
-	if a == nil || !responseShouldAggregateUsage(rsp) {
-		return
-	}
-	usage := usageFromModelUsage(rsp.Usage)
-	if usage == nil {
-		return
-	}
-	a.Usage = mergeGatewayUsage(a.Usage, usage)
-}
+func (a *replyAccumulator) captureUsage(rsp *model.Response) { _ = "STUB: not implemented"; return }
 
-func usageFromModelUsage(usage *model.Usage) *gwproto.Usage {
-	if !modelUsageHasKnownTokenCounts(usage) {
-		return nil
-	}
-	return &gwproto.Usage{
-		PromptTokens:     usage.PromptTokens,
-		CompletionTokens: usage.CompletionTokens,
-		TotalTokens:      usage.TotalTokens,
-	}
-}
+func usageFromModelUsage(usage *model.Usage) *gwproto.Usage { _ = "STUB: not implemented"; return nil }
 
 func modelUsageHasKnownTokenCounts(usage *model.Usage) bool {
-	if usage == nil {
-		return false
-	}
-	return usage.PromptTokens != 0 ||
-		usage.CompletionTokens != 0 ||
-		usage.TotalTokens != 0
+	_ = "STUB: not implemented"
+	return false
 }
 
 func responseShouldAggregateUsage(rsp *model.Response) bool {
-	if rsp == nil || rsp.Usage == nil {
-		return false
-	}
-	switch rsp.Object {
-	case model.ObjectTypeChatCompletion:
-		return true
-	case model.ObjectTypeChatCompletionChunk:
-		return rsp.Done
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
 func mergeGatewayUsage(
 	accumulated *gwproto.Usage,
 	usage *gwproto.Usage,
 ) *gwproto.Usage {
-	if usage == nil {
-		return cloneGatewayUsage(accumulated)
-	}
-	if accumulated == nil {
-		cloned := cloneGatewayUsage(usage)
-		if cloned != nil {
-			cloned.LastPromptTokens = usage.PromptTokens
-		}
-		return cloned
-	}
-	lastPrompt := accumulated.LastPromptTokens
-	if usage.PromptTokens > 0 {
-		lastPrompt = usage.PromptTokens
-	}
-	return &gwproto.Usage{
-		PromptTokens: accumulated.PromptTokens +
-			usage.PromptTokens,
-		CompletionTokens: accumulated.CompletionTokens +
-			usage.CompletionTokens,
-		TotalTokens: accumulated.TotalTokens +
-			usage.TotalTokens,
-		LastPromptTokens: lastPrompt,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func cloneGatewayUsage(usage *gwproto.Usage) *gwproto.Usage {
-	if usage == nil {
-		return nil
-	}
-	cloned := *usage
-	return &cloned
-}
+func cloneGatewayUsage(usage *gwproto.Usage) *gwproto.Usage { _ = "STUB: not implemented"; return nil }
 
 type laneLocker struct {
 	mu    sync.Mutex
@@ -795,99 +323,21 @@ type cancelTracker struct {
 	ids map[string]struct{}
 }
 
-func newCancelTracker() *cancelTracker {
-	return &cancelTracker{
-		ids: make(map[string]struct{}),
-	}
-}
+func newCancelTracker() *cancelTracker { _ = "STUB: not implemented"; return nil }
 
-func (t *cancelTracker) Mark(requestID string) {
-	if t == nil {
-		return
-	}
-	requestID = strings.TrimSpace(requestID)
-	if requestID == "" {
-		return
-	}
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	t.ids[requestID] = struct{}{}
-}
+func (t *cancelTracker) Mark(requestID string) { _ = "STUB: not implemented"; return }
 
-func (t *cancelTracker) Take(requestID string) bool {
-	if t == nil {
-		return false
-	}
-	requestID = strings.TrimSpace(requestID)
-	if requestID == "" {
-		return false
-	}
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if _, ok := t.ids[requestID]; !ok {
-		return false
-	}
-	delete(t.ids, requestID)
-	return true
-}
+func (t *cancelTracker) Take(requestID string) bool { _ = "STUB: not implemented"; return false }
 
-func newLaneLocker() *laneLocker {
-	return &laneLocker{
-		lanes: make(map[string]*laneEntry),
-	}
-}
+func newLaneLocker() *laneLocker { _ = "STUB: not implemented"; return nil }
 
-func (l *laneLocker) withLock(key string, fn func()) {
-	if l == nil {
-		fn()
-		return
-	}
-
-	entry := l.acquire(key)
-	entry.lock.Lock()
-	defer func() {
-		entry.lock.Unlock()
-		l.release(key, entry)
-	}()
-	fn()
-}
+func (l *laneLocker) withLock(key string, fn func()) { _ = "STUB: not implemented"; return }
 
 type laneEntry struct {
 	lock sync.Mutex
 	refs int
 }
 
-func (l *laneLocker) acquire(key string) *laneEntry {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+func (l *laneLocker) acquire(key string) *laneEntry { _ = "STUB: not implemented"; return nil }
 
-	entry, ok := l.lanes[key]
-	if ok {
-		entry.refs++
-		return entry
-	}
-
-	entry = &laneEntry{refs: 1}
-	l.lanes[key] = entry
-	return entry
-}
-
-func (l *laneLocker) release(key string, entry *laneEntry) {
-	if l == nil || entry == nil {
-		return
-	}
-
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current, ok := l.lanes[key]
-	if !ok || current != entry {
-		return
-	}
-
-	entry.refs--
-	if entry.refs > 0 {
-		return
-	}
-	delete(l.lanes, key)
-}
+func (l *laneLocker) release(key string, entry *laneEntry) { _ = "STUB: not implemented"; return }

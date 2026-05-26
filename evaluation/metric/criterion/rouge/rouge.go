@@ -11,7 +11,6 @@ package rouge
 
 import (
 	"context"
-	"fmt"
 
 	irouge "trpc.group/trpc-go/trpc-agent-go/evaluation/internal/rouge"
 )
@@ -40,19 +39,7 @@ type RougeCriterion struct {
 }
 
 // New creates a RougeCriterion with the provided options.
-func New(opt ...Option) *RougeCriterion {
-	opts := newOptions(opt...)
-	return &RougeCriterion{
-		Ignore:         opts.ignore,
-		RougeType:      opts.rougeType,
-		Measure:        opts.measure,
-		Threshold:      opts.threshold,
-		UseStemmer:     opts.useStemmer,
-		SplitSummaries: opts.splitSummaries,
-		TokenizerName:  opts.tokenizerName,
-		Tokenizer:      opts.tokenizer,
-	}
-}
+func New(opt ...Option) *RougeCriterion { _ = "STUB: not implemented"; return nil }
 
 // RougeMeasure selects which ROUGE component should be used as a scalar score.
 type RougeMeasure string
@@ -91,74 +78,10 @@ type MatchResult struct {
 }
 
 // Reason formats the scoring output for display.
-func (r MatchResult) Reason() string {
-	return fmt.Sprintf("%s %s=%.6f precision=%.6f recall=%.6f f1=%.6f",
-		r.RougeType, r.Measure, r.Value, r.Score.Precision, r.Score.Recall, r.Score.F1)
-}
+func (r MatchResult) Reason() string { _ = "STUB: not implemented"; return "" }
 
 // Match computes ROUGE scores between target and prediction based on the configured options.
 func (c *RougeCriterion) Match(ctx context.Context, target, prediction string) (*MatchResult, error) {
-	if c == nil {
-		return nil, fmt.Errorf("rouge criterion is nil")
-	}
-	if c.Ignore {
-		return &MatchResult{
-			RougeType: c.RougeType,
-			Measure:   RougeMeasureF1,
-			Value:     1.0,
-			Score:     Score{Precision: 1.0, Recall: 1.0, F1: 1.0},
-			Passed:    true,
-		}, nil
-	}
-	if c.RougeType == "" {
-		return nil, fmt.Errorf("rouge criterion requires rougeType")
-	}
-	measure := c.Measure
-	if measure == "" {
-		measure = RougeMeasureF1
-	}
-	switch measure {
-	case RougeMeasureF1, RougeMeasurePrecision, RougeMeasureRecall:
-	default:
-		return nil, fmt.Errorf("unsupported rouge measure: %s", measure)
-	}
-	computeOpt := []irouge.Option{
-		irouge.WithRougeTypes(c.RougeType),
-		irouge.WithStemmer(c.UseStemmer),
-		irouge.WithSplitSummaries(c.SplitSummaries),
-	}
-	if c.Tokenizer != nil {
-		computeOpt = append(computeOpt, irouge.WithTokenizer(c.Tokenizer))
-	}
-
-	scores, err := irouge.Compute(ctx, target, prediction, computeOpt...)
-	if err != nil {
-		return nil, err
-	}
-	s, ok := scores[c.RougeType]
-	if !ok {
-		return nil, fmt.Errorf("missing rouge score for type: %s", c.RougeType)
-	}
-	score := Score{Precision: s.Precision, Recall: s.Recall, F1: s.FMeasure}
-	var value float64
-	switch measure {
-	case RougeMeasureF1:
-		value = score.F1
-	case RougeMeasurePrecision:
-		value = score.Precision
-	case RougeMeasureRecall:
-		value = score.Recall
-	default:
-		return nil, fmt.Errorf("unsupported rouge measure: %s", measure)
-	}
-	passed := score.Precision >= c.Threshold.Precision &&
-		score.Recall >= c.Threshold.Recall &&
-		score.F1 >= c.Threshold.F1
-	return &MatchResult{
-		RougeType: c.RougeType,
-		Measure:   measure,
-		Value:     value,
-		Score:     score,
-		Passed:    passed,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

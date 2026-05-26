@@ -11,14 +11,10 @@ package service
 
 import (
 	"context"
-	"runtime"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalresult"
-	evalresultinmemory "trpc.group/trpc-go/trpc-agent-go/evaluation/evalresult/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evalset"
-	evalsetinmemory "trpc.group/trpc-go/trpc-agent-go/evaluation/evalset/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/registry"
 	metricregistry "trpc.group/trpc-go/trpc-agent-go/evaluation/metric/registry"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/usersimulation"
@@ -45,109 +41,65 @@ type Options struct {
 type Option func(*Options)
 
 // NewOptions creates a new Options with the default values.
-func NewOptions(opt ...Option) *Options {
-	opts := &Options{
-		EvalSetManager:    evalsetinmemory.New(),
-		EvalResultManager: evalresultinmemory.New(),
-		Registry:          registry.New(),
-		MetricRegistry:    metricregistry.New(),
-		SessionIDSupplier: func(ctx context.Context) string {
-			return uuid.New().String()
-		},
-		EvalCaseParallelism:               runtime.GOMAXPROCS(0),
-		EvalCaseParallelInferenceEnabled:  false,
-		EvalCaseParallelEvaluationEnabled: false,
-	}
-	for _, o := range opt {
-		o(opts)
-	}
-	return opts
-}
+func NewOptions(opt ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // WithEvalSetManager sets the eval set manager.
 // InMemory eval set manager is used by default.
-func WithEvalSetManager(m evalset.Manager) Option {
-	return func(o *Options) {
-		o.EvalSetManager = m
-	}
-}
+func WithEvalSetManager(m evalset.Manager) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEvalResultManager sets the eval result manager.
 // InMemory eval result manager is used by default.
 func WithEvalResultManager(m evalresult.Manager) Option {
-	return func(o *Options) {
-		o.EvalResultManager = m
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithRegistry sets the evaluator registry.
 // Default evaluator registry is used by default.
-func WithRegistry(r registry.Registry) Option {
-	return func(o *Options) {
-		o.Registry = r
-	}
-}
+func WithRegistry(r registry.Registry) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetricRegistry sets the metric runtime registry.
 func WithMetricRegistry(r metricregistry.Registry) Option {
-	return func(o *Options) {
-		o.MetricRegistry = r
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSessionIDSupplier sets the function used to generate session IDs.
 // UUID generator is used by default.
 func WithSessionIDSupplier(s func(ctx context.Context) string) Option {
-	return func(o *Options) {
-		o.SessionIDSupplier = s
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExpectedRunner sets the runner used to generate dynamic expected outputs.
-func WithExpectedRunner(r runner.Runner) Option {
-	return func(o *Options) {
-		o.ExpectedRunner = r
-	}
-}
+func WithExpectedRunner(r runner.Runner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUserSimulator sets the simulator used for conversation scenarios.
 func WithUserSimulator(sim usersimulation.Simulator) Option {
-	return func(o *Options) {
-		o.UserSimulator = sim
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithCallbacks sets the evaluation lifecycle callbacks.
-func WithCallbacks(c *Callbacks) Option {
-	return func(o *Options) {
-		o.Callbacks = c
-	}
-}
+func WithCallbacks(c *Callbacks) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunOptions appends agent.RunOption values that will be applied to every runner.Run call during inference.
-func WithRunOptions(opt ...agent.RunOption) Option {
-	return func(o *Options) {
-		o.RunOptions = append(o.RunOptions, opt...)
-	}
-}
+func WithRunOptions(opt ...agent.RunOption) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEvalCaseParallelism sets the maximum number of eval cases processed in parallel.
 func WithEvalCaseParallelism(parallelism int) Option {
-	return func(o *Options) {
-		o.EvalCaseParallelism = parallelism
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalCaseParallelInferenceEnabled enables or disables parallel inference across eval cases.
 func WithEvalCaseParallelInferenceEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.EvalCaseParallelInferenceEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithEvalCaseParallelEvaluationEnabled enables or disables parallel evaluation across eval cases.
 func WithEvalCaseParallelEvaluationEnabled(enabled bool) Option {
-	return func(o *Options) {
-		o.EvalCaseParallelEvaluationEnabled = enabled
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

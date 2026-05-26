@@ -12,15 +12,12 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"sort"
 	"sync"
 	"sync/atomic"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph/internal/channel"
-	itool "trpc.group/trpc-go/trpc-agent-go/internal/tool"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
@@ -72,29 +69,8 @@ type ConditionResult struct {
 }
 
 func wrapperCondFunc(condFunc any) UniversalCondFunc {
-	if condFunc == nil {
-		panic("conditional function is nil")
-	}
-
-	var uniFunc UniversalCondFunc
-	switch cdFunc := condFunc.(type) {
-	case ConditionalFunc:
-		uniFunc = func(ctx context.Context, state State) (ConditionResult, error) {
-			nextNode, err := cdFunc(ctx, state)
-			return ConditionResult{NextNodes: []string{nextNode}}, err
-		}
-	case MultiConditionalFunc:
-		uniFunc = func(ctx context.Context, state State) (ConditionResult, error) {
-			nextNodes, err := cdFunc(ctx, state)
-			return ConditionResult{NextNodes: nextNodes}, err
-		}
-	case UniversalCondFunc:
-		uniFunc = cdFunc
-	default:
-		panic(fmt.Sprintf("unsupported conditional function type: %T", condFunc))
-	}
-
-	return uniFunc
+	_ = "STUB: not implemented"
+	return *new(UniversalCondFunc)
 }
 
 // channelWriteEntry represents a write operation to a channel.
@@ -243,242 +219,84 @@ type Graph struct {
 }
 
 // New creates a new empty graph with the given state schema.
-func New(schema *StateSchema) *Graph {
-	if schema == nil {
-		schema = NewStateSchema()
-	}
-
-	return &Graph{
-		schema:           schema,
-		nodes:            make(map[string]*Node),
-		edges:            make(map[string][]*Edge),
-		conditionalEdges: make(map[string]*ConditionalEdge),
-		channelManager:   channel.NewChannelManager(),
-		triggerToNodes:   make(map[string][]string),
-	}
-}
+func New(schema *StateSchema) *Graph { _ = "STUB: not implemented"; return nil }
 
 // Node returns a node by ID.
-func (g *Graph) Node(id string) (*Node, bool) {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	node, exists := g.nodes[id]
-	return node, exists
-}
+func (g *Graph) Node(id string) (*Node, bool) { _ = "STUB: not implemented"; return nil, false }
 
 // Nodes returns all nodes in the graph sorted by node ID.
-func (g *Graph) Nodes() []*Node {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	nodes := make([]*Node, 0, len(g.nodes))
-	for _, node := range g.nodes {
-		nodes = append(nodes, node)
-	}
-	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].ID < nodes[j].ID
-	})
-	return nodes
-}
+func (g *Graph) Nodes() []*Node { _ = "STUB: not implemented"; return nil }
 
 // Edges returns all outgoing edges from a node.
-func (g *Graph) Edges(nodeID string) []*Edge {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	return g.edges[nodeID]
-}
+func (g *Graph) Edges(nodeID string) []*Edge { _ = "STUB: not implemented"; return nil }
 
 // ConditionalEdge returns the conditional edge from a node.
 func (g *Graph) ConditionalEdge(nodeID string) (*ConditionalEdge, bool) {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	edge, exists := g.conditionalEdges[nodeID]
-	return edge, exists
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // EntryPoint returns the entry point node ID.
-func (g *Graph) EntryPoint() string {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	return g.entryPoint
-}
+func (g *Graph) EntryPoint() string { _ = "STUB: not implemented"; return "" }
 
 // Instruction returns the static instruction for an LLM node.
-func (n *Node) Instruction() string {
-	return n.instruction
-}
+func (n *Node) Instruction() string { _ = "STUB: not implemented"; return "" }
 
 // Model returns the static model for an LLM node.
 func (n *Node) Model() model.Model {
-	return n.llmModel
+	_ = "STUB: not implemented"
+
+	// AgentEventScope returns the configured event scope for an agent node.
+	return *new(model.Model)
 }
 
-// AgentEventScope returns the configured event scope for an agent node.
-func (n *Node) AgentEventScope() string {
-	return n.agentEventScope
-}
+func (n *Node) AgentEventScope() string { _ = "STUB: not implemented"; return "" }
 
 // HasTools reports whether the node has statically configured tools.
-func (n *Node) HasTools() bool {
-	return len(n.baseTools) > 0 || len(n.toolSets) > 0
-}
+func (n *Node) HasTools() bool { _ = "STUB: not implemented"; return false }
 
 // EndTargets returns the concrete end targets declared on the node.
-func (n *Node) EndTargets() []string {
-	if len(n.ends) == 0 {
-		return nil
-	}
-	targets := make([]string, 0, len(n.ends))
-	seen := make(map[string]struct{}, len(n.ends))
-	for _, target := range n.ends {
-		if target == "" || target == End {
-			continue
-		}
-		if _, ok := seen[target]; ok {
-			continue
-		}
-		seen[target] = struct{}{}
-		targets = append(targets, target)
-	}
-	sort.Strings(targets)
-	return targets
-}
+func (n *Node) EndTargets() []string { _ = "STUB: not implemented"; return nil }
 
 // Tools returns the static visible tools of the node.
-func (n *Node) Tools(ctx context.Context) []tool.Tool {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	toolsByName := make(map[string]tool.Tool, len(n.baseTools))
-	for name, currentTool := range n.baseTools {
-		if currentTool == nil || currentTool.Declaration() == nil {
-			continue
-		}
-		toolsByName[name] = currentTool
-	}
-	if n.refreshToolSetsOnRun {
-		for _, toolSet := range n.toolSets {
-			namedToolSet := itool.NewNamedToolSet(toolSet)
-			for _, currentTool := range namedToolSet.Tools(ctx) {
-				if currentTool == nil || currentTool.Declaration() == nil {
-					continue
-				}
-				toolsByName[currentTool.Declaration().Name] = currentTool
-			}
-		}
-	}
-	tools := make([]tool.Tool, 0, len(toolsByName))
-	for _, currentTool := range toolsByName {
-		tools = append(tools, currentTool)
-	}
-	sort.Slice(tools, func(i, j int) bool {
-		return tools[i].Declaration().Name < tools[j].Declaration().Name
-	})
-	return tools
-}
+func (n *Node) Tools(ctx context.Context) []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 // Schema returns the state schema.
 func (g *Graph) Schema() *StateSchema {
-	return g.schema
+	_ = "STUB: not implemented"
+
+	// Cache returns the graph-level cache (may be nil).
+	return nil
 }
 
-// Cache returns the graph-level cache (may be nil).
-func (g *Graph) Cache() Cache {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	return g.cache
-}
+func (g *Graph) Cache() Cache { _ = "STUB: not implemented"; return *new(Cache) }
 
 // CachePolicy returns the graph-level cache policy (may be nil).
-func (g *Graph) CachePolicy() *CachePolicy {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	return g.cachePolicy
-}
+func (g *Graph) CachePolicy() *CachePolicy { _ = "STUB: not implemented"; return nil }
 
 // setCache sets the graph-level cache.
-func (g *Graph) setCache(c Cache) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	g.cache = c
-}
+func (g *Graph) setCache(c Cache) { _ = "STUB: not implemented"; return }
 
 // setCachePolicy sets the graph-level cache policy.
-func (g *Graph) setCachePolicy(p *CachePolicy) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	g.cachePolicy = p
-}
+func (g *Graph) setCachePolicy(p *CachePolicy) { _ = "STUB: not implemented"; return }
 
 // setGraphVersion sets an optional version string used for cache namespacing.
-func (g *Graph) setGraphVersion(v string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	g.graphVersion = v
-}
+func (g *Graph) setGraphVersion(v string) { _ = "STUB: not implemented"; return }
 
 // cacheNamespace builds a per-node namespace including optional graph version.
-func (g *Graph) cacheNamespace(nodeID string) string {
-	g.mu.RLock()
-	v := g.graphVersion
-	g.mu.RUnlock()
-	if v == "" {
-		return fmt.Sprintf("%s:%s", CacheNamespacePrefix, nodeID)
-	}
-	return fmt.Sprintf("%s:%s:%s", CacheNamespacePrefix, v, nodeID)
-}
+func (g *Graph) cacheNamespace(nodeID string) string { _ = "STUB: not implemented"; return "" }
 
 // clearCacheForNodes clears cache entries for the given node IDs.
-func (g *Graph) clearCacheForNodes(nodes []string) {
-	g.mu.RLock()
-	c := g.cache
-	g.mu.RUnlock()
-	if c == nil {
-		return
-	}
-	for _, id := range nodes {
-		c.Clear(g.cacheNamespace(id))
-	}
-}
+func (g *Graph) clearCacheForNodes(nodes []string) { _ = "STUB: not implemented"; return }
 
 // validate validates the graph structure.
-func (g *Graph) validate() error {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	if g.entryPoint == "" {
-		return fmt.Errorf("graph must have an entry point")
-	}
-	if _, exists := g.nodes[g.entryPoint]; !exists {
-		return fmt.Errorf("entry point node %s does not exist", g.entryPoint)
-	}
-	// Validate declared destinations exist.
-	for _, n := range g.nodes {
-		if n == nil || n.destinations == nil || len(n.destinations) == 0 {
-			// fallthrough to ends check
-		}
-		if n != nil && n.destinations != nil {
-			for to := range n.destinations {
-				if to == End {
-					continue
-				}
-				if _, ok := g.nodes[to]; !ok {
-					return fmt.Errorf("node %s declares destination %s which does not exist", n.ID, to)
-				}
-			}
-		}
-		// Validate per-node ends mapping targets exist.
-		if n != nil && n.ends != nil {
-			for _, target := range n.ends {
-				if target == End {
-					continue
-				}
-				if _, ok := g.nodes[target]; !ok {
-					return fmt.Errorf("node %s declares end target %s which does not exist", n.ID, target)
-				}
-			}
-		}
-	}
-	return g.schema.validateSchema()
-}
+func (g *Graph) validate() error { _ = "STUB: not implemented"; return nil }
+
+// Validate declared destinations exist.
+
+// fallthrough to ends check
+
+// Validate per-node ends mapping targets exist.
 
 // ExecutionContext contains context for graph execution.
 type ExecutionContext struct {
@@ -530,24 +348,15 @@ type ExecutionContext struct {
 }
 
 func (e *ExecutionContext) setCompletionIdentity(text, identity string) {
-	if e == nil {
-		return
-	}
-	e.stateMutex.Lock()
-	defer e.stateMutex.Unlock()
-	e.completionIdentityText = text
-	e.completionIdentity = identity
+	_ = "STUB: not implemented"
+	return
 }
 
 func (e *ExecutionContext) snapshotCompletionState(
 	fields map[string]StateField,
 ) (State, string, string) {
-	if e == nil {
-		return nil, "", ""
-	}
-	e.stateMutex.RLock()
-	defer e.stateMutex.RUnlock()
-	return e.State.deepCopy(false, fields), e.completionIdentityText, e.completionIdentity
+	_ = "STUB: not implemented"
+	return *new(State), "", ""
 }
 
 // Command represents a command that combines state updates with routing.
@@ -559,152 +368,73 @@ type Command struct {
 }
 
 // addNode adds a node to the graph.
-func (g *Graph) addNode(node *Node) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if node.ID == "" {
-		return fmt.Errorf("node ID cannot be empty for %+v", node)
-	}
-	if _, exists := g.nodes[node.ID]; exists {
-		return fmt.Errorf("node with ID %s already exists for %+v", node.ID, node)
-	}
-	g.nodes[node.ID] = node
-	return nil
-}
+func (g *Graph) addNode(node *Node) error { _ = "STUB: not implemented"; return nil }
 
 // addEdge adds an edge to the graph.
-func (g *Graph) addEdge(edge *Edge) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if edge.From == "" || edge.To == "" {
-		return fmt.Errorf("edge from and to cannot be empty")
-	}
-	// Allow Start and End as special nodes
-	if edge.From != Start {
-		if _, exists := g.nodes[edge.From]; !exists {
-			return fmt.Errorf("source node %s does not exist", edge.From)
-		}
-	}
-	if edge.To != End {
-		if _, exists := g.nodes[edge.To]; !exists {
-			return fmt.Errorf("target node %s does not exist", edge.To)
-		}
-	}
-	g.edges[edge.From] = append(g.edges[edge.From], edge)
-	return nil
-}
+func (g *Graph) addEdge(edge *Edge) error { _ = "STUB: not implemented"; return nil }
+
+// Allow Start and End as special nodes
 
 // addConditionalEdge adds a conditional edge to the graph.
 func (g *Graph) addConditionalEdge(condEdge *ConditionalEdge) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if condEdge.From == "" {
-		return fmt.Errorf("conditional edge from cannot be empty")
-	}
-	// Validate condition presence and exclusivity.
-	if condEdge.Condition == nil {
-		return fmt.Errorf("exactly conditionFunc must be set")
-	}
-	if condEdge.From != Start {
-		if _, exists := g.nodes[condEdge.From]; !exists {
-			return fmt.Errorf("source node %s does not exist", condEdge.From)
-		}
-	}
-	// Validate all target nodes in path map
-	for _, to := range condEdge.PathMap {
-		if to != End {
-			if _, exists := g.nodes[to]; !exists {
-				return fmt.Errorf("target node %s does not exist", to)
-			}
-		}
-	}
-	g.conditionalEdges[condEdge.From] = condEdge
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Validate condition presence and exclusivity.
+
+// Validate all target nodes in path map
+
 // setEntryPoint sets the entry point of the graph.
-func (g *Graph) setEntryPoint(nodeID string) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if nodeID != "" {
-		if _, exists := g.nodes[nodeID]; !exists {
-			return fmt.Errorf("entry point node %s does not exist", nodeID)
-		}
-	}
-	g.entryPoint = nodeID
-	return nil
-}
+func (g *Graph) setEntryPoint(nodeID string) error { _ = "STUB: not implemented"; return nil }
 
 // Pregel-style methods
 
 // addChannel adds a channel to the graph.
 func (g *Graph) addChannel(name string, channelType channel.Behavior) {
-	g.channelManager.AddChannel(name, channelType)
+	_ = "STUB: not implemented"
+	return
 }
 
 // getChannel retrieves a channel definition by name. This is primarily used
 // during graph construction and in tests. Runtime execution should operate on
 // the per-execution channels stored in ExecutionContext.
 func (g *Graph) getChannel(name string) (*channel.Channel, bool) {
-	return g.channelManager.GetChannel(name)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // getAllChannels returns all channel definitions in the graph. Callers must
 // treat the returned channels as immutable templates (name + behavior).
 // Per-execution channel state (values, versions, availability) is stored in
 // ExecutionContext.channels.
-func (g *Graph) getAllChannels() map[string]*channel.Channel {
-	return g.channelManager.GetAllChannels()
-}
+func (g *Graph) getAllChannels() map[string]*channel.Channel { _ = "STUB: not implemented"; return nil }
 
 // getTriggerToNodes returns the mapping of channels to triggered nodes.
-func (g *Graph) getTriggerToNodes() map[string][]string {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
-	result := make(map[string][]string)
-	for k, v := range g.triggerToNodes {
-		result[k] = append([]string{}, v...)
-	}
-	return result
-}
+func (g *Graph) getTriggerToNodes() map[string][]string { _ = "STUB: not implemented"; return nil }
 
 // addNodeTrigger adds a trigger relationship between a channel and a node.
 func (g *Graph) addNodeTrigger(channelName string, nodeID string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	// Deduplicate
-	existing := g.triggerToNodes[channelName]
-	for _, n := range existing {
-		if n == nodeID {
-			return
-		}
-	}
-	g.triggerToNodes[channelName] = append(existing, nodeID)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Deduplicate
 
 // addNodeWriter adds a writer to a node.
 func (g *Graph) addNodeWriter(nodeID string, writer channelWriteEntry) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if node, exists := g.nodes[nodeID]; exists {
-		node.writers = append(node.writers, writer)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // addNodeTrigger adds a trigger to a node.
 func (g *Graph) addNodeTriggerChannel(nodeID string, channelName string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if node, exists := g.nodes[nodeID]; exists {
-		node.triggers = append(node.triggers, channelName)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // addNodeChannel adds a channel that a node reads from.
 func (g *Graph) addNodeChannel(nodeID string, channelName string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if node, exists := g.nodes[nodeID]; exists {
-		node.channels = append(node.channels, channelName)
-	}
+	_ = "STUB: not implemented"
+	return
 }

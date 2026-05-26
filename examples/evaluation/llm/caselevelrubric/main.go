@@ -12,7 +12,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation"
@@ -65,35 +64,8 @@ func main() {
 }
 
 func printSummary(result *evaluation.EvaluationResult, outDir string) {
-	fmt.Println("✅ Case-level rubric evaluation completed with local storage")
-	fmt.Printf("App: %s\n", result.AppName)
-	fmt.Printf("Eval Set: %s\n", result.EvalSetID)
-	fmt.Printf("Overall Status: %s\n", result.OverallStatus)
-	fmt.Printf("Runs: %d\n", countRuns(result))
-	for _, caseResult := range result.EvalCases {
-		fmt.Printf("Case %s -> %s\n", caseResult.EvalCaseID, caseResult.OverallStatus)
-		for _, metricResult := range caseResult.MetricResults {
-			fmt.Printf("  Metric %s: score %.2f (threshold %.2f) => %s\n",
-				metricResult.MetricName,
-				metricResult.Score,
-				metricResult.Threshold,
-				metricResult.EvalStatus,
-			)
-		}
-		fmt.Println()
-	}
-	fmt.Printf("Results saved under: %s\n", outDir)
+	_ = "STUB: not implemented"
+	return
 }
 
-func countRuns(result *evaluation.EvaluationResult) int {
-	if result.EvalResult != nil && result.EvalResult.Summary != nil && result.EvalResult.Summary.NumRuns > 0 {
-		return result.EvalResult.Summary.NumRuns
-	}
-	runs := 0
-	for _, caseResult := range result.EvalCases {
-		if len(caseResult.EvalCaseResults) > runs {
-			runs = len(caseResult.EvalCaseResults)
-		}
-	}
-	return runs
-}
+func countRuns(result *evaluation.EvaluationResult) int { _ = "STUB: not implemented"; return 0 }

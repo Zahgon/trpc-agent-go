@@ -11,7 +11,6 @@ package admin
 
 import (
 	"net/http"
-	"strings"
 )
 
 const (
@@ -87,148 +86,45 @@ type RuntimeConfigOption struct {
 }
 
 func (s *Service) runtimeConfigStatus() RuntimeConfigStatus {
-	provider := s.runtimeConfigProvider()
-	if provider == nil {
-		return RuntimeConfigStatus{}
-	}
-	status, err := provider.RuntimeConfigStatus()
-	if err != nil {
-		return RuntimeConfigStatus{
-			Enabled: true,
-			Error:   strings.TrimSpace(err.Error()),
-		}
-	}
-	status.Enabled = true
-	return status
+	_ = "STUB: not implemented"
+	return *new(RuntimeConfigStatus)
 }
 
 func (s *Service) runtimeConfigProvider() RuntimeConfigProvider {
-	if s == nil {
-		return nil
-	}
-	return s.runtimeConfig
+	_ = "STUB: not implemented"
+	return *new(RuntimeConfigProvider)
 }
 
-func (s *Service) hasRuntimeConfigProvider() bool {
-	return s.runtimeConfigProvider() != nil
-}
+func (s *Service) hasRuntimeConfigProvider() bool { _ = "STUB: not implemented"; return false }
 
 func (s *Service) handleConfigPage(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	s.renderPage(w, r, viewConfig)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleConfigJSON(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, s.runtimeConfigStatus())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleSaveRuntimeConfig(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	provider := s.runtimeConfigProvider()
-	if provider == nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"runtime config provider is not available",
-			returnTo,
-		)
-		return
-	}
-	key := strings.TrimSpace(r.FormValue(formConfigFieldKey))
-	if key == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"config field is required",
-			returnTo,
-		)
-		return
-	}
-	value := strings.TrimSpace(r.FormValue(formConfigValue))
-	if err := provider.SaveRuntimeConfigValue(key, value); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Saved config field. Restart the runtime to apply "+
-			"restart-bound changes.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Service) handleResetRuntimeConfig(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	returnTo := strings.TrimSpace(r.FormValue(formReturnTo))
-	provider := s.runtimeConfigProvider()
-	if provider == nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"runtime config provider is not available",
-			returnTo,
-		)
-		return
-	}
-	key := strings.TrimSpace(r.FormValue(formConfigFieldKey))
-	if key == "" {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			"config field is required",
-			returnTo,
-		)
-		return
-	}
-	if err := provider.ResetRuntimeConfigValue(key); err != nil {
-		s.redirectWithMessageAt(
-			w,
-			r,
-			queryError,
-			err.Error(),
-			returnTo,
-		)
-		return
-	}
-	s.redirectWithMessageAt(
-		w,
-		r,
-		queryNotice,
-		"Reset config field to inherited behavior.",
-		returnTo,
-	)
+	_ = "STUB: not implemented"
+	return
 }

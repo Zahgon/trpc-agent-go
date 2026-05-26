@@ -11,11 +11,9 @@ package processor
 
 import (
 	"context"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	sessionrecall "trpc.group/trpc-go/trpc-agent-go/internal/session/tool/recall"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -30,7 +28,8 @@ type OnDemandSessionRequestProcessor struct{}
 
 // NewOnDemandSessionRequestProcessor creates a processor instance.
 func NewOnDemandSessionRequestProcessor() *OnDemandSessionRequestProcessor {
-	return &OnDemandSessionRequestProcessor{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ProcessRequest implements flow.RequestProcessor.
@@ -40,32 +39,8 @@ func (p *OnDemandSessionRequestProcessor) ProcessRequest(
 	req *model.Request,
 	ch chan<- *event.Event,
 ) {
-	if req == nil || inv == nil || !sessionrecall.SupportsOnDemandSession(inv) {
-		return
-	}
-
-	systemIdx := findSystemMessageIndex(req.Messages)
-	if systemIdx >= 0 {
-		if strings.Contains(req.Messages[systemIdx].Content, onDemandSessionOverview) {
-			return
-		}
-		if req.Messages[systemIdx].Content == "" {
-			req.Messages[systemIdx].Content = onDemandSessionOverview
-		} else {
-			req.Messages[systemIdx].Content += "\n\n" + onDemandSessionOverview
-		}
-	} else {
-		req.Messages = append(
-			[]model.Message{model.NewSystemMessage(onDemandSessionOverview)},
-			req.Messages...,
-		)
-	}
-
-	agent.EmitEvent(ctx, inv, ch, event.New(
-		inv.InvocationID,
-		inv.AgentName,
-		event.WithObject(model.ObjectTypePreprocessingInstruction),
-	))
+	_ = "STUB: not implemented"
+	return
 }
 
 // SupportsContextCompactionRebuild reports that the overview can be safely
@@ -73,15 +48,18 @@ func (p *OnDemandSessionRequestProcessor) ProcessRequest(
 func (p *OnDemandSessionRequestProcessor) SupportsContextCompactionRebuild(
 	_ *agent.Invocation,
 ) bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// RebuildRequestForContextCompaction reapplies the overview during the safe
+	// sync-summary rebuild path.
+	return false
 }
 
-// RebuildRequestForContextCompaction reapplies the overview during the safe
-// sync-summary rebuild path.
 func (p *OnDemandSessionRequestProcessor) RebuildRequestForContextCompaction(
 	ctx context.Context,
 	inv *agent.Invocation,
 	req *model.Request,
 ) {
-	p.ProcessRequest(ctx, inv, req, nil)
+	_ = "STUB: not implemented"
+	return
 }

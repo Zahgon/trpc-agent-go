@@ -17,21 +17,18 @@ import (
 
 // HasSummarizer reports whether summary generation is configured.
 func HasSummarizer(summarizer summary.SessionSummarizer) bool {
-	return summarizer != nil
+	_ = "STUB: not implemented"
+	return false
+
+	// ShouldSummarize evaluates the summary gate, preferring the built-in
+	// context-aware summary path when available.
 }
 
-// ShouldSummarize evaluates the summary gate, preferring the built-in
-// context-aware summary path when available.
 func ShouldSummarize(
 	ctx context.Context,
 	summarizer summary.SessionSummarizer,
 	sess *session.Session,
 ) bool {
-	if summarizer == nil {
-		return false
-	}
-	if contextual, ok := summarizer.(summary.ContextAwareSummarizer); ok {
-		return contextual.ShouldSummarizeWithContext(ctx, sess)
-	}
-	return summarizer.ShouldSummarize(sess)
+	_ = "STUB: not implemented"
+	return false
 }

@@ -62,22 +62,11 @@ type addOptions struct {
 }
 
 // WithMetadata attaches episodic metadata to an AddMemory call.
-func WithMetadata(m *Metadata) AddOption {
-	return func(o *addOptions) { o.metadata = m }
-}
+func WithMetadata(m *Metadata) AddOption { _ = "STUB: not implemented"; return *new(AddOption) }
 
 // ResolveAddOptions applies AddOption funcs and returns the
 // aggregated metadata pointer (may be nil).
-func ResolveAddOptions(opts []AddOption) *Metadata {
-	if len(opts) == 0 {
-		return nil
-	}
-	var o addOptions
-	for _, fn := range opts {
-		fn(&o)
-	}
-	return o.metadata
-}
+func ResolveAddOptions(opts []AddOption) *Metadata { _ = "STUB: not implemented"; return nil }
 
 // UpdateOption configures optional parameters for UpdateMemory.
 type UpdateOption func(*updateOptions)
@@ -90,7 +79,8 @@ type updateOptions struct {
 // WithUpdateMetadata attaches episodic metadata to an
 // UpdateMemory call.
 func WithUpdateMetadata(m *Metadata) UpdateOption {
-	return func(o *updateOptions) { o.metadata = m }
+	_ = "STUB: not implemented"
+	return *new(UpdateOption)
 }
 
 // UpdateResult captures the effective memory ID after an update.
@@ -102,7 +92,8 @@ type UpdateResult struct {
 
 // WithUpdateResult attaches an UpdateResult sink to an UpdateMemory call.
 func WithUpdateResult(result *UpdateResult) UpdateOption {
-	return func(o *updateOptions) { o.result = result }
+	_ = "STUB: not implemented"
+	return *new(UpdateOption)
 }
 
 // ResolveUpdateOptions applies UpdateOption funcs and
@@ -110,24 +101,17 @@ func WithUpdateResult(result *UpdateResult) UpdateOption {
 func ResolveUpdateOptions(
 	opts []UpdateOption,
 ) *Metadata {
-	return resolveUpdateConfig(opts).metadata
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ResolveUpdateResult applies UpdateOption funcs and returns the
 // configured update result sink (may be nil).
-func ResolveUpdateResult(opts []UpdateOption) *UpdateResult {
-	return resolveUpdateConfig(opts).result
-}
+func ResolveUpdateResult(opts []UpdateOption) *UpdateResult { _ = "STUB: not implemented"; return nil }
 
 func resolveUpdateConfig(opts []UpdateOption) updateOptions {
-	if len(opts) == 0 {
-		return updateOptions{}
-	}
-	o := updateOptions{}
-	for _, fn := range opts {
-		fn(&o)
-	}
-	return o
+	_ = "STUB: not implemented"
+	return *new(updateOptions)
 }
 
 // SearchOption configures optional parameters for SearchMemory.
@@ -137,7 +121,8 @@ type SearchOption func(*SearchOptions)
 // is a convenience for callers that already have a fully
 // populated SearchOptions value.
 func WithSearchOptions(s SearchOptions) SearchOption {
-	return func(o *SearchOptions) { *o = s }
+	_ = "STUB: not implemented"
+	return *new(SearchOption)
 }
 
 // ResolveSearchOptions applies SearchOption funcs on top of a
@@ -145,11 +130,8 @@ func WithSearchOptions(s SearchOptions) SearchOption {
 func ResolveSearchOptions(
 	query string, opts []SearchOption,
 ) SearchOptions {
-	o := SearchOptions{Query: query}
-	for _, fn := range opts {
-		fn(&o)
-	}
-	return o
+	_ = "STUB: not implemented"
+	return *new(SearchOptions)
 }
 
 // Service defines the interface for memory service operations.
@@ -243,14 +225,10 @@ type Key struct {
 }
 
 // CheckMemoryKey checks if a memory key is valid.
-func (m *Key) CheckMemoryKey() error {
-	return checkMemoryKey(m.AppName, m.UserID, m.MemoryID)
-}
+func (m *Key) CheckMemoryKey() error { _ = "STUB: not implemented"; return nil }
 
 // CheckUserKey checks if a user key is valid.
-func (m *Key) CheckUserKey() error {
-	return checkUserKey(m.AppName, m.UserID)
-}
+func (m *Key) CheckUserKey() error { _ = "STUB: not implemented"; return nil }
 
 // UserKey is the key for a user.
 type UserKey struct {
@@ -259,9 +237,7 @@ type UserKey struct {
 }
 
 // CheckUserKey checks if a user key is valid.
-func (u *UserKey) CheckUserKey() error {
-	return checkUserKey(u.AppName, u.UserID)
-}
+func (u *UserKey) CheckUserKey() error { _ = "STUB: not implemented"; return nil }
 
 // SearchOptions provides advanced filtering for memory search.
 type SearchOptions struct {
@@ -308,25 +284,6 @@ type SearchOptions struct {
 	HybridRRFK int
 }
 
-func checkMemoryKey(appName, userID, memoryID string) error {
-	if appName == "" {
-		return ErrAppNameRequired
-	}
-	if userID == "" {
-		return ErrUserIDRequired
-	}
-	if memoryID == "" {
-		return ErrMemoryIDRequired
-	}
-	return nil
-}
+func checkMemoryKey(appName, userID, memoryID string) error { _ = "STUB: not implemented"; return nil }
 
-func checkUserKey(appName, userID string) error {
-	if appName == "" {
-		return ErrAppNameRequired
-	}
-	if userID == "" {
-		return ErrUserIDRequired
-	}
-	return nil
-}
+func checkUserKey(appName, userID string) error { _ = "STUB: not implemented"; return nil }

@@ -11,11 +11,9 @@ package todoenforcer
 
 import (
 	"context"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/extension"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 	"trpc.group/trpc-go/trpc-agent-go/tool/todo"
@@ -46,44 +44,10 @@ var _ extension.Extension = (*Enforcer)(nil)
 // New builds an Enforcer with the supplied options applied on
 // top of the defaults. The returned value is ready to install via
 // llmagent.WithExtensions.
-func New(opts ...Option) *Enforcer {
-	o := Options{
-		Name:                   DefaultExtensionName,
-		MaxRetries:             DefaultMaxRetries,
-		DeclareBlockerToolName: DefaultDeclareBlockerToolName,
-		NudgeFormatter:         DefaultNudgeFormatter,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&o)
-		}
-	}
-	if o.MaxRetries <= 0 {
-		o.MaxRetries = DefaultMaxRetries
-	}
-	if o.NudgeFormatter == nil {
-		o.NudgeFormatter = DefaultNudgeFormatter
-	}
-
-	e := &Enforcer{opts: o}
-	if o.TodoTool != nil {
-		e.todoTool = o.TodoTool
-	} else {
-		e.todoTool = todo.New()
-	}
-	e.declareBlockerTool = newDeclareBlockerTool(
-		o.DeclareBlockerToolName, o.DeclareBlockerToolDescription, e,
-	)
-	return e
-}
+func New(opts ...Option) *Enforcer { _ = "STUB: not implemented"; return nil }
 
 // Name implements extension.Extension.
-func (e *Enforcer) Name() string {
-	if e.opts.Name == "" {
-		return DefaultExtensionName
-	}
-	return e.opts.Name
-}
+func (e *Enforcer) Name() string { _ = "STUB: not implemented"; return "" }
 
 // Register implements extension.Extension.
 //
@@ -102,19 +66,7 @@ func (e *Enforcer) Name() string {
 // callbacks: enforcement decisions are about the model's structured
 // output (Done flag + tool calls), not the agent lifecycle or
 // per-tool dispatch.
-func (e *Enforcer) Register(r *extension.Registry) {
-	if r == nil {
-		return
-	}
-	if e.todoTool != nil {
-		r.Tools(e.todoTool)
-	}
-	if e.declareBlockerTool != nil {
-		r.Tools(e.declareBlockerTool)
-	}
-	r.BeforeModel(e.beforeModel)
-	r.AfterModel(e.afterModel)
-}
+func (e *Enforcer) Register(r *extension.Registry) { _ = "STUB: not implemented"; return }
 
 // beforeModel prepares a model request while enforcement is active.
 //
@@ -146,90 +98,23 @@ func (e *Enforcer) beforeModel(
 	ctx context.Context,
 	args *model.BeforeModelArgs,
 ) (*model.BeforeModelResult, error) {
-	if args == nil || args.Request == nil {
-		return nil, nil
-	}
-	inv, _ := agent.InvocationFromContext(ctx)
-	if !e.opts.inScope(inv) {
-		return nil, nil
-	}
-	pendingReminder := reminderPending(inv)
-	if pendingReminder {
-		setReminderPending(inv, false)
-	}
-
-	// Read through the prefix the configured todo tool actually
-	// writes with. todo.GetTodos hard-codes DefaultStateKeyPrefix,
-	// so a user that supplied WithTodoTool(todo.New(
-	// todo.WithStateKeyPrefix("custom"))) would otherwise see the
-	// enforcer silently miss every write — open items would
-	// linger in "custom:<branch>" while the enforcer looked at
-	// "temp:todos:<branch>" and concluded the list was empty.
-	items, err := todo.GetTodosWithPrefix(
-		invocationSession(inv),
-		e.todoStateKeyPrefix(),
-		invocationBranch(inv),
-	)
-	if err != nil {
-		log.WarnfContext(ctx, "todoenforcer: read todos failed: %v", err)
-		return nil, nil
-	}
-	inProgress, pending := splitByStatus(items)
-	if len(inProgress) == 0 && len(pending) == 0 {
-		return nil, nil
-	}
-	args.Request.GenerationConfig.Stream = false
-
-	if !pendingReminder {
-		return nil, nil
-	}
-
-	msg := e.opts.NudgeFormatter(NudgeContext{
-		AgentName:              invocationAgentName(inv),
-		Pending:                pending,
-		InProgress:             inProgress,
-		AttemptNumber:          retryCount(inv),
-		MaxRetries:             e.opts.MaxRetries,
-		TodoToolName:           e.todoToolName(),
-		DeclareBlockerToolName: e.declareBlockerToolName(),
-	})
-	if msg == "" {
-		return nil, nil
-	}
-	args.Request.Messages = append(args.Request.Messages, model.NewUserMessage(msg))
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func (e *Enforcer) todoToolName() string {
-	if e == nil || e.todoTool == nil {
-		return todo.DefaultToolName
-	}
-	decl := e.todoTool.Declaration()
-	if decl == nil || decl.Name == "" {
-		return todo.DefaultToolName
-	}
-	return decl.Name
-}
+// Read through the prefix the configured todo tool actually
+// writes with. todo.GetTodos hard-codes DefaultStateKeyPrefix,
+// so a user that supplied WithTodoTool(todo.New(
+// todo.WithStateKeyPrefix("custom"))) would otherwise see the
+// enforcer silently miss every write — open items would
+// linger in "custom:<branch>" while the enforcer looked at
+// "temp:todos:<branch>" and concluded the list was empty.
 
-func (e *Enforcer) todoStateKeyPrefix() string {
-	if e == nil || e.todoTool == nil {
-		return todo.DefaultStateKeyPrefix
-	}
-	return e.todoTool.StateKeyPrefix()
-}
+func (e *Enforcer) todoToolName() string { _ = "STUB: not implemented"; return "" }
 
-func (e *Enforcer) declareBlockerToolName() string {
-	if e == nil {
-		return DefaultDeclareBlockerToolName
-	}
-	if e.declareBlockerTool != nil && e.declareBlockerTool.name != "" {
-		return e.declareBlockerTool.name
-	}
-	if e.opts.DeclareBlockerToolName != "" {
-		return e.opts.DeclareBlockerToolName
-	}
-	return DefaultDeclareBlockerToolName
-}
+func (e *Enforcer) todoStateKeyPrefix() string { _ = "STUB: not implemented"; return "" }
+
+func (e *Enforcer) declareBlockerToolName() string { _ = "STUB: not implemented"; return "" }
 
 // afterModel decides whether the response is allowed to be final.
 //
@@ -265,88 +150,26 @@ func (e *Enforcer) afterModel(
 	ctx context.Context,
 	args *model.AfterModelArgs,
 ) (*model.AfterModelResult, error) {
-	if args == nil || args.Response == nil {
-		return nil, nil
-	}
-	inv, _ := agent.InvocationFromContext(ctx)
-	if !e.opts.inScope(inv) {
-		return nil, nil
-	}
-	if args.Error != nil || args.Response.Error != nil {
-		return nil, nil
-	}
-	if !e.shouldConsiderResponse(args.Response) {
-		return nil, nil
-	}
-
-	if blockerDeclared(inv) {
-		return nil, nil
-	}
-
-	// Read through the prefix the configured todo tool actually
-	// writes with. todo.GetTodos hard-codes DefaultStateKeyPrefix,
-	// so a user that supplied WithTodoTool(todo.New(
-	// todo.WithStateKeyPrefix("custom"))) would otherwise see the
-	// enforcer silently miss every write — open items would
-	// linger in "custom:<branch>" while the enforcer looked at
-	// "temp:todos:<branch>" and concluded the list was empty.
-	items, err := todo.GetTodosWithPrefix(
-		invocationSession(inv),
-		e.todoStateKeyPrefix(),
-		invocationBranch(inv),
-	)
-	if err != nil {
-		log.WarnfContext(ctx, "todoenforcer: read todos failed: %v", err)
-		return nil, nil
-	}
-	if !hasOpenItems(items) {
-		return nil, nil
-	}
-
-	inProgress, pending := splitByStatus(items)
-
-	if retryCount(inv) >= e.opts.MaxRetries {
-		// Budget exhausted. Surface for metrics, then let the
-		// response through — the model has "won" the loop, and we
-		// prefer letting the user see a possibly-wrong final
-		// answer over keeping the runner stuck.
-		e.notify(EnforceEvent{
-			Reason:          ReasonExhausted,
-			AgentName:       invocationAgentName(inv),
-			AttemptNumber:   retryCount(inv),
-			MaxRetries:      e.opts.MaxRetries,
-			PendingCount:    len(pending),
-			InProgressCount: len(inProgress),
-		})
-		resetRetryCount(inv)
-		return nil, nil
-	}
-
-	setReminderPending(inv, true)
-	attempt := incRetryCount(inv)
-	e.notify(EnforceEvent{
-		Reason:          ReasonBlocked,
-		AgentName:       invocationAgentName(inv),
-		AttemptNumber:   attempt,
-		MaxRetries:      e.opts.MaxRetries,
-		PendingCount:    len(pending),
-		InProgressCount: len(inProgress),
-	})
-	return &model.AfterModelResult{
-		CustomResponse: blockedControlResponse(args.Response),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// Read through the prefix the configured todo tool actually
+// writes with. todo.GetTodos hard-codes DefaultStateKeyPrefix,
+// so a user that supplied WithTodoTool(todo.New(
+// todo.WithStateKeyPrefix("custom"))) would otherwise see the
+// enforcer silently miss every write — open items would
+// linger in "custom:<branch>" while the enforcer looked at
+// "temp:todos:<branch>" and concluded the list was empty.
+
+// Budget exhausted. Surface for metrics, then let the
+// response through — the model has "won" the loop, and we
+// prefer letting the user see a possibly-wrong final
+// answer over keeping the runner stuck.
+
 func blockedControlResponse(src *model.Response) *model.Response {
-	if src == nil {
-		return &model.Response{Done: false}
-	}
-	rsp := src.Clone()
-	rsp.Done = false
-	rsp.IsPartial = false
-	rsp.Choices = nil
-	rsp.Error = nil
-	return rsp
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // shouldConsiderResponse mirrors llmflow's loop-termination
@@ -354,47 +177,22 @@ func blockedControlResponse(src *model.Response) *model.Response {
 // Tool-call responses are a continuation signal rather than an exit
 // signal, and error responses must surface without todo enforcement.
 func (e *Enforcer) shouldConsiderResponse(rsp *model.Response) bool {
-	if rsp == nil {
-		return false
-	}
-	if rsp.IsPartial || rsp.Error != nil {
-		return false
-	}
-	if rsp.IsToolCallResponse() {
-		return false
-	}
-	return rsp.IsFinalResponse()
+	_ = "STUB: not implemented"
+	return false
 }
 
 // notify is a thin wrapper around the user-supplied callback. We
 // recover panics so a misbehaving observer cannot crash the
 // model-callback hot path; the runtime cost is one extra deferred
 // call when an OnEnforce is configured.
-func (e *Enforcer) notify(evt EnforceEvent) {
-	if e.opts.OnEnforce == nil {
-		return
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			log.Errorf("todoenforcer: OnEnforce panic: %v", r)
-		}
-	}()
-	e.opts.OnEnforce(evt)
-}
+func (e *Enforcer) notify(evt EnforceEvent) { _ = "STUB: not implemented"; return }
 
 // notifyBlockerDeclared is the declare-blocker side of notify.
 // Kept as a separate method so the escape-hatch tool does not
 // need to know the EnforceEvent layout.
 func (e *Enforcer) notifyBlockerDeclared(inv *agent.Invocation, reason string) {
-	if e == nil {
-		return
-	}
-	e.notify(EnforceEvent{
-		Reason:        ReasonBlockerDeclared,
-		AgentName:     invocationAgentName(inv),
-		MaxRetries:    e.opts.MaxRetries,
-		BlockerReason: strings.TrimSpace(reason),
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 // invocationSession / invocationBranch / invocationAgentName are
@@ -403,22 +201,10 @@ func (e *Enforcer) notifyBlockerDeclared(inv *agent.Invocation, reason string) {
 // with a nil invocation in pure unit tests, and we prefer to
 // no-op gracefully rather than panic.
 func invocationSession(inv *agent.Invocation) *session.Session {
-	if inv == nil {
-		return nil
-	}
-	return inv.Session
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func invocationBranch(inv *agent.Invocation) string {
-	if inv == nil {
-		return ""
-	}
-	return inv.Branch
-}
+func invocationBranch(inv *agent.Invocation) string { _ = "STUB: not implemented"; return "" }
 
-func invocationAgentName(inv *agent.Invocation) string {
-	if inv == nil {
-		return ""
-	}
-	return inv.AgentName
-}
+func invocationAgentName(inv *agent.Invocation) string { _ = "STUB: not implemented"; return "" }

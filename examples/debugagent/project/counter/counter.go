@@ -10,14 +10,4 @@
 // package counter implements a counter.
 package counter
 
-import "sync/atomic"
-
-func GetCounter(n int) int {
-	var counter int64
-	for i := 0; i < n; i++ {
-		go func() {
-			atomic.AddInt64(&counter, 1)
-		}()
-	}
-	return int(counter)
-}
+func GetCounter(n int) int { _ = "STUB: not implemented"; return 0 }

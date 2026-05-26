@@ -17,18 +17,6 @@ type options struct {
 type Option func(*options)
 
 // WithObserver appends one runtime observer to the run.
-func WithObserver(observer Observer) Option {
-	return func(opts *options) {
-		opts.observer = observer
-	}
-}
+func WithObserver(observer Observer) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func newOptions(opts ...Option) *options {
-	options := &options{}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }

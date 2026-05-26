@@ -24,13 +24,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/examples/team/internal/chat"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/team"
 )
 
@@ -169,129 +164,15 @@ func buildRunner(
 	memberSkipSummarization bool,
 	parallelTools bool,
 ) (runner.Runner, error) {
-	modelInstance := openai.New(
-		modelName,
-		openai.WithVariant(openai.Variant(variant)),
-	)
-
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(defaultMaxTokens),
-		Temperature: floatPtr(defaultTemperature),
-		Stream:      streaming,
-	}
-
-	requirementsAnalyst := llmagent.New(
-		agentRequirementsAnalyst,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Clarifies goals, constraints, and acceptance criteria.",
-		),
-		llmagent.WithInstruction(
-			"Clarify requirements, constraints, and success criteria.",
-		),
-	)
-
-	solutionDesigner := llmagent.New(
-		agentSolutionDesigner,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Proposes solution options and recommends a design.",
-		),
-		llmagent.WithInstruction(
-			"Propose a design with tradeoffs and a clear plan.",
-		),
-	)
-
-	qualityReviewer := llmagent.New(
-		agentQualityReviewer,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription(
-			"Reviews for risks, edge cases, and missing details.",
-		),
-		llmagent.WithInstruction(
-			"Find risks and gaps. Suggest concrete improvements.",
-		),
-	)
-
-	members := []agent.Agent{
-		requirementsAnalyst,
-		solutionDesigner,
-		qualityReviewer,
-	}
-
-	coordinatorOpts := []llmagent.Option{
-		llmagent.WithModel(modelInstance),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithDescription("Coordinates a small team of agents."),
-		llmagent.WithInstruction(
-			"You are the coordinator. Consult the right specialists, " +
-				"then produce the final answer.",
-		),
-	}
-	if parallelTools {
-		coordinatorOpts = append(
-			coordinatorOpts,
-			llmagent.WithEnableParallelTools(true),
-		)
-	}
-
-	coordinator := llmagent.New(teamName, coordinatorOpts...)
-
-	memberCfg := team.DefaultMemberToolConfig()
-	memberCfg.StreamInner = showInner
-	mode, err := parseMemberInnerTextMode(memberInnerText)
-	if err != nil {
-		return nil, err
-	}
-	memberCfg.InnerTextMode = mode
-	memberCfg.SkipSummarization = memberSkipSummarization
-
-	switch memberHistory {
-	case memberHistoryParent:
-		memberCfg.HistoryScope = team.HistoryScopeParentBranch
-	case memberHistoryIsolated:
-		memberCfg.HistoryScope = team.HistoryScopeIsolated
-	default:
-		return nil, fmt.Errorf(
-			"unknown member-history %q",
-			memberHistory,
-		)
-	}
-
-	teamInstance, err := team.New(
-		coordinator,
-		members,
-		team.WithMemberToolConfig(memberCfg),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	sessionService := sessioninmemory.NewSessionService()
-	return runner.NewRunner(
-		appName,
-		teamInstance,
-		runner.WithSessionService(sessionService),
-	), nil
+	_ = "STUB: not implemented"
+	return *new(runner.Runner), nil
 }
 
 func parseMemberInnerTextMode(mode string) (team.InnerTextMode, error) {
-	switch strings.ToLower(strings.TrimSpace(mode)) {
-	case "", memberInnerTextInclude:
-		return team.InnerTextModeInclude, nil
-	case memberInnerTextExclude:
-		return team.InnerTextModeExclude, nil
-	default:
-		return "", fmt.Errorf(
-			"unknown member-inner-text %q",
-			mode,
-		)
-	}
+	_ = "STUB: not implemented"
+	return *new(team.InnerTextMode), nil
 }
 
-func intPtr(v int) *int { return &v }
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(v float64) *float64 { return &v }
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

@@ -12,12 +12,11 @@
 package hostexec
 
 import (
-	"errors"
 	"os"
 	"os/exec"
 )
 
 func startPTY(cmd *exec.Cmd) (*os.File, func() error, error) {
-	_ = cmd
-	return nil, nil, errors.New("pty is not supported on windows")
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }

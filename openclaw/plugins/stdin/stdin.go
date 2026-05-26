@@ -16,15 +16,9 @@
 package stdin
 
 import (
-	"bufio"
 	"context"
-	"errors"
-	"fmt"
-	"os"
-	"strings"
 
 	occhannel "trpc.group/trpc-go/trpc-agent-go/openclaw/channel"
-	"trpc.group/trpc-go/trpc-agent-go/openclaw/gwclient"
 	"trpc.group/trpc-go/trpc-agent-go/openclaw/registry"
 )
 
@@ -62,49 +56,8 @@ func newChannel(
 	deps registry.ChannelDeps,
 	spec registry.PluginSpec,
 ) (occhannel.Channel, error) {
-	if deps.Gateway == nil {
-		return nil, errors.New("stdin channel: nil gateway client")
-	}
-
-	var cfg channelCfg
-	if err := registry.DecodeStrict(spec.Config, &cfg); err != nil {
-		return nil, err
-	}
-
-	from := strings.TrimSpace(cfg.From)
-	if from == "" {
-		from = defaultFrom
-	}
-
-	maxLineBytes := cfg.MaxLineBytes
-	if maxLineBytes <= 0 {
-		maxLineBytes = defaultScannerMaxBytes
-	}
-	bufBytes := defaultScannerBufBytes
-	if maxLineBytes < bufBytes {
-		bufBytes = maxLineBytes
-	}
-
-	id := pluginType
-	if strings.TrimSpace(spec.Name) != "" {
-		id = strings.TrimSpace(spec.Name)
-	}
-
-	return &channel{
-		id:             id,
-		gw:             deps.Gateway,
-		from:           from,
-		thread:         strings.TrimSpace(cfg.Thread),
-		bufBytes:       bufBytes,
-		maxLineBytes:   maxLineBytes,
-		showPrompt:     cfg.ShowPrompt,
-		showRoleLabels: cfg.ShowRoleLabels,
-		userLabel:      defaultLabel(cfg.UserLabel, defaultUserLabel),
-		assistantLabel: defaultLabel(
-			cfg.AssistantLabel,
-			defaultAssistantLabel,
-		),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(occhannel.Channel), nil
 }
 
 type channel struct {
@@ -122,86 +75,14 @@ type channel struct {
 	maxLineBytes int
 }
 
-func (c *channel) ID() string { return c.id }
+func (c *channel) ID() string { _ = "STUB: not implemented"; return "" }
 
-func (c *channel) Run(ctx context.Context) error {
-	fmt.Fprintln(os.Stdout, "STDIN channel started.")
-	fmt.Fprintln(os.Stdout, "Type /quit or /exit to stop.")
+func (c *channel) Run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	in := bufio.NewScanner(os.Stdin)
-	in.Buffer(make([]byte, c.bufBytes), c.maxLineBytes)
-	for {
-		if ctx.Err() != nil {
-			return nil
-		}
+func defaultLabel(raw string, fallback string) string { _ = "STUB: not implemented"; return "" }
 
-		c.printPrompt()
-		if !in.Scan() {
-			c.printPromptTerminator()
-			if err := in.Err(); err != nil {
-				return err
-			}
-			return nil
-		}
+func (c *channel) printPrompt() { _ = "STUB: not implemented"; return }
 
-		text := strings.TrimSpace(in.Text())
-		if text == "" {
-			continue
-		}
-		if text == exitCmd1 || text == exitCmd2 {
-			return nil
-		}
+func (c *channel) printPromptTerminator() { _ = "STUB: not implemented"; return }
 
-		rsp, err := c.gw.SendMessage(ctx, gwclient.MessageRequest{
-			Channel: pluginType,
-			From:    c.from,
-			Thread:  c.thread,
-			Text:    text,
-			UserID:  c.from,
-		})
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			continue
-		}
-		if rsp.Ignored {
-			c.printReply("(ignored)")
-			continue
-		}
-		c.printReply(rsp.Reply)
-	}
-}
-
-func defaultLabel(raw string, fallback string) string {
-	label := strings.TrimSpace(raw)
-	if label == "" {
-		return fallback
-	}
-	return label
-}
-
-func (c *channel) printPrompt() {
-	if !c.showPrompt {
-		return
-	}
-	fmt.Fprintf(os.Stdout, "%s: ", c.userLabel)
-}
-
-func (c *channel) printPromptTerminator() {
-	if !c.showPrompt {
-		return
-	}
-	fmt.Fprintln(os.Stdout)
-}
-
-func (c *channel) printReply(reply string) {
-	if c.showRoleLabels {
-		fmt.Fprintf(
-			os.Stdout,
-			"%s: %s\n",
-			c.assistantLabel,
-			reply,
-		)
-		return
-	}
-	fmt.Fprintln(os.Stdout, reply)
-}
+func (c *channel) printReply(reply string) { _ = "STUB: not implemented"; return }

@@ -23,70 +23,36 @@ import (
 type Option func(*Source)
 
 // WithName sets a custom name for the URL source.
-func WithName(name string) Option {
-	return func(s *Source) {
-		s.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithContentFetchingURL sets the real content fetching URL for the source.
 // The real content fetching URL is used to fetch the actual content of the document.
-func WithContentFetchingURL(url []string) Option {
-	return func(s *Source) {
-		s.fetchURLs = url
-	}
-}
+func WithContentFetchingURL(url []string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadata sets additional metadata for the source.
-func WithMetadata(metadata map[string]any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		for k, v := range metadata {
-			s.metadata[k] = v
-		}
-	}
-}
+func WithMetadata(metadata map[string]any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMetadataValue adds a single metadata key-value pair.
 func WithMetadataValue(key string, value any) Option {
-	return func(s *Source) {
-		if s.metadata == nil {
-			s.metadata = make(map[string]any)
-		}
-		s.metadata[key] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHTTPClient sets a custom HTTP client for URL fetching.
-func WithHTTPClient(client *http.Client) Option {
-	return func(s *Source) {
-		s.httpClient = client
-	}
-}
+func WithHTTPClient(client *http.Client) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCustomChunkingStrategy sets a custom chunking strategy for document splitting.
 // This overrides the reader's default chunking strategy.
 func WithCustomChunkingStrategy(strategy chunking.Strategy) Option {
-	return func(s *Source) {
-		s.customChunkingStrategy = strategy
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithChunkSize sets the chunk size for the reader's default chunking strategy.
-func WithChunkSize(size int) Option {
-	return func(s *Source) {
-		s.chunkSize = size
-	}
-}
+func WithChunkSize(size int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithChunkOverlap sets the chunk overlap for the reader's default chunking strategy.
-func WithChunkOverlap(overlap int) Option {
-	return func(s *Source) {
-		s.chunkOverlap = overlap
-	}
-}
+func WithChunkOverlap(overlap int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTransformers sets transformers for document processing.
 // Transformers are applied before and after chunking.
@@ -98,9 +64,8 @@ func WithChunkOverlap(overlap int) Option {
 //	    transform.NewCharDedup(" "),
 //	))
 func WithTransformers(transformers ...transform.Transformer) Option {
-	return func(s *Source) {
-		s.transformers = append(s.transformers, transformers...)
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFileReaderType overrides the automatic file reader type detection based on content-type or URL extension.
@@ -111,9 +76,8 @@ func WithTransformers(transformers ...transform.Transformer) Option {
 //
 //	source := url.New([]string{"https://example.com/api/data"}, url.WithFileReaderType(source.FileReaderTypeJSON))
 func WithFileReaderType(fileType source.FileReaderType) Option {
-	return func(s *Source) {
-		s.fileReaderType = fileType
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithExtractor sets a content extractor for handling complex or unsupported formats.
@@ -121,8 +85,4 @@ func WithFileReaderType(fileType source.FileReaderType) Option {
 // extension matches the extractor's supported formats. The source always
 // fetches content through the configured HTTP client and passes the response
 // body to ExtractFromReader.
-func WithExtractor(e extractor.Extractor) Option {
-	return func(s *Source) {
-		s.contentExtractor = e
-	}
-}
+func WithExtractor(e extractor.Extractor) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -12,12 +12,9 @@
 
 package sqlitevec
 
-import vec "github.com/asg017/sqlite-vec-go-bindings/cgo"
-
-func vecAuto() {
-	vec.Auto()
-}
+func vecAuto() { _ = "STUB: not implemented"; return }
 
 func vecSerializeFloat32(vector []float32) ([]byte, error) {
-	return vec.SerializeFloat32(vector)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

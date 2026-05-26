@@ -13,9 +13,7 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/examples/telemetry/agent"
 	"trpc.group/trpc-go/trpc-agent-go/telemetry/langfuse"
@@ -105,22 +103,6 @@ func main() {
 	}
 }
 
-func printGuideMessage(modelName string) {
-	fmt.Printf("🚀 Multi-Tool Intelligent Assistant Demo\n")
-	fmt.Printf("Model: %s\n", modelName)
-	fmt.Printf("Available tools: calculator, time_tool, text_tool, file_tool, duckduckgo_search\n")
-	// Print welcome message and examples
-	fmt.Println("💡 Try asking these questions:")
-	fmt.Println("   [Calculator] Calculate 123 + 456 * 789")
-	fmt.Println("   [Calculator] Calculate the square root of pi")
-	fmt.Println("   [Time] What time is it now?")
-	fmt.Println("   [Time] What day of the week is today?")
-	fmt.Println("   [Text] Convert 'Hello World' to uppercase")
-	fmt.Println("   [Text] Count characters in 'Hello World'")
-	fmt.Println("   [File] Read the README.md file")
-	fmt.Println("   [File] Create a test file in the current directory")
-	fmt.Println("   [Search] Search for information about Steve Jobs")
-	fmt.Println("   [Search] Find information about Tesla company")
-	fmt.Println()
-	fmt.Println(strings.Repeat("=", 60))
-}
+func printGuideMessage(modelName string) { _ = "STUB: not implemented"; return }
+
+// Print welcome message and examples

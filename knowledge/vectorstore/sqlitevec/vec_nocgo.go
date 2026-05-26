@@ -10,16 +10,15 @@
 
 package sqlitevec
 
-import vecembed "github.com/asg017/sqlite-vec-go-bindings/ncruces"
-
 // NOTE:
 // This file only preserves a minimal helper path for builds without cgo.
 // It does not provide a full nocgo runtime for knowledge/sqlitevec.
 // A non-cgo SQLite driver and sqlite-vec registration path would still be
 // required before this backend can run without cgo.
 
-func vecAuto() {}
+func vecAuto() { _ = "STUB: not implemented"; return }
 
 func vecSerializeFloat32(vector []float32) ([]byte, error) {
-	return vecembed.SerializeFloat32(vector)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

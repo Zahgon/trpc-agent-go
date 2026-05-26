@@ -12,22 +12,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 var (
@@ -117,179 +107,32 @@ func main() {
 	}
 }
 
-func (d *steerDemo) run(ctx context.Context) error {
-	if os.Getenv(openAIAPIKeyEnv) == "" {
-		return errors.New(openAIAPIKeyEnv + " is not set")
-	}
-
-	modelInstance := openai.New(d.modelName)
-	sessionService := sessioninmemory.NewSessionService()
-
-	briefTool := function.NewFunctionTool(
-		d.loadLaunchBrief,
-		function.WithName(toolName),
-		function.WithDescription(toolDescription),
-	)
-
-	ag := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithInstruction(agentInstruction),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			Stream:      false,
-			Temperature: floatPtr(0.1),
-			MaxTokens:   intPtr(300),
-		}),
-		llmagent.WithTools([]tool.Tool{briefTool}),
-	)
-
-	r := runner.NewRunner(
-		appName,
-		ag,
-		runner.WithSessionService(sessionService),
-	)
-	defer r.Close()
-
-	requestID := fmt.Sprintf("steer-%d", time.Now().UnixNano())
-	sessionID := fmt.Sprintf("session-%d", time.Now().UnixNano())
-
-	fmt.Println("Single-run steer demo")
-	fmt.Printf("Model: %s\n", d.modelName)
-	fmt.Printf("RequestID: %s\n", requestID)
-	fmt.Printf("SessionID: %s\n", sessionID)
-	fmt.Printf("Initial question: %s\n", d.question)
-	fmt.Printf("Queued steer message: %s\n", d.steerText)
-	fmt.Println()
-
-	go d.enqueueSteer(ctx, r, requestID)
-
-	eventChan, err := r.Run(
-		ctx,
-		userID,
-		sessionID,
-		model.NewUserMessage(d.question),
-		agent.WithRequestID(requestID),
-	)
-	if err != nil {
-		return err
-	}
-
-	return d.printRun(eventChan)
-}
+func (d *steerDemo) run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func (d *steerDemo) enqueueSteer(
 	ctx context.Context,
 	r runner.Runner,
 	requestID string,
 ) {
-	select {
-	case <-ctx.Done():
-		return
-	case <-time.After(d.steerAfter):
-	}
-
-	err := runner.EnqueueUserMessage(
-		r,
-		requestID,
-		model.NewUserMessage(d.steerText),
-	)
-	if err != nil {
-		fmt.Printf("[steer] enqueue failed: %v\n", err)
-		return
-	}
-	fmt.Printf("[steer] queued extra user message at %s\n", d.steerAfter)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *steerDemo) loadLaunchBrief(
 	ctx context.Context,
 	req launchBriefRequest,
 ) (launchBrief, error) {
-	fmt.Printf("[tool] loading brief for %s\n", req.Project)
-
-	select {
-	case <-ctx.Done():
-		return launchBrief{}, ctx.Err()
-	case <-time.After(d.toolDelay):
-	}
-
-	return launchBrief{
-		Project:    req.Project,
-		LaunchDate: "May 20",
-		Audience:   "design and product teams",
-		Highlights: []string{
-			"centralized release notes",
-			"faster stakeholder updates",
-			"lighter weekly reporting",
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(launchBrief), nil
 }
 
 func (d *steerDemo) printRun(eventChan <-chan *event.Event) error {
-	var finalAnswer string
-
-	for evt := range eventChan {
-		if evt == nil || evt.Response == nil {
-			continue
-		}
-		if evt.Error != nil {
-			return fmt.Errorf("%s", evt.Error.Message)
-		}
-
-		if evt.IsRunnerCompletion() {
-			fmt.Println("[run] runner completion")
-			continue
-		}
-		if len(evt.Choices) == 0 {
-			continue
-		}
-
-		message := evt.Choices[0].Message
-
-		if len(message.ToolCalls) > 0 {
-			toolCall := message.ToolCalls[0]
-			fmt.Printf(
-				"[model] tool_call %s args=%s\n",
-				toolCall.Function.Name,
-				string(toolCall.Function.Arguments),
-			)
-			continue
-		}
-
-		switch message.Role {
-		case model.RoleUser:
-			if message.Content == d.steerText {
-				fmt.Printf(
-					"[queue] persisted queued user message: %s\n",
-					message.Content,
-				)
-			}
-		case model.RoleTool:
-			fmt.Printf("[tool] result: %s\n", message.Content)
-		case model.RoleAssistant:
-			if message.Content != "" {
-				finalAnswer = message.Content
-				fmt.Printf("[assistant] %s\n", finalAnswer)
-			}
-		}
-	}
-
-	if finalAnswer == "" {
-		return fmt.Errorf("run finished without a final assistant answer")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func defaultModelName() string {
-	if modelName := os.Getenv("OPENAI_MODEL"); modelName != "" {
-		return modelName
-	}
-	return fallbackModelName
-}
+func defaultModelName() string { _ = "STUB: not implemented"; return "" }
 
-func intPtr(v int) *int {
-	return &v
-}
+func intPtr(v int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(v float64) *float64 {
-	return &v
-}
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }

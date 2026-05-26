@@ -11,11 +11,8 @@ package hashidx
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"trpc.group/trpc-go/trpc-agent-go/session"
 )
 
@@ -40,47 +37,13 @@ func (c *Client) CreateSummary(
 	sum *session.Summary,
 	ttl time.Duration,
 ) error {
+	_ = "STUB: not implemented"
 	// Normalize to UTC so Lua string comparison of "updated_at" is correct.
-	normalized := *sum
-	normalized.UpdatedAt = sum.UpdatedAt.UTC()
-
-	payload, err := json.Marshal(&normalized)
-	if err != nil {
-		return fmt.Errorf("marshal summary failed: %w", err)
-	}
-
-	ttlSeconds := int64(0)
-	if ttl > 0 {
-		ttlSeconds = int64(ttl.Seconds())
-	}
-
-	sumKey := c.keys.SummaryKey(key)
-
-	if _, err := luaSummarySetIfNewer.Run(
-		ctx, c.client, []string{sumKey}, filterKey, string(payload), ttlSeconds,
-	).Result(); err != nil {
-		return fmt.Errorf("store summary failed: %w", err)
-	}
-
 	return nil
 }
 
 // GetSummary retrieves all summaries for the session.
 func (c *Client) GetSummary(ctx context.Context, key session.Key) (map[string]*session.Summary, error) {
-	sumKey := c.keys.SummaryKey(key)
-
-	bytes, err := c.client.Get(ctx, sumKey).Bytes()
-	if err == redis.Nil || len(bytes) == 0 {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("get summary failed: %w", err)
-	}
-
-	var summaries map[string]*session.Summary
-	if err := json.Unmarshal(bytes, &summaries); err != nil {
-		return nil, fmt.Errorf("unmarshal summary failed: %w", err)
-	}
-
-	return summaries, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -12,10 +12,6 @@ package sqlite
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 )
 
 const (
@@ -168,101 +164,4 @@ type indexDefinition struct {
 	template string
 }
 
-func (s *Service) initDB(ctx context.Context) error {
-	tables := []tableDefinition{
-		{sqldb.TableNameSessionStates, sqlCreateSessionStatesTable},
-		{sqldb.TableNameSessionEvents, sqlCreateSessionEventsTable},
-		{sqldb.TableNameSessionTrackEvents, sqlCreateSessionTrackEventsTable},
-		{sqldb.TableNameSessionSummaries, sqlCreateSessionSummariesTable},
-		{sqldb.TableNameAppStates, sqlCreateAppStatesTable},
-		{sqldb.TableNameUserStates, sqlCreateUserStatesTable},
-	}
-
-	for _, t := range tables {
-		full := s.fullTableName(t.name)
-		stmt := strings.ReplaceAll(t.template, "{{TABLE_NAME}}", full)
-		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
-			return fmt.Errorf("create table %s: %w", full, err)
-		}
-	}
-
-	indexes := []indexDefinition{
-		{
-			table:    sqldb.TableNameSessionStates,
-			suffix:   sqldb.IndexSuffixUniqueActive,
-			template: sqlCreateSessionStatesUniqueIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionStates,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateSessionStatesExpiresIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionEvents,
-			suffix:   sqldb.IndexSuffixLookup,
-			template: sqlCreateSessionEventsLookupIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionEvents,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateSessionEventsExpiresIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionTrackEvents,
-			suffix:   sqldb.IndexSuffixLookup,
-			template: sqlCreateSessionTracksLookupIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionTrackEvents,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateSessionTracksExpiresIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionSummaries,
-			suffix:   sqldb.IndexSuffixUniqueActive,
-			template: sqlCreateSessionSummariesUniqueIndex,
-		},
-		{
-			table:    sqldb.TableNameSessionSummaries,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateSessionSummariesExpiresIndex,
-		},
-		{
-			table:    sqldb.TableNameAppStates,
-			suffix:   sqldb.IndexSuffixUniqueActive,
-			template: sqlCreateAppStatesUniqueIndex,
-		},
-		{
-			table:    sqldb.TableNameAppStates,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateAppStatesExpiresIndex,
-		},
-		{
-			table:    sqldb.TableNameUserStates,
-			suffix:   sqldb.IndexSuffixUniqueActive,
-			template: sqlCreateUserStatesUniqueIndex,
-		},
-		{
-			table:    sqldb.TableNameUserStates,
-			suffix:   sqldb.IndexSuffixExpires,
-			template: sqlCreateUserStatesExpiresIndex,
-		},
-	}
-
-	for _, idx := range indexes {
-		fullTable := s.fullTableName(idx.table)
-		indexName := sqldb.BuildIndexName(
-			s.opts.tablePrefix,
-			idx.table,
-			idx.suffix,
-		)
-		stmt := strings.ReplaceAll(idx.template, "{{TABLE_NAME}}",
-			fullTable)
-		stmt = strings.ReplaceAll(stmt, "{{INDEX_NAME}}", indexName)
-		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
-			return fmt.Errorf("create index %s: %w", indexName, err)
-		}
-	}
-
-	return nil
-}
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

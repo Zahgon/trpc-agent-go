@@ -13,15 +13,10 @@ package session
 import (
 	"context"
 	"errors"
-	"fmt"
-	"hash/fnv"
-	"math"
-	"strings"
 	"sync"
 	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -84,501 +79,164 @@ type Session struct {
 }
 
 // Clone returns a copy of the session.
-func (sess *Session) Clone() *Session {
-	sess.EventMu.RLock()
-	copiedSess := &Session{
-		ID:        sess.ID,
-		AppName:   sess.AppName,
-		UserID:    sess.UserID,
-		State:     make(StateMap), // Create new state to avoid reference sharing.
-		Events:    make([]event.Event, len(sess.Events)),
-		UpdatedAt: sess.UpdatedAt,
-		CreatedAt: sess.CreatedAt, // Add missing CreatedAt field.
-		Hash:      sess.Hash,
-	}
-	// Copy events.
-	copy(copiedSess.Events, sess.Events)
-	sess.EventMu.RUnlock()
+func (sess *Session) Clone() *Session { _ = "STUB: not implemented"; return nil }
 
-	// Copy track events.
-	sess.TracksMu.RLock()
-	if len(sess.Tracks) > 0 {
-		copiedSess.Tracks = make(map[Track]*TrackEvents, len(sess.Tracks))
-		for track, events := range sess.Tracks {
-			history := &TrackEvents{
-				Track: events.Track,
-			}
-			if len(events.Events) > 0 {
-				history.Events = make([]TrackEvent, len(events.Events))
-				copy(history.Events, events.Events)
-			}
-			copiedSess.Tracks[track] = history
-		}
-	}
-	sess.TracksMu.RUnlock()
+// Create new state to avoid reference sharing.
 
-	// Copy state.
-	sess.stateMu.RLock()
-	if sess.State != nil {
-		for k, v := range sess.State {
-			if v == nil {
-				copiedSess.State[k] = nil
-				continue
-			}
-			val := make([]byte, len(v))
-			copy(val, v)
-			copiedSess.State[k] = val
-		}
-	}
-	sess.stateMu.RUnlock()
+// Add missing CreatedAt field.
 
-	// Copy summaries.
-	sess.SummariesMu.RLock()
-	if sess.Summaries != nil {
-		copiedSess.Summaries = make(map[string]*Summary, len(sess.Summaries))
-		for b, sum := range sess.Summaries {
-			if sum == nil {
-				continue
-			}
-			// Shallow copy is fine since Summary is immutable after write.
-			copied := *sum
-			copiedSess.Summaries[b] = &copied
-		}
-	}
-	sess.SummariesMu.RUnlock()
+// Copy events.
 
-	// Copy service metadata.
-	if sess.ServiceMeta != nil {
-		copiedSess.ServiceMeta = make(map[string]string, len(sess.ServiceMeta))
-		for k, v := range sess.ServiceMeta {
-			copiedSess.ServiceMeta[k] = v
-		}
-	}
+// Copy track events.
 
-	return copiedSess
-}
+// Copy state.
+
+// Copy summaries.
+
+// Shallow copy is fine since Summary is immutable after write.
+
+// Copy service metadata.
 
 // SessionOptions is the options for a session.
 type SessionOptions func(*Session)
 
 // WithSessionEvents is the option for the session events.
 func WithSessionEvents(events []event.Event) SessionOptions {
-	return func(sess *Session) {
-		sess.Events = events
-	}
+	_ = "STUB: not implemented"
+	return *new(SessionOptions)
 }
 
 // WithSessionSummaries is the option for the session summaries.
 func WithSessionSummaries(summaries map[string]*Summary) SessionOptions {
-	return func(sess *Session) {
-		sess.Summaries = summaries
-	}
+	_ = "STUB: not implemented"
+	return *new(SessionOptions)
 }
 
 // WithSessionState is the option for the session state.
 func WithSessionState(state StateMap) SessionOptions {
-	return func(sess *Session) {
-		if sess == nil {
-			return
-		}
-		sess.stateMu.Lock()
-		defer sess.stateMu.Unlock()
-		if state == nil {
-			sess.State = nil
-			return
-		}
-		copied := make(StateMap, len(state))
-		for k, v := range state {
-			if v == nil {
-				copied[k] = nil
-				continue
-			}
-			val := make([]byte, len(v))
-			copy(val, v)
-			copied[k] = val
-		}
-		sess.State = copied
-	}
+	_ = "STUB: not implemented"
+	return *new(SessionOptions)
 }
 
 // WithSessionCreatedAt is the option for the session createdAt.
 func WithSessionCreatedAt(createdAt time.Time) SessionOptions {
-	return func(sess *Session) {
-		sess.CreatedAt = createdAt
-	}
+	_ = "STUB: not implemented"
+	return *new(SessionOptions)
 }
 
 // WithSessionUpdatedAt is the option for the session updatedAt.
 func WithSessionUpdatedAt(updatedAt time.Time) SessionOptions {
-	return func(sess *Session) {
-		sess.UpdatedAt = updatedAt
-	}
+	_ = "STUB: not implemented"
+	return *new(SessionOptions)
 }
 
 // HashString computes a non-negative deterministic hash for the given string.
 // It is used for slot-based dispatching of sessions and track events.
 // The result is always >= 0, safe for use as a slice index after modulus.
-func HashString(s string) int {
-	h := fnv.New32a()
-	h.Write([]byte(s))
-	return int(h.Sum32()) & math.MaxInt
-}
+func HashString(s string) int { _ = "STUB: not implemented"; return 0 }
 
 // NewSession creates a new session.
 func NewSession(appName, userID, sessionID string, options ...SessionOptions) *Session {
-	hashKey := fmt.Sprintf("%s:%s:%s", appName, userID, sessionID)
-	hash := HashString(hashKey)
-
-	sess := &Session{
-		ID:        sessionID,
-		AppName:   appName,
-		UserID:    userID,
-		Events:    []event.Event{},
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
-		Summaries: make(map[string]*Summary),
-		State:     make(StateMap),
-
-		Hash: hash,
-	}
-	for _, o := range options {
-		o(sess)
-	}
-
-	return sess
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetState returns a copy of the state value for the given key.
 // The returned slice is copied to avoid callers mutating shared memory.
 func (sess *Session) GetState(key string) ([]byte, bool) {
-	sess.stateMu.RLock()
-	defer sess.stateMu.RUnlock()
-	if sess.State == nil {
-		return nil, false
-	}
-	v, ok := sess.State[key]
-	if !ok {
-		return nil, false
-	}
-	if v == nil {
-		return nil, true
-	}
-	val := make([]byte, len(v))
-	copy(val, v)
-	return val, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // SetState sets the state value for the given key.
 // The provided slice is copied to avoid retaining caller-owned memory.
-func (sess *Session) SetState(key string, value []byte) {
-	sess.stateMu.Lock()
-	defer sess.stateMu.Unlock()
-	if sess.State == nil {
-		sess.State = make(StateMap)
-	}
-	if value == nil {
-		sess.State[key] = nil
-		return
-	}
-	val := make([]byte, len(value))
-	copy(val, value)
-	sess.State[key] = val
-}
+func (sess *Session) SetState(key string, value []byte) { _ = "STUB: not implemented"; return }
 
 // DeleteState deletes a key from the session state.
-func (sess *Session) DeleteState(key string) {
-	sess.stateMu.Lock()
-	defer sess.stateMu.Unlock()
-	if sess.State == nil {
-		return
-	}
-	delete(sess.State, key)
-}
+func (sess *Session) DeleteState(key string) { _ = "STUB: not implemented"; return }
 
 // SnapshotState returns a deep copy of the current session state.
 // This is safe to iterate without holding locks.
-func (sess *Session) SnapshotState() StateMap {
-	sess.stateMu.RLock()
-	defer sess.stateMu.RUnlock()
-	if sess.State == nil {
-		return nil
-	}
-	out := make(StateMap, len(sess.State))
-	for k, v := range sess.State {
-		if v == nil {
-			out[k] = nil
-			continue
-		}
-		val := make([]byte, len(v))
-		copy(val, v)
-		out[k] = val
-	}
-	return out
-}
+func (sess *Session) SnapshotState() StateMap { _ = "STUB: not implemented"; return *new(StateMap) }
 
 // HasStateKeyWithPrefix reports whether the session state contains at least one
 // key with the provided prefix and a non-empty value.
 //
 // Nil or empty values are treated as absent.
 func (sess *Session) HasStateKeyWithPrefix(prefix string) bool {
-	if sess == nil {
-		return false
-	}
-	prefix = strings.TrimSpace(prefix)
-	if prefix == "" {
-		return false
-	}
-
-	sess.stateMu.RLock()
-	defer sess.stateMu.RUnlock()
-	if len(sess.State) == 0 {
-		return false
-	}
-	for k, v := range sess.State {
-		if !strings.HasPrefix(k, prefix) {
-			continue
-		}
-		if len(v) == 0 {
-			continue
-		}
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // SnapshotTracksState returns a copy of the tracks state value (State["tracks"]).
 // Returns nil if no tracks are registered.
-func (sess *Session) SnapshotTracksState() []byte {
-	sess.stateMu.RLock()
-	defer sess.stateMu.RUnlock()
-	if sess.State == nil {
-		return nil
-	}
-	v, ok := sess.State[tracksStateKey]
-	if !ok || len(v) == 0 {
-		return nil
-	}
-	out := make([]byte, len(v))
-	copy(out, v)
-	return out
-}
+func (sess *Session) SnapshotTracksState() []byte { _ = "STUB: not implemented"; return nil }
 
 // GetEvents returns the session events.
-func (sess *Session) GetEvents() []event.Event {
-	sess.EventMu.RLock()
-	defer sess.EventMu.RUnlock()
-
-	eventsCopy := make([]event.Event, len(sess.Events))
-	copy(eventsCopy, sess.Events)
-	return eventsCopy
-}
+func (sess *Session) GetEvents() []event.Event { _ = "STUB: not implemented"; return nil }
 
 // GetEventCount returns the session event count.
-func (sess *Session) GetEventCount() int {
-	sess.EventMu.RLock()
-	defer sess.EventMu.RUnlock()
-
-	return len(sess.Events)
-}
+func (sess *Session) GetEventCount() int { _ = "STUB: not implemented"; return 0 }
 
 // AppendTrackEvent appends a track event to the session.
 func (sess *Session) AppendTrackEvent(event *TrackEvent, opts ...Option) error {
-	if sess == nil {
-		return fmt.Errorf("session is nil")
-	}
-	if event == nil {
-		return fmt.Errorf("track event is nil")
-	}
-	// Track index is stored in session state; protect it with the state mutex.
-	sess.stateMu.Lock()
-	if sess.State == nil {
-		sess.State = make(StateMap)
-	}
-	if err := ensureTrackExists(sess.State, event.Track); err != nil {
-		sess.stateMu.Unlock()
-		return fmt.Errorf("ensure track indexed: %w", err)
-	}
-	sess.stateMu.Unlock()
-	sess.TracksMu.Lock()
-	defer sess.TracksMu.Unlock()
-	if sess.Tracks == nil {
-		sess.Tracks = make(map[Track]*TrackEvents)
-	}
-	trackEvents, ok := sess.Tracks[event.Track]
-	if !ok || trackEvents == nil {
-		trackEvents = &TrackEvents{Track: event.Track}
-		sess.Tracks[event.Track] = trackEvents
-	}
-	trackEvents.Events = append(trackEvents.Events, *event)
-	sess.UpdatedAt = time.Now()
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Track index is stored in session state; protect it with the state mutex.
+
 // GetTrackEvents returns the track events snapshot.
 func (sess *Session) GetTrackEvents(track Track) (*TrackEvents, error) {
-	sess.TracksMu.RLock()
-	defer sess.TracksMu.RUnlock()
-	if sess.Tracks == nil {
-		return nil, fmt.Errorf("tracks is empty")
-	}
-	trackEvents, ok := sess.Tracks[track]
-	if !ok || trackEvents == nil {
-		return nil, fmt.Errorf("track events not found: %s", track)
-	}
-	copied := &TrackEvents{Track: trackEvents.Track}
-	if len(trackEvents.Events) > 0 {
-		copied.Events = make([]TrackEvent, len(trackEvents.Events))
-		copy(copied.Events, trackEvents.Events)
-	}
-	return copied, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // EnsureEventStartWithUser filters events to ensure they start with RoleUser.
 // It removes events from the beginning until it finds the first event from RoleUser.
-func (sess *Session) EnsureEventStartWithUser() {
-	if sess == nil || len(sess.Events) == 0 {
-		log.Info("session is nil or has no events")
-		return
-	}
-	// Find the first event that starts with RoleUser
-	startIndex := -1
-	for i, event := range sess.Events {
-		if event.Response != nil && event.IsUserMessage() {
-			startIndex = i
-			break
-		}
-		// If event has no response or choices, continue to next event
-	}
+func (sess *Session) EnsureEventStartWithUser() { _ = "STUB: not implemented"; return }
 
-	// If no user event found, clear all events
-	if startIndex == -1 {
-		sess.Events = []event.Event{}
-		return
-	}
+// Find the first event that starts with RoleUser
 
-	// Keep events starting from the first user event
-	if startIndex > 0 {
-		sess.Events = sess.Events[startIndex:]
-	}
-}
+// If event has no response or choices, continue to next event
+
+// If no user event found, clear all events
+
+// Keep events starting from the first user event
 
 // UpdateUserSession updates the user session with the given event and options.
 func (sess *Session) UpdateUserSession(event *event.Event, opts ...Option) {
-	if sess == nil || event == nil {
-		log.Info("session or event is nil")
-		return
-	}
-	if event.Response != nil && !event.IsPartial && event.IsValidContent() {
-		sess.EventMu.Lock()
-		sess.Events = append(sess.Events, *event)
-		// Apply filtering options.
-		sess.ApplyEventFiltering(opts...)
-		sess.EventMu.Unlock()
-	}
-
-	sess.UpdatedAt = time.Now()
-	sess.ApplyEventStateDelta(event)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Apply filtering options.
 
 // ApplyEventFiltering applies event number and time filtering to session events
 // It ensures that the filtered events still contain at least one user message.
-func (sess *Session) ApplyEventFiltering(opts ...Option) {
-	if sess == nil {
-		log.Info("session is nil")
-		return
-	}
-	originalEvents := sess.Events
-	opt := applyOptions(opts...)
+func (sess *Session) ApplyEventFiltering(opts ...Option) { _ = "STUB: not implemented"; return }
 
-	// Apply event time filter - keep events after the specified time
-	if !opt.EventTime.IsZero() {
-		startIndex := -1
-		for i, e := range sess.Events {
-			if e.Timestamp.After(opt.EventTime) || e.Timestamp.Equal(opt.EventTime) {
-				startIndex = i
-				break
-			}
-		}
-		if startIndex >= 0 {
-			sess.Events = sess.Events[startIndex:]
-		} else {
-			// No events after the specified time, clear all events
-			sess.Events = []event.Event{}
-		}
-	}
+// Apply event time filter - keep events after the specified time
 
-	// Apply event number limit
-	if opt.EventNum > 0 && len(sess.Events) > opt.EventNum {
-		sess.Events = sess.Events[len(sess.Events)-opt.EventNum:]
-	}
+// No events after the specified time, clear all events
 
-	// check if has user message
-	for i := 0; i < len(sess.Events); i++ {
-		if sess.Events[i].IsUserMessage() {
-			sess.Events = sess.Events[i:]
-			return
-		}
-	}
-	// find the last user message from original events
-	for i := len(originalEvents) - 1; i >= 0; i-- {
-		if originalEvents[i].IsUserMessage() {
-			sess.Events = append([]event.Event{originalEvents[i]}, sess.Events...)
-			return
-		}
-	}
+// Apply event number limit
 
-	sess.Events = []event.Event{}
-}
+// check if has user message
+
+// find the last user message from original events
 
 // ApplyEventStateDelta merges the state delta of the event into the session state.
-func (sess *Session) ApplyEventStateDelta(e *event.Event) {
-	if sess == nil || e == nil {
-		log.Info("session or event is nil")
-		return
-	}
-	sess.stateMu.Lock()
-	defer sess.stateMu.Unlock()
-	if sess.State == nil {
-		sess.State = make(StateMap)
-	}
-	for key, value := range e.StateDelta {
-		// Copy to avoid retaining caller-owned memory.
-		if value == nil {
-			sess.State[key] = nil
-			continue
-		}
-		val := make([]byte, len(value))
-		copy(val, value)
-		sess.State[key] = val
-	}
-}
+func (sess *Session) ApplyEventStateDelta(e *event.Event) { _ = "STUB: not implemented"; return }
+
+// Copy to avoid retaining caller-owned memory.
 
 // ApplyEventStateDeltaMap merges the state delta of the event into the session state.
-func ApplyEventStateDeltaMap(state StateMap, e *event.Event) {
-	if state == nil || e == nil {
-		log.Info("state or event is nil")
-		return
-	}
+func ApplyEventStateDeltaMap(state StateMap, e *event.Event) { _ = "STUB: not implemented"; return }
 
-	for key, value := range e.StateDelta {
-		// Copy to avoid retaining caller-owned memory.
-		if value == nil {
-			state[key] = nil
-			continue
-		}
-		val := make([]byte, len(value))
-		copy(val, value)
-		state[key] = val
-	}
-}
+// Copy to avoid retaining caller-owned memory.
 
-func applyOptions(opts ...Option) *Options {
-	opt := &Options{}
-	for _, o := range opts {
-		o(opt)
-	}
-	return opt
-}
+func applyOptions(opts ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Summary represents a concise, structured summary of a conversation branch.
 // It is stored on the session object rather than in the StateMap.
@@ -617,78 +275,36 @@ type EventPage struct {
 type Option func(*Options)
 
 // WithEventNum is the option for the number of recent events.
-func WithEventNum(num int) Option {
-	return func(o *Options) {
-		o.EventNum = num
-	}
-}
+func WithEventNum(num int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEventTime is the option for the time of the recent events.
-func WithEventTime(time time.Time) Option {
-	return func(o *Options) {
-		o.EventTime = time
-	}
-}
+func WithEventTime(time time.Time) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithListSessionOnlyMeta requests ListSessions to return only session metadata
 // without events or tracks. Callers should only use this option with ListSessions.
-func WithListSessionOnlyMeta() Option {
-	return func(o *Options) {
-		o.ListSessionOnlyMeta = true
-	}
-}
+func WithListSessionOnlyMeta() Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithListSessionPage enables offset/limit pagination for ListSessions.
 // This option is orthogonal to WithEventNum/WithEventTime: those control event-level
 // filtering within each session, while this controls session-level pagination.
-func WithListSessionPage(offset, limit int) Option {
-	return func(o *Options) {
-		o.ListSessionPage = &ListSessionPage{Offset: offset, Limit: limit}
-	}
-}
+func WithListSessionPage(offset, limit int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGetSessionEventPage enables strict offset/limit pagination for GetSession events.
 // offset counts backwards from the most recent event (0 = most recent page).
 // limit is the page size. This option is only supported by postgres/mysql GetSession.
 func WithGetSessionEventPage(offset, limit int) Option {
-	return func(o *Options) {
-		o.EventPage = &EventPage{
-			Offset: offset,
-			Limit:  limit,
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // ValidateGetSessionOptions validates GetSession-only option semantics.
 func ValidateGetSessionOptions(opts *Options, supportsEventPage bool) error {
-	if opts == nil || opts.EventPage == nil {
-		return nil
-	}
-	if !supportsEventPage {
-		return ErrEventPageUnsupported
-	}
-	if opts.EventPage.Offset < 0 || opts.EventPage.Limit <= 0 {
-		return ErrInvalidEventPage
-	}
-	if opts.EventNum != 0 || !opts.EventTime.IsZero() {
-		return ErrEventPageConflictsWithEventFilters
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // ValidateListSessionsOptions validates ListSessions-only option semantics.
-func ValidateListSessionsOptions(opts *Options) error {
-	if opts == nil {
-		return nil
-	}
-	if opts.EventPage != nil {
-		return ErrEventPageOnlyForGetSession
-	}
-	if opts.ListSessionPage != nil && (opts.ListSessionPage.Offset < 0 || opts.ListSessionPage.Limit <= 0) {
-		return ErrInvalidListSessionPage
-	}
-	return nil
-}
+func ValidateListSessionsOptions(opts *Options) error { _ = "STUB: not implemented"; return nil }
 
 // SummaryOption is the option for getting session summary.
 type SummaryOption func(*SummaryOptions)
@@ -704,9 +320,8 @@ type SummaryOptions struct {
 // When empty (SummaryFilterKeyAllContents), retrieves the full-session summary.
 // Use this option to get summaries for specific event filters (e.g., "user-messages").
 func WithSummaryFilterKey(filterKey string) SummaryOption {
-	return func(o *SummaryOptions) {
-		o.FilterKey = filterKey
-	}
+	_ = "STUB: not implemented"
+	return *new(SummaryOption)
 }
 
 // SearchMode selects the retrieval strategy for session
@@ -936,14 +551,10 @@ type Key struct {
 }
 
 // CheckSessionKey checks if a session key is valid.
-func (s *Key) CheckSessionKey() error {
-	return checkSessionKey(s.AppName, s.UserID, s.SessionID)
-}
+func (s *Key) CheckSessionKey() error { _ = "STUB: not implemented"; return nil }
 
 // CheckUserKey checks if a user key is valid.
-func (s *Key) CheckUserKey() error {
-	return checkUserKey(s.AppName, s.UserID)
-}
+func (s *Key) CheckUserKey() error { _ = "STUB: not implemented"; return nil }
 
 // UserKey is the key for a user.
 type UserKey struct {
@@ -952,29 +563,11 @@ type UserKey struct {
 }
 
 // CheckUserKey checks if a user key is valid.
-func (s *UserKey) CheckUserKey() error {
-	return checkUserKey(s.AppName, s.UserID)
-}
+func (s *UserKey) CheckUserKey() error { _ = "STUB: not implemented"; return nil }
 
 func checkSessionKey(appName, userID, sessionID string) error {
-	if appName == "" {
-		return ErrAppNameRequired
-	}
-	if userID == "" {
-		return ErrUserIDRequired
-	}
-	if sessionID == "" {
-		return ErrSessionIDRequired
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func checkUserKey(appName, userID string) error {
-	if appName == "" {
-		return ErrAppNameRequired
-	}
-	if userID == "" {
-		return ErrUserIDRequired
-	}
-	return nil
-}
+func checkUserKey(appName, userID string) error { _ = "STUB: not implemented"; return nil }

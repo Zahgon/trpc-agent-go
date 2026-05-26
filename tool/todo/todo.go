@@ -50,10 +50,7 @@
 package todo
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
@@ -93,14 +90,7 @@ const (
 )
 
 // IsValid reports whether the status is one of the three accepted values.
-func (s Status) IsValid() bool {
-	switch s {
-	case StatusPending, StatusInProgress, StatusCompleted:
-		return true
-	default:
-		return false
-	}
-}
+func (s Status) IsValid() bool { _ = "STUB: not implemented"; return false }
 
 // Item is one entry in the checklist.
 //
@@ -156,15 +146,7 @@ var _ tool.CallableTool = (*Tool)(nil)
 
 // New constructs a Tool with the provided options. All options are
 // independent; any that is not supplied falls back to a sensible default.
-func New(opts ...Option) *Tool {
-	o := defaultOptions()
-	for _, opt := range opts {
-		if opt != nil {
-			opt(&o)
-		}
-	}
-	return &Tool{opts: o}
-}
+func New(opts ...Option) *Tool { _ = "STUB: not implemented"; return nil }
 
 // StateKeyPrefix returns the session.State key prefix this Tool
 // instance was configured with (see WithStateKeyPrefix). The
@@ -181,76 +163,14 @@ func New(opts ...Option) *Tool {
 // (defaultOptions + WithStateKeyPrefix) while still letting
 // callers (e.g. agent/extension/todoenforcer) honour the configured
 // layout.
-func (t *Tool) StateKeyPrefix() string {
-	return t.opts.stateKeyPrefix
-}
+func (t *Tool) StateKeyPrefix() string { _ = "STUB: not implemented"; return "" }
 
 // Declaration implements tool.Tool.
 func (t *Tool) Declaration() *tool.Declaration {
+	_ = "STUB: not implemented"
 	// Build an explicit schema so that the item sub-schema, enum and
 	// descriptions are stable regardless of reflection quirks.
-	itemSchema := &tool.Schema{
-		Type: "object",
-		Properties: map[string]*tool.Schema{
-			"content": {
-				Type:        "string",
-				Description: "Imperative description of the task, e.g. 'Run tests'.",
-			},
-			"activeForm": {
-				Type:        "string",
-				Description: "Present-continuous form shown while the task is running, e.g. 'Running tests'.",
-			},
-			"status": {
-				Type:        "string",
-				Description: "Task status. One of: pending | in_progress | completed.",
-				Enum: []any{
-					string(StatusPending),
-					string(StatusInProgress),
-					string(StatusCompleted),
-				},
-			},
-		},
-		Required: []string{"content", "activeForm", "status"},
-	}
-
-	input := &tool.Schema{
-		Type: "object",
-		Properties: map[string]*tool.Schema{
-			"todos": {
-				Type:        "array",
-				Description: "The complete, updated todo list. Replaces the previous list entirely.",
-				Items:       itemSchema,
-			},
-		},
-		Required: []string{"todos"},
-	}
-
-	output := &tool.Schema{
-		Type: "object",
-		Properties: map[string]*tool.Schema{
-			"message": {
-				Type:        "string",
-				Description: "Guidance for the next step.",
-			},
-			"todos": {
-				Type:        "array",
-				Description: "The checklist after this write.",
-				Items:       itemSchema,
-			},
-			"oldTodos": {
-				Type:        "array",
-				Description: "The checklist before this write (omitted on first write).",
-				Items:       itemSchema,
-			},
-		},
-	}
-
-	return &tool.Declaration{
-		Name:         t.opts.toolName,
-		Description:  t.opts.description,
-		InputSchema:  input,
-		OutputSchema: output,
-	}
+	return nil
 }
 
 // Call implements tool.CallableTool.
@@ -269,66 +189,28 @@ func (t *Tool) Declaration() *tool.Declaration {
 // message so that a misconfigured agent still gets feedback from the
 // model instead of a hard stop.
 func (t *Tool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	in, err := decodeWriteInput(jsonArgs)
-	if err != nil {
-		return nil, fmt.Errorf("todo_write: %w", err)
-	}
-
-	// Resolve scope. Without an invocation we still accept the call so
-	// that tests and single-shot usage work, but we report it clearly.
-	inv, _ := agent.InvocationFromContext(ctx)
-	branch := ""
-	if inv != nil {
-		branch = inv.Branch
-	}
-	key := stateKey(t.opts.stateKeyPrefix, branch)
-
-	// Compute next list. All-done => clear to avoid unbounded growth.
-	// Normalise the cleared list to an empty (non-nil) slice so that
-	// the marshalled Output.Todos and the persisted state both emit
-	// `[]` rather than `null`, matching the declared output schema.
-	newTodos := in.Todos
-	if t.opts.clearOnAllDone && allCompleted(newTodos) {
-		newTodos = []Item{}
-	}
-
-	// Read old list (best-effort) and persist new list.
-	var oldTodos []Item
-	if inv != nil && inv.Session != nil {
-		oldTodos, _ = readTodos(inv.Session, key)
-		encoded, err := json.Marshal(newTodos)
-		if err != nil {
-			return nil, fmt.Errorf("todo_write: encode state: %w", err)
-		}
-		inv.Session.SetState(key, encoded)
-	}
-
-	// Snapshot the returned lists up front: the persisted state was
-	// marshalled above, so even if a misbehaving hook mutates the
-	// slices it receives, our Output and the canonical store stay in
-	// sync. The contract on NudgeHook (see options.go) already says
-	// hooks must be read-only; these clones are belt-and-braces so a
-	// buggy hook cannot silently corrupt the tool's response.
-	outputTodos := cloneItems(newTodos)
-	outputOldTodos := cloneItems(oldTodos)
-
-	// Compose message: default nudge + hooks.
-	msg := t.opts.defaultNudge
-	for _, hook := range t.opts.nudgeHooks {
-		if hook == nil {
-			continue
-		}
-		if extra := hook(ctx, cloneItems(oldTodos), cloneItems(in.Todos)); extra != "" {
-			msg += "\n\n" + extra
-		}
-	}
-
-	return Output{
-		Message:  msg,
-		Todos:    outputTodos,
-		OldTodos: outputOldTodos,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Resolve scope. Without an invocation we still accept the call so
+// that tests and single-shot usage work, but we report it clearly.
+
+// Compute next list. All-done => clear to avoid unbounded growth.
+// Normalise the cleared list to an empty (non-nil) slice so that
+// the marshalled Output.Todos and the persisted state both emit
+// `[]` rather than `null`, matching the declared output schema.
+
+// Read old list (best-effort) and persist new list.
+
+// Snapshot the returned lists up front: the persisted state was
+// marshalled above, so even if a misbehaving hook mutates the
+// slices it receives, our Output and the canonical store stay in
+// sync. The contract on NudgeHook (see options.go) already says
+// hooks must be read-only; these clones are belt-and-braces so a
+// buggy hook cannot silently corrupt the tool's response.
+
+// Compose message: default nudge + hooks.
 
 // StateDeltaForInvocation publishes the new checklist as a session
 // state delta so the session service persists it beyond the current
@@ -345,36 +227,20 @@ func (t *Tool) StateDeltaForInvocation(
 	args []byte,
 	_ []byte,
 ) map[string][]byte {
+	_ = "STUB: not implemented"
 	// The function-call response processor only reaches here after
 	// Call() has already returned successfully, so args is guaranteed
 	// to decode and validate. We re-check defensively and silently
 	// drop the delta on mismatch: if this path ever fires it indicates
 	// a framework-level bug, and corrupting the canonical session
 	// store is strictly worse than losing one turn of persistence.
-	in, err := decodeWriteInput(args)
-	if err != nil {
-		return nil
-	}
-	branch := ""
-	if inv != nil {
-		branch = inv.Branch
-	}
-	key := stateKey(t.opts.stateKeyPrefix, branch)
-
-	// Mirror the clear-on-all-done normalisation performed by Call():
-	// an empty (non-nil) slice so that the persisted state serialises
-	// to []  - keeping the in-run SetState and the canonical store
-	// byte-identical regardless of backend (inmemory, Redis, ...).
-	newTodos := in.Todos
-	if t.opts.clearOnAllDone && allCompleted(newTodos) {
-		newTodos = []Item{}
-	}
-	encoded, err := json.Marshal(newTodos)
-	if err != nil {
-		return nil
-	}
-	return map[string][]byte{key: encoded}
+	return nil
 }
+
+// Mirror the clear-on-all-done normalisation performed by Call():
+// an empty (non-nil) slice so that the persisted state serialises
+// to []  - keeping the in-run SetState and the canonical store
+// byte-identical regardless of backend (inmemory, Redis, ...).
 
 // decodeWriteInput parses the raw tool arguments into a writeInput,
 // rejecting structurally legal but semantically destructive shapes
@@ -395,39 +261,14 @@ func (t *Tool) StateDeltaForInvocation(
 // so the two persistence layers cannot drift on whether to accept a
 // given payload.
 func decodeWriteInput(jsonArgs []byte) (writeInput, error) {
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(jsonArgs, &raw); err != nil {
-		return writeInput{}, fmt.Errorf("invalid arguments: %w", err)
-	}
-	todosRaw, ok := raw["todos"]
-	if !ok {
-		return writeInput{}, fmt.Errorf(
-			"todos field is required and must be an array " +
-				"(use [] to clear the checklist)",
-		)
-	}
-	if bytes.Equal(bytes.TrimSpace(todosRaw), []byte("null")) {
-		return writeInput{}, fmt.Errorf(
-			"todos must be an array, got null " +
-				"(use [] to clear the checklist)",
-		)
-	}
-	var todos []Item
-	if err := json.Unmarshal(todosRaw, &todos); err != nil {
-		return writeInput{}, fmt.Errorf("todos must be an array: %w", err)
-	}
-	if todos == nil {
-		// json.Unmarshal of `[]` produces a non-nil empty slice;
-		// any other shape that survives the checks above and still
-		// yields nil is treated as the same kind of structural mishap
-		// the explicit checks above are there to catch.
-		todos = []Item{}
-	}
-	if err := validateTodos(todos); err != nil {
-		return writeInput{}, err
-	}
-	return writeInput{Todos: todos}, nil
+	_ = "STUB: not implemented"
+	return *new(writeInput), nil
 }
+
+// json.Unmarshal of `[]` produces a non-nil empty slice;
+// any other shape that survives the checks above and still
+// yields nil is treated as the same kind of structural mishap
+// the explicit checks above are there to catch.
 
 // validateTodos checks the list against the tool's structural contract.
 //
@@ -445,55 +286,11 @@ func decodeWriteInput(jsonArgs []byte) (writeInput, error) {
 //     all-completed terminal state).
 //  3. Content is unique across the list. Duplicate content is a
 //     strong signal of double-tracking / copy-paste accidents.
-func validateTodos(todos []Item) error {
-	var inProgress int
-	seen := make(map[string]int, len(todos))
-	for i, it := range todos {
-		if it.Content == "" {
-			return fmt.Errorf("todos[%d].content must not be empty", i)
-		}
-		if it.ActiveForm == "" {
-			return fmt.Errorf("todos[%d].activeForm must not be empty", i)
-		}
-		if !it.Status.IsValid() {
-			return fmt.Errorf(
-				"todos[%d].status %q is invalid (want pending|in_progress|completed)",
-				i, it.Status,
-			)
-		}
-		if it.Status == StatusInProgress {
-			inProgress++
-			if inProgress > 1 {
-				return fmt.Errorf(
-					"at most one item may be in_progress, got multiple (first at todos[%d])",
-					i,
-				)
-			}
-		}
-		if prev, ok := seen[it.Content]; ok {
-			return fmt.Errorf(
-				"todos[%d].content %q duplicates todos[%d].content",
-				i, it.Content, prev,
-			)
-		}
-		seen[it.Content] = i
-	}
-	return nil
-}
+func validateTodos(todos []Item) error { _ = "STUB: not implemented"; return nil }
 
 // allCompleted returns true if every item is in completed state.
 // An empty slice is not treated as all-completed (nothing to clear).
-func allCompleted(todos []Item) bool {
-	if len(todos) == 0 {
-		return false
-	}
-	for _, it := range todos {
-		if it.Status != StatusCompleted {
-			return false
-		}
-	}
-	return true
-}
+func allCompleted(todos []Item) bool { _ = "STUB: not implemented"; return false }
 
 // cloneItems returns a fresh []Item with the same contents as items.
 // A nil input maps to a nil output so that optional-empty semantics
@@ -502,11 +299,4 @@ func allCompleted(todos []Item) bool {
 //
 // Item has only scalar fields, so a shallow copy is sufficient to
 // isolate callers from each other.
-func cloneItems(items []Item) []Item {
-	if items == nil {
-		return nil
-	}
-	out := make([]Item, len(items))
-	copy(out, items)
-	return out
-}
+func cloneItems(items []Item) []Item { _ = "STUB: not implemented"; return nil }

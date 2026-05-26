@@ -12,9 +12,7 @@ package finalresponse
 
 import (
 	"context"
-	"fmt"
 	"regexp"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator"
 	"trpc.group/trpc-go/trpc-agent-go/evaluation/evaluator/llm/operator/responsescorer"
@@ -35,38 +33,19 @@ type finalResponseResponseScorer struct {
 
 // New returns a response scorer for final responses.
 func New() responsescorer.ResponseScorer {
-	return &finalResponseResponseScorer{}
+	_ = "STUB: not implemented"
+	return *new(responsescorer.ResponseScorer)
 }
 
 // ScoreBasedOnResponse converts judge feedback to a numeric score.
 func (e *finalResponseResponseScorer) ScoreBasedOnResponse(ctx context.Context, response *model.Response,
 	_ *metric.EvalMetric) (*evaluator.ScoreResult, error) {
-	if len(response.Choices) == 0 {
-		return nil, fmt.Errorf("no choices in response")
-	}
-	content := response.Choices[0].Message.Content
-	if content == "" {
-		return nil, fmt.Errorf("empty response text")
-	}
-	reasoning, label, err := extractReasoningAndLabel(content)
-	if err != nil {
-		return nil, fmt.Errorf("extract reasoning and label: %w", err)
-	}
-	score := 0.0
-	if label == labelValid {
-		score = 1.0
-	}
-	return &evaluator.ScoreResult{Score: score, Reason: reasoning}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // extractReasoningAndLabel parses judge output in text form.
 func extractReasoningAndLabel(content string) (string, string, error) {
-	matches := finalResponseBlockRegex.FindAllStringSubmatch(content, -1)
-	if len(matches) < 1 {
-		return "", "", fmt.Errorf("no final response blocks found in response")
-	}
-	reasoning := strings.TrimSpace(matches[0][1])
-	label := strings.TrimSpace(matches[0][2])
-	label = strings.ToLower(label)
-	return reasoning, label, nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }

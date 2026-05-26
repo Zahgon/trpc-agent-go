@@ -10,20 +10,10 @@
 package openai
 
 import (
-	"bufio"
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
 
 	openai "github.com/openai/openai-go"
-	openaiopt "github.com/openai/openai-go/option"
 	"github.com/openai/openai-go/packages/pagination"
-	"github.com/openai/openai-go/packages/param"
 	"github.com/openai/openai-go/shared"
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -66,16 +56,14 @@ type BatchCreateOption func(*BatchCreateOptions)
 
 // WithBatchCreateCompletionWindow overrides completion window for this call.
 func WithBatchCreateCompletionWindow(window openai.BatchNewParamsCompletionWindow) BatchCreateOption {
-	return func(o *BatchCreateOptions) {
-		o.CompletionWindow = window
-	}
+	_ = "STUB: not implemented"
+	return *new(BatchCreateOption)
 }
 
 // WithBatchCreateMetadata overrides metadata for this call.
 func WithBatchCreateMetadata(md map[string]string) BatchCreateOption {
-	return func(o *BatchCreateOptions) {
-		o.Metadata = md
-	}
+	_ = "STUB: not implemented"
+	return *new(BatchCreateOption)
 }
 
 // CreateBatch validates requests, generates JSONL, uploads it, and creates a batch.
@@ -85,164 +73,54 @@ func (m *Model) CreateBatch(
 	requests []*BatchRequestInput,
 	opts ...BatchCreateOption,
 ) (*openai.Batch, error) {
-	if len(requests) == 0 {
-		return nil, errors.New("requests cannot be empty")
-	}
-
-	if err := m.validateBatchRequests(requests); err != nil {
-		return nil, fmt.Errorf("invalid batch requests: %w", err)
-	}
-
-	opt := &BatchCreateOptions{}
-	for _, o := range opts {
-		o(opt)
-	}
-
-	jsonlData, err := m.generateBatchJSONL(requests)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate JSONL: %w", err)
-	}
-
-	// Prepare file upload options.
-	fileOpts := []FileOption{
-		WithPurpose(openai.FilePurposeBatch),
-		// Use SDK default "/files" path instead of variant-specific path to avoid incorrect path concatenation.
-		// Without WithPath(""), UploadFileData would use m.variantConfig.fileUploadPath
-		// which could result in duplicate paths like base_url + fileUploadPath + "/files".
-		// By explicitly setting WithPath(""), we let the OpenAI SDK use its default "/files" path,
-		// ensuring the correct endpoint: base_url + "/files".
-		WithPath(""),
-	}
-	if m.batchBaseURL != "" {
-		fileOpts = append(fileOpts, WithFileBaseURL(m.batchBaseURL))
-	}
-
-	fileID, err := m.UploadFileData(ctx, "batch_input.jsonl", jsonlData, fileOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to upload batch file: %w", err)
-	}
-
-	// Resolve completion window.
-	completionWindow := m.batchCompletionWindow
-	if opt.CompletionWindow != "" {
-		completionWindow = opt.CompletionWindow
-	}
-
-	// Resolve metadata and convert to shared.Metadata.
-	md := m.batchMetadata
-	if opt.Metadata != nil {
-		md = opt.Metadata
-	}
-	var meta shared.Metadata
-	if md != nil {
-		meta = make(shared.Metadata)
-		for k, v := range md {
-			meta[k] = v
-		}
-	}
-
-	// Resolve endpoint from model (fallback when constructed without New()).
-	endpoint := defaultBatchEndpoint
-
-	params := openai.BatchNewParams{
-		CompletionWindow: completionWindow,
-		Endpoint:         endpoint,
-		InputFileID:      fileID,
-		Metadata:         meta,
-	}
-	if m.batchBaseURL != "" {
-		return m.client.Batches.New(ctx, params, openaiopt.WithBaseURL(m.batchBaseURL))
-	}
-	return m.client.Batches.New(ctx, params)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Prepare file upload options.
+
+// Use SDK default "/files" path instead of variant-specific path to avoid incorrect path concatenation.
+// Without WithPath(""), UploadFileData would use m.variantConfig.fileUploadPath
+// which could result in duplicate paths like base_url + fileUploadPath + "/files".
+// By explicitly setting WithPath(""), we let the OpenAI SDK use its default "/files" path,
+// ensuring the correct endpoint: base_url + "/files".
+
+// Resolve completion window.
+
+// Resolve metadata and convert to shared.Metadata.
+
+// Resolve endpoint from model (fallback when constructed without New()).
 
 // validateBatchRequests validates batch requests.
 func (m *Model) validateBatchRequests(requests []*BatchRequestInput) error {
-	seen := make(map[string]struct{}, len(requests))
-	for i, r := range requests {
-		if r == nil {
-			return fmt.Errorf("request %d is nil", i)
-		}
-		if r.CustomID == "" {
-			return fmt.Errorf("request %d: custom_id cannot be empty", i)
-		}
-		if _, ok := seen[r.CustomID]; ok {
-			return fmt.Errorf("request %d: duplicate custom_id '%s'", i, r.CustomID)
-		}
-		seen[r.CustomID] = struct{}{}
-
-		// Method and URL will be validated later,so we don't need to validate them here.
-
-		// Validate messages are non-empty.
-		if len(r.Body.Messages) == 0 {
-			return fmt.Errorf("request %d: body.messages must be non-empty", i)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Method and URL will be validated later,so we don't need to validate them here.
+
+// Validate messages are non-empty.
+
 // generateBatchJSONL converts requests into JSONL bytes.
 func (m *Model) generateBatchJSONL(requests []*BatchRequestInput) ([]byte, error) {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-
-	for _, r := range requests {
-		// Normalize fields in-place.
-		if r.Method == "" {
-			r.Method = http.MethodPost
-		}
-		if r.URL == "" {
-			r.URL = string(defaultBatchEndpoint)
-		}
-		if r.Body.Model == "" {
-			r.Body.Model = m.name
-		}
-		payload := m.batchRequestPayload(r)
-		if err := enc.Encode(payload); err != nil {
-			return nil, fmt.Errorf("failed to encode jsonl line: %w", err)
-		}
-	}
-	return buf.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Normalize fields in-place.
 
 func (m *Model) batchRequestPayload(
 	r *BatchRequestInput,
 ) batchRequestPayload {
-	messages := make([]batchMessagePayload, len(r.Body.Messages))
-	for i, msg := range r.Body.Messages {
-		messages[i] = m.newBatchMessagePayload(msg)
-	}
-
-	return batchRequestPayload{
-		CustomID: r.CustomID,
-		Method:   r.Method,
-		URL:      r.URL,
-		Body: batchRequestBodyPayload{
-			Messages:         messages,
-			GenerationConfig: r.Body.GenerationConfig,
-			StructuredOutput: r.Body.StructuredOutput,
-			Model:            r.Body.Model,
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(batchRequestPayload)
 }
 
 func (m *Model) newBatchMessagePayload(
 	msg model.Message,
 ) batchMessagePayload {
-	payload := batchMessagePayload{
-		Role:         msg.Role,
-		Content:      msg.Content,
-		ContentParts: msg.ContentParts,
-		ToolID:       msg.ToolID,
-		ToolName:     msg.ToolName,
-		ToolCalls:    msg.ToolCalls,
-	}
-	if msg.ReasoningContent != "" ||
-		m.shouldBackfillReasoningContent(msg) {
-		reasoningContent := msg.ReasoningContent
-		payload.ReasoningContent = &reasoningContent
-	}
-	return payload
+	_ = "STUB: not implemented"
+	return *new(batchMessagePayload)
 }
 
 type batchRequestPayload struct {
@@ -272,19 +150,15 @@ type batchMessagePayload struct {
 // RetrieveBatch retrieves a batch job by ID.
 // For more details, see https://platform.openai.com/docs/api-reference/batch/retrieve.
 func (m *Model) RetrieveBatch(ctx context.Context, batchID string) (*openai.Batch, error) {
-	if m.batchBaseURL != "" {
-		return m.client.Batches.Get(ctx, batchID, openaiopt.WithBaseURL(m.batchBaseURL))
-	}
-	return m.client.Batches.Get(ctx, batchID)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CancelBatch cancels an in-progress batch job.
 // For more details, see https://platform.openai.com/docs/api-reference/batch/cancel.
 func (m *Model) CancelBatch(ctx context.Context, batchID string) (*openai.Batch, error) {
-	if m.batchBaseURL != "" {
-		return m.client.Batches.Cancel(ctx, batchID, openaiopt.WithBaseURL(m.batchBaseURL))
-	}
-	return m.client.Batches.Cancel(ctx, batchID)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListBatches lists batch jobs with pagination.
@@ -294,39 +168,14 @@ func (m *Model) ListBatches(
 	after string,
 	limit int64,
 ) (*pagination.CursorPage[openai.Batch], error) {
-	params := openai.BatchListParams{}
-
-	if after != "" {
-		params.After = param.NewOpt(after)
-	}
-	if limit > 0 {
-		params.Limit = param.NewOpt(limit)
-	}
-
-	if m.batchBaseURL != "" {
-		return m.client.Batches.List(ctx, params, openaiopt.WithBaseURL(m.batchBaseURL))
-	}
-	return m.client.Batches.List(ctx, params)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DownloadFileContent downloads the text content of a file.
 func (m *Model) DownloadFileContent(ctx context.Context, fileID string) (string, error) {
-	var resp *http.Response
-	var err error
-	if m.batchBaseURL != "" {
-		resp, err = m.client.Files.Content(ctx, fileID, openaiopt.WithBaseURL(m.batchBaseURL))
-	} else {
-		resp, err = m.client.Files.Content(ctx, fileID)
-	}
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch file content: %w", err)
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read file content: %w", err)
-	}
-	return string(b), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // BatchRequestOutput aligns with OpenAI request-output JSONL line.
@@ -360,26 +209,14 @@ type BatchResponse struct {
 
 // ParseBatchOutput parses output JSONL into OpenAI-aligned structures.
 func (m *Model) ParseBatchOutput(text string) ([]BatchRequestOutput, error) {
-	scanner := bufio.NewScanner(strings.NewReader(text))
-	// Pre-allocate with reasonable default capacity to avoid frequent reallocations.
-	var entries []BatchRequestOutput
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		// Unmarshal the line into a BatchRequestOutput.
-		var out BatchRequestOutput
-		if err := json.Unmarshal([]byte(line), &out); err != nil {
-			return nil, fmt.Errorf("failed to parse jsonl line: %w", err)
-		}
-		// Store the original line for debugging purposes.
-		out.RawLine = line
-		// Append the entry to the slice.
-		entries = append(entries, out)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan jsonl: %w", err)
-	}
-	return entries, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Pre-allocate with reasonable default capacity to avoid frequent reallocations.
+
+// Unmarshal the line into a BatchRequestOutput.
+
+// Store the original line for debugging purposes.
+
+// Append the entry to the slice.

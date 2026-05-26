@@ -11,10 +11,6 @@
 package app
 
 import (
-	"sort"
-	"strconv"
-	"strings"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,73 +33,20 @@ const (
 	configKeyLocalExec   = "local_exec"
 )
 
-func resolveSkillConfigKeys(opts runOptions) []string {
-	set := map[string]struct{}{}
-
-	addPluginSpecsConfigKeys(set, configKeyChannelsPrefix, opts.Channels)
-	addPluginSpecsConfigKeys(
-		set,
-		configKeyToolProvidersPrefix,
-		opts.ToolProviders,
-	)
-	addPluginSpecsConfigKeys(set, configKeyToolSetsPrefix, opts.ToolSets)
-	addToolSurfaceKeys(set, opts)
-
-	out := make([]string, 0, len(set))
-	for key := range set {
-		out = append(out, key)
-	}
-	sort.Strings(out)
-	return out
-}
+func resolveSkillConfigKeys(opts runOptions) []string { _ = "STUB: not implemented"; return nil }
 
 func addPluginSpecsConfigKeys(
 	set map[string]struct{},
 	prefix string,
 	specs []pluginSpec,
 ) {
-	for i := range specs {
-		spec := specs[i]
-		typeName := normalizeConfigSegment(spec.Type)
-		if typeName == "" {
-			continue
-		}
-
-		base := prefix + typeName
-		addConfigKey(set, base)
-
-		entry := configKeyPluginsEntriesPrefix + typeName
-		addConfigKey(set, entry+configKeyPluginsEnabledSuffix)
-
-		addPluginConfigNodeKeys(set, base, spec.Config)
-		addPluginConfigNodeKeys(
-			set,
-			entry+configKeyPluginsConfigPrefix,
-			spec.Config,
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func addToolSurfaceKeys(set map[string]struct{}, opts runOptions) {
-	if opts.EnableOpenClawTools {
-		addConfigKey(
-			set,
-			configKeyToolsPrefix+configKeyExecCommand,
-		)
-		addConfigKey(
-			set,
-			configKeyToolsPrefix+configKeyWriteStdin,
-		)
-		addConfigKey(
-			set,
-			configKeyToolsPrefix+configKeyKillSession,
-		)
-		addConfigKey(set, configKeyToolsPrefix+configKeyMessage)
-		addConfigKey(set, configKeyToolsPrefix+configKeyCron)
-	}
-	if opts.EnableLocalExec {
-		addConfigKey(set, configKeyToolsPrefix+configKeyLocalExec)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func addPluginConfigNodeKeys(
@@ -111,7 +54,8 @@ func addPluginConfigNodeKeys(
 	prefix string,
 	node *yaml.Node,
 ) {
-	_ = addYAMLConfigKeys(set, prefix, node)
+	_ = "STUB: not implemented"
+	return
 }
 
 func addYAMLConfigKeys(
@@ -119,97 +63,12 @@ func addYAMLConfigKeys(
 	prefix string,
 	node *yaml.Node,
 ) bool {
-	if node == nil || strings.TrimSpace(prefix) == "" {
-		return false
-	}
-
-	switch node.Kind {
-	case yaml.DocumentNode:
-		if len(node.Content) == 0 {
-			return false
-		}
-		return addYAMLConfigKeys(set, prefix, node.Content[0])
-	case yaml.MappingNode:
-		if len(node.Content) == 0 {
-			return false
-		}
-		any := false
-		for i := 0; i+1 < len(node.Content); i += 2 {
-			k := normalizeConfigSegment(node.Content[i].Value)
-			if k == "" {
-				continue
-			}
-			key := prefix + "." + k
-			if addYAMLConfigKeys(set, key, node.Content[i+1]) {
-				any = true
-			}
-		}
-		if any {
-			addConfigKey(set, prefix)
-		}
-		return any
-	case yaml.SequenceNode:
-		if len(node.Content) == 0 {
-			return false
-		}
-		any := false
-		for _, child := range node.Content {
-			if addYAMLConfigKeys(set, prefix, child) {
-				any = true
-			}
-		}
-		if any {
-			addConfigKey(set, prefix)
-		}
-		return any
-	case yaml.ScalarNode:
-		if !isTruthyScalar(node) {
-			return false
-		}
-		addConfigKey(set, prefix)
-		return true
-	case yaml.AliasNode:
-		return addYAMLConfigKeys(set, prefix, node.Alias)
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
-func isTruthyScalar(node *yaml.Node) bool {
-	if node == nil {
-		return false
-	}
+func isTruthyScalar(node *yaml.Node) bool { _ = "STUB: not implemented"; return false }
 
-	val := strings.TrimSpace(node.Value)
-	if val == "" {
-		return false
-	}
+func normalizeConfigSegment(raw string) string { _ = "STUB: not implemented"; return "" }
 
-	switch node.Tag {
-	case "!!bool":
-		return strings.EqualFold(val, "true")
-	case "!!int":
-		n, err := strconv.ParseInt(val, 10, 64)
-		return err == nil && n != 0
-	case "!!float":
-		n, err := strconv.ParseFloat(val, 64)
-		return err == nil && n != 0
-	default:
-		return true
-	}
-}
-
-func normalizeConfigSegment(raw string) string {
-	return strings.ToLower(strings.TrimSpace(raw))
-}
-
-func addConfigKey(set map[string]struct{}, key string) {
-	if set == nil {
-		return
-	}
-	trimmed := strings.TrimSpace(key)
-	if trimmed == "" {
-		return
-	}
-	set[trimmed] = struct{}{}
-}
+func addConfigKey(set map[string]struct{}, key string) { _ = "STUB: not implemented"; return }

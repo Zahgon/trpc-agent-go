@@ -11,8 +11,6 @@
 package event
 
 import (
-	"encoding/json"
-
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
@@ -20,98 +18,41 @@ import (
 type Option func(*Event)
 
 // WithBranch sets the branch for the event.
-func WithBranch(branch string) Option {
-	return func(e *Event) {
-		e.Branch = branch
-	}
-}
+func WithBranch(branch string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithResponse sets the response for the event.
-func WithResponse(response *model.Response) Option {
-	return func(e *Event) {
-		e.Response = response
-	}
-}
+func WithResponse(response *model.Response) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithObject sets the object for the event.
-func WithObject(o string) Option {
-	return func(e *Event) {
-		e.Object = o
-	}
-}
+func WithObject(o string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithStateDelta sets state delta for the event.
 func WithStateDelta(stateDelta map[string][]byte) Option {
-	return func(e *Event) {
-		e.StateDelta = stateDelta
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithStructuredOutputPayload sets a typed structured output payload on the event.
 // This data is not serialized and is intended for immediate consumption.
 func WithStructuredOutputPayload(payload any) Option {
-	return func(e *Event) {
-		e.StructuredOutput = payload
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSkipSummarization sets the SkipSummarization action on the event.
-func WithSkipSummarization() Option {
-	return func(e *Event) {
-		if e.Actions == nil {
-			e.Actions = &EventActions{}
-		}
-		e.Actions.SkipSummarization = true
-	}
-}
+func WithSkipSummarization() Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTag sets the tag for the event.
-func WithTag(tag string) Option {
-	return func(e *Event) {
-		if e.Tag == "" {
-			e.Tag = tag
-			return
-		}
-		e.Tag += TagDelimiter + tag
-	}
-}
+func WithTag(tag string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtension stores one serialized extension on the event.
-func WithExtension(key string, value any) Option {
-	return func(e *Event) {
-		_ = SetExtension(e, key, value)
-	}
-}
+func WithExtension(key string, value any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // SetExtension stores one serialized extension on the event.
-func SetExtension(e *Event, key string, value any) error {
-	if e == nil || key == "" {
-		return nil
-	}
-	raw, err := json.Marshal(value)
-	if err != nil {
-		return err
-	}
-	if e.Extensions == nil {
-		e.Extensions = make(map[string]json.RawMessage)
-	}
-	e.Extensions[key] = cloneRawMessage(raw)
-	return nil
-}
+func SetExtension(e *Event, key string, value any) error { _ = "STUB: not implemented"; return nil }
 
 // GetExtension decodes one typed extension from the event.
 func GetExtension[T any](e *Event, key string) (T, bool, error) {
-	var zero T
-	if e == nil || key == "" || e.Extensions == nil {
-		return zero, false, nil
-	}
-	raw, ok := e.Extensions[key]
-	if !ok || len(raw) == 0 {
-		return zero, false, nil
-	}
-	var out T
-	if err := json.Unmarshal(raw, &out); err != nil {
-		return zero, false, err
-	}
-	return out, true, nil
+	_ = "STUB: not implemented"
+	return *new(T), false, nil
 }

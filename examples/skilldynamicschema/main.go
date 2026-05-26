@@ -19,24 +19,12 @@
 package main
 
 import (
-	"bufio"
-	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
-	localexec "trpc.group/trpc-go/trpc-agent-go/codeexecutor/local"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	"trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/skill"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
 var (
@@ -92,175 +80,26 @@ func main() {
 	}
 }
 
-func run() error {
-	ctx := context.Background()
+func run() error { _ = "STUB: not implemented"; return nil }
 
-	modelInstance := openai.New(*flagModel)
+// This demo drives skill_run, which lives in the full skill
+// tool profile. The default knowledge_only profile omits it.
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	skillsRoot := filepath.Join(cwd, defaultSkillsDir)
-	repo, err := skill.NewFSRepository(skillsRoot)
-	if err != nil {
-		return fmt.Errorf("skills repo: %w", err)
-	}
+// Key point: install OutputResponseProcessor without a static schema.
 
-	exec := localexec.New()
-	genConfig := model.GenerationConfig{
-		Temperature: temperatureForModel(*flagModel),
-		Stream:      *flagStreaming,
-	}
+func floatPtr(v float64) *float64 { _ = "STUB: not implemented"; return nil }
 
-	a := llmagent.New(
-		"skill-dynamic-schema",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithInstruction(instructionText),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithSkills(repo),
-		// This demo drives skill_run, which lives in the full skill
-		// tool profile. The default knowledge_only profile omits it.
-		llmagent.WithSkillToolProfile(llmagent.SkillToolProfileFull),
-		llmagent.WithCodeExecutor(exec),
-		llmagent.WithEnableCodeExecutionResponseProcessor(false),
-		llmagent.WithTools([]tool.Tool{&setOutputSchemaTool{}}),
-		// Key point: install OutputResponseProcessor without a static schema.
-		llmagent.WithOutputKey(outputKey),
-	)
+func temperatureForModel(name string) *float64 { _ = "STUB: not implemented"; return nil }
 
-	r := runner.NewRunner(appName, a, runner.WithSessionService(inmemory.NewSessionService()))
-	defer r.Close()
-
-	userID := "user"
-	sessionID := fmt.Sprintf("so-dyn-%d", time.Now().Unix())
-	fmt.Printf("Session: %s\n", sessionID)
-	fmt.Println()
-	fmt.Println("Example prompts:")
-	fmt.Println(`- "Plan a route from A to B and return distance and ETA. (Use plan_route for the output format.)"`)
-	fmt.Println(`- "Recommend a coffee shop POI in Shenzhen. (Use recommend_poi for the output format.)"`)
-	fmt.Println()
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			break
-		}
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		if strings.EqualFold(text, "exit") {
-			return nil
-		}
-
-		evCh, err := r.Run(ctx, userID, sessionID, model.NewUserMessage(text))
-		if err != nil {
-			fmt.Printf("error: %v\n\n", err)
-			continue
-		}
-
-		var structured any
-		var role model.Role
-		toolNameByID := make(map[string]string)
-		seenToolCall := make(map[string]struct{})
-		seenToolResult := make(map[string]struct{})
-		for ev := range evCh {
-			if ev == nil {
-				continue
-			}
-			if ev.Error != nil {
-				fmt.Printf("\nerror: %s\n", ev.Error.Message)
-				break
-			}
-			if ev.StructuredOutput != nil {
-				structured = ev.StructuredOutput
-			}
-			if len(ev.Choices) == 0 {
-				continue
-			}
-
-			if *flagTraceTools {
-				for _, choice := range ev.Choices {
-					printToolCalls(choice.Message.ToolCalls, toolNameByID, seenToolCall)
-					printToolCalls(choice.Delta.ToolCalls, toolNameByID, seenToolCall)
-
-					printToolResult(choice.Message, toolNameByID, seenToolResult)
-					printToolResult(choice.Delta, toolNameByID, seenToolResult)
-				}
-			}
-
-			choice := ev.Choices[0]
-			if choice.Message.Role != "" {
-				role = choice.Message.Role
-			} else if choice.Delta.Role != "" {
-				role = choice.Delta.Role
-			}
-			if role != model.RoleAssistant {
-				continue
-			}
-
-			if *flagStreaming {
-				if s := choice.Delta.Content; s != "" {
-					fmt.Print(s)
-				}
-			} else if s := choice.Message.Content; s != "" {
-				fmt.Println(s)
-			}
-		}
-		fmt.Println()
-
-		if structured != nil {
-			if b, err := json.MarshalIndent(structured, "", "  "); err == nil {
-				fmt.Printf("event.StructuredOutput:\n%s\n\n", string(b))
-			} else {
-				fmt.Printf("event.StructuredOutput: %#v\n\n", structured)
-			}
-		} else {
-			fmt.Println("event.StructuredOutput: <nil>")
-			fmt.Println()
-		}
-	}
-
-	return scanner.Err()
-}
-
-func floatPtr(v float64) *float64 { return &v }
-
-func temperatureForModel(name string) *float64 {
-	if strings.HasPrefix(strings.ToLower(strings.TrimSpace(name)), "gpt-5") {
-		// gpt-5 only supports the default temperature; omit it to avoid 400s.
-		return nil
-	}
-	return floatPtr(0.2)
-}
+// gpt-5 only supports the default temperature; omit it to avoid 400s.
 
 func printToolCalls(
 	toolCalls []model.ToolCall,
 	toolNameByID map[string]string,
 	seen map[string]struct{},
 ) {
-	for _, toolCall := range toolCalls {
-		if toolCall.ID == "" {
-			continue
-		}
-		if _, ok := seen[toolCall.ID]; ok {
-			continue
-		}
-		seen[toolCall.ID] = struct{}{}
-		toolNameByID[toolCall.ID] = toolCall.Function.Name
-
-		fmt.Printf(
-			"tool_call: %s %s (id=%s)\n",
-			toolIcon(toolCall.Function.Name),
-			toolCall.Function.Name,
-			toolCall.ID,
-		)
-		if len(toolCall.Function.Arguments) > 0 {
-			fmt.Printf("  args: %s\n", formatInlineJSON(toolCall.Function.Arguments))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func printToolResult(
@@ -268,64 +107,12 @@ func printToolResult(
 	toolNameByID map[string]string,
 	seen map[string]struct{},
 ) {
-	if msg.Role != model.RoleTool || msg.ToolID == "" {
-		return
-	}
-	if _, ok := seen[msg.ToolID]; ok {
-		return
-	}
-	seen[msg.ToolID] = struct{}{}
-
-	name := strings.TrimSpace(msg.ToolName)
-	if name == "" {
-		name = toolNameByID[msg.ToolID]
-	}
-	if name == "" {
-		name = "unknown"
-	}
-
-	content := strings.TrimSpace(msg.Content)
-	if content == "" {
-		content = "<empty>"
-	}
-	fmt.Printf(
-		"tool_result: %s %s (id=%s): %s\n",
-		toolIcon(name),
-		name,
-		msg.ToolID,
-		formatToolResult(content),
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
-func formatToolResult(content string) string {
-	const maxLen = 400
-	if len(content) <= maxLen {
-		return content
-	}
-	return content[:maxLen] + "..."
-}
+func formatToolResult(content string) string { _ = "STUB: not implemented"; return "" }
 
-func formatInlineJSON(b []byte) string {
-	var v any
-	if err := json.Unmarshal(b, &v); err != nil {
-		return formatToolResult(strings.TrimSpace(string(b)))
-	}
-	compact, err := json.Marshal(v)
-	if err != nil {
-		return formatToolResult(strings.TrimSpace(string(b)))
-	}
-	return formatToolResult(string(compact))
-}
+func formatInlineJSON(b []byte) string { _ = "STUB: not implemented"; return "" }
 
-func toolIcon(name string) string {
-	switch strings.ToLower(strings.TrimSpace(name)) {
-	case "skill_load":
-		return "📥"
-	case "set_output_schema":
-		return "🧩"
-	case "skill_run":
-		return "▶️"
-	default:
-		return "🔧"
-	}
-}
+func toolIcon(name string) string { _ = "STUB: not implemented"; return "" }

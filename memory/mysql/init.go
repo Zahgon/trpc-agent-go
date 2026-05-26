@@ -11,10 +11,6 @@ package mysql
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // SQL template for table creation (MySQL syntax)
@@ -35,28 +31,6 @@ const (
 )
 
 // initDB initializes the database schema.
-func (s *Service) initDB(ctx context.Context) error {
-	log.InfoContext(
-		ctx,
-		"initializing mysql memory database schema...",
-	)
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Create table
-	fullTableName := s.tableName
-	sql := strings.ReplaceAll(sqlCreateMemoriesTable, "{{TABLE_NAME}}", fullTableName)
-
-	if _, err := s.db.Exec(ctx, sql); err != nil {
-		return fmt.Errorf("create table %s failed: %w", fullTableName, err)
-	}
-	log.InfofContext(
-		ctx,
-		"created table: %s",
-		fullTableName,
-	)
-
-	log.InfoContext(
-		ctx,
-		"mysql memory database schema initialized successfully",
-	)
-	return nil
-}
+// Create table

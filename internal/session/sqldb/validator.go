@@ -10,8 +10,6 @@
 package sqldb
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 )
 
@@ -33,47 +31,20 @@ const (
 //   - Name matches the allowed pattern (alphanumeric and underscore, starting with letter/underscore)
 //
 // Returns an error if validation fails.
-func ValidateTableName(name string) error {
-	if name == "" {
-		return errors.New("table name cannot be empty")
-	}
-
-	if len(name) > maxTableNameLength {
-		return fmt.Errorf("table name too long: %d characters (max %d)",
-			len(name), maxTableNameLength)
-	}
-
-	if !tableNamePattern.MatchString(name) {
-		return fmt.Errorf("invalid table name: %s (must start with letter/underscore and contain only alphanumeric characters and underscores)",
-			name)
-	}
-
-	return nil
-}
+func ValidateTableName(name string) error { _ = "STUB: not implemented"; return nil }
 
 // ValidateTablePrefix validates a table prefix.
 // It applies the same rules as ValidateTableName, but allows empty strings.
 func ValidateTablePrefix(prefix string) error {
+	_ = "STUB: not implemented"
 	// Empty prefix is allowed
-	if prefix == "" {
-		return nil
-	}
-
-	return ValidateTableName(prefix)
+	return nil
 }
 
 // MustValidateTableName is like ValidateTableName but panics on error.
 // This is useful for validating constant table names at package initialization.
-func MustValidateTableName(name string) {
-	if err := ValidateTableName(name); err != nil {
-		panic(fmt.Sprintf("invalid table name: %v", err))
-	}
-}
+func MustValidateTableName(name string) { _ = "STUB: not implemented"; return }
 
 // MustValidateTablePrefix is like ValidateTablePrefix but panics on error.
 // This is useful for validating prefixes in option functions.
-func MustValidateTablePrefix(prefix string) {
-	if err := ValidateTablePrefix(prefix); err != nil {
-		panic(fmt.Sprintf("invalid table prefix: %v", err))
-	}
-}
+func MustValidateTablePrefix(prefix string) { _ = "STUB: not implemented"; return }

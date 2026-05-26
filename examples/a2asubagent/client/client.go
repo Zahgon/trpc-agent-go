@@ -11,21 +11,14 @@
 package main
 
 import (
-	"bufio"
-	"context"
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"strings"
-	"time"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/a2aagent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 )
 
@@ -65,115 +58,38 @@ func main() {
 }
 
 func buildCoordinatorAgent(subAgents []agent.Agent) agent.Agent {
+	_ = "STUB: not implemented"
 	// Create OpenAI model.
-	modelInstance := openai.New(*modelName)
-	desc := "You are a coordinator assistant that manages multiple sub-agents. You can handle user requests directly or delegate them to appropriate sub-agents."
-
-	// Create LLM agent with sub-agents.
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(2000),
-		Temperature: floatPtr(0.7),
-		Stream:      true,
-	}
-	return llmagent.New(
-		"agent_coordinator",
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription(desc),
-		llmagent.WithInstruction(desc),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithSubAgents(subAgents),
-	)
+	return *new(agent.Agent)
 }
+
+// Create LLM agent with sub-agents.
 
 func startChat(coordinatorAgent agent.Agent) {
+	_ = "STUB: not implemented"
 	// Display coordinator agent info
-	fmt.Printf("\n------- Coordinator Agent -------\n")
-	card := coordinatorAgent.Info()
-	fmt.Printf("%s: %s\n", card.Name, card.Description)
-	fmt.Printf("--------------------------------\n")
-
-	// Create runner for coordinator agent
-	coordinatorRunner := runner.NewRunner("test", coordinatorAgent)
-	// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
-	defer coordinatorRunner.Close()
-
-	userID := "user1"
-	sessionID := "session1"
-
-	fmt.Println("\nChat with the coordinator agent. Type 'new' for a new session, or 'exit' to quit.")
-
-	for {
-		if err := processMessage(coordinatorRunner, userID, &sessionID); err != nil {
-			if err.Error() == "exit" {
-				fmt.Println("👋 Goodbye!")
-				return
-			}
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println() // Add spacing between turns
-	}
+	return
 }
+
+// Create runner for coordinator agent
+
+// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
+
+// Add spacing between turns
 
 func processMessage(coordinatorRunner runner.Runner, userID string, sessionID *string) error {
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Print("User: ")
-	if !scanner.Scan() {
-		return fmt.Errorf("exit")
-	}
-
-	userInput := strings.TrimSpace(scanner.Text())
-	if userInput == "" {
-		return nil
-	}
-
-	switch strings.ToLower(userInput) {
-	case "exit":
-		return fmt.Errorf("exit")
-	case "new":
-		*sessionID = startNewSession()
-		return nil
-	}
-
-	// Process with coordinator agent only
-	events, err := coordinatorRunner.Run(context.Background(), userID, *sessionID, model.NewUserMessage(userInput))
-	if err != nil {
-		return fmt.Errorf("failed to run coordinator agent: %w", err)
-	}
-	if err := processResponse(events); err != nil {
-		return fmt.Errorf("failed to process coordinator response: %w", err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func startNewSession() string {
-	newSessionID := fmt.Sprintf("session_%d", time.Now().UnixNano())
-	fmt.Printf("🆕 Started new session: %s\n", newSessionID)
-	fmt.Printf("   (Conversation history has been reset)\n")
-	fmt.Println()
-	return newSessionID
-}
+// Process with coordinator agent only
+
+func startNewSession() string { _ = "STUB: not implemented"; return "" }
 
 // processResponse handles streaming responses from coordinator agent.
-func processResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("🎯 Coordinator: ")
+func processResponse(eventChan <-chan *event.Event) error { _ = "STUB: not implemented"; return nil }
 
-	var (
-		fullContent       string
-		toolCallsDetected bool
-		assistantStarted  bool
-		currentAgent      string = "agent_coordinator"
-	)
-
-	for event := range eventChan {
-		if err := handleTransferEvent(event, &fullContent, &toolCallsDetected, &assistantStarted, &currentAgent); err != nil {
-			return err
-		}
-	}
-
-	fmt.Println() // Final newline
-	return nil
-}
+// Final newline
 
 // handleTransferEvent processes a single event from the transfer system.
 func handleTransferEvent(
@@ -183,30 +99,18 @@ func handleTransferEvent(
 	assistantStarted *bool,
 	currentAgent *string,
 ) error {
+	_ = "STUB: not implemented"
 	// Handle errors.
-	if event.Error != nil {
-		fmt.Printf("\n❌ Error: %s\n", event.Error.Message)
-		return nil
-	}
-
-	// Handle agent transfers.
-	if handleTransfer(event, currentAgent, assistantStarted) {
-		return nil
-	}
-
-	// Handle tool calls.
-	if handleToolCalls(event, toolCallsDetected, assistantStarted) {
-		return nil
-	}
-
-	// Handle content.
-	handleContent(event, fullContent, toolCallsDetected, assistantStarted, currentAgent)
-
-	// Handle tool responses.
-	handleToolResponses(event)
-
 	return nil
 }
+
+// Handle agent transfers.
+
+// Handle tool calls.
+
+// Handle content.
+
+// Handle tool responses.
 
 // handleToolCalls detects and displays tool calls.
 func handleToolCalls(
@@ -214,29 +118,12 @@ func handleToolCalls(
 	toolCallsDetected *bool,
 	assistantStarted *bool,
 ) bool {
-	if len(event.Response.Choices) > 0 && len(event.Response.Choices[0].Message.ToolCalls) > 0 {
-		*toolCallsDetected = true
-		if *assistantStarted {
-			fmt.Printf("\n")
-		}
-
-		if isTransferTool(event.Response.Choices[0].Message.ToolCalls[0]) {
-			fmt.Printf("🔄 Initiating transfer...\n")
-		} else {
-			displayToolCalls(event)
-		}
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // handleToolResponses processes tool response completion.
-func handleToolResponses(event *event.Event) {
-	if event.IsToolResultResponse() && len(event.Response.Choices) > 0 && len(event.Response.Choices[0].Message.ToolCalls) > 0 &&
-		!isTransferTool(event.Response.Choices[0].Message.ToolCalls[0]) {
-		fmt.Printf("   ✅ Tool completed\n")
-	}
-}
+func handleToolResponses(event *event.Event) { _ = "STUB: not implemented"; return }
 
 // handleContent processes streaming content.
 func handleContent(
@@ -246,19 +133,12 @@ func handleContent(
 	assistantStarted *bool,
 	currentAgent *string,
 ) {
-	if len(event.Response.Choices) > 0 {
-		content := extractContent(event.Response.Choices[0])
-
-		if content != "" {
-			displayContent(event, content, fullContent, toolCallsDetected, assistantStarted, currentAgent)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // extractContent extracts content based on streaming mode.
-func extractContent(choice model.Choice) string {
-	return choice.Delta.Content
-}
+func extractContent(choice model.Choice) string { _ = "STUB: not implemented"; return "" }
 
 // displayContent handles content display logic.
 func displayContent(
@@ -269,105 +149,44 @@ func displayContent(
 	assistantStarted *bool,
 	currentAgent *string,
 ) {
-	if !*assistantStarted && !*toolCallsDetected {
-		displayAgentHeader(event, currentAgent)
-		*assistantStarted = true
-	} else if *toolCallsDetected && !*assistantStarted {
-		if !isTransferResponse(event) {
-			fmt.Printf("%s %s: ", getAgentIcon(event.Author), getAgentDisplayName(event.Author))
-			*assistantStarted = true
-		}
-	}
-
-	if !isTransferResponse(event) {
-		fmt.Print(content)
-		*fullContent += content
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func intPtr(i int) *int {
-	return &i
-}
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
 func floatPtr(f float64) *float64 {
-	return &f
+	_ = "STUB: not implemented"
+
+	// handleTransfer processes agent transfer events.
+	return nil
 }
 
-// handleTransfer processes agent transfer events.
 func handleTransfer(event *event.Event, currentAgent *string, assistantStarted *bool) bool {
-	if event.Object == model.ObjectTypeTransfer {
-		fmt.Printf("\n🔄 Transfer Event: %s\n", event.Response.Choices[0].Message.Content)
-		*currentAgent = getAgentFromTransfer(event)
-		*assistantStarted = false
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // displayToolCalls shows tool call information.
-func displayToolCalls(event *event.Event) {
-	fmt.Printf("🔧 %s executing tools:\n", getAgentIcon(event.Author))
-	for _, toolCall := range event.Response.Choices[0].Message.ToolCalls {
-		fmt.Printf("   • %s", toolCall.Function.Name)
-		if len(toolCall.Function.Arguments) > 0 {
-			fmt.Printf(" (%s)", string(toolCall.Function.Arguments))
-		}
-		fmt.Printf("\n")
-	}
-}
+func displayToolCalls(event *event.Event) { _ = "STUB: not implemented"; return }
 
 // displayAgentHeader shows the agent header when starting content.
 func displayAgentHeader(event *event.Event, currentAgent *string) {
-	if event.Author != *currentAgent {
-		fmt.Printf("\n%s %s: ", getAgentIcon(event.Author), getAgentDisplayName(event.Author))
-		*currentAgent = event.Author
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Helper functions for display formatting.
-func getAgentIcon(agentName string) string {
-	switch agentName {
-	case "agent_coordinator":
-		return "🎯"
-	case "calculator":
-		return "🧮"
-	case "CodeCheckAgent":
-		return "🔍"
-	default:
-		return "🤖"
-	}
-}
+func getAgentIcon(agentName string) string { _ = "STUB: not implemented"; return "" }
 
-func getAgentDisplayName(agentName string) string {
-	switch agentName {
-	case "agent_coordinator":
-		return "Coordinator"
-	case "calculator":
-		return "Calculator"
-	case "CodeCheckAgent":
-		return "Code Checker"
-	default:
-		return agentName
-	}
-}
+func getAgentDisplayName(agentName string) string { _ = "STUB: not implemented"; return "" }
 
 func getAgentFromTransfer(event *event.Event) string {
+	_ = "STUB: not implemented"
 	// Parse the transfer event to determine target agent.
-	if event.Response != nil && len(event.Response.Choices) > 0 {
-		content := event.Response.Choices[0].Message.Content
-		if strings.Contains(content, "calculator") {
-			return "calculator"
-		} else if strings.Contains(content, "CodeCheckAgent") {
-			return "CodeCheckAgent"
-		}
-	}
-	return "agent_coordinator"
+	return ""
 }
 
-func isTransferTool(toolCall model.ToolCall) bool {
-	return toolCall.Function.Name == "transfer_to_agent"
-}
+func isTransferTool(toolCall model.ToolCall) bool { _ = "STUB: not implemented"; return false }
 
-func isTransferResponse(event *event.Event) bool {
-	return len(event.Response.Choices) > 0 && event.Response.Choices[0].Message.ToolID != ""
-}
+func isTransferResponse(event *event.Event) bool { _ = "STUB: not implemented"; return false }

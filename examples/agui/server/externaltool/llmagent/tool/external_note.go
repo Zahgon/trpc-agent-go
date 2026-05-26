@@ -11,25 +11,18 @@ package tool
 
 import (
 	"context"
-	"fmt"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 // ExternalNoteName is the caller-executed note tool name.
 const ExternalNoteName = "external_note"
 
-func newExternalNoteTool() agenttool.Tool {
-	return function.NewFunctionTool(
-		externalNoteNotImplemented,
-		function.WithName(ExternalNoteName),
-		function.WithDescription("Ask the caller to provide a plain text note for the given topic."),
-	)
-}
+func newExternalNoteTool() agenttool.Tool { _ = "STUB: not implemented"; return *new(agenttool.Tool) }
 
 func externalNoteNotImplemented(_ context.Context, args externalNoteArgs) (externalNoteResult, error) {
-	return externalNoteResult{}, fmt.Errorf("%s is executed by the caller for topic %q", ExternalNoteName, args.Topic)
+	_ = "STUB: not implemented"
+	return *new(externalNoteResult), nil
 }
 
 type externalNoteArgs struct {

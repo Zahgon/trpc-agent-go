@@ -21,20 +21,14 @@ type Option func(*PassthroughEnhancer)
 
 // NewPassthroughEnhancer creates a new passthrough query enhancer with options.
 func NewPassthroughEnhancer(opts ...Option) *PassthroughEnhancer {
-	pe := &PassthroughEnhancer{}
-
-	// Apply options.
-	for _, opt := range opts {
-		opt(pe)
-	}
-
-	return pe
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Apply options.
 
 // EnhanceQuery implements the Enhancer interface by returning the original query.
 func (p *PassthroughEnhancer) EnhanceQuery(ctx context.Context, req *Request) (*Enhanced, error) {
-	return &Enhanced{
-		Enhanced: req.Query,
-		Keywords: []string{req.Query},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

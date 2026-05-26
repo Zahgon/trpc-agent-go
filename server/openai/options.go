@@ -31,56 +31,28 @@ type options struct {
 
 // WithBasePath sets the base path for the server.
 // Default is "/v1".
-func WithBasePath(path string) Option {
-	return func(opts *options) {
-		opts.basePath = path
-	}
-}
+func WithBasePath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPath sets the chat completions endpoint path.
 // Default is "/chat/completions".
-func WithPath(path string) Option {
-	return func(opts *options) {
-		opts.path = path
-	}
-}
+func WithPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSessionService sets the session service.
 // If not provided, an in-memory session service will be used.
-func WithSessionService(svc session.Service) Option {
-	return func(opts *options) {
-		opts.sessionService = svc
-	}
-}
+func WithSessionService(svc session.Service) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAgent sets the agent to use.
 // Either WithAgent or WithRunner must be provided.
-func WithAgent(ag agent.Agent) Option {
-	return func(opts *options) {
-		opts.agent = ag
-	}
-}
+func WithAgent(ag agent.Agent) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRunner sets the runner to use.
 // If not provided, a runner will be created from the agent.
-func WithRunner(r runner.Runner) Option {
-	return func(opts *options) {
-		opts.runner = r
-	}
-}
+func WithRunner(r runner.Runner) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithModelName sets the model name to return in responses.
 // Default is "gpt-3.5-turbo".
-func WithModelName(name string) Option {
-	return func(opts *options) {
-		opts.modelName = name
-	}
-}
+func WithModelName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithAppName sets the app name for the runner.
 // Default is "openai-server".
-func WithAppName(name string) Option {
-	return func(opts *options) {
-		opts.appName = name
-	}
-}
+func WithAppName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }

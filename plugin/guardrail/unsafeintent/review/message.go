@@ -9,8 +9,6 @@
 package review
 
 import (
-	"bytes"
-	"fmt"
 	"text/template"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -63,22 +61,4 @@ type userMessageTranscriptLine struct {
 	Content string
 }
 
-func renderUserMessage(req *Request) (string, error) {
-	lines := make([]userMessageTranscriptLine, 0, len(req.Transcript))
-	for i, entry := range req.Transcript {
-		lines = append(lines, userMessageTranscriptLine{
-			Index:   i + 1,
-			Role:    entry.Role,
-			Content: entry.Content,
-		})
-	}
-	var builder bytes.Buffer
-	err := userMessageTemplate.Execute(&builder, userMessageTemplateData{
-		Transcript:    lines,
-		LastUserInput: req.LastUserInput,
-	})
-	if err != nil {
-		return "", fmt.Errorf("execute user message template: %w", err)
-	}
-	return builder.String(), nil
-}
+func renderUserMessage(req *Request) (string, error) { _ = "STUB: not implemented"; return "", nil }

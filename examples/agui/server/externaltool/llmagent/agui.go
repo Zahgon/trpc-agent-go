@@ -16,11 +16,6 @@ import (
 )
 
 func newAGUIServer(run runner.Runner, sessionService session.Service) (*agui.Server, error) {
-	return agui.New(
-		run,
-		agui.WithAppName(appName),
-		agui.WithSessionService(sessionService),
-		agui.WithPath(*path),
-		agui.WithMessagesSnapshotEnabled(true),
-	)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

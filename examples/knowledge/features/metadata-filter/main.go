@@ -28,7 +28,6 @@ import (
 	"fmt"
 	"log"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	util "trpc.group/trpc-go/trpc-agent-go/examples/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/embedder/openai"
@@ -36,10 +35,6 @@ import (
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/source"
 	"trpc.group/trpc-go/trpc-agent-go/knowledge/source/file"
 	knowledgetool "trpc.group/trpc-go/trpc-agent-go/knowledge/tool"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	openaimodel "trpc.group/trpc-go/trpc-agent-go/model/openai"
-	"trpc.group/trpc-go/trpc-agent-go/runner"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 )
 
@@ -157,31 +152,6 @@ func main() {
 }
 
 func runToolDemo(ctx context.Context, modelName string, searchTool tool.Tool, query string) {
-	agent := llmagent.New(
-		"filter-assistant",
-		llmagent.WithModel(openaimodel.New(modelName)),
-		llmagent.WithTools([]tool.Tool{searchTool}),
-	)
-
-	r := runner.NewRunner(
-		"filter-chat",
-		agent,
-		runner.WithSessionService(sessioninmemory.NewSessionService()),
-	)
-	defer r.Close()
-
-	fmt.Printf("   🔍 Query: %s\n", query)
-	eventChan, err := r.Run(ctx, "user", "session-1", model.NewUserMessage(query))
-	if err != nil {
-		log.Printf("Query failed: %v", err)
-		return
-	}
-
-	fmt.Print("   🤖 Response: ")
-	for evt := range eventChan {
-		util.PrintEventWithToolCalls(evt)
-		if evt.IsFinalResponse() && len(evt.Response.Choices) > 0 {
-			fmt.Println(evt.Response.Choices[0].Message.Content)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

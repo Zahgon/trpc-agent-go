@@ -22,18 +22,13 @@ const (
 // IsStreamingToolResultActivityEvent reports whether the event is a synthetic
 // activity event derived from partial tool-result chunks.
 func IsStreamingToolResultActivityEvent(evt aguievents.Event) bool {
-	switch e := evt.(type) {
-	case *aguievents.ActivitySnapshotEvent:
-		return e.ActivityType == StreamingToolResultActivityType
-	case *aguievents.ActivityDeltaEvent:
-		return e.ActivityType == StreamingToolResultActivityType
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
 // StreamingToolResultActivityMessageID returns the synthetic activity message ID
 // for the tool call.
 func StreamingToolResultActivityMessageID(toolCallID string) string {
-	return "tool-result-activity-" + toolCallID
+	_ = "STUB: not implemented"
+	return ""
 }

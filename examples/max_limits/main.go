@@ -147,45 +147,10 @@ func main() {
 	}
 }
 
-func printEvent(evt *event.Event) {
-	if evt == nil {
-		return
-	}
+func printEvent(evt *event.Event) { _ = "STUB: not implemented"; return }
 
-	if evt.Error != nil {
-		fmt.Printf("❌ Error event: type=%s message=%s\n",
-			evt.Error.Type, evt.Error.Message)
-		return
-	}
+// Show tool calls if present.
 
-	if evt.Response == nil || len(evt.Response.Choices) == 0 {
-		return
-	}
+// Show tool responses.
 
-	rsp := evt.Response
-	ch := rsp.Choices[0]
-
-	// Show tool calls if present.
-	if len(ch.Message.ToolCalls) > 0 {
-		fmt.Println("🔧 Tool calls:")
-		for _, tc := range ch.Message.ToolCalls {
-			fmt.Printf("   • %s (ID: %s) args=%s\n",
-				tc.Function.Name, tc.ID, string(tc.Function.Arguments))
-		}
-		return
-	}
-
-	// Show tool responses.
-	if ch.Message.Role == model.RoleTool && ch.Message.ToolID != "" {
-		fmt.Printf("🛠️  Tool response (ID: %s): %s\n",
-			ch.Message.ToolID, ch.Message.Content)
-		return
-	}
-
-	// Show assistant content.
-	if ch.Delta.Content != "" {
-		fmt.Printf("🤖 Delta: %s\n", ch.Delta.Content)
-	} else if ch.Message.Content != "" {
-		fmt.Printf("🤖 Message: %s\n", ch.Message.Content)
-	}
-}
+// Show assistant content.

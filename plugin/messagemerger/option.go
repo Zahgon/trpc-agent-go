@@ -22,29 +22,10 @@ type options struct {
 	separator string
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		name:      defaultPluginName,
-		separator: defaultSeparator,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithName sets the plugin name.
-func WithName(name string) Option {
-	return func(opts *options) {
-		opts.name = name
-	}
-}
+func WithName(name string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSeparator sets the separator inserted between merged text segments.
-func WithSeparator(separator string) Option {
-	return func(opts *options) {
-		opts.separator = separator
-	}
-}
+func WithSeparator(separator string) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -12,7 +12,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"trpc.group/trpc-go/trpc-a2a-go/client"
@@ -51,58 +50,10 @@ func main() {
 	printMessageResult(rsp)
 }
 
-func printMessageResult(rsp *protocol.MessageResult) {
-	if rsp == nil || rsp.Result == nil {
-		fmt.Println("empty response")
-		return
-	}
+func printMessageResult(rsp *protocol.MessageResult) { _ = "STUB: not implemented"; return }
 
-	switch v := rsp.Result.(type) {
-	case *protocol.Message:
-		printTextParts(v.Parts)
-	case *protocol.Task:
-		printTask(v)
-	default:
-		fmt.Printf("unexpected result type: %T\n", rsp.Result)
-	}
-}
+func printTask(task *protocol.Task) { _ = "STUB: not implemented"; return }
 
-func printTask(task *protocol.Task) {
-	if task == nil {
-		fmt.Println("empty task")
-		return
-	}
-	for _, msg := range task.History {
-		printTextParts(msg.Parts)
-	}
-	for _, art := range task.Artifacts {
-		printTextParts(art.Parts)
-	}
-}
+func printTextParts(parts []protocol.Part) { _ = "STUB: not implemented"; return }
 
-func printTextParts(parts []protocol.Part) {
-	for _, part := range parts {
-		switch part.GetKind() {
-		case protocol.KindText:
-			textPart := asTextPart(part)
-			if textPart == nil {
-				continue
-			}
-			fmt.Print(textPart.Text)
-		}
-	}
-	fmt.Println()
-}
-
-func asTextPart(part protocol.Part) *protocol.TextPart {
-	if part == nil {
-		return nil
-	}
-	if p, ok := part.(*protocol.TextPart); ok {
-		return p
-	}
-	if p, ok := part.(protocol.TextPart); ok {
-		return &p
-	}
-	return nil
-}
+func asTextPart(part protocol.Part) *protocol.TextPart { _ = "STUB: not implemented"; return nil }

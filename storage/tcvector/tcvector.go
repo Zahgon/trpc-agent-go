@@ -11,8 +11,6 @@
 package tcvector
 
 import (
-	"errors"
-
 	"github.com/tencent/vectordatabase-sdk-go/tcvectordb"
 )
 
@@ -39,35 +37,23 @@ type clientBuilder func(builderOpts ...ClientBuilderOpt) (ClientInterface, error
 var globalBuilder clientBuilder = defaultClientBuilder
 
 // SetClientBuilder sets the client builder for tcvectordb.
-func SetClientBuilder(builder clientBuilder) {
-	globalBuilder = builder
-}
+func SetClientBuilder(builder clientBuilder) { _ = "STUB: not implemented"; return }
 
 // GetClientBuilder gets the tcvectordb client builder.
 func GetClientBuilder() clientBuilder {
-	return globalBuilder
+	_ = "STUB: not implemented"
+	return *
+
+	// defaultClientBuilder is the default client builder for tcvectordb.
+	new(clientBuilder)
 }
 
-// defaultClientBuilder is the default client builder for tcvectordb.
 func defaultClientBuilder(builderOpts ...ClientBuilderOpt) (ClientInterface, error) {
-	opts := &ClientBuilderOpts{}
-	for _, opt := range builderOpts {
-		opt(opts)
-	}
-
-	// Validate required parameters
-	if opts.HTTPURL == "" {
-		return nil, errors.New("HTTPURL is required")
-	}
-	if opts.UserName == "" {
-		return nil, errors.New("UserName is required")
-	}
-	if opts.Key == "" {
-		return nil, errors.New("Key is required")
-	}
-
-	return tcvectordb.NewClient(opts.HTTPURL, opts.UserName, opts.Key, nil)
+	_ = "STUB: not implemented"
+	return *new(ClientInterface), nil
 }
+
+// Validate required parameters
 
 // ClientBuilderOpt is the option for the tcvectordb client.
 type ClientBuilderOpt func(*ClientBuilderOpts)
@@ -88,41 +74,38 @@ type ClientBuilderOpts struct {
 
 // WithClientBuilderHTTPURL sets the http url for the tcvectordb client.
 func WithClientBuilderHTTPURL(httpURL string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.HTTPURL = httpURL
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithClientBuilderUserName sets the username for the tcvectordb client.
 func WithClientBuilderUserName(userName string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.UserName = userName
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithClientBuilderKey sets the key for the tcvectordb client.
 func WithClientBuilderKey(key string) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.Key = key
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // WithExtraOptions sets extra options for customized client builders.
 // The default builder does not consume these options.
 func WithExtraOptions(extraOptions ...any) ClientBuilderOpt {
-	return func(o *ClientBuilderOpts) {
-		o.ExtraOptions = append(o.ExtraOptions, extraOptions...)
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientBuilderOpt)
 }
 
 // RegisterTcVectorInstance registers a tcvectordb instance options.
 // If the instance already exists, it will be overwritten.
 func RegisterTcVectorInstance(name string, opts ...ClientBuilderOpt) {
-	tcvectorRegistry[name] = opts
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetTcVectorInstance gets the tcvectordb instance options.
 func GetTcVectorInstance(name string) ([]ClientBuilderOpt, bool) {
-	instance, ok := tcvectorRegistry[name]
-	return instance, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }

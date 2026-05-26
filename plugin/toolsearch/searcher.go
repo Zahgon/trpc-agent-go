@@ -26,11 +26,12 @@ type contextKeyToolSearchUsage struct{}
 // ToolSearchUsageFromContext retrieves tool search usage from context.
 // Returns the usage and true if found, nil and false otherwise.
 func ToolSearchUsageFromContext(ctx context.Context) (*model.Usage, bool) {
-	usage, ok := ctx.Value(contextKeyToolSearchUsage{}).(*model.Usage)
-	return usage, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // SetToolSearchUsage sets tool search usage in context.
 func SetToolSearchUsage(ctx context.Context, usage *model.Usage) context.Context {
-	return context.WithValue(ctx, contextKeyToolSearchUsage{}, usage)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

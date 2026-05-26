@@ -13,13 +13,10 @@ package team
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	istructure "trpc.group/trpc-go/trpc-agent-go/internal/structure"
-	"trpc.group/trpc-go/trpc-agent-go/internal/teamtrace"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 
 	agenttool "trpc.group/trpc-go/trpc-agent-go/tool/agent"
@@ -90,47 +87,8 @@ func New(
 	members []agent.Agent,
 	opts ...Option,
 ) (*Team, error) {
-	if coordinator == nil {
-		return nil, errNilCoordinator
-	}
-
-	name := coordinator.Info().Name
-	if name == "" {
-		return nil, errEmptyTeamName
-	}
-
-	cfg := defaultOptions(name)
-	for _, opt := range opts {
-		opt(&cfg)
-	}
-
-	memberByName, err := buildMemberIndex(name, members)
-	if err != nil {
-		return nil, err
-	}
-
-	adder, ok := coordinator.(toolSetAdder)
-	if !ok {
-		return nil, errors.New(
-			"coordinator does not support AddToolSet",
-		)
-	}
-
-	memberToolSet := newMemberToolSet(
-		cfg.memberTools,
-		members,
-	)
-	adder.AddToolSet(memberToolSet)
-
-	return &Team{
-		name:          name,
-		description:   cfg.description,
-		mode:          ModeCoordinator,
-		coordinator:   coordinator,
-		members:       members,
-		memberByName:  memberByName,
-		memberToolSet: memberToolSet,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewSwarm creates a swarm team.
@@ -142,41 +100,8 @@ func NewSwarm(
 	members []agent.Agent,
 	opts ...Option,
 ) (*Team, error) {
-	if name == "" {
-		return nil, errEmptyTeamName
-	}
-	if entryName == "" {
-		return nil, errors.New("entry member name is empty")
-	}
-
-	cfg := defaultOptions(name)
-	for _, opt := range opts {
-		opt(&cfg)
-	}
-
-	memberByName, err := buildMemberIndex("", members)
-	if err != nil {
-		return nil, err
-	}
-	if memberByName[entryName] == nil {
-		return nil, fmt.Errorf("entry member %q not found", entryName)
-	}
-
-	if err := wireSwarmRoster(members); err != nil {
-		return nil, err
-	}
-
-	return &Team{
-		name:              name,
-		description:       cfg.description,
-		mode:              ModeSwarm,
-		entryName:         entryName,
-		members:           members,
-		memberByName:      memberByName,
-		swarm:             cfg.swarm,
-		swarmHandoff:      cfg.swarmHandoff,
-		swarmHandoffInput: cfg.swarmHandoffInput,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Run implements agent.Agent.
@@ -184,320 +109,102 @@ func (t *Team) Run(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	switch t.mode {
-	case ModeCoordinator:
-		return t.runCoordinator(ctx, invocation)
-	case ModeSwarm:
-		return t.runSwarm(ctx, invocation)
-	default:
-		return nil, fmt.Errorf("unknown team mode: %d", t.mode)
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (t *Team) runCoordinator(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	if t.coordinator == nil {
-		return nil, errors.New("coordinator is nil")
-	}
-	rootNodeID := teamtrace.RootNodeID(invocation, t.name)
-	teamtrace.SetMemberTraceRootForInvocation(invocation, rootNodeID)
-	agent.SetInvocationSurfaceRootNodeID(
-		invocation,
-		teamtrace.CoordinatorNodeID(rootNodeID),
-	)
-	coordinatorEventCh, err := t.coordinator.Run(ctx, invocation)
-	if err != nil {
-		agent.ClearInvocationSurfaceRootNodeID(invocation)
-		teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		return nil, err
-	}
-	return wrapCoordinatorInvocationState(
-		invocation,
-		coordinatorEventCh,
-	), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func wrapCoordinatorInvocationState(
 	invocation *agent.Invocation,
 	src <-chan *event.Event,
 ) <-chan *event.Event {
-	if invocation == nil || src == nil {
-		return src
-	}
-	out := make(chan *event.Event)
-	go func() {
-		defer close(out)
-		defer teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		defer agent.ClearInvocationSurfaceRootNodeID(invocation)
-		for evt := range src {
-			out <- evt
-		}
-	}()
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *Team) runSwarm(
 	ctx context.Context,
 	invocation *agent.Invocation,
 ) (<-chan *event.Event, error) {
-	traceRootNodeID := teamtrace.TraceRootNodeID(invocation, t.name)
-	surfaceRootNodeID := teamtrace.RootNodeID(invocation, t.name)
-	if t.swarmHandoff.needsRootState() && invocation.Session != nil {
-		teamtrace.SetMemberTraceRootForInvocation(invocation, traceRootNodeID)
-		t.markSwarmRootSession(invocation, traceRootNodeID)
-	}
-	var startAgent agent.Agent
-	if t.swarmHandoff.targetTakesOver() {
-		// Try to get the active agent from session state (for cross-request transfer).
-		startAgent = t.getActiveAgent(invocation)
-	}
-	// If no active agent (either cross-request transfer disabled or no active agent stored),
-	// fall back to entry member.
-	if startAgent == nil {
-		t.mu.RLock()
-		startAgent = t.memberByName[t.entryName]
-		t.mu.RUnlock()
-		if startAgent == nil {
-			teamtrace.ClearMemberTraceRootForInvocation(invocation)
-			return nil, fmt.Errorf("entry member %q not found", t.entryName)
-		}
-	}
-	swarmRun := ensureSwarmRuntime(
-		invocation,
-		t.name,
-		t.entryName,
-		t.swarm,
-		t.swarmHandoff,
-		t.swarmHandoffInput,
-	)
-	startSession, err := t.prepareSwarmStartSession(
-		ctx,
-		invocation,
-		startAgent,
-		swarmRun,
-	)
-	if err != nil {
-		teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		return nil, err
-	}
-	memberPathAllocator := istructure.NewPathAllocator(traceRootNodeID)
-	var memberNodeID string
-	startAgentName := startAgent.Info().Name
-	t.mu.RLock()
-	for _, member := range t.members {
-		nextNodeID := memberPathAllocator.Next(member.Info().Name)
-		if member != nil && member.Info().Name == startAgentName {
-			memberNodeID = nextNodeID
-			break
-		}
-	}
-	t.mu.RUnlock()
-	if memberNodeID == "" {
-		memberNodeID = teamtrace.MemberNodeID(traceRootNodeID, startAgent.Info().Name)
-	}
-	memberSurfaceRootNodeID := teamtrace.MemberNodeID(
-		surfaceRootNodeID,
-		startAgent.Info().Name,
-	)
-	child := invocation.Clone(
-		agent.WithInvocationAgent(startAgent),
-		agent.WithInvocationTraceNodeID(memberNodeID),
-		agent.WithInvocationEntryPredecessorStepIDs(agent.NextExecutionTracePredecessors(invocation)),
-		agent.WithInvocationSession(startSession),
-		func(inv *agent.Invocation) {
-			agent.SetInvocationSurfaceRootNodeID(inv, memberSurfaceRootNodeID)
-		},
-	)
-	if swarmRun != nil {
-		swarmRun.registerInvocationSession(
-			child.InvocationID,
-			child.Branch,
-			startSession,
-		)
-	}
-	childCtx := agent.NewInvocationContext(ctx, child)
-	memberEventCh, err := startAgent.Run(childCtx, child)
-	if err != nil {
-		teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		return nil, err
-	}
-	return wrapSwarmInvocationState(invocation, memberEventCh), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Try to get the active agent from session state (for cross-request transfer).
+
+// If no active agent (either cross-request transfer disabled or no active agent stored),
+// fall back to entry member.
 
 func wrapSwarmInvocationState(
 	invocation *agent.Invocation,
 	src <-chan *event.Event,
 ) <-chan *event.Event {
-	if invocation == nil {
-		return src
-	}
-	if src == nil {
-		teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		return nil
-	}
-	out := make(chan *event.Event)
-	go func() {
-		defer close(out)
-		defer teamtrace.ClearMemberTraceRootForInvocation(invocation)
-		for evt := range src {
-			out <- evt
-		}
-	}()
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *Team) markSwarmRootSession(
 	invocation *agent.Invocation,
 	traceRootNodeID string,
 ) {
-	if invocation == nil || invocation.Session == nil {
-		return
-	}
-	invocation.Session.SetState(SwarmTeamNameKey, []byte(t.name))
-	if invocation.RunOptions.ExecutionTraceEnabled && traceRootNodeID != "" {
-		invocation.Session.SetState(swarmTraceNodeIDKey, []byte(traceRootNodeID))
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // getActiveAgent retrieves the active agent from session state for cross-request transfer.
 // Returns nil if no active agent is stored or if the stored agent doesn't exist.
 func (t *Team) getActiveAgent(invocation *agent.Invocation) agent.Agent {
-	if invocation == nil || invocation.Session == nil {
-		return nil
-	}
-
-	// Get the active agent name from session state.
-	agentNameBytes, ok := invocation.Session.GetState(swarmActiveAgentKey(t.name))
-	if !ok || len(agentNameBytes) == 0 {
-		return nil
-	}
-
-	activeAgentName := string(agentNameBytes)
-
-	// Look up the agent in memberByName.
-	t.mu.RLock()
-	ag := t.memberByName[activeAgentName]
-	t.mu.RUnlock()
-	if ag == nil {
-		// Active agent doesn't exist, return nil to fall back to entry member.
-		return nil
-	}
-
-	return ag
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
+
+// Get the active agent name from session state.
+
+// Look up the agent in memberByName.
+
+// Active agent doesn't exist, return nil to fall back to entry member.
 
 // Tools implements agent.Agent.
-func (t *Team) Tools() []tool.Tool {
-	switch t.mode {
-	case ModeCoordinator:
-		if t.coordinator == nil {
-			return nil
-		}
-		return t.coordinator.Tools()
-	case ModeSwarm:
-		t.mu.RLock()
-		entry := t.memberByName[t.entryName]
-		t.mu.RUnlock()
-		if entry == nil {
-			return nil
-		}
-		return entry.Tools()
-	default:
-		return nil
-	}
-}
+func (t *Team) Tools() []tool.Tool { _ = "STUB: not implemented"; return nil }
 
 // Info implements agent.Agent.
-func (t *Team) Info() agent.Info {
-	return agent.Info{
-		Name:        t.name,
-		Description: t.description,
-	}
-}
+func (t *Team) Info() agent.Info { _ = "STUB: not implemented"; return *new(agent.Info) }
 
 // SubAgents implements agent.Agent.
-func (t *Team) SubAgents() []agent.Agent {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	if len(t.members) == 0 {
-		return nil
-	}
-	out := make([]agent.Agent, len(t.members))
-	copy(out, t.members)
-	return out
-}
+func (t *Team) SubAgents() []agent.Agent { _ = "STUB: not implemented"; return nil }
 
 // FindSubAgent implements agent.Agent.
 func (t *Team) FindSubAgent(name string) agent.Agent {
-	if name == "" {
-		return nil
-	}
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-	return t.memberByName[name]
+	_ = "STUB: not implemented"
+	return *new(agent.Agent)
 }
 
 func buildMemberIndex(
 	coordinatorName string,
 	members []agent.Agent,
 ) (map[string]agent.Agent, error) {
-	if len(members) == 0 {
-		return nil, errors.New("members is empty")
-	}
-
-	memberByName := make(map[string]agent.Agent, len(members))
-	for _, m := range members {
-		if m == nil {
-			return nil, errors.New("member is nil")
-		}
-		name := m.Info().Name
-		if name == "" {
-			return nil, errors.New("member name is empty")
-		}
-		if coordinatorName != "" && name == coordinatorName {
-			return nil, fmt.Errorf(
-				"member name %q conflicts with coordinator",
-				name,
-			)
-		}
-		if memberByName[name] != nil {
-			return nil, fmt.Errorf("duplicate member name %q", name)
-		}
-		memberByName[name] = m
-	}
-	return memberByName, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func newMemberToolSet(
 	cfg memberToolOptions,
 	members []agent.Agent,
 ) tool.ToolSet {
-	scope := agentToolHistoryScope(cfg.historyScope)
-	tools := make([]tool.Tool, 0, len(members))
-	for _, m := range members {
-		tools = append(tools, agenttool.NewTool(
-			m,
-			agenttool.WithSkipSummarization(cfg.skipSummarization),
-			agenttool.WithStreamInner(cfg.streamInner),
-			agenttool.WithInnerTextMode(cfg.innerTextMode),
-			agenttool.WithHistoryScope(scope),
-		))
-	}
-	return &staticToolSet{name: cfg.name, tools: tools}
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet)
 }
 
 func agentToolHistoryScope(scope HistoryScope) agenttool.HistoryScope {
-	switch scope {
-	case HistoryScopeIsolated:
-		return agenttool.HistoryScopeIsolated
-	case HistoryScopeParentBranch:
-		return agenttool.HistoryScopeParentBranch
-	default:
-		return agenttool.HistoryScopeParentBranch
-	}
+	_ = "STUB: not implemented"
+	return *new(agenttool.HistoryScope)
 }
 
 type staticToolSet struct {
@@ -505,48 +212,12 @@ type staticToolSet struct {
 	tools []tool.Tool
 }
 
-func (s *staticToolSet) Tools(context.Context) []tool.Tool {
-	if len(s.tools) == 0 {
-		return nil
-	}
-	out := make([]tool.Tool, len(s.tools))
-	copy(out, s.tools)
-	return out
-}
+func (s *staticToolSet) Tools(context.Context) []tool.Tool { _ = "STUB: not implemented"; return nil }
 
-func (s *staticToolSet) Close() error { return nil }
+func (s *staticToolSet) Close() error { _ = "STUB: not implemented"; return nil }
 
-func (s *staticToolSet) Name() string { return s.name }
+func (s *staticToolSet) Name() string { _ = "STUB: not implemented"; return "" }
 
-func wireSwarmRoster(members []agent.Agent) error {
-	setters := make([]agent.SubAgentSetter, 0, len(members))
-	for _, m := range members {
-		setter, ok := m.(agent.SubAgentSetter)
-		if !ok {
-			return fmt.Errorf(
-				"member %q does not support SetSubAgents",
-				m.Info().Name,
-			)
-		}
-		setters = append(setters, setter)
-	}
+func wireSwarmRoster(members []agent.Agent) error { _ = "STUB: not implemented"; return nil }
 
-	for i := range members {
-		roster := make([]agent.Agent, 0, len(members)-1)
-		for j, other := range members {
-			if other == nil || i == j {
-				continue
-			}
-			roster = append(roster, other)
-		}
-		setters[i].SetSubAgents(roster)
-	}
-	return nil
-}
-
-func swarmActiveAgentKey(teamName string) string {
-	if teamName == "" {
-		return SwarmActiveAgentKeyPrefix
-	}
-	return SwarmActiveAgentKeyPrefix + teamName
-}
+func swarmActiveAgentKey(teamName string) string { _ = "STUB: not implemented"; return "" }

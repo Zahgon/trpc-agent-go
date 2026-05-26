@@ -10,12 +10,7 @@
 package browser
 
 import (
-	"encoding/json"
-	"fmt"
 	"regexp"
-	"strconv"
-	"strings"
-	"unicode/utf8"
 )
 
 const (
@@ -80,182 +75,27 @@ func newBaseResult(
 	driverType string,
 	evaluateEnabled bool,
 ) Result {
-	if strings.TrimSpace(driverType) == "" {
-		driverType = driverTypePlaywrightMCP
-	}
-	return Result{
-		Action:          action,
-		Profile:         profile,
-		Driver:          driverType,
-		EvaluateEnabled: evaluateEnabled,
-		Supported:       append([]string(nil), supportedActions...),
-	}
+	_ = "STUB: not implemented"
+	return *new(Result)
 }
 
-func wrapUntrustedText(text string, maxChars int) string {
-	trimmed := strings.TrimSpace(text)
-	if trimmed == "" {
-		return untrustedBrowserWarning
-	}
-	if maxChars > 0 {
-		trimmed = truncateString(trimmed, maxChars)
-	}
-	return untrustedBrowserWarning + "\n\n" + trimmed
-}
+func wrapUntrustedText(text string, maxChars int) string { _ = "STUB: not implemented"; return "" }
 
-func truncateString(text string, maxChars int) string {
-	if maxChars <= 0 || utf8.RuneCountInString(text) <= maxChars {
-		return text
-	}
+func truncateString(text string, maxChars int) string { _ = "STUB: not implemented"; return "" }
 
-	var b strings.Builder
-	count := 0
-	for _, r := range text {
-		if count >= maxChars {
-			break
-		}
-		b.WriteRune(r)
-		count++
-	}
-	return b.String() + "..."
-}
+func extractText(result any) string { _ = "STUB: not implemented"; return "" }
 
-func extractText(result any) string {
-	payload := unwrapContent(result)
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return ""
-	}
+func unwrapContent(result any) any { _ = "STUB: not implemented"; return *new(any) }
 
-	var items []textContentItem
-	if err := json.Unmarshal(body, &items); err != nil {
-		return ""
-	}
-
-	parts := make([]string, 0, len(items))
-	for i := range items {
-		item := items[i]
-		if strings.TrimSpace(item.Type) != "text" {
-			continue
-		}
-		text := strings.TrimSpace(item.Text)
-		if text == "" {
-			continue
-		}
-		parts = append(parts, text)
-	}
-	return strings.Join(parts, "\n\n")
-}
-
-func unwrapContent(result any) any {
-	if result == nil {
-		return nil
-	}
-
-	body, err := json.Marshal(result)
-	if err != nil {
-		return result
-	}
-
-	var envelope struct {
-		Content json.RawMessage `json:"content"`
-	}
-	if err := json.Unmarshal(body, &envelope); err != nil {
-		return result
-	}
-	if len(envelope.Content) == 0 {
-		return result
-	}
-
-	var content any
-	if err := json.Unmarshal(envelope.Content, &content); err != nil {
-		return result
-	}
-	return content
-}
-
-func parseTabs(text string) []TabInfo {
-	lines := strings.Split(text, "\n")
-	out := make([]TabInfo, 0, len(lines))
-	for _, line := range lines {
-		tab, ok := parseTabLine(line)
-		if !ok {
-			continue
-		}
-		out = append(out, tab)
-	}
-	if len(out) == 0 {
-		return nil
-	}
-	return out
-}
+func parseTabs(text string) []TabInfo { _ = "STUB: not implemented"; return nil }
 
 func parseTabLine(line string) (TabInfo, bool) {
-	trimmed := strings.TrimSpace(line)
-	if trimmed == "" {
-		return TabInfo{}, false
-	}
-
-	match := tabLinePattern.FindStringSubmatch(trimmed)
-	if len(match) != 4 {
-		return TabInfo{}, false
-	}
-
-	index, err := strconv.Atoi(match[2])
-	if err != nil {
-		return TabInfo{}, false
-	}
-
-	tab := TabInfo{
-		TargetID: formatTargetID(index),
-		Index:    index,
-		Raw:      trimmed,
-		Active:   match[1] == ">" || match[1] == "*",
-	}
-
-	detail := strings.TrimSpace(match[3])
-	if detail == "" {
-		return tab, true
-	}
-	title, url := splitTitleURL(detail)
-	tab.Title = title
-	tab.URL = url
-	return tab, true
+	_ = "STUB: not implemented"
+	return *new(TabInfo), false
 }
 
-func splitTitleURL(detail string) (string, string) {
-	for _, sep := range []string{" - ", " | "} {
-		title, url, ok := strings.Cut(detail, sep)
-		if !ok {
-			continue
-		}
-		url = strings.TrimSpace(url)
-		if strings.HasPrefix(url, "http://") ||
-			strings.HasPrefix(url, "https://") {
-			return strings.TrimSpace(title), url
-		}
-	}
-	if strings.HasPrefix(detail, "http://") ||
-		strings.HasPrefix(detail, "https://") {
-		return "", detail
-	}
-	return detail, ""
-}
+func splitTitleURL(detail string) (string, string) { _ = "STUB: not implemented"; return "", "" }
 
-func formatTargetID(index int) string {
-	return fmt.Sprintf("%s%d", tabTargetPrefix, index)
-}
+func formatTargetID(index int) string { _ = "STUB: not implemented"; return "" }
 
-func parseTargetID(raw string) (int, error) {
-	value := strings.TrimSpace(raw)
-	if value == "" {
-		return 0, fmt.Errorf("targetId is empty")
-	}
-
-	value = strings.TrimPrefix(value, tabTargetPrefix)
-	index, err := strconv.Atoi(value)
-	if err != nil {
-		return 0, fmt.Errorf("invalid targetId %q", raw)
-	}
-	return index, nil
-}
+func parseTargetID(raw string) (int, error) { _ = "STUB: not implemented"; return 0, nil }

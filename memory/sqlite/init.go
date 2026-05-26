@@ -12,10 +12,6 @@ package sqlite
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 )
 
 const (
@@ -52,35 +48,4 @@ const (
 	indexSuffixDeletedAt = "deleted_at"
 )
 
-func (s *Service) initDB(ctx context.Context) error {
-	tableSQL := strings.ReplaceAll(
-		sqlCreateMemoriesTable,
-		"{{TABLE_NAME}}",
-		s.tableName,
-	)
-	if _, err := s.db.ExecContext(ctx, tableSQL); err != nil {
-		return fmt.Errorf("create table %s: %w", s.tableName, err)
-	}
-
-	indexes := []struct {
-		suffix   string
-		template string
-	}{
-		{indexSuffixAppUser, sqlCreateMemoriesAppUserIndex},
-		{indexSuffixUpdatedAt, sqlCreateMemoriesUpdatedAtIndex},
-		{indexSuffixDeletedAt, sqlCreateMemoriesDeletedAtIndex},
-	}
-
-	for _, idx := range indexes {
-		indexName := sqldb.BuildIndexName("", s.tableName, idx.suffix)
-		indexSQL := strings.ReplaceAll(idx.template, "{{TABLE_NAME}}",
-			s.tableName)
-		indexSQL = strings.ReplaceAll(indexSQL, "{{INDEX_NAME}}",
-			indexName)
-		if _, err := s.db.ExecContext(ctx, indexSQL); err != nil {
-			return fmt.Errorf("create index %s: %w", indexName, err)
-		}
-	}
-
-	return nil
-}
+func (s *Service) initDB(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

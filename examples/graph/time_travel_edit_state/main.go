@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
@@ -129,43 +128,7 @@ func main() {
 	fmt.Println("Done.")
 }
 
-func buildGraph() (*graph.Graph, error) {
-	schema := graph.NewStateSchema().
-		AddField(stateKeyCounter, graph.StateField{
-			Type:    reflect.TypeOf(int(0)),
-			Default: func() any { return 0 },
-		}).
-		AddField(stateKeyDecision, graph.StateField{
-			Type:    reflect.TypeOf(""),
-			Default: func() any { return "" },
-		})
-
-	sg := graph.NewStateGraph(schema)
-	sg.AddNode(
-		nodeReview,
-		func(ctx context.Context, st graph.State) (any, error) {
-			counter, _ := st[stateKeyCounter].(int)
-
-			v, err := graph.Interrupt(
-				ctx,
-				st,
-				interruptKeyReview,
-				fmt.Sprintf("Please review counter=%d", counter),
-			)
-			if err != nil {
-				return nil, err
-			}
-			decision, _ := v.(string)
-			return graph.State{
-				stateKeyDecision: decision,
-				stateKeyCounter:  counter + 1,
-			}, nil
-		},
-	)
-	sg.SetEntryPoint(nodeReview)
-	sg.SetFinishPoint(nodeReview)
-	return sg.Compile()
-}
+func buildGraph() (*graph.Graph, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func runUntilClosed(
 	ctx context.Context,
@@ -173,10 +136,6 @@ func runUntilClosed(
 	inv *agent.Invocation,
 	state graph.State,
 ) {
-	ch, err := exec.Execute(ctx, state, inv)
-	if err != nil {
-		log.Fatalf("execute: %v", err)
-	}
-	for range ch {
-	}
+	_ = "STUB: not implemented"
+	return
 }

@@ -20,9 +20,4 @@ import (
 )
 
 // Resource transforms a Resource into an OTLP Resource.
-func Resource(r *resource.Resource) *resourcepb.Resource {
-	if r == nil {
-		return nil
-	}
-	return &resourcepb.Resource{Attributes: ResourceAttributes(r)}
-}
+func Resource(r *resource.Resource) *resourcepb.Resource { _ = "STUB: not implemented"; return nil }

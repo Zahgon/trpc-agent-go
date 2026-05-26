@@ -29,28 +29,18 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/google/uuid"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 	"trpc.group/trpc-go/trpc-agent-go/agent/extension/todoenforcer"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/session"
-	sessioninmemory "trpc.group/trpc-go/trpc-agent-go/session/inmemory"
-	"trpc.group/trpc-go/trpc-agent-go/tool"
 	"trpc.group/trpc-go/trpc-agent-go/tool/todo"
 )
 
@@ -110,29 +100,7 @@ type chat struct {
 	sessionID string
 }
 
-func (c *chat) run() error {
-	ctx := context.Background()
-	if err := c.setup(); err != nil {
-		return fmt.Errorf("setup: %w", err)
-	}
-	defer c.runner.Close()
-
-	if c.prefill {
-		if err := c.prefillTodos(ctx); err != nil {
-			return fmt.Errorf("prefill: %w", err)
-		}
-	}
-
-	if *seed != "" {
-		fmt.Printf("You (seed): %s\n", *seed)
-		if err := c.processMessage(ctx, *seed); err != nil {
-			fmt.Printf("Error: %v\n", err)
-		}
-		fmt.Println()
-		c.printTodos()
-	}
-	return c.startChat(ctx)
-}
+func (c *chat) run() error { _ = "STUB: not implemented"; return nil }
 
 // prefillTodos simulates a mid-task resumption scenario. It
 // reproduces, by hand, the exact pair of artefacts a real prior
@@ -164,103 +132,27 @@ func (c *chat) run() error {
 // field on each event matches the agent's branch (the agent
 // name in a single-agent setup), so when the runner builds the
 // next request these messages show up in the right context.
-func (c *chat) prefillTodos(ctx context.Context) error {
-	items := []todo.Item{
-		{
-			Content:    "Inspect the Kubernetes pod logs for the recent failure",
-			ActiveForm: "Inspecting the Kubernetes pod logs for the recent failure",
-			Status:     todo.StatusInProgress,
-		},
-		{
-			Content:    "Identify the root cause and propose a fix",
-			ActiveForm: "Identifying the root cause and proposing a fix",
-			Status:     todo.StatusPending,
-		},
-	}
-	rawState, err := json.Marshal(items)
-	if err != nil {
-		return err
-	}
-	// Branch defaults to the agent name for a single-agent setup
-	// — same convention printTodos / GetTodos / the enforcer use.
-	stateKey := todo.DefaultStateKeyPrefix + ":" + agentName
-	sess, err := c.sessSvc.CreateSession(ctx, session.Key{
-		AppName:   appName,
-		UserID:    c.userID,
-		SessionID: c.sessionID,
-	}, session.StateMap{stateKey: rawState})
-	if err != nil {
-		return err
-	}
+func (c *chat) prefillTodos(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Build the synthetic prior turn. The arguments and result
-	// payload mirror what a real todo_write call would carry, so
-	// downstream consumers (event log replays, evaluation
-	// pipelines, ...) see a turn that is structurally
-	// indistinguishable from one the model actually produced.
-	priorInvocationID := uuid.New().String()
-	toolCallID := "prefill-" + uuid.New().String()
+// Branch defaults to the agent name for a single-agent setup
+// — same convention printTodos / GetTodos / the enforcer use.
 
-	priorUserMsg := "I just got a page about a Kubernetes pod failure in prod. " +
-		"Please investigate: dig the pod logs, find the root cause, then " +
-		"propose a fix. Plan the work with todo_write first."
+// Build the synthetic prior turn. The arguments and result
+// payload mirror what a real todo_write call would carry, so
+// downstream consumers (event log replays, evaluation
+// pipelines, ...) see a turn that is structurally
+// indistinguishable from one the model actually produced.
 
-	todoWriteArgs, err := json.Marshal(map[string]any{"todos": items})
-	if err != nil {
-		return err
-	}
-	todoWriteResult, err := json.Marshal(map[string]any{
-		"message": "Todos have been modified successfully.",
-		"todos":   items,
-	})
-	if err != nil {
-		return err
-	}
+// 1. The original user request that kicked the work off.
 
-	events := []*event.Event{
-		// 1. The original user request that kicked the work off.
-		newPrefillEvent(priorInvocationID, "user", model.NewUserMessage(priorUserMsg)),
-		// 2. The assistant turn that called todo_write to plan.
-		newPrefillEvent(priorInvocationID, agentName, model.Message{
-			Role: model.RoleAssistant,
-			ToolCalls: []model.ToolCall{{
-				ID:   toolCallID,
-				Type: "function",
-				Function: model.FunctionDefinitionParam{
-					Name:      todo.DefaultToolName,
-					Arguments: todoWriteArgs,
-				},
-			}},
-		}),
-		// 3. The tool turn carrying todo_write's response.
-		// ToolName is set even though the spec doesn't strictly
-		// require it for assistant↔tool pairing — several
-		// Some OpenAI-compatible adapters reject tool messages
-		// whose name field is empty, even when the matching ID is
-		// present.
-		newPrefillEvent(priorInvocationID, agentName, model.Message{
-			Role:     model.RoleTool,
-			ToolID:   toolCallID,
-			ToolName: todo.DefaultToolName,
-			Content:  string(todoWriteResult),
-		}),
-	}
-	for _, evt := range events {
-		evt.Branch = agentName
-		if err := c.sessSvc.AppendEvent(ctx, sess, evt); err != nil {
-			return fmt.Errorf("append prefill event: %w", err)
-		}
-	}
+// 2. The assistant turn that called todo_write to plan.
 
-	fmt.Println("Prefilled the session with this synthetic prior turn:")
-	fmt.Printf("  user → %s\n", truncate(priorUserMsg, 90))
-	fmt.Printf("  assistant → tool_call %s(%d items)\n", todo.DefaultToolName, len(items))
-	fmt.Printf("  tool → %s response\n", todo.DefaultToolName)
-	fmt.Println("Open todos already in state:")
-	fmt.Println(formatTodos(items))
-	fmt.Println(strings.Repeat("-", 70))
-	return nil
-}
+// 3. The tool turn carrying todo_write's response.
+// ToolName is set even though the spec doesn't strictly
+// require it for assistant↔tool pairing — several
+// Some OpenAI-compatible adapters reject tool messages
+// whose name field is empty, even when the matching ID is
+// present.
 
 // newPrefillEvent is a thin wrapper that fills in the boilerplate
 // every prefilled event needs: a non-streaming, non-partial
@@ -269,73 +161,33 @@ func (c *chat) prefillTodos(ctx context.Context) error {
 // messages even when Content is empty, which is why the assistant
 // tool_call leg is well-formed despite having no text body.
 func newPrefillEvent(invocationID, author string, msg model.Message) *event.Event {
-	return event.NewResponseEvent(invocationID, author, &model.Response{
-		Done: false,
-		Choices: []model.Choice{{
-			Index:   0,
-			Message: msg,
-		}},
-	})
-}
-
-func (c *chat) setup() error {
-	modelInstance := openai.New(c.modelName, openai.WithVariant(openai.Variant(c.variant)))
-	c.sessSvc = sessioninmemory.NewSessionService()
-
-	// Two construction paths so the same demo can show both
-	// "raw tool/todo" baseline and "hardened by todoenforcer".
-	// Other than the WithExtensions / WithTools split, the agent
-	// configuration is identical, which keeps the comparison
-	// honest — any behavioural difference you see in [enforce]
-	// lines comes purely from the extension being installed.
-	instruction := "You are a careful assistant. When a user asks you to do " +
-		"anything with more than 2 steps, call todo_write to plan first, " +
-		"then work the items one by one, flipping status as you go. " +
-		"Do not produce a final answer while items remain open.\n\n" +
-		todo.DefaultToolPrompt
-
-	agentOpts := []llmagent.Option{
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("Demo agent that uses todo_write under enforced compliance."),
-		llmagent.WithInstruction(instruction),
-		llmagent.WithGenerationConfig(model.GenerationConfig{
-			MaxTokens: intPtr(c.maxTokens),
-			Stream:    c.streaming,
-		}),
-	}
-
-	if c.enforce {
-		// Install the extension. WithExtensions also routes the
-		// tools the enforcer contributes via extension.Registry.Tools
-		// — the enforcer ships both todo_write AND
-		// todo_declare_blocker, so we do NOT pass either via
-		// WithTools. Passing them here on top would trigger the
-		// name-collision dedup and silently drop the enforcer's
-		// copies; the dedup is correct but it's not what we want
-		// the demo to show.
-		enforcer := todoenforcer.New(
-			todoenforcer.WithMaxRetries(c.maxRetries),
-			todoenforcer.WithOnEnforce(c.observeEnforce),
-		)
-		agentOpts = append(agentOpts, llmagent.WithExtensions(enforcer))
-	} else {
-		// Baseline: hand-install todo so the model has a place to
-		// write a plan, but with no enforcement. The model is free
-		// to mark items pending and still emit a final answer —
-		// which is exactly the behaviour the extension exists to
-		// fix.
-		agentOpts = append(agentOpts, llmagent.WithTools([]tool.Tool{todo.New()}))
-	}
-
-	llmAgent := llmagent.New(agentName, agentOpts...)
-
-	c.runner = runner.NewRunner(appName, llmAgent, runner.WithSessionService(c.sessSvc))
-	c.userID = "demo-user"
-	c.sessionID = fmt.Sprintf("demo-session-%d", time.Now().Unix())
-
-	fmt.Printf("Ready. Session: %s\n\n", c.sessionID)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+func (c *chat) setup() error { _ = "STUB: not implemented"; return nil }
+
+// Two construction paths so the same demo can show both
+// "raw tool/todo" baseline and "hardened by todoenforcer".
+// Other than the WithExtensions / WithTools split, the agent
+// configuration is identical, which keeps the comparison
+// honest — any behavioural difference you see in [enforce]
+// lines comes purely from the extension being installed.
+
+// Install the extension. WithExtensions also routes the
+// tools the enforcer contributes via extension.Registry.Tools
+// — the enforcer ships both todo_write AND
+// todo_declare_blocker, so we do NOT pass either via
+// WithTools. Passing them here on top would trigger the
+// name-collision dedup and silently drop the enforcer's
+// copies; the dedup is correct but it's not what we want
+// the demo to show.
+
+// Baseline: hand-install todo so the model has a place to
+// write a plan, but with no enforcement. The model is free
+// to mark items pending and still emit a final answer —
+// which is exactly the behaviour the extension exists to
+// fix.
 
 // observeEnforce is the OnEnforce callback. It runs on the model
 // callback hot path, so we keep it cheap (just printing). We
@@ -345,123 +197,20 @@ func (c *chat) setup() error {
 // assistant deltas mid-token.
 var enforceMu sync.Mutex
 
-func (c *chat) observeEnforce(evt todoenforcer.EnforceEvent) {
-	enforceMu.Lock()
-	defer enforceMu.Unlock()
-	switch evt.Reason {
-	case todoenforcer.ReasonBlocked:
-		fmt.Printf("\n  [enforce] BLOCKED (attempt %d/%d): %d in_progress, %d pending → nudge queued\n",
-			evt.AttemptNumber, evt.MaxRetries, evt.InProgressCount, evt.PendingCount)
-	case todoenforcer.ReasonExhausted:
-		fmt.Printf("\n  [enforce] EXHAUSTED after %d attempts: %d in_progress, %d pending → fail-open\n",
-			evt.AttemptNumber, evt.InProgressCount, evt.PendingCount)
-	case todoenforcer.ReasonBlockerDeclared:
-		fmt.Printf("\n  [enforce] BLOCKER_DECLARED: %q → final response will be allowed for the rest of this turn\n",
-			evt.BlockerReason)
-	}
-}
+func (c *chat) observeEnforce(evt todoenforcer.EnforceEvent) { _ = "STUB: not implemented"; return }
 
-func (c *chat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("You: ")
-		if !scanner.Scan() {
-			break
-		}
-		line := strings.TrimSpace(scanner.Text())
-		switch line {
-		case "":
-			continue
-		case "/exit":
-			fmt.Println("bye")
-			return nil
-		case "/list":
-			c.printTodos()
-			continue
-		}
-		if err := c.processMessage(ctx, line); err != nil {
-			fmt.Printf("Error: %v\n", err)
-		}
-		fmt.Println()
-		c.printTodos()
-	}
-	return scanner.Err()
-}
+func (c *chat) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func (c *chat) processMessage(ctx context.Context, msg string) error {
-	reqID := uuid.New().String()
-	eventChan, err := c.runner.Run(
-		ctx, c.userID, c.sessionID, model.NewUserMessage(msg),
-		agent.WithRequestID(reqID),
-	)
-	if err != nil {
-		return err
-	}
-	return c.processResponse(eventChan)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // processResponse renders the stream: tool calls, tool responses
 // and assistant text are each formatted distinctly so the
 // enforcement loop is easy to follow visually.
 func (c *chat) processResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("Assistant: ")
-	var assistantStarted bool
-	var toolCallsPrinted bool
-
-	for evt := range eventChan {
-		if evt.Error != nil {
-			fmt.Printf("\n[error] %s\n", evt.Error.Message)
-			continue
-		}
-		if evt.Response == nil || len(evt.Response.Choices) == 0 {
-			continue
-		}
-		ch := evt.Response.Choices[0]
-
-		if len(ch.Message.ToolCalls) > 0 {
-			if assistantStarted {
-				fmt.Println()
-			}
-			for _, tc := range ch.Message.ToolCalls {
-				fmt.Printf("  [tool-call] %s %s\n", tc.Function.Name, string(tc.Function.Arguments))
-			}
-			toolCallsPrinted = true
-			continue
-		}
-
-		if ch.Message.Role == model.RoleTool && ch.Message.ToolID != "" {
-			raw := strings.TrimSpace(ch.Message.Content)
-			fmt.Printf("  [tool-result] %s\n", truncate(raw, 200))
-			var out todo.Output
-			if err := json.Unmarshal([]byte(raw), &out); err == nil && len(out.Todos) > 0 {
-				fmt.Printf("  [tool-result decoded] %d todos (was %d)\n",
-					len(out.Todos), len(out.OldTodos))
-				for _, it := range out.Todos {
-					fmt.Printf("    - [%s] %s\n", it.Status, it.Content)
-				}
-			}
-			continue
-		}
-
-		text := ch.Delta.Content
-		if text == "" {
-			text = ch.Message.Content
-		}
-		if text == "" {
-			continue
-		}
-		if !assistantStarted {
-			if toolCallsPrinted {
-				fmt.Print("\nAssistant: ")
-			}
-			assistantStarted = true
-		}
-		fmt.Print(text)
-
-		if evt.IsFinalResponse() {
-			fmt.Println()
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -469,57 +218,13 @@ func (c *chat) processResponse(eventChan <-chan *event.Event) error {
 // the end of a turn. The enforcer reads from the same place, so
 // what you see here is what the enforcer's AfterModel saw when it
 // decided to block (or pass).
-func (c *chat) printTodos() {
-	sess, err := c.sessSvc.GetSession(context.Background(), session.Key{
-		AppName:   appName,
-		UserID:    c.userID,
-		SessionID: c.sessionID,
-	})
-	if err != nil || sess == nil {
-		return
-	}
-	items, err := todo.GetTodos(sess, agentName)
-	if err != nil {
-		fmt.Printf("[todo] decode error: %v\n", err)
-		return
-	}
-	fmt.Println("----- Current checklist -----")
-	fmt.Println(formatTodos(items))
-	fmt.Println("-----------------------------")
-}
+func (c *chat) printTodos() { _ = "STUB: not implemented"; return }
 
-func formatTodos(todos []todo.Item) string {
-	if len(todos) == 0 {
-		return "(no todos)"
-	}
-	glyph := func(s todo.Status) string {
-		switch s {
-		case todo.StatusCompleted:
-			return "[x]"
-		case todo.StatusInProgress:
-			return "[>]"
-		default:
-			return "[ ]"
-		}
-	}
-	var b strings.Builder
-	for i, it := range todos {
-		if i > 0 {
-			b.WriteByte('\n')
-		}
-		fmt.Fprintf(&b, "- %s %s", glyph(it.Status), it.Content)
-	}
-	return b.String()
-}
+func formatTodos(todos []todo.Item) string { _ = "STUB: not implemented"; return "" }
 
 // truncate keeps the demo output legible when a tool result is
 // long (the JSON payload of a 10-item todo list is otherwise
 // noisy enough to push the [enforce] lines off-screen).
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n] + "...(truncated)"
-}
+func truncate(s string, n int) string { _ = "STUB: not implemented"; return "" }
 
-func intPtr(i int) *int { return &i }
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }

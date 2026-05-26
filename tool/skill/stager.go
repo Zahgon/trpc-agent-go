@@ -11,9 +11,6 @@ package skill
 
 import (
 	"context"
-	"fmt"
-	"path"
-	"strings"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	rootskill "trpc.group/trpc-go/trpc-agent-go/skill"
@@ -61,95 +58,35 @@ type SkillStageResult struct {
 //
 // When unset, RunTool uses the default copy-based stager, which stages
 // the skill under "skills/<skill-name>".
-func WithSkillStager(stager SkillStager) func(*RunTool) {
-	return func(t *RunTool) {
-		t.skillStager = stager
-	}
-}
+func WithSkillStager(stager SkillStager) func(*RunTool) { _ = "STUB: not implemented"; return nil }
 
 type copySkillStager struct {
 	tool *RunTool
 }
 
 func newCopySkillStager(tool *RunTool) SkillStager {
-	return &copySkillStager{tool: tool}
+	_ = "STUB: not implemented"
+	return *new(SkillStager)
 }
 
 func (s *copySkillStager) StageSkill(
 	ctx context.Context,
 	req SkillStageRequest,
 ) (SkillStageResult, error) {
-	if s == nil || s.tool == nil {
-		return SkillStageResult{}, fmt.Errorf(
-			errSkillStagerNotConfigured,
-		)
-	}
-	if req.Repository == nil {
-		return SkillStageResult{}, fmt.Errorf(
-			errSkillRepoNotConfigured,
-		)
-	}
-	root, err := rootskill.PathForContext(ctx, req.Repository, req.SkillName)
-	if err != nil {
-		return SkillStageResult{}, err
-	}
-	if err := s.tool.stageSkill(
-		ctx,
-		req.Engine,
-		req.Workspace,
-		root,
-		req.SkillName,
-	); err != nil {
-		return SkillStageResult{}, err
-	}
-	return SkillStageResult{
-		WorkspaceSkillDir: defaultWorkspaceSkillDir(req.SkillName),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(SkillStageResult), nil
 }
 
-func defaultWorkspaceSkillDir(name string) string {
-	return path.Join(codeexecutor.DirSkills, name)
-}
+func defaultWorkspaceSkillDir(name string) string { _ = "STUB: not implemented"; return "" }
 
 func normalizeSkillStageResult(
 	res SkillStageResult,
 ) (SkillStageResult, error) {
-	dir, err := normalizeWorkspaceSkillDir(res.WorkspaceSkillDir)
-	if err != nil {
-		return SkillStageResult{}, err
-	}
-	res.WorkspaceSkillDir = dir
-	return res, nil
+	_ = "STUB: not implemented"
+	return *new(SkillStageResult), nil
 }
 
 func normalizeWorkspaceSkillDir(dir string) (string, error) {
-	workspaceDir := strings.TrimSpace(dir)
-	workspaceDir = strings.ReplaceAll(workspaceDir, "\\", "/")
-	if workspaceDir == "" {
-		return "", fmt.Errorf(
-			"workspace skill dir must not be empty",
-		)
-	}
-	if strings.HasPrefix(workspaceDir, "/") {
-		cleaned := path.Clean(workspaceDir)
-		workspaceDir = strings.TrimPrefix(cleaned, "/")
-		if cleaned == "/" {
-			workspaceDir = "."
-		}
-	} else {
-		workspaceDir = path.Clean(workspaceDir)
-	}
-	if workspaceDir == "" {
-		workspaceDir = "."
-	}
-	if workspaceDir == "." {
-		return workspaceDir, nil
-	}
-	if !isAllowedWorkspacePath(workspaceDir) {
-		return "", fmt.Errorf(
-			"workspace skill dir %q must stay within the workspace",
-			dir,
-		)
-	}
-	return workspaceDir, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }

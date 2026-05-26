@@ -32,64 +32,25 @@ type Options struct {
 }
 
 // NewOptions creates a new options instance.
-func NewOptions(opt ...Option) *Options {
-	opts := &Options{}
-	for _, o := range opt {
-		o(opts)
-	}
-	if opts.Path == "" {
-		opts.Path = defaultPath
-	}
-	if opts.MessagesSnapshotEnabled && opts.MessagesSnapshotPath == "" {
-		opts.MessagesSnapshotPath = defaultMessagesSnapshotPath
-	}
-	if opts.CancelEnabled && opts.CancelPath == "" {
-		opts.CancelPath = defaultCancelPath
-	}
-	return opts
-}
+func NewOptions(opt ...Option) *Options { _ = "STUB: not implemented"; return nil }
 
 // Option is a function that configures the options.
 type Option func(*Options)
 
 // WithPath sets the request path.
-func WithPath(p string) Option {
-	return func(s *Options) {
-		s.Path = p
-	}
-}
+func WithPath(p string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessagesSnapshot enables the messages snapshot handler and configures its dependencies.
-func WithMessagesSnapshotEnabled(e bool) Option {
-	return func(s *Options) {
-		s.MessagesSnapshotEnabled = e
-	}
-}
+func WithMessagesSnapshotEnabled(e bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMessagesSnapshotPath sets the HTTP path for the snapshot handler.
-func WithMessagesSnapshotPath(p string) Option {
-	return func(s *Options) {
-		s.MessagesSnapshotPath = p
-	}
-}
+func WithMessagesSnapshotPath(p string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCancelEnabled enables the cancel handler.
-func WithCancelEnabled(e bool) Option {
-	return func(s *Options) {
-		s.CancelEnabled = e
-	}
-}
+func WithCancelEnabled(e bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithCancelPath sets the HTTP path for the cancel handler.
-func WithCancelPath(p string) Option {
-	return func(s *Options) {
-		s.CancelPath = p
-	}
-}
+func WithCancelPath(p string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithHeartbeatInterval sets how often the transport sends heartbeat frames.
-func WithHeartbeatInterval(d time.Duration) Option {
-	return func(s *Options) {
-		s.HeartbeatInterval = d
-	}
-}
+func WithHeartbeatInterval(d time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

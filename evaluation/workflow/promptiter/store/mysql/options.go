@@ -11,8 +11,6 @@ package mysql
 
 import (
 	"time"
-
-	"trpc.group/trpc-go/trpc-agent-go/internal/session/sqldb"
 )
 
 const defaultInitTimeout = 30 * time.Second
@@ -35,62 +33,22 @@ type options struct {
 // Option configures the MySQL PromptIter store.
 type Option func(*options)
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		initTimeout: defaultInitTimeout,
-	}
-	for _, opt := range opts {
-		opt(options)
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithMySQLClientDSN sets the MySQL DSN connection string directly.
-func WithMySQLClientDSN(dsn string) Option {
-	return func(options *options) {
-		options.dsn = dsn
-	}
-}
+func WithMySQLClientDSN(dsn string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMySQLInstance uses a registered MySQL instance when the DSN is empty.
-func WithMySQLInstance(instanceName string) Option {
-	return func(options *options) {
-		options.instanceName = instanceName
-	}
-}
+func WithMySQLInstance(instanceName string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithExtraOptions sets extra options passed to the MySQL client builder.
-func WithExtraOptions(extraOptions ...any) Option {
-	return func(options *options) {
-		options.extraOptions = append(options.extraOptions, extraOptions...)
-	}
-}
+func WithExtraOptions(extraOptions ...any) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipDBInit skips table and index initialization.
-func WithSkipDBInit(skip bool) Option {
-	return func(options *options) {
-		options.skipDBInit = skip
-	}
-}
+func WithSkipDBInit(skip bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTablePrefix sets a prefix for all table names.
-func WithTablePrefix(prefix string) Option {
-	return func(options *options) {
-		if prefix == "" {
-			options.tablePrefix = ""
-			return
-		}
-		sqldb.MustValidateTablePrefix(prefix)
-		options.tablePrefix = prefix
-	}
-}
+func WithTablePrefix(prefix string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithInitTimeout sets the timeout used for schema initialization.
-func WithInitTimeout(timeout time.Duration) Option {
-	return func(options *options) {
-		if timeout <= 0 {
-			return
-		}
-		options.initTimeout = timeout
-	}
-}
+func WithInitTimeout(timeout time.Duration) Option { _ = "STUB: not implemented"; return *new(Option) }

@@ -11,10 +11,7 @@ package mcp
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
-	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
 	mcp "trpc.group/trpc-go/trpc-mcp-go"
 )
@@ -29,27 +26,31 @@ type mcpToolResult struct {
 
 // MarshalJSON implements json.Marshaler.
 // It marshals only the Content slice for backward compatibility.
-func (r *mcpToolResult) MarshalJSON() ([]byte, error) {
-	return json.Marshal(r.Content)
-}
+func (r *mcpToolResult) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // GetMeta returns the metadata from the tool result.
 func (r *mcpToolResult) GetMeta() map[string]any {
-	return r.Meta
+	_ = "STUB: not implemented"
+
+	// GetCallbackResult returns the callback-facing result payload.
+	// AfterTool callbacks should continue to receive the raw content slice.
+	return nil
 }
 
-// GetCallbackResult returns the callback-facing result payload.
-// AfterTool callbacks should continue to receive the raw content slice.
 func (r *mcpToolResult) GetCallbackResult() any {
-	return r.Content
+	_ = "STUB: not implemented"
+
+	// RetryResultError reports whether the MCP result should be treated as a result-level failure.
+	return *new(any)
 }
 
-// RetryResultError reports whether the MCP result should be treated as a result-level failure.
 func (r *mcpToolResult) RetryResultError() bool {
-	return r.IsError
+	_ = "STUB: not implemented"
+
+	// mcpTool implements the Tool interface for MCP tools.
+	return false
 }
 
-// mcpTool implements the Tool interface for MCP tools.
 type mcpTool struct {
 	mcpToolRef     *mcp.Tool
 	inputSchema    *tool.Schema
@@ -59,67 +60,30 @@ type mcpTool struct {
 
 // newMCPTool creates a new MCP tool wrapper.
 func newMCPTool(mcpToolData mcp.Tool, sessionManager *mcpSessionManager) *mcpTool {
-	mcpTool := &mcpTool{
-		mcpToolRef:     &mcpToolData,
-		sessionManager: sessionManager,
-	}
-
-	// Convert MCP input schema to inner Schema.
-	if mcpToolData.InputSchema != nil {
-		mcpTool.inputSchema = convertMCPSchemaToSchema(mcpToolData.InputSchema)
-	}
-
-	// Convert MCP output schema to inner Schema.
-	if mcpToolData.OutputSchema != nil {
-		mcpTool.outputSchema = convertMCPSchemaToSchema(mcpToolData.OutputSchema)
-	}
-
-	return mcpTool
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Convert MCP input schema to inner Schema.
+
+// Convert MCP output schema to inner Schema.
 
 // Call implements the Tool interface.
 func (t *mcpTool) Call(ctx context.Context, jsonArgs []byte) (any, error) {
-	log.DebugContext(
-		ctx,
-		"Calling MCP tool",
-		"name",
-		t.mcpToolRef.Name,
-	)
-
-	// Parse raw arguments.
-	var rawArguments map[string]any
-	if len(jsonArgs) > 0 {
-		if err := json.Unmarshal(jsonArgs, &rawArguments); err != nil {
-			return nil, fmt.Errorf("failed to parse tool arguments: %w", err)
-		}
-	} else {
-		rawArguments = make(map[string]any)
-	}
-
-	return t.callOnce(ctx, rawArguments)
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
+
+// Parse raw arguments.
 
 // callOnce performs a single call to the MCP tool.
 // Returns a wrapped result that marshals as Content for backward compatibility.
 func (t *mcpTool) callOnce(ctx context.Context, arguments map[string]any) (any, error) {
-	result, err := t.sessionManager.callTool(ctx, t.mcpToolRef.Name, arguments)
-	if err != nil {
-		return nil, err
-	}
-	// Wrap for backward compatibility: marshals as Content array, but Meta is accessible
-	return &mcpToolResult{
-		Content: result.Content,
-		Meta:    result.Meta,
-		IsError: result.IsError,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
+// Wrap for backward compatibility: marshals as Content array, but Meta is accessible
+
 // Declaration implements the Tool interface.
-func (t *mcpTool) Declaration() *tool.Declaration {
-	return &tool.Declaration{
-		Name:         t.mcpToolRef.Name,
-		Description:  t.mcpToolRef.Description,
-		InputSchema:  t.inputSchema,
-		OutputSchema: t.outputSchema,
-	}
-}
+func (t *mcpTool) Declaration() *tool.Declaration { _ = "STUB: not implemented"; return nil }

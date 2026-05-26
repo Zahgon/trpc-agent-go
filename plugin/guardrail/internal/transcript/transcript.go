@@ -11,8 +11,6 @@ package transcript
 
 import (
 	"context"
-	"sort"
-	"unicode/utf8"
 
 	"trpc.group/trpc-go/trpc-agent-go/model"
 )
@@ -73,81 +71,21 @@ type preparedRecord struct {
 }
 
 // DefaultOptions returns the default transcript shaping configuration.
-func DefaultOptions() Options {
-	return Options{
-		MessageTranscriptBudget: DefaultMessageTranscriptBudget,
-		ToolTranscriptBudget:    DefaultToolTranscriptBudget,
-		MessageEntryCap:         DefaultMessageEntryCap,
-		ToolEntryCap:            DefaultToolEntryCap,
-		RecentNonUserEntryLimit: DefaultRecentNonUserEntryLimit,
-		OmissionNote:            DefaultOmissionNote,
-		TruncatedSuffix:         DefaultTruncatedSuffix,
-	}
-}
+func DefaultOptions() Options { _ = "STUB: not implemented"; return *new(Options) }
 
 // Build shapes raw transcript records into reviewer-facing transcript entries.
 func Build(ctx context.Context, raw []Record, countTokens CountTokensFunc, options Options) []Entry {
-	if len(raw) == 0 {
-		return nil
-	}
-	opts := normalizeOptions(options)
-	records := prepareRecords(ctx, raw, countTokens, opts)
-	entries, omitted := selectEntries(records, opts)
-	if omitted {
-		entries = append([]Entry{{
-			Role:    model.RoleAssistant,
-			Content: opts.OmissionNote,
-		}}, entries...)
-	}
-	if len(entries) == 0 {
-		return nil
-	}
-	return entries
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // TruncateContent truncates content to the rune limit and reports whether truncation happened.
 func TruncateContent(content string, maxRunes int, suffix string) (string, bool) {
-	if maxRunes <= 0 || utf8.RuneCountInString(content) <= maxRunes {
-		return content, false
-	}
-	if suffix == "" {
-		suffix = DefaultTruncatedSuffix
-	}
-	suffixRunes := utf8.RuneCountInString(suffix)
-	limit := maxRunes - suffixRunes
-	if limit < 0 {
-		limit = 0
-	}
-	runes := []rune(content)
-	return string(runes[:limit]) + suffix, true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func normalizeOptions(options Options) Options {
-	opts := options
-	defaults := DefaultOptions()
-	if opts.MessageTranscriptBudget <= 0 {
-		opts.MessageTranscriptBudget = defaults.MessageTranscriptBudget
-	}
-	if opts.ToolTranscriptBudget <= 0 {
-		opts.ToolTranscriptBudget = defaults.ToolTranscriptBudget
-	}
-	if opts.MessageEntryCap <= 0 {
-		opts.MessageEntryCap = defaults.MessageEntryCap
-	}
-	if opts.ToolEntryCap <= 0 {
-		opts.ToolEntryCap = defaults.ToolEntryCap
-	}
-	if opts.RecentNonUserEntryLimit <= 0 {
-		opts.RecentNonUserEntryLimit = defaults.RecentNonUserEntryLimit
-	}
-	if opts.OmissionNote == "" {
-		opts.OmissionNote = defaults.OmissionNote
-	}
-	if opts.TruncatedSuffix == "" {
-		opts.TruncatedSuffix = defaults.TruncatedSuffix
-	}
-	return opts
-}
+func normalizeOptions(options Options) Options { _ = "STUB: not implemented"; return *new(Options) }
 
 func prepareRecords(
 	ctx context.Context,
@@ -155,101 +93,13 @@ func prepareRecords(
 	countTokens CountTokensFunc,
 	opts Options,
 ) []preparedRecord {
-	records := make([]preparedRecord, 0, len(raw))
-	for _, record := range raw {
-		capLimit := opts.MessageEntryCap
-		if record.Category == CategoryTool {
-			capLimit = opts.ToolEntryCap
-		}
-		content, truncated := TruncateContent(record.Entry.Content, capLimit, opts.TruncatedSuffix)
-		entry := record.Entry
-		entry.Content = content
-		tokens := opts.MessageTranscriptBudget + 1
-		if record.Category == CategoryTool {
-			tokens = opts.ToolTranscriptBudget + 1
-		}
-		if countTokens != nil {
-			tokens = countTokens(ctx, entry)
-		}
-		records = append(records, preparedRecord{
-			index:     record.Index,
-			entry:     entry,
-			category:  record.Category,
-			tokens:    tokens,
-			truncated: truncated,
-		})
-	}
-	return records
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func selectEntries(records []preparedRecord, opts Options) ([]Entry, bool) {
-	if len(records) == 0 {
-		return nil, false
-	}
-	userRecords := make([]preparedRecord, 0)
-	nonUserRecords := make([]preparedRecord, 0)
-	omitted := false
-	userTokenCount := 0
-	for _, record := range records {
-		if record.truncated {
-			omitted = true
-		}
-		if record.entry.Role == model.RoleUser {
-			userRecords = append(userRecords, record)
-			userTokenCount += record.tokens
-			continue
-		}
-		nonUserRecords = append(nonUserRecords, record)
-	}
-	if userTokenCount > opts.MessageTranscriptBudget {
-		return nil, true
-	}
-	remainingMessageBudget := opts.MessageTranscriptBudget - userTokenCount
-	remainingToolBudget := opts.ToolTranscriptBudget
-	selected := make([]preparedRecord, 0, len(userRecords)+len(nonUserRecords))
-	selected = append(selected, userRecords...)
-	selectedNonUser := make([]preparedRecord, 0)
-	keptRecentCount := 0
-	for i := len(nonUserRecords) - 1; i >= 0; i-- {
-		if keptRecentCount >= opts.RecentNonUserEntryLimit {
-			omitted = true
-			break
-		}
-		record := nonUserRecords[i]
-		switch record.category {
-		case CategoryTool:
-			if record.tokens > remainingToolBudget {
-				omitted = true
-				continue
-			}
-			remainingToolBudget -= record.tokens
-		default:
-			if record.tokens > remainingMessageBudget {
-				omitted = true
-				continue
-			}
-			remainingMessageBudget -= record.tokens
-		}
-		selectedNonUser = append(selectedNonUser, record)
-		keptRecentCount++
-	}
-	if len(selectedNonUser) != len(nonUserRecords) {
-		omitted = true
-	}
-	reversePreparedRecords(selectedNonUser)
-	selected = append(selected, selectedNonUser...)
-	sort.Slice(selected, func(i, j int) bool {
-		return selected[i].index < selected[j].index
-	})
-	entries := make([]Entry, 0, len(selected))
-	for _, record := range selected {
-		entries = append(entries, record.entry)
-	}
-	return entries, omitted
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func reversePreparedRecords(records []preparedRecord) {
-	for left, right := 0, len(records)-1; left < right; left, right = left+1, right-1 {
-		records[left], records[right] = records[right], records[left]
-	}
-}
+func reversePreparedRecords(records []preparedRecord) { _ = "STUB: not implemented"; return }

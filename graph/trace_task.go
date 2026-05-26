@@ -13,7 +13,6 @@ import (
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
 	atrace "trpc.group/trpc-go/trpc-agent-go/agent/trace"
-	istructure "trpc.group/trpc-go/trpc-agent-go/internal/structure"
 )
 
 type traceTaskRegistryEntry struct {
@@ -41,183 +40,57 @@ func newTraceTaskMetadata(
 	predecessorStepIDs []string,
 	inputSnapshot *atrace.Snapshot,
 ) *traceTaskMetadata {
-	return &traceTaskMetadata{
-		owner:               owner,
-		taskID:              taskID,
-		nodeID:              nodeID,
-		predecessorStepIDs:  normalizeTraceStepIDs(predecessorStepIDs),
-		preRunInputSnapshot: inputSnapshot,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e *Executor) registerAgentNodeTraceTask(execCtx *ExecutionContext, task *traceTaskMetadata) bool {
-	if execCtx == nil || task == nil || task.nodeID == "" {
-		return false
-	}
-	execCtx.traceMu.Lock()
-	if execCtx.traceAgentNodeTasksByNodeID == nil {
-		execCtx.traceAgentNodeTasksByNodeID = make(map[string]*traceTaskRegistryEntry)
-	}
-	if existing := execCtx.traceAgentNodeTasksByNodeID[task.nodeID]; existing != nil {
-		existingTask := existing.task
-		execCtx.traceMu.Unlock()
-		task.markFallbackToWrapper()
-		if existingTask != nil {
-			existingTask.mu.Lock()
-			if !existingTask.claimed {
-				existingTask.fallbackToWrapper = true
-			}
-			existingTask.mu.Unlock()
-		}
-		return false
-	}
-	execCtx.traceAgentNodeTasksByNodeID[task.nodeID] = &traceTaskRegistryEntry{task: task}
-	execCtx.traceMu.Unlock()
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (e *Executor) unregisterAgentNodeTraceTask(execCtx *ExecutionContext, nodeID string, task *traceTaskMetadata) {
-	if execCtx == nil || nodeID == "" || task == nil {
-		return
-	}
-	execCtx.traceMu.Lock()
-	defer execCtx.traceMu.Unlock()
-	entry := execCtx.traceAgentNodeTasksByNodeID[nodeID]
-	if entry == nil || entry.task != task {
-		return
-	}
-	delete(execCtx.traceAgentNodeTasksByNodeID, nodeID)
+	_ = "STUB: not implemented"
+	return
 }
 
-func claimAgentNodeTraceTask(state State) *traceTaskMetadata {
-	execCtx := executionContextFromState(state)
-	nodeID, _ := GetStateValue[string](state, StateKeyCurrentNodeID)
-	if execCtx == nil || nodeID == "" {
-		return nil
-	}
-	if stepID, _ := GetStateValue[string](state, currentTraceStepIDStateKey); stepID != "" {
-		return nil
-	}
-	return execCtx.claimAgentNodeTraceTask(nodeID)
-}
+func claimAgentNodeTraceTask(state State) *traceTaskMetadata { _ = "STUB: not implemented"; return nil }
 
 func (e *ExecutionContext) claimAgentNodeTraceTask(nodeID string) *traceTaskMetadata {
-	if e == nil || nodeID == "" {
-		return nil
-	}
-	e.traceMu.Lock()
-	entry := e.traceAgentNodeTasksByNodeID[nodeID]
-	if entry == nil || entry.task == nil {
-		e.traceMu.Unlock()
-		return nil
-	}
-	task := entry.task
-	e.traceMu.Unlock()
-	task.mu.Lock()
-	defer task.mu.Unlock()
-	if task.owner != e || task.nodeID != nodeID || task.claimed {
-		return nil
-	}
-	task.claimed = true
-	return task
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *traceTaskMetadata) childEntryPredecessorStepIDs() []string {
-	if m == nil {
-		return nil
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if m.wrapperStepID != "" {
-		return []string{m.wrapperStepID}
-	}
-	return append([]string(nil), m.predecessorStepIDs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *traceTaskMetadata) setChildTerminalStepIDs(stepIDs []string) {
-	if m == nil {
-		return
-	}
-	normalized := normalizeTraceStepIDs(stepIDs)
-	if len(normalized) == 0 {
-		return
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.childTerminalStepIDs = normalized
+	_ = "STUB: not implemented"
+	return
 }
 
-func (m *traceTaskMetadata) markFallbackToWrapper() {
-	if m == nil {
-		return
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.fallbackToWrapper = true
-}
+func (m *traceTaskMetadata) markFallbackToWrapper() { _ = "STUB: not implemented"; return }
 
-func (m *traceTaskMetadata) shouldFallbackToWrapper() bool {
-	if m == nil {
-		return false
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	return m.fallbackToWrapper
-}
+func (m *traceTaskMetadata) shouldFallbackToWrapper() bool { _ = "STUB: not implemented"; return false }
 
 func (m *traceTaskMetadata) materializeWrapper(invocation *agent.Invocation) string {
-	if m == nil {
-		return ""
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.fallbackToWrapper = true
-	if m.wrapperStepID != "" {
-		return m.wrapperStepID
-	}
-	stepID := agent.StartExecutionTraceStep(
-		invocation,
-		traceNodeIDForAgentNode(invocation, m.nodeID),
-		m.preRunInputSnapshot,
-		m.predecessorStepIDs,
-	)
-	m.wrapperStepID = stepID
-	return stepID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (m *traceTaskMetadata) materializePostChildStep(
 	invocation *agent.Invocation,
 	predecessorStepIDs []string,
 ) string {
-	if m == nil {
-		return ""
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if m.postChildStepID != "" {
-		return m.postChildStepID
-	}
-	stepID := agent.StartExecutionTraceStep(
-		invocation,
-		traceNodeIDForAgentNode(invocation, m.nodeID),
-		m.preRunInputSnapshot,
-		normalizeTraceStepIDs(predecessorStepIDs),
-	)
-	m.postChildStepID = stepID
-	return stepID
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (m *traceTaskMetadata) snapshot() traceTaskMetadataSnapshot {
-	if m == nil {
-		return traceTaskMetadataSnapshot{}
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	return traceTaskMetadataSnapshot{
-		childTerminalStepIDs: append([]string(nil), m.childTerminalStepIDs...),
-		claimed:              m.claimed,
-		fallbackToWrapper:    m.fallbackToWrapper,
-	}
+	_ = "STUB: not implemented"
+	return *new(traceTaskMetadataSnapshot)
 }
 
 type traceTaskMetadataSnapshot struct {
@@ -227,12 +100,6 @@ type traceTaskMetadataSnapshot struct {
 }
 
 func traceNodeIDForAgentNode(invocation *agent.Invocation, nodeID string) string {
-	if invocation == nil || nodeID == "" {
-		return ""
-	}
-	rootNodeID := agent.InvocationTraceNodeID(invocation)
-	if rootNodeID == "" {
-		return ""
-	}
-	return istructure.JoinNodeID(rootNodeID, nodeID)
+	_ = "STUB: not implemented"
+	return ""
 }

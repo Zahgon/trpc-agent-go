@@ -38,21 +38,17 @@ const (
 
 // MailboxTypeToString convert mailbox type to string
 func MailboxTypeToString(mailboxType MailboxType) string {
-	switch mailboxType {
+	_ = "STUB: not implemented"
+
 	// qq mail
-	case MailQQ:
-		return "qq"
-	// 163 mail
-	case Mail163:
-		return "163"
-	// google mail
-	case MailGmail:
-		return "gmail"
-	// unknown mail
-	default:
-		return "unknown"
-	}
+	return ""
 }
+
+// 163 mail
+
+// google mail
+
+// unknown mail
 
 // Option is a functional option for configuring the file tool set.
 type Option func(*emailToolSet)
@@ -65,37 +61,31 @@ type emailToolSet struct {
 
 // Tools implements the ToolSet interface.
 func (e *emailToolSet) Tools(_ context.Context) []tool.Tool {
-	return e.tools
+	_ = "STUB: not implemented"
+
+	// Name implements the ToolSet interface.
+	return nil
 }
 
-// Name implements the ToolSet interface.
 func (e *emailToolSet) Name() string {
-	return defaultName
+	_ = "STUB: not implemented"
+
+	// Close implements the ToolSet interface.
+	return ""
 }
 
-// Close implements the ToolSet interface.
 func (e *emailToolSet) Close() error {
+	_ = "STUB: not implemented"
 	// No resources to clean up for file tools.
 	return nil
 }
 
 // NewToolSet creates a new file tool set with the given options.
 func NewToolSet(opts ...Option) (tool.ToolSet, error) {
-	emailToolSet := &emailToolSet{
-		sendEmailEnabled: true,
-		tools:            nil,
-	}
-
-	// Apply user-provided options.
-	for _, opt := range opts {
-		opt(emailToolSet)
-	}
-
-	// Create function tools based on enabled features.
-	var tools []tool.Tool
-	if emailToolSet.sendEmailEnabled {
-		tools = append(tools, emailToolSet.sendMailTool())
-	}
-	emailToolSet.tools = tools
-	return emailToolSet, nil
+	_ = "STUB: not implemented"
+	return *new(tool.ToolSet), nil
 }
+
+// Apply user-provided options.
+
+// Create function tools based on enabled features.

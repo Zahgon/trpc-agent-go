@@ -11,8 +11,6 @@ package tool
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"sync"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
@@ -45,15 +43,11 @@ type dedupEntry struct {
 	order []string
 }
 
-func newCodeDedupStore() *codeDedupStore {
-	return &codeDedupStore{}
-}
+func newCodeDedupStore() *codeDedupStore { _ = "STUB: not implemented"; return nil }
 
 // newCodeDedupStoreWithCap creates a dedup store with a custom per-invocation
 // key cap. Non-positive values fall back to defaultMaxDedupKeysPerInvocation.
-func newCodeDedupStoreWithCap(maxKeys int) *codeDedupStore {
-	return &codeDedupStore{maxKeys: maxKeys}
-}
+func newCodeDedupStoreWithCap(maxKeys int) *codeDedupStore { _ = "STUB: not implemented"; return nil }
 
 // filter removes documents whose dedup key was already returned in previous
 // calls under the same invocation.
@@ -70,81 +64,18 @@ func newCodeDedupStoreWithCap(maxKeys int) *codeDedupStore {
 //     query/filter/repo before searching again. Callers must therefore handle
 //     the empty-documents case without treating it as a failure.
 func (s *codeDedupStore) filter(ctx context.Context, resp *KnowledgeSearchResponse) *KnowledgeSearchResponse {
-	if resp == nil || len(resp.Documents) == 0 {
-		return resp
-	}
-	invocation, ok := agent.InvocationFromContext(ctx)
-	if !ok || invocation == nil {
-		// No invocation context means we cannot safely scope the dedup set;
-		// fall back to a no-op rather than leaking state across requests.
-		return resp
-	}
-
-	entry := s.loadOrCreate(invocation)
-	entry.mu.Lock()
-	defer entry.mu.Unlock()
-
-	kept := make([]*DocumentResult, 0, len(resp.Documents))
-	var skipped int
-	for _, doc := range resp.Documents {
-		key := codeDedupKey(doc)
-		if key == "" {
-			kept = append(kept, doc)
-			continue
-		}
-		if _, seen := entry.keys[key]; seen {
-			skipped++
-			continue
-		}
-		entry.keys[key] = struct{}{}
-		entry.order = append(entry.order, key)
-		maxKeys := s.maxKeys
-		if maxKeys <= 0 {
-			maxKeys = defaultMaxDedupKeysPerInvocation
-		}
-		if len(entry.order) > maxKeys {
-			// Evict the oldest key to bound memory usage.
-			oldest := entry.order[0]
-			entry.order = entry.order[1:]
-			delete(entry.keys, oldest)
-		}
-		kept = append(kept, doc)
-	}
-
-	resp.Documents = kept
-	if skipped == 0 {
-		return resp
-	}
-	if len(kept) == 0 {
-		resp.Message = fmt.Sprintf(
-			"All %d top results were already returned in previous calls within this turn. "+
-				"Try a different query, a different filter, or a different repo/scope before searching again.",
-			skipped,
-		)
-		return resp
-	}
-	resp.Message = fmt.Sprintf(
-		"Found %d relevant document(s); %d duplicate result(s) from previous calls were omitted.",
-		len(kept), skipped,
-	)
-	return resp
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (s *codeDedupStore) loadOrCreate(invocation *agent.Invocation) *dedupEntry {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+// No invocation context means we cannot safely scope the dedup set;
+// fall back to a no-op rather than leaking state across requests.
 
-	if invocation.RunOptions.RuntimeState == nil {
-		invocation.RunOptions.RuntimeState = make(map[string]any, 1)
-	}
-	if v, ok := invocation.RunOptions.RuntimeState[codeDedupRuntimeStateKey]; ok {
-		if entry, ok := v.(*dedupEntry); ok && entry != nil {
-			return entry
-		}
-	}
-	e := &dedupEntry{keys: make(map[string]struct{})}
-	invocation.RunOptions.RuntimeState[codeDedupRuntimeStateKey] = e
-	return e
+// Evict the oldest key to bound memory usage.
+
+func (s *codeDedupStore) loadOrCreate(invocation *agent.Invocation) *dedupEntry {
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // codeDedupKey returns a stable key identifying the underlying code chunk.
@@ -161,67 +92,22 @@ func (s *codeDedupStore) loadOrCreate(invocation *agent.Invocation) *dedupEntry 
 //
 // Returns an empty string when none of the keys are present, in which case
 // the caller should keep the document without deduplication.
-func codeDedupKey(doc *DocumentResult) string {
-	if doc == nil {
-		return ""
-	}
-	md := doc.Metadata
-	if md == nil {
-		return ""
-	}
-	repo, _ := stringFromMeta(md, "trpc_ast_repo_name")
-	prefix := ""
-	if repo != "" {
-		prefix = "repo:" + repo + "|"
-	}
-	if v, ok := stringFromMeta(md, "trpc_ast_full_name"); ok && v != "" {
-		return prefix + "full_name:" + v
-	}
-	filePath, _ := stringFromMeta(md, "trpc_ast_file_path")
-	lineStart, _ := scalarFromMeta(md, "trpc_ast_line_start")
-	lineEnd, _ := scalarFromMeta(md, "trpc_ast_line_end")
-	if filePath != "" && (lineStart != "" || lineEnd != "") {
-		return fmt.Sprintf("%sspan:%s:%s-%s", prefix, filePath, lineStart, lineEnd)
-	}
-	if filePath != "" {
-		return prefix + "file:" + filePath
-	}
-	return ""
-}
+func codeDedupKey(doc *DocumentResult) string { _ = "STUB: not implemented"; return "" }
 
 func stringFromMeta(md map[string]any, key string) (string, bool) {
-	v, ok := md[key]
-	if !ok {
-		return "", false
-	}
-	s, ok := v.(string)
-	return s, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // scalarFromMeta stringifies simple scalar values (int/float/string) so that
 // they can be composed into a deterministic dedup key. Non-scalar values fall
 // back to fmt.Sprint which is still deterministic for our purposes.
 func scalarFromMeta(md map[string]any, key string) (string, bool) {
-	v, ok := md[key]
-	if !ok || v == nil {
-		return "", false
-	}
-	switch t := v.(type) {
-	case string:
-		return t, true
-	case int:
-		return fmt.Sprintf("%d", t), true
-	case int64:
-		return fmt.Sprintf("%d", t), true
-	case float64:
-		// JSON numbers decode as float64; keep int form when possible.
-		if t == float64(int64(t)) {
-			return fmt.Sprintf("%d", int64(t)), true
-		}
-		// Use the shortest representation that preserves full float64 precision
-		// so that two distinct values never collapse onto the same dedup key.
-		return strconv.FormatFloat(t, 'f', -1, 64), true
-	default:
-		return fmt.Sprint(v), true
-	}
+	_ = "STUB: not implemented"
+	return "", false
 }
+
+// JSON numbers decode as float64; keep int form when possible.
+
+// Use the shortest representation that preserves full float64 precision
+// so that two distinct values never collapse onto the same dedup key.

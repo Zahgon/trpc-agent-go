@@ -17,11 +17,6 @@ import (
 
 // ResolveInvokeAgentStream resolves the effective stream setting for an agent invocation.
 func ResolveInvokeAgentStream(invocation *publicagent.Invocation, genCfg *model.GenerationConfig) bool {
-	if invocation != nil && invocation.RunOptions.Stream != nil {
-		return *invocation.RunOptions.Stream
-	}
-	if genCfg != nil {
-		return genCfg.Stream
-	}
+	_ = "STUB: not implemented"
 	return false
 }

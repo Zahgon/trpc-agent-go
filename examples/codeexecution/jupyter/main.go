@@ -171,10 +171,10 @@ You have access to Jupyter kernel with Python 3.x and standard data science libr
 
 // intPtr returns a pointer to the given int value.
 func intPtr(i int) *int {
-	return &i
+	_ = "STUB: not implemented"
+
+	// floatPtr returns a pointer to the given float64 value.
+	return nil
 }
 
-// floatPtr returns a pointer to the given float64 value.
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

@@ -12,27 +12,15 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
-	"math"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 
-	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
-	"trpc.group/trpc-go/trpc-agent-go/model"
-	"trpc.group/trpc-go/trpc-agent-go/model/openai"
 	"trpc.group/trpc-go/trpc-agent-go/runner"
 	"trpc.group/trpc-go/trpc-agent-go/tool"
-	"trpc.group/trpc-go/trpc-agent-go/tool/duckduckgo"
-	"trpc.group/trpc-go/trpc-agent-go/tool/function"
 )
 
 func main() {
@@ -65,271 +53,106 @@ type multiToolChat struct {
 }
 
 // run starts the interactive chat session
-func (c *multiToolChat) run() error {
-	ctx := context.Background()
+func (c *multiToolChat) run() error { _ = "STUB: not implemented"; return nil }
 
-	// Setup runner
-	if err := c.setup(ctx); err != nil {
-		return fmt.Errorf("setup failed: %w", err)
-	}
+// Setup runner
 
-	// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
-	defer c.runner.Close()
+// Ensure runner resources are cleaned up (trpc-agent-go >= v0.5.0)
 
-	// Start interactive chat
-	return c.startChat(ctx)
-}
+// Start interactive chat
 
 // setup creates a runner containing multiple tools
 func (c *multiToolChat) setup(_ context.Context) error {
+	_ = "STUB: not implemented"
 	// Create OpenAI model
-	modelInstance := openai.New(c.modelName)
-
-	// Create various tools
-	tools := []tool.Tool{
-		createCalculatorTool(),
-		createTimeTool(),
-		createTextTool(),
-		createFileTool(),
-		duckduckgo.NewTool(), // Original DuckDuckGo search tool
-	}
-
-	// Create LLM agent
-	genConfig := model.GenerationConfig{
-		MaxTokens:   intPtr(2000),
-		Temperature: floatPtr(0.7),
-		Stream:      true, // Enable streaming response
-	}
-
-	agentName := "multi-tool-assistant"
-	llmAgent := llmagent.New(
-		agentName,
-		llmagent.WithModel(modelInstance),
-		llmagent.WithDescription("A powerful AI assistant with multiple tools including calculator, time, text processing, file operations, and web search"),
-		// llmagent.WithInstruction(`You are an intelligent assistant that can use multiple tools:
-		// 1. calculator: Perform mathematical calculations, supporting basic operations, scientific calculations, etc.
-		// 2. time_tool: Get current time, date, timezone information, etc.
-		// 3. text_tool: Process text, including case conversion, length statistics, string operations, etc.
-		// 4. file_tool: Basic file operations such as reading, writing, listing directories, etc.
-		// 5. duckduckgo_search: Search web information, suitable for finding factual, encyclopedia-type information
-
-		// Please select the appropriate tool based on user needs and provide helpful assistance.`),
-		llmagent.WithGenerationConfig(genConfig),
-		llmagent.WithTools(tools),
-	)
-
-	// Create runner
-	appName := "multi-tool-chat"
-	c.runner = runner.NewRunner(
-		appName,
-		llmAgent,
-	)
-
-	// Set identifiers
-	c.userID = "user"
-	c.sessionID = fmt.Sprintf("multi-tool-session-%d", time.Now().Unix())
-
-	fmt.Printf("✅ Multi-tool intelligent assistant is ready! Session ID: %s\n\n", c.sessionID)
-
 	return nil
 }
+
+// Create various tools
+
+// Original DuckDuckGo search tool
+
+// Create LLM agent
+
+// Enable streaming response
+
+// llmagent.WithInstruction(`You are an intelligent assistant that can use multiple tools:
+// 1. calculator: Perform mathematical calculations, supporting basic operations, scientific calculations, etc.
+// 2. time_tool: Get current time, date, timezone information, etc.
+// 3. text_tool: Process text, including case conversion, length statistics, string operations, etc.
+// 4. file_tool: Basic file operations such as reading, writing, listing directories, etc.
+// 5. duckduckgo_search: Search web information, suitable for finding factual, encyclopedia-type information
+
+// Please select the appropriate tool based on user needs and provide helpful assistance.`),
+
+// Create runner
+
+// Set identifiers
 
 // startChat runs the interactive conversation loop
-func (c *multiToolChat) startChat(ctx context.Context) error {
-	scanner := bufio.NewScanner(os.Stdin)
+func (c *multiToolChat) startChat(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	// Print welcome message and examples
-	fmt.Println("💡 Try asking these questions:")
-	fmt.Println("   [Calculator] Calculate 123 + 456 * 789")
-	fmt.Println("   [Calculator] Calculate the square root of pi")
-	fmt.Println("   [Time] What time is it now?")
-	fmt.Println("   [Time] What day of the week is today?")
-	fmt.Println("   [Text] Convert 'Hello World' to uppercase")
-	fmt.Println("   [Text] Count characters in 'Hello World'")
-	fmt.Println("   [File] Read the README.md file")
-	fmt.Println("   [File] Create a test file in the current directory")
-	fmt.Println("   [Search] Search for information about Steve Jobs")
-	fmt.Println("   [Search] Find information about Tesla company")
-	fmt.Println()
+// Print welcome message and examples
 
-	for {
-		fmt.Print("👤 User: ")
-		if !scanner.Scan() {
-			break
-		}
+// Handle exit command
 
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
+// Process user message
 
-		// Handle exit command
-		if strings.ToLower(userInput) == "exit" {
-			fmt.Println("👋 Goodbye!")
-			return nil
-		}
-
-		// Process user message
-		if err := c.processMessage(ctx, userInput); err != nil {
-			fmt.Printf("❌ Error: %v\n", err)
-		}
-
-		fmt.Println() // Add blank line between conversation rounds
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("input scanner error: %w", err)
-	}
-
-	return nil
-}
+// Add blank line between conversation rounds
 
 // processMessage processes a single message exchange
 func (c *multiToolChat) processMessage(ctx context.Context, userMessage string) error {
-	message := model.NewUserMessage(userMessage)
-
-	// Run agent through runner
-	eventChan, err := c.runner.Run(ctx, c.userID, c.sessionID, message)
-	if err != nil {
-		return fmt.Errorf("failed to run agent: %w", err)
-	}
-
-	// Process streaming response
-	return c.processStreamingResponse(eventChan)
-}
-
-// processStreamingResponse processes streaming response, including tool call visualization
-func (c *multiToolChat) processStreamingResponse(eventChan <-chan *event.Event) error {
-	fmt.Print("🤖 Assistant: ")
-
-	var (
-		fullContent       string
-		toolCallsDetected bool
-		assistantStarted  bool
-	)
-
-	for event := range eventChan {
-		// Handle errors
-		if event.Error != nil {
-			if event.Error.Type == agent.ErrorTypeStopAgentError {
-				// Handle stop agent error
-				fmt.Printf("\n🛑 Agent stopped: %s\n", event.Error.Message)
-				log.Fatal("Agent execution stopped due to error: ", event.Error.Message)
-				return agent.NewStopError(event.Error.Message)
-			}
-			fmt.Printf("\n❌ Error: %s\n", event.Error.Message)
-			continue
-		}
-
-		// Detect and display tool calls
-		if c.handleToolCalls(event, &toolCallsDetected, &assistantStarted) {
-			continue
-		}
-
-		// Detect tool responses
-		if c.handleToolResponses(event) {
-			continue
-		}
-
-		// Process streaming content
-		c.processStreamingContent(event, &toolCallsDetected, &assistantStarted, &fullContent)
-
-		// Check if this is the final event
-		if event.IsFinalResponse() {
-			fmt.Printf("\n")
-			break
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Run agent through runner
+
+// Process streaming response
+
+// processStreamingResponse processes streaming response, including tool call visualization
+func (c *multiToolChat) processStreamingResponse(eventChan <-chan *event.Event) error {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+// Handle errors
+
+// Handle stop agent error
+
+// Detect and display tool calls
+
+// Detect tool responses
+
+// Process streaming content
+
+// Check if this is the final event
+
 // handleToolCalls processes tool call events and returns true if handled
 func (c *multiToolChat) handleToolCalls(event *event.Event, toolCallsDetected *bool, assistantStarted *bool) bool {
-	if len(event.Response.Choices) == 0 || len(event.Response.Choices[0].Message.ToolCalls) == 0 {
-		return false
-	}
-
-	*toolCallsDetected = true
-	if *assistantStarted {
-		fmt.Printf("\n")
-	}
-	fmt.Printf("🔧 Tool calls:\n")
-	for _, toolCall := range event.Response.Choices[0].Message.ToolCalls {
-		toolIcon := getToolIcon(toolCall.Function.Name)
-		fmt.Printf("   %s %s (ID: %s)\n", toolIcon, toolCall.Function.Name, toolCall.ID)
-		if len(toolCall.Function.Arguments) > 0 {
-			fmt.Printf("     Arguments: %s\n", string(toolCall.Function.Arguments))
-		}
-	}
-	fmt.Printf("\n⚡ Executing...\n")
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // handleToolResponses processes tool response events and returns true if handled
 func (c *multiToolChat) handleToolResponses(event *event.Event) bool {
-	if event.Response == nil || len(event.Response.Choices) == 0 {
-		return false
-	}
-
-	hasToolResponse := false
-	for _, choice := range event.Response.Choices {
-		if choice.Message.Role == model.RoleTool && choice.Message.ToolID != "" {
-			fmt.Printf("✅ Tool result (ID: %s): %s\n",
-				choice.Message.ToolID,
-				formatToolResult(choice.Message.Content))
-			hasToolResponse = true
-		}
-	}
-	return hasToolResponse
+	_ = "STUB: not implemented"
+	return false
 }
 
 // processStreamingContent processes streaming content events
 func (c *multiToolChat) processStreamingContent(event *event.Event, toolCallsDetected *bool, assistantStarted *bool, fullContent *string) {
-	if len(event.Response.Choices) == 0 {
-		return
-	}
-
-	choice := event.Response.Choices[0]
-
-	// Process streaming delta content
-	if choice.Delta.Content != "" {
-		if !*assistantStarted {
-			if *toolCallsDetected {
-				fmt.Printf("\n🤖 Assistant: ")
-			}
-			*assistantStarted = true
-		}
-		fmt.Print(choice.Delta.Content)
-		*fullContent += choice.Delta.Content
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Process streaming delta content
 
 // getToolIcon returns the corresponding icon based on tool name
-func getToolIcon(toolName string) string {
-	switch toolName {
-	case "calculator":
-		return "🧮"
-	case "time_tool":
-		return "⏰"
-	case "text_tool":
-		return "📝"
-	case "file_tool":
-		return "📁"
-	case "duckduckgo_search":
-		return "🔍"
-	default:
-		return "🔧"
-	}
-}
+func getToolIcon(toolName string) string { _ = "STUB: not implemented"; return "" }
 
 // formatToolResult formats the display of tool results
-func formatToolResult(content string) string {
-	if len(content) > 200 {
-		return content[:200] + "..."
-	}
-	return strings.TrimSpace(content)
-}
+func formatToolResult(content string) string { _ = "STUB: not implemented"; return "" }
 
 // Calculator tool related structures
 type calculatorRequest struct {
@@ -344,240 +167,93 @@ type calculatorResponse struct {
 
 // createCalculatorTool creates a calculator tool
 func createCalculatorTool() tool.CallableTool {
-	return function.NewFunctionTool(
-		calculateExpression,
-		function.WithName("calculator"),
-		function.WithDescription("Perform mathematical calculations. Supports basic operations (+, -, *, /), scientific functions (sin, cos, tan, sqrt, log, ln, abs, pow), constants (pi, e). Examples: '2+3*4', 'sqrt(16)', 'sin(30*pi/180)', 'log10(100)'"),
-	)
+	_ = "STUB: not implemented"
+	return *new(tool.CallableTool)
 }
 
 // calculateExpression calculates mathematical expressions
 func calculateExpression(_ context.Context, req calculatorRequest) (calculatorResponse, error) {
-	if strings.TrimSpace(req.Expression) == "" {
-		return calculatorResponse{
-			Expression: req.Expression,
-			Result:     0,
-			Message:    "Error: Expression is empty",
-		}, fmt.Errorf("expression is empty")
-	}
-
-	// Simple expression calculator implementation
-	result, err := evaluateExpression(req.Expression)
-	if err != nil {
-		return calculatorResponse{
-			Expression: req.Expression,
-			Result:     0,
-			Message:    fmt.Sprintf("Calculation error: %v", err),
-		}, fmt.Errorf("calculation error: %w", err)
-	}
-
-	return calculatorResponse{
-		Expression: req.Expression,
-		Result:     result,
-		Message:    fmt.Sprintf("Calculation result: %g", result),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(calculatorResponse), nil
 }
+
+// Simple expression calculator implementation
 
 // evaluateExpression simple expression evaluator
 func evaluateExpression(expr string) (float64, error) {
+	_ = "STUB: not implemented"
 	// Replace constants
-	expr = strings.ReplaceAll(expr, "pi", fmt.Sprintf("%g", math.Pi))
-	expr = strings.ReplaceAll(expr, "e", fmt.Sprintf("%g", math.E))
-
-	// Simple implementation: support basic operations
-	// This is a simplified version, real applications might need more complex expression parsers
-	expr = strings.ReplaceAll(expr, " ", "")
-
-	// Handle basic mathematical functions
-	if strings.Contains(expr, "sqrt(") {
-		return handleSqrt(expr)
-	}
-	if strings.Contains(expr, "sin(") {
-		return handleSin(expr)
-	}
-	if strings.Contains(expr, "cos(") {
-		return handleCos(expr)
-	}
-	if strings.Contains(expr, "abs(") {
-		return handleAbs(expr)
-	}
-
-	// Handle basic operations
-	return evaluateBasicExpression(expr)
+	return 0, nil
 }
+
+// Simple implementation: support basic operations
+// This is a simplified version, real applications might need more complex expression parsers
+
+// Handle basic mathematical functions
+
+// Handle basic operations
 
 // handleSqrt handles square root function
-func handleSqrt(expr string) (float64, error) {
-	if strings.HasPrefix(expr, "sqrt(") && strings.HasSuffix(expr, ")") {
-		inner := expr[5 : len(expr)-1]
-		val, err := evaluateBasicExpression(inner)
-		if err != nil {
-			return 0, err
-		}
-		if val < 0 {
-			return 0, fmt.Errorf("cannot calculate square root of negative number")
-		}
-		return math.Sqrt(val), nil
-	}
-	return 0, fmt.Errorf("sqrt function format error")
-}
+func handleSqrt(expr string) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // handleSin handles sine function
-func handleSin(expr string) (float64, error) {
-	if strings.HasPrefix(expr, "sin(") && strings.HasSuffix(expr, ")") {
-		inner := expr[4 : len(expr)-1]
-		val, err := evaluateBasicExpression(inner)
-		if err != nil {
-			return 0, err
-		}
-		return math.Sin(val), nil
-	}
-	return 0, fmt.Errorf("sin function format error")
-}
+func handleSin(expr string) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // handleCos handles cosine function
-func handleCos(expr string) (float64, error) {
-	if strings.HasPrefix(expr, "cos(") && strings.HasSuffix(expr, ")") {
-		inner := expr[4 : len(expr)-1]
-		val, err := evaluateBasicExpression(inner)
-		if err != nil {
-			return 0, err
-		}
-		return math.Cos(val), nil
-	}
-	return 0, fmt.Errorf("cos function format error")
-}
+func handleCos(expr string) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // handleAbs handles absolute value function
-func handleAbs(expr string) (float64, error) {
-	if strings.HasPrefix(expr, "abs(") && strings.HasSuffix(expr, ")") {
-		inner := expr[4 : len(expr)-1]
-		val, err := evaluateBasicExpression(inner)
-		if err != nil {
-			return 0, err
-		}
-		return math.Abs(val), nil
-	}
-	return 0, fmt.Errorf("abs function format error")
-}
+func handleAbs(expr string) (float64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // evaluateBasicExpression evaluates basic mathematical expressions
 func evaluateBasicExpression(expr string) (float64, error) {
+	_ = "STUB: not implemented"
 	// Remove all spaces
-	expr = strings.ReplaceAll(expr, " ", "")
-
-	// If it's a single number, parse directly
-	if num, err := strconv.ParseFloat(expr, 64); err == nil {
-		return num, nil
-	}
-
-	// Handle multiplication and division (higher priority)
-	result, err := evaluateMultiplicationDivision(expr)
-	if err != nil {
-		return 0, err
-	}
-
-	return result, nil
+	return 0, nil
 }
+
+// If it's a single number, parse directly
+
+// Handle multiplication and division (higher priority)
 
 // evaluateMultiplicationDivision handles multiplication and division, then handles addition and subtraction
 func evaluateMultiplicationDivision(expr string) (float64, error) {
+	_ = "STUB: not implemented"
 	// First handle addition and subtraction, as they have the lowest priority
-	return evaluateAdditionSubtraction(expr)
+	return 0, nil
 }
 
 // evaluateAdditionSubtraction handles addition and subtraction
 func evaluateAdditionSubtraction(expr string) (float64, error) {
+	_ = "STUB: not implemented"
 	// Find the last plus or minus sign (not at the beginning)
-	var lastOpPos = -1
-	var lastOp rune
-
-	for i := len(expr) - 1; i >= 1; i-- { // Start from 1 to avoid handling negative sign at the beginning
-		if expr[i] == '+' || expr[i] == '-' {
-			lastOpPos = i
-			lastOp = rune(expr[i])
-			break
-		}
-	}
-
-	if lastOpPos == -1 {
-		// No addition or subtraction found, handle multiplication and division
-		return evaluateMultiplicationDivisionOnly(expr)
-	}
-
-	// Split the expression
-	left := expr[:lastOpPos]
-	right := expr[lastOpPos+1:]
-
-	// Recursively calculate left and right parts
-	leftVal, err := evaluateAdditionSubtraction(left)
-	if err != nil {
-		return 0, err
-	}
-
-	rightVal, err := evaluateMultiplicationDivisionOnly(right)
-	if err != nil {
-		return 0, err
-	}
-
-	// Execute the operation
-	switch lastOp {
-	case '+':
-		return leftVal + rightVal, nil
-	case '-':
-		return leftVal - rightVal, nil
-	default:
-		return 0, fmt.Errorf("unknown operator: %c", lastOp)
-	}
+	return 0, nil
 }
+
+// Start from 1 to avoid handling negative sign at the beginning
+
+// No addition or subtraction found, handle multiplication and division
+
+// Split the expression
+
+// Recursively calculate left and right parts
+
+// Execute the operation
 
 // evaluateMultiplicationDivisionOnly handles only multiplication and division
 func evaluateMultiplicationDivisionOnly(expr string) (float64, error) {
+	_ = "STUB: not implemented"
 	// Find the last multiplication or division sign
-	var lastOpPos = -1
-	var lastOp rune
-
-	for i := len(expr) - 1; i >= 0; i-- {
-		if expr[i] == '*' || expr[i] == '/' {
-			lastOpPos = i
-			lastOp = rune(expr[i])
-			break
-		}
-	}
-
-	if lastOpPos == -1 {
-		// No multiplication or division found, parse number directly
-		return strconv.ParseFloat(expr, 64)
-	}
-
-	// Split the expression
-	left := expr[:lastOpPos]
-	right := expr[lastOpPos+1:]
-
-	// Recursively calculate left and right parts
-	leftVal, err := evaluateMultiplicationDivisionOnly(left)
-	if err != nil {
-		return 0, err
-	}
-
-	rightVal, err := strconv.ParseFloat(right, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	// Execute the operation
-	switch lastOp {
-	case '*':
-		return leftVal * rightVal, nil
-	case '/':
-		if rightVal == 0 {
-			return 0, agent.NewStopError("division by zero")
-		}
-		return leftVal / rightVal, nil
-	default:
-		return 0, fmt.Errorf("unknown operator: %c", lastOp)
-	}
+	return 0, nil
 }
+
+// No multiplication or division found, parse number directly
+
+// Split the expression
+
+// Recursively calculate left and right parts
+
+// Execute the operation
 
 // Time tool related structures
 type timeRequest struct {
@@ -592,59 +268,16 @@ type timeResponse struct {
 
 // createTimeTool creates a time tool
 func createTimeTool() tool.StreamableTool {
-	return function.NewStreamableFunctionTool[timeRequest, timeResponse](
-		getTimeInfo,
-		function.WithName("time_tool"),
-		function.WithDescription("Get time and date information. Supported operations: 'current'(current time), 'date'(current date), 'weekday'(day of week), 'timestamp'(Unix timestamp)"),
-	)
+	_ = "STUB: not implemented"
+	return *new(tool.StreamableTool)
 }
 
 func getTimeInfo(ctx context.Context, req timeRequest) (*tool.StreamReader, error) {
-	stream := tool.NewStream(10)
-	now := time.Now()
-	var result string
-	switch req.Operation {
-	case "current":
-		result = now.Format("2006-01-02 15:04:05")
-	case "date":
-		result = now.Format("2006-01-02")
-	case "weekday":
-		weekdays := []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
-		result = weekdays[now.Weekday()]
-	case "timestamp":
-		result = fmt.Sprintf("%d", now.Unix())
-	default:
-		result = fmt.Sprintf("Current time: %s", now.Format("2006-01-02 15:04:05"))
-	}
-	output := tool.StreamChunk{
-		Content: timeResponse{
-			Operation: req.Operation,
-			Timestamp: now.Unix(),
-		},
-		Metadata: tool.Metadata{CreatedAt: time.Now()},
-	}
-	if closed := stream.Writer.Send(output, nil); closed {
-		return stream.Reader, fmt.Errorf("stream writer closed")
-	}
-
-	go func(result string) {
-		for i := 0; i < len(result); i++ {
-			output := tool.StreamChunk{
-				Content: timeResponse{
-					Result: result[i : i+1],
-				},
-				Metadata: tool.Metadata{CreatedAt: time.Now()},
-			}
-			if closed := stream.Writer.Send(output, nil); closed {
-				break
-			}
-			time.Sleep(10 * time.Millisecond) // Simulate delay
-		}
-		stream.Writer.Close()
-	}(result)
-
-	return stream.Reader, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Simulate delay
 
 // Text tool related structures
 type textRequest struct {
@@ -660,52 +293,12 @@ type textResponse struct {
 }
 
 // createTextTool creates a text processing tool
-func createTextTool() tool.CallableTool {
-	return function.NewFunctionTool(
-		processText,
-		function.WithName("text_tool"),
-		function.WithDescription("Process text content. Supported operations: 'uppercase'(to uppercase), 'lowercase'(to lowercase), 'length'(calculate length), 'reverse'(reverse text), 'words'(count words)"),
-	)
-}
+func createTextTool() tool.CallableTool { _ = "STUB: not implemented"; return *new(tool.CallableTool) }
 
 // processText processes text
 func processText(_ context.Context, req textRequest) (textResponse, error) {
-	var result string
-	var info string
-
-	switch req.Operation {
-	case "uppercase":
-		result = strings.ToUpper(req.Text)
-		info = "Text converted to uppercase"
-	case "lowercase":
-		result = strings.ToLower(req.Text)
-		info = "Text converted to lowercase"
-	case "length":
-		length := len([]rune(req.Text))
-		result = fmt.Sprintf("%d", length)
-		info = fmt.Sprintf("Text length is %d characters", length)
-	case "reverse":
-		runes := []rune(req.Text)
-		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-			runes[i], runes[j] = runes[j], runes[i]
-		}
-		result = string(runes)
-		info = "Text reversed"
-	case "words":
-		words := strings.Fields(req.Text)
-		result = fmt.Sprintf("%d", len(words))
-		info = fmt.Sprintf("Text contains %d words", len(words))
-	default:
-		result = req.Text
-		info = "Invalid operation type"
-	}
-
-	return textResponse{
-		OriginalText: req.Text,
-		Operation:    req.Operation,
-		Result:       result,
-		Info:         info,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(textResponse), nil
 }
 
 // File tool related structures
@@ -724,176 +317,48 @@ type fileResponse struct {
 }
 
 // createFileTool creates a file operations tool
-func createFileTool() tool.CallableTool {
-	return function.NewFunctionTool(
-		handleFileOperation,
-		function.WithName("file_tool"),
-		function.WithDescription("Perform basic file operations. Supported operations: 'read'(read file content), 'write'(write file), 'list'(list directory contents), 'exists'(check file existence). Note: For security reasons, only current working directory and subdirectories can be accessed."),
-	)
-}
+func createFileTool() tool.CallableTool { _ = "STUB: not implemented"; return *new(tool.CallableTool) }
 
 // handleFileOperation handles file operations
 func handleFileOperation(ctx context.Context, req fileRequest) (fileResponse, error) {
+	_ = "STUB: not implemented"
 	// Security check: prevent path traversal attacks
-	if strings.Contains(req.Path, "..") {
-		return fileResponse{
-			Path:      req.Path,
-			Operation: req.Operation,
-			Result:    "",
-			Success:   false,
-			Message:   "Security error: Access to parent directories is not allowed",
-		}, fmt.Errorf("access to parent directories is not allowed")
-	}
-
-	switch req.Operation {
-	case "read":
-		return readFile(req.Path)
-	case "write":
-		return writeFile(req.Path, req.Content)
-	case "list":
-		return listDirectory(req.Path)
-	case "exists":
-		return checkFileExists(req.Path)
-	default:
-		return fileResponse{
-			Path:      req.Path,
-			Operation: req.Operation,
-			Result:    "",
-			Success:   false,
-			Message:   "Unsupported file operation",
-		}, nil
-	}
+	return *new(fileResponse), nil
 }
 
 // readFile reads file content
 func readFile(path string) (fileResponse, error) {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return fileResponse{
-			Path:      path,
-			Operation: "read",
-			Result:    "",
-			Success:   false,
-			Message:   fmt.Sprintf("Failed to read file: %v", err),
-		}, fmt.Errorf("failed to read file: %v", err)
-	}
-
-	// Limit the length of returned content
-	contentStr := string(content)
-	if len(contentStr) > 1000 {
-		contentStr = contentStr[:1000] + "\n... (File content too long, truncated)"
-	}
-
-	return fileResponse{
-		Path:      path,
-		Operation: "read",
-		Result:    contentStr,
-		Success:   true,
-		Message:   fmt.Sprintf("Successfully read file, size: %d bytes", len(content)),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fileResponse), nil
 }
+
+// Limit the length of returned content
 
 // writeFile writes file content
 func writeFile(path, content string) (fileResponse, error) {
+	_ = "STUB: not implemented"
 	// Ensure directory exists
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fileResponse{
-			Path:      path,
-			Operation: "write",
-			Result:    "",
-			Success:   false,
-			Message:   fmt.Sprintf("Failed to create directory: %v", err),
-		}, fmt.Errorf("failed to create directory: %v", err)
-	}
-
-	err := os.WriteFile(path, []byte(content), 0600)
-	if err != nil {
-		return fileResponse{
-			Path:      path,
-			Operation: "write",
-			Result:    "",
-			Success:   false,
-			Message:   fmt.Sprintf("Failed to write file: %v", err),
-		}, fmt.Errorf("failed to write file: %v", err)
-	}
-
-	return fileResponse{
-		Path:      path,
-		Operation: "write",
-		Result:    fmt.Sprintf("Wrote %d bytes", len(content)),
-		Success:   true,
-		Message:   "File written successfully",
-	}, nil
+	return *new(fileResponse), nil
 }
 
 // listDirectory lists directory contents
 func listDirectory(path string) (fileResponse, error) {
-	if path == "" {
-		path = "."
-	}
-
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return fileResponse{
-			Path:      path,
-			Operation: "list",
-			Result:    "",
-			Success:   false,
-			Message:   fmt.Sprintf("Failed to list directory: %v", err),
-		}, fmt.Errorf("failed to list directory: %v", err)
-	}
-
-	var result strings.Builder
-	for _, entry := range entries {
-		if entry.IsDir() {
-			result.WriteString(fmt.Sprintf("[Directory] %s\n", entry.Name()))
-		} else {
-			info, _ := entry.Info()
-			size := ""
-			if info != nil {
-				size = fmt.Sprintf(" (%d bytes)", info.Size())
-			}
-			result.WriteString(fmt.Sprintf("[File] %s%s\n", entry.Name(), size))
-		}
-	}
-
-	return fileResponse{
-		Path:      path,
-		Operation: "list",
-		Result:    result.String(),
-		Success:   true,
-		Message:   fmt.Sprintf("Found %d items", len(entries)),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fileResponse), nil
 }
 
 // checkFileExists checks if file exists
 func checkFileExists(path string) (fileResponse, error) {
-	_, err := os.Stat(path)
-	exists := err == nil
-
-	var message string
-	if exists {
-		message = "File exists"
-	} else {
-		message = "File does not exist"
-	}
-
-	return fileResponse{
-		Path:      path,
-		Operation: "exists",
-		Result:    fmt.Sprintf("%t", exists),
-		Success:   true,
-		Message:   message,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fileResponse), nil
 }
 
 // intPtr returns a pointer to the given integer
 func intPtr(i int) *int {
-	return &i
+	_ = "STUB: not implemented"
+
+	// floatPtr returns a pointer to the given float
+	return nil
 }
 
-// floatPtr returns a pointer to the given float
-func floatPtr(f float64) *float64 {
-	return &f
-}
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }

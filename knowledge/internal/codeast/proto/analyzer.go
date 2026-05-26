@@ -15,13 +15,10 @@ type analyzeInput struct{}
 
 type defaultAnalyzer struct{}
 
-func newDefaultAnalyzer() *defaultAnalyzer {
-	return &defaultAnalyzer{}
-}
+func newDefaultAnalyzer() *defaultAnalyzer { _ = "STUB: not implemented"; return nil }
 
 // Analyze reserves the edge analysis extension point for future graph-aware parsing.
 func (a *defaultAnalyzer) Analyze(input *analyzeInput, nodeSet map[string]bool) ([]*codeast.Edge, error) {
-	_ = input
-	_ = nodeSet
-	return []*codeast.Edge{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -65,23 +65,9 @@ func init() {
 
 // SetLevel sets the log level to the specified level.
 // Valid levels are: "debug", "info", "warn", "error", "fatal"
-func SetLevel(level string) {
-	switch level {
-	case LevelDebug:
-		zapLevel.SetLevel(zapcore.DebugLevel)
-	case LevelInfo:
-		zapLevel.SetLevel(zapcore.InfoLevel)
-	case LevelWarn:
-		zapLevel.SetLevel(zapcore.WarnLevel)
-	case LevelError:
-		zapLevel.SetLevel(zapcore.ErrorLevel)
-	case LevelFatal:
-		zapLevel.SetLevel(zapcore.FatalLevel)
-	default:
-		// Default to info level if the level is not recognized
-		zapLevel.SetLevel(zapcore.InfoLevel)
-	}
-}
+func SetLevel(level string) { _ = "STUB: not implemented"; return }
+
+// Default to info level if the level is not recognized
 
 var encoderConfig = zapcore.EncoderConfig{
 	TimeKey:        "ts",
@@ -126,9 +112,7 @@ type Logger interface {
 }
 
 // Debug logs to DEBUG log. Arguments are handled in the manner of fmt.Print.
-func Debug(args ...any) {
-	Default.Debug(args...)
-}
+func Debug(args ...any) { _ = "STUB: not implemented"; return }
 
 // DebugContext logs to DEBUG log with context.
 // By default, context is ignored and logs are delegated to ContextDefault.
@@ -139,9 +123,7 @@ var DebugContext = func(
 }
 
 // Debugf logs to DEBUG log. Arguments are handled in the manner of fmt.Printf.
-func Debugf(format string, args ...any) {
-	Default.Debugf(format, args...)
-}
+func Debugf(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // DebugfContext logs to DEBUG log with context and formatting.
 var DebugfContext = func(
@@ -151,9 +133,7 @@ var DebugfContext = func(
 }
 
 // Info logs to INFO log. Arguments are handled in the manner of fmt.Print.
-func Info(args ...any) {
-	Default.Info(args...)
-}
+func Info(args ...any) { _ = "STUB: not implemented"; return }
 
 // InfoContext logs to INFO log with context.
 var InfoContext = func(
@@ -163,9 +143,7 @@ var InfoContext = func(
 }
 
 // Infof logs to INFO log. Arguments are handled in the manner of fmt.Printf.
-func Infof(format string, args ...any) {
-	Default.Infof(format, args...)
-}
+func Infof(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // InfofContext logs to INFO log with context and formatting.
 var InfofContext = func(
@@ -175,9 +153,7 @@ var InfofContext = func(
 }
 
 // Warn logs to WARNING log. Arguments are handled in the manner of fmt.Print.
-func Warn(args ...any) {
-	Default.Warn(args...)
-}
+func Warn(args ...any) { _ = "STUB: not implemented"; return }
 
 // WarnContext logs to WARNING log with context.
 var WarnContext = func(
@@ -187,9 +163,7 @@ var WarnContext = func(
 }
 
 // Warnf logs to WARNING log. Arguments are handled in the manner of fmt.Printf.
-func Warnf(format string, args ...any) {
-	Default.Warnf(format, args...)
-}
+func Warnf(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // WarnfContext logs to WARNING log with context and formatting.
 var WarnfContext = func(
@@ -199,9 +173,7 @@ var WarnfContext = func(
 }
 
 // Error logs to ERROR log. Arguments are handled in the manner of fmt.Print.
-func Error(args ...any) {
-	Default.Error(args...)
-}
+func Error(args ...any) { _ = "STUB: not implemented"; return }
 
 // ErrorContext logs to ERROR log with context.
 var ErrorContext = func(
@@ -211,9 +183,7 @@ var ErrorContext = func(
 }
 
 // Errorf logs to ERROR log. Arguments are handled in the manner of fmt.Printf.
-func Errorf(format string, args ...any) {
-	Default.Errorf(format, args...)
-}
+func Errorf(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // ErrorfContext logs to ERROR log with context and formatting.
 var ErrorfContext = func(
@@ -223,9 +193,7 @@ var ErrorfContext = func(
 }
 
 // Fatal logs to ERROR log. Arguments are handled in the manner of fmt.Print.
-func Fatal(args ...any) {
-	Default.Fatal(args...)
-}
+func Fatal(args ...any) { _ = "STUB: not implemented"; return }
 
 // FatalContext logs to ERROR log with context.
 var FatalContext = func(
@@ -235,9 +203,7 @@ var FatalContext = func(
 }
 
 // Fatalf logs to ERROR log. Arguments are handled in the manner of fmt.Printf.
-func Fatalf(format string, args ...any) {
-	Default.Fatalf(format, args...)
-}
+func Fatalf(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // FatalfContext logs to ERROR log with context and formatting.
 var FatalfContext = func(
@@ -247,12 +213,7 @@ var FatalfContext = func(
 }
 
 // Tracef logs a message at the trace level with formatting.
-func Tracef(format string, args ...any) {
-	if !traceEnabled {
-		return
-	}
-	Default.Debugf("[TRACE] "+format, args...)
-}
+func Tracef(format string, args ...any) { _ = "STUB: not implemented"; return }
 
 // TracefContext logs a TRACE log with context and formatting.
 var TracefContext = func(
@@ -265,11 +226,7 @@ var TracefContext = func(
 }
 
 // SetTraceEnabled sets the trace enabled flag.
-func SetTraceEnabled(enabled bool) {
-	traceEnabled = enabled
-}
+func SetTraceEnabled(enabled bool) { _ = "STUB: not implemented"; return }
 
 // IsTraceEnabled reports whether trace-level logging is currently active.
-func IsTraceEnabled() bool {
-	return traceEnabled
-}
+func IsTraceEnabled() bool { _ = "STUB: not implemented"; return false }

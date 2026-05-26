@@ -13,12 +13,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net/http"
-	"strings"
-	"time"
 
-	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"
 	"trpc.group/trpc-go/trpc-agent-go/log"
 	"trpc.group/trpc-go/trpc-agent-go/model"
@@ -95,9 +91,9 @@ func main() {
 	}
 }
 
-func intPtr(i int) *int { return &i }
+func intPtr(i int) *int { _ = "STUB: not implemented"; return nil }
 
-func floatPtr(f float64) *float64 { return &f }
+func floatPtr(f float64) *float64 { _ = "STUB: not implemented"; return nil }
 
 type openReportArgs struct {
 	Title string `json:"title" description:"Document box title"`
@@ -120,28 +116,11 @@ type closeReportResult struct {
 }
 
 func openReportDocument(ctx context.Context, args openReportArgs) (openReportResult, error) {
-	_ = ctx
-	title := strings.TrimSpace(args.Title)
-	if title == "" {
-		title = "Auto generated report"
-	}
-	return openReportResult{
-		Title:      title,
-		DocumentID: uuid.NewString(),
-		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(openReportResult), nil
 }
 
 func closeReportDocument(ctx context.Context, args closeReportArgs) (closeReportResult, error) {
-	_ = ctx
-	reason := strings.TrimSpace(args.Reason)
-	if reason == "" {
-		reason = "report_completed"
-	}
-	msg := fmt.Sprintf("document box closed: %s", reason)
-	return closeReportResult{
-		Closed:   true,
-		Message:  msg,
-		ClosedAt: time.Now().UTC().Format(time.RFC3339),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(closeReportResult), nil
 }

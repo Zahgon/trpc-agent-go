@@ -10,9 +10,6 @@ package review
 
 import (
 	"context"
-
-	"github.com/google/uuid"
-	"trpc.group/trpc-go/trpc-agent-go/agent"
 )
 
 const (
@@ -37,61 +34,32 @@ type options struct {
 	sessionIDSupplier SessionIDSupplier
 }
 
-func newOptions(opts ...Option) *options {
-	options := &options{
-		systemPrompt:      defaultSystemPromptTemplateText,
-		riskThreshold:     defaultRiskThreshold,
-		userIDSupplier:    defaultUserIDSupplier,
-		sessionIDSupplier: defaultSessionIDSupplier,
-	}
-	for _, opt := range opts {
-		if opt != nil {
-			opt(options)
-		}
-	}
-	return options
-}
+func newOptions(opts ...Option) *options { _ = "STUB: not implemented"; return nil }
 
 // WithSystemPrompt overrides the built-in guardian system prompt template.
-func WithSystemPrompt(prompt string) Option {
-	return func(opts *options) {
-		opts.systemPrompt = prompt
-	}
-}
+func WithSystemPrompt(prompt string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRiskThreshold sets the approval risk threshold used by the reviewer.
-func WithRiskThreshold(threshold int) Option {
-	return func(opts *options) {
-		opts.riskThreshold = threshold
-	}
-}
+func WithRiskThreshold(threshold int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithUserIDSupplier overrides the user ID supplier for reviewer runs.
 func WithUserIDSupplier(supplier UserIDSupplier) Option {
-	return func(opts *options) {
-		opts.userIDSupplier = supplier
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithSessionIDSupplier overrides the session ID supplier for reviewer runs.
 func WithSessionIDSupplier(supplier SessionIDSupplier) Option {
-	return func(opts *options) {
-		opts.sessionIDSupplier = supplier
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func defaultUserIDSupplier(ctx context.Context, req *Request) (string, error) {
-	invocation, ok := agent.InvocationFromContext(ctx)
-	if ok && invocation != nil && invocation.Session != nil && invocation.Session.UserID != "" {
-		return reviewerUserIDPrefix + invocation.Session.UserID, nil
-	}
-	return uuid.New().String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func defaultSessionIDSupplier(ctx context.Context, req *Request) (string, error) {
-	invocation, ok := agent.InvocationFromContext(ctx)
-	if ok && invocation != nil && invocation.Session != nil && invocation.Session.ID != "" {
-		return reviewerSessionIDPrefix + invocation.Session.ID, nil
-	}
-	return uuid.New().String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }

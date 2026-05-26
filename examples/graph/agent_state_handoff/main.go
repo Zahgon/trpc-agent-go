@@ -21,17 +21,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"reflect"
 
 	"trpc.group/trpc-go/trpc-agent-go/agent"
-	"trpc.group/trpc-go/trpc-agent-go/agent/graphagent"
 	"trpc.group/trpc-go/trpc-agent-go/event"
 	"trpc.group/trpc-go/trpc-agent-go/graph"
-	"trpc.group/trpc-go/trpc-agent-go/model"
 )
 
 const (
@@ -106,101 +102,34 @@ func main() {
 }
 
 func buildChildAgent() (agent.Agent, error) {
-	schema := graph.NewStateSchema()
-	schema.AddField(
-		graph.StateKeyUserInput,
-		graph.StateField{Type: reflect.TypeOf(emptyString)},
-	)
-	schema.AddField(
-		graph.StateKeyLastResponse,
-		graph.StateField{Type: reflect.TypeOf(emptyString)},
-	)
-	schema.AddField(
-		keyChildValue,
-		graph.StateField{Type: reflect.TypeOf(emptyString)},
-	)
-
-	childGraph, err := graph.NewStateGraph(schema).
-		AddNode(childNodeCompute, childComputeNode).
-		SetEntryPoint(childNodeCompute).
-		SetFinishPoint(childNodeCompute).
-		Compile()
-	if err != nil {
-		return nil, err
-	}
-
-	return graphagent.New(
-		childAgentName,
-		childGraph,
-		graphagent.WithDescription(childAgentDesc),
-		graphagent.WithInitialState(graph.State{}),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil
 }
 
 func childComputeNode(ctx context.Context, state graph.State) (any, error) {
-	userInput, _ := graph.GetStateValue[string](state, graph.StateKeyUserInput)
-	computed := childValuePrefix + userInput
-	return graph.State{
-		keyChildValue:              computed,
-		graph.StateKeyLastResponse: computed,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func buildParentAgent(childAgent agent.Agent) (agent.Agent, error) {
-	schema := graph.NewStateSchema()
-	schema.AddField(
-		graph.StateKeyLastResponse,
-		graph.StateField{Type: reflect.TypeOf(emptyString)},
-	)
-	schema.AddField(
-		keyValueFromChild,
-		graph.StateField{Type: reflect.TypeOf(emptyString)},
-	)
-
-	parentGraph, err := graph.NewStateGraph(schema).
-		AddAgentNode(
-			childAgentName,
-			graph.WithSubgraphOutputMapper(subgraphOutputMapper),
-		).
-		AddNode(parentNodeUse, parentUseChildValueNode).
-		AddEdge(childAgentName, parentNodeUse).
-		SetEntryPoint(childAgentName).
-		SetFinishPoint(parentNodeUse).
-		Compile()
-	if err != nil {
-		return nil, err
-	}
-
-	return graphagent.New(
-		parentAgentName,
-		parentGraph,
-		graphagent.WithDescription(parentAgentDesc),
-		graphagent.WithInitialState(graph.State{}),
-		graphagent.WithSubAgents([]agent.Agent{childAgent}),
-	)
+	_ = "STUB: not implemented"
+	return *new(agent.Agent), nil
 }
 
 func subgraphOutputMapper(
 	parent graph.State,
 	result graph.SubgraphResult,
 ) graph.State {
-	value, ok := graph.GetStateValue[string](result.FinalState, keyChildValue)
-	if !ok {
-		return nil
-	}
-	return graph.State{keyValueFromChild: value}
+	_ = "STUB: not implemented"
+	return *new(graph.State)
 }
 
 func parentUseChildValueNode(
 	ctx context.Context,
 	state graph.State,
 ) (any, error) {
-	value, ok := graph.GetStateValue[string](state, keyValueFromChild)
-	if !ok {
-		return nil, fmt.Errorf(fmtMissingStateKey, keyValueFromChild)
-	}
-	final := parentValuePrefix + value
-	return graph.State{graph.StateKeyLastResponse: final}, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 func runOnce(
@@ -208,50 +137,16 @@ func runOnce(
 	a agent.Agent,
 	userInput string,
 ) (*event.Event, error) {
-	inv := agent.NewInvocation(
-		agent.WithInvocationAgent(a),
-		agent.WithInvocationMessage(model.NewUserMessage(userInput)),
-	)
-	eventChan, err := a.Run(ctx, inv)
-	if err != nil {
-		return nil, err
-	}
-
-	var completionEvent *event.Event
-	for ev := range eventChan {
-		if ev == nil {
-			continue
-		}
-		if ev.Done && ev.Object == graph.ObjectTypeGraphExecution {
-			completionEvent = ev
-		}
-	}
-
-	if completionEvent == nil {
-		return nil, fmt.Errorf(errNoCompletion)
-	}
-	return completionEvent, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func finalResponseText(ev *event.Event) string {
-	if ev == nil || ev.Response == nil || len(ev.Choices) == 0 {
-		return fmtNoFinalResponseChoice
-	}
-	return ev.Choices[0].Message.Content
-}
+func finalResponseText(ev *event.Event) string { _ = "STUB: not implemented"; return "" }
 
 func decodeJSONString(
 	stateDelta map[string][]byte,
 	key string,
 ) (string, error) {
-	raw, ok := stateDelta[key]
-	if !ok {
-		return emptyString, fmt.Errorf(fmtMissingStateKey, key)
-	}
-
-	var out string
-	if err := json.Unmarshal(raw, &out); err != nil {
-		return emptyString, fmt.Errorf(fmtUnmarshalStateKey, key, err)
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
